@@ -1,6 +1,3 @@
-# resilience-simulator
-
-
 # Simulation-based Resilience Prediction of Microservice Architectures
 
 This simulator was created as part of the Fachstudie __Simulation-based Resilience Prediction of Microservice Architectures__ at the Reliable Software Systems Research Group of the Institute of Software Technology at the University of Stuttgart.
@@ -143,15 +140,3 @@ The _chaosmonkeys_ array holds objects which contain information about chaos mon
 - ___service___: Name of the service of which you want to shut down a number of instances during the simulation
 - ___instances___: Number of instances you want to shut down during the simulation
 - ___time___: Time point (in seconds) at which you want to shut down the instances of the specified microservie
-
-      
-
-## <a name="Sim-Use"></a>Usage
-
-What do i need for use ...
-
-The most important thing to have is an existing microservice architecture. In order to use the simulator you will need to encode the architecture into the simulators own json format. 
-
-## <a name="Sim-Doc"></a>Documentation
-
-What does the tool ...
