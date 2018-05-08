@@ -67,7 +67,7 @@ public class StopEvent extends EventOf3Entities<Microservice, Thread, MessageObj
 
                 // Statistics
                 // CPU
-                model.cpuStatistics.get(id).get(msEntity.getSid()).update(model.serviceCPU.get(id).get(msEntity.getSid()).getMeanUsage(model.getStatisitcChunks()));
+                model.cpuStatistics.get(id).get(msEntity.getSid()).update(model.serviceCPU.get(id).get(msEntity.getSid()).getMeanUsage(model.getStatisticChunks()));
                 //model.serviceCPU.get(id).get(msEntity.getSid()).collectUsage();
                 // Threads
                 model.activeThreadStatistics.get(id).get(msEntity.getSid()).update(model.serviceCPU.get(id).get(msEntity.getSid()).getActiveThreads().size());

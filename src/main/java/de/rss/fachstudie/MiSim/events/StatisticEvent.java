@@ -22,7 +22,7 @@ public class StatisticEvent extends ExternalEvent {
         for (int id = 0; id < model.serviceCPU.size(); ++id) {
             for (int instance = 0; instance < model.serviceCPU.get(id).size(); ++instance) {
                 model.serviceCPU.get(id).get(instance).collectUsage();
-                model.cpuStatistics.get(id).get(instance).update(model.serviceCPU.get(id).get(instance).getMeanUsage(model.getStatisitcChunks()));
+                model.cpuStatistics.get(id).get(instance).update(model.serviceCPU.get(id).get(instance).getMeanUsage(model.getStatisticChunks()));
             }
         }
         schedule(new TimeSpan(timeInterval, model.getTimeUnit()));

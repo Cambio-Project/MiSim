@@ -8,8 +8,9 @@ import de.rss.fachstudie.MiSim.events.InitialEvent;
 import de.rss.fachstudie.MiSim.events.StatisticEvent;
 import de.rss.fachstudie.MiSim.export.ExportReport;
 import de.rss.fachstudie.MiSim.resources.CPU;
-import de.rss.fachstudie.MiSim.utils.InputParser;
-import de.rss.fachstudie.MiSim.utils.InputValidator;
+import de.rss.fachstudie.MiSim.utils.ArchModelParser;
+import de.rss.fachstudie.MiSim.utils.ArchModelValidator;
+import de.rss.fachstudie.MiSim.utils.ExpModelParser;
 import desmoj.core.simulator.*;
 import desmoj.core.simulator.Queue;
 import desmoj.core.statistic.TimeSeries;
@@ -31,7 +32,7 @@ public class MainModel extends Model {
     private String report           = "";
     private int datapoints          = -1;
     private double precision        = 100000;
-    private double statisitcChunks = 10;
+    private double statisticChunks = 10;
     private int seed                = 0;
     private String resourcePath = "./Report/resources/";
     private boolean showInitEvent   = true;
@@ -66,15 +67,20 @@ public class MainModel extends Model {
     };
 
     public static void main(String[] args) {
-        String arch;
+        String arch_model;
+        String exp_model;
 
         Options options = new Options();
 
-        Option input = new Option("a", "arch", true, "input file path");
-        input.setRequired(true);
-        options.addOption(input);
+        Option arch_model_opt = new Option("a", "arch_model", true, "arch_model file path");
+        arch_model_opt.setRequired(true);
+        options.addOption(arch_model_opt);
 
-        Option progressbar = new Option("p", "progress-bar", false, "show progress bar during simulation");
+        Option exp_model_opt = new Option("e", "exp_model", true, "exp_model file path");
+        exp_model_opt.setRequired(true);
+        options.addOption(exp_model_opt);
+
+        Option progressbar = new Option("p", "progress_bar", false, "show progress bar during simulation");
         progressbar.setRequired(false);
         options.addOption(progressbar);
 
@@ -91,36 +97,51 @@ public class MainModel extends Model {
             return;
         }
 
-        arch = cmd.getOptionValue("a");
+        arch_model = cmd.getOptionValue("a");
+        exp_model = cmd.getOptionValue("e");
 
-        if(arch.equals("")) {
+        if (arch_model.equals("")) {
             System.out.println("No architecture was specified");
             System.exit(1);
             return;
         } else {
-            File f = new File(arch);
+            File f = new File(arch_model);
             if(!f.exists() || f.isDirectory()) {
                 System.out.println("No valid architecture file was given");
                 System.exit(1);
                 return;
             }
-
         }
 
-        InputParser parser = new InputParser(arch);
-        InputValidator validator = new InputValidator();
+        if (exp_model.equals("")) {
+            System.out.println("No experiment was specified");
+            System.exit(1);
+            return;
+        } else {
+            File f = new File(exp_model);
+            if (!f.exists() || f.isDirectory()) {
+                System.out.println("No valid experiment file was given");
+                System.exit(1);
+                return;
+            }
+        }
 
-        if (validator.valideInput(parser)) {
+        ArchModelParser archParser = new ArchModelParser(arch_model);
+        ArchModelValidator validator = new ArchModelValidator();
+
+        ExpModelParser expParser = new ExpModelParser(exp_model);
+
+        if (validator.valideArchModel(archParser)) {
             long startTime = System.nanoTime();
 
-            MainModel model = new MainModel(null, InputParser.simulation.get("model"), true, true);
-            model.setSimulationTime(Double.parseDouble(InputParser.simulation.get("duration")));
+            MainModel model = new MainModel(null, ExpModelParser.simulation_meta_data.get("model_name"), true, true);
+            model.setSimulationTime(Double.parseDouble(ExpModelParser.simulation_meta_data.get("duration")));
             model.setChunkSize((int) (model.getSimulationTime() * 0.05));
-            model.setReport(InputParser.simulation.get("report"));
-            model.setDatapoints(Integer.parseInt(InputParser.simulation.get("datapoints")));
-            model.setSeed(Integer.parseInt(InputParser.simulation.get("seed")));
+            model.setReport(ExpModelParser.simulation_meta_data.get("report"));
+            model.setDatapoints(Integer.parseInt(ExpModelParser.simulation_meta_data.get("datapoints")));
+            model.setSeed(Integer.parseInt(ExpModelParser.simulation_meta_data.get("seed")));
 
-            Experiment exp = new Experiment(InputParser.simulation.get("experiment"));
+            Experiment exp = new Experiment(ExpModelParser.simulation_meta_data.get("experiment_name"));
             model.connectToExperiment(exp);
             exp.setSeedGenerator(model.getSeed());
             exp.setShowProgressBarAutoclose(true);
@@ -141,7 +162,7 @@ public class MainModel extends Model {
             //exp.report();
             exp.finish();
 
-            if (!InputParser.simulation.get("report").equals("none")) {
+            if (!ExpModelParser.simulation_meta_data.get("report").equals("none")) {
                 ExportReport exportReport = new ExportReport(model);
                 System.out.println("\nCreated Report successfully.");
             }
@@ -150,8 +171,8 @@ public class MainModel extends Model {
             long executionTime = System.nanoTime() - startTime;
 
             System.out.println("\n*** Simulator ***");
-            System.out.println("Simulation of Architecture: " + arch);
-            System.out.println("Executed Experiment:        " + InputParser.simulation.get("experiment"));
+            System.out.println("Simulation of Architecture: " + arch_model);
+            System.out.println("Executed Experiment:        " + ExpModelParser.simulation_meta_data.get("experiment_name"));
             System.out.println("Setup took:                 " + model.timeFormat(setupTime));
             System.out.println("Experiment took:            " + model.timeFormat(experimentTime));
             System.out.println("Report took:                " + model.timeFormat(reportTime));
@@ -190,8 +211,8 @@ public class MainModel extends Model {
         return precision;
     }
 
-    public double getStatisitcChunks() {
-        return this.statisitcChunks;
+    public double getStatisticChunks() {
+        return this.statisticChunks;
     }
 
     public int getSeed() {
@@ -283,8 +304,8 @@ public class MainModel extends Model {
             resPath.mkdir();
         }
 
-        // Load JSON
-        Microservice[] microservices = InputParser.microservices;
+        // Load Microservices
+        Microservice[] microservices = ArchModelParser.microservices;
         for(int id = 0; id < microservices.length; id++){
 
             String serviceName = microservices[id].getName();
@@ -414,7 +435,7 @@ public class MainModel extends Model {
     }
 
     public void setChunkSize(int chunks) {
-        statisitcChunks = chunks;
+        statisticChunks = chunks;
     }
 
     /**
@@ -424,15 +445,15 @@ public class MainModel extends Model {
     public void doInitialSchedules() {
 
         // Fire off all generators for scheduling
-        InitialEvent generators[] = InputParser.generators;
+        InitialEvent generators[] = ExpModelParser.request_generators;
         for (InitialEvent generator : generators) {
-            InitialEvent initEvent = new InitialEvent(this, "", showInitEvent, generator.getTime(),
+            InitialEvent initEvent = new InitialEvent(this, "", showInitEvent, generator.getInterval(),
                     getIdByName(generator.getMicroservice()), generator.getOperation());
             initEvent.schedule(new TimeSpan(0, timeUnit));
         }
 
         // Fire off all monkeys for scheduling
-        InitialChaosMonkeyEvent monkeys[] = InputParser.monkeys;
+        InitialChaosMonkeyEvent monkeys[] = ExpModelParser.chaosmonkeys;
         for (InitialChaosMonkeyEvent monkey : monkeys) {
             InitialChaosMonkeyEvent initMonkey = new InitialChaosMonkeyEvent(this, "", showMonkeyEvent,
                     monkey.getTime(), getIdByName(monkey.getMicroservice()), monkey.getInstances());

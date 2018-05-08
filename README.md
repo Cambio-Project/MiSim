@@ -79,14 +79,14 @@ The following is a simple example for the _json_ input:
     {
       "service": "frontend",
       "operation": "login",
-      "time": "10"
+      "interval": "10"
     }
   ],
   "chaosmonkeys": [
     {
       "service": "frontend",
       "instances": "1",
-      "time": "50"
+      "interval": "50"
     }
   ]
 }

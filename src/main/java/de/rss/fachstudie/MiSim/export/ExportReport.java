@@ -2,7 +2,7 @@ package de.rss.fachstudie.MiSim.export;
 
 import de.rss.fachstudie.MiSim.entities.Microservice;
 import de.rss.fachstudie.MiSim.models.MainModel;
-import de.rss.fachstudie.MiSim.utils.InputParser;
+import de.rss.fachstudie.MiSim.utils.ExpModelParser;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -93,7 +93,7 @@ public class ExportReport {
             String serviceName = model.services.get(id).get(0).getName();
             int instanceLimit = model.services.get(id).get(0).getInstances();
 
-            if(InputParser.simulation.get("report").equals("minimalistic")) {
+            if (ExpModelParser.simulation_meta_data.get("report").equals("minimalistic")) {
                 if(model.services.get(id).get(0).getInstances() < 10)
                     instanceLimit = model.services.get(id).get(0).getInstances();
                 else
@@ -101,7 +101,7 @@ public class ExportReport {
             }
 
             for(int instance = 0; instance < instanceLimit; instance++) {
-                
+
                 Microservice ms = model.services.get(id).get(instance);
                 String file = ms.getName() + "_" + instance + ".txt";
 

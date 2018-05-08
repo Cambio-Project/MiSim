@@ -1,0 +1,18 @@
+{
+  "simulation_meta_data": {
+    "experiment_name": "Desmoj_Microservice_Experiment",
+    "model_name": "Simple microservice model",
+    "duration": 100,
+    "report": "",
+    "datapoints": 100,
+    "seed": 1234
+  },
+  "request_generators": [
+    {
+      "microservice": "Load Balancer",
+      "operation": "distribute Task",
+      "interval": 0.1
+    }
+  ],
+  "chaosmonkeys": []
+}

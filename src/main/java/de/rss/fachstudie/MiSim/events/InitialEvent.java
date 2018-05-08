@@ -14,7 +14,7 @@ import desmoj.core.simulator.TimeSpan;
  */
 public class InitialEvent extends ExternalEvent {
     private MainModel model;
-    private double time;
+    private double interval;
     private ContDistUniform timeToCreate;
     private String microservice = "";
     private String operation = "";
@@ -27,22 +27,22 @@ public class InitialEvent extends ExternalEvent {
      * @param owner Model: The model that owns this event
      * @param name String: The name of this event
      * @param showInTrace boolean: Whether this event is shown in the trace or not
-     * @param time double: The timepoint at which the first event will be called
+     * @param interval double: The timepoint at which the first event will be called
      * @param msId int: The ID of the microservice for which this event will create a request
      * @param op: String: The name of the operation that this event will schedule
      */
-    public InitialEvent(Model owner, String name, boolean showInTrace, double time, int msId, String op) {
+    public InitialEvent(Model owner, String name, boolean showInTrace, double interval, int msId, String op) {
         super(owner, name, showInTrace);
 
         model = (MainModel) owner;
-        timeToCreate = new ContDistUniform(model, name, time, time, model.getShowInitEvent(), true);
+        timeToCreate = new ContDistUniform(model, name, interval, interval, model.getShowInitEvent(), true);
         this.msId = msId;
         this.microservice = model.allMicroservices.get(msId).getName();
         this.operation = op;
     }
 
-    public double getTime() {
-        return this.time;
+    public double getInterval() {
+        return this.interval;
     }
 
     public String getMicroservice() {

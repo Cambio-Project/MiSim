@@ -3,15 +3,13 @@ package de.rss.fachstudie.MiSim.utils;
 import java.util.ArrayList;
 import java.util.List;
 
-public class InputValidator {
+public class ArchModelValidator {
 
-    /*
-        Returns true / false based on the correct dependencies of input file
-        It will be checked:
-        -All dependencies (per operation) depend on an existing micro service
-        -The dependent micro service has the operation on which the dependencie points
-     */
-    public boolean valideInput(InputParser parser){
+    //        Returns true / false based on the correct dependencies of input file
+//        It will be checked:
+//        -All dependencies (per operation) depend on an existing micro service
+//        -The dependent micro service has the operation on which the dependencie points
+    public boolean valideArchModel(ArchModelParser parser) {
 
         List<String> microserviceNames = new ArrayList<String>();
         int errorCounter = 0;
@@ -22,66 +20,66 @@ public class InputValidator {
         }
 
 
-        /*
-            Verify Generators
-         */
-        //Walk over all generators
-        outerLoop : for (int i = 0; i < parser.generators.length; i++ ){
-            //Know that searched for microservice exists  Microservice
-            if(microserviceNames.contains(parser.generators[i].getMicroservice())){
-                //Walk over all Microservices to get correct one
-                for(int j = 0; j < parser.microservices.length ; j++){
-                    //found correct micro service
-                    if(parser.microservices[j].getName().equals(parser.generators[i].getMicroservice())){
-                        //Walk over all operations
-                        for (int k = 0; k < parser.microservices[j].getOperations().length; k++){
-                            //Search for operation in correctly found micro service
-                            if(parser.microservices[j].getOperations()[k].getName().equals(parser.generators[i].getOperation())){
-                                continue outerLoop;
-                            }
+//        /*
+//            Verify Generators
+//         */
+//        //Walk over all generators
+//        outerLoop : for (int i = 0; i < parser.generators.length; i++ ){
+//            //Know that searched for microservice exists  Microservice
+//            if(microserviceNames.contains(parser.generators[i].getMicroservice())){
+//                //Walk over all Microservices to get correct one
+//                for(int j = 0; j < parser.microservices.length ; j++){
+//                    //found correct micro service
+//                    if(parser.microservices[j].getName().equals(parser.generators[i].getMicroservice())){
+//                        //Walk over all operations
+//                        for (int k = 0; k < parser.microservices[j].getOperations().length; k++){
+//                            //Search for operation in correctly found micro service
+//                            if(parser.microservices[j].getOperations()[k].getName().equals(parser.generators[i].getOperation())){
+//                                continue outerLoop;
+//                            }
+//
+//                            //Last run was unsucessfull
+//                            if(k == parser.microservices[j].getOperations().length -1){
+//                                System.out.println("ERROR GENERATORS: Could not find operation : "
+//                                        + parser.generators[i].getOperation() + " : in micro service : " + parser.microservices[j].getName() );
+//                                errorCounter++;
+//                            }
+//                        }
+//                    }
+//                }
+//            } else {
+//                System.out.println("ERROR GERNERATORS: Could not find microservice : " + parser.generators[i].getMicroservice() + " : from generator number: " + i );
+//                errorCounter++;
+//            }
+//        }
 
-                            //Last run was unsucessfull
-                            if(k == parser.microservices[j].getOperations().length -1){
-                                System.out.println("ERROR GENERATORS: Could not find operation : "
-                                        + parser.generators[i].getOperation() + " : in micro service : " + parser.microservices[j].getName() );
-                                errorCounter++;
-                            }
-                        }
-                    }
-                }
-            } else {
-                System.out.println("ERROR GERNERATORS: Could not find microservice : " + parser.generators[i].getMicroservice() + " : from generator number: " + i );
-                errorCounter++;
-            }
-        }
-
-        /*
-         Verify Chaos Monkeys
-         */
-        //Walk over all chaos monkeys
-        for(int i = 0; i < parser.monkeys.length; i++){
-            //Check whether the time of current monkey lies in between the bounds of simulation
-            if(parser.monkeys[i].getTime() >= Double.parseDouble(parser.simulation.get("duration"))){
-                System.out.println("WARNING CHAOSMONKEYS: Monkey number: " + i + " tries to shutdown instances after simulation has been finished. Semantic error");
-            }
-
-            if(microserviceNames.contains(parser.monkeys[i].getMicroservice())){
-                //walk over all microserives to adress correct one
-                for(int j = 0; j < parser.microservices.length; j++){
-                    //adress correct micro service
-                    if(parser.monkeys[i].getMicroservice().equals(parser.microservices[j].getName())){
-                        //check if number of instances that are going to be killed are bigger than existing instances
-                        if(parser.monkeys[i].getInstances() > parser.microservices[j].getInstances()){
-                            System.out.println("WARNING CHAOSMONEKYS: Monkey number : " + i + " tries to kill more instances then available");
-                        }
-                    }
-                }
-            } else {
-                System.out.println("ERROR CHAOSMONKEYS: Could not find microservice : " + parser.monkeys[i].getMicroservice() + " : in chaos monkey number: " + i);
-                errorCounter++;
-            }
-
-        }
+//        /*
+//         Verify Chaos Monkeys
+//         */
+//        //Walk over all chaos monkeys
+//        for(int i = 0; i < parser.monkeys.length; i++){
+//            //Check whether the time of current monkey lies in between the bounds of simulation
+//            if(parser.monkeys[i].getInterval() >= Double.parseDouble(parser.simulation.get("duration"))){
+//                System.out.println("WARNING CHAOSMONKEYS: Monkey number: " + i + " tries to shutdown instances after simulation has been finished. Semantic error");
+//            }
+//
+//            if(microserviceNames.contains(parser.monkeys[i].getMicroservice())){
+//                //walk over all microserives to adress correct one
+//                for(int j = 0; j < parser.microservices.length; j++){
+//                    //adress correct micro service
+//                    if(parser.monkeys[i].getMicroservice().equals(parser.microservices[j].getName())){
+//                        //check if number of instances that are going to be killed are bigger than existing instances
+//                        if(parser.monkeys[i].getInstances() > parser.microservices[j].getInstances()){
+//                            System.out.println("WARNING CHAOSMONEKYS: Monkey number : " + i + " tries to kill more instances then available");
+//                        }
+//                    }
+//                }
+//            } else {
+//                System.out.println("ERROR CHAOSMONKEYS: Could not find microservice : " + parser.monkeys[i].getMicroservice() + " : in chaos monkey number: " + i);
+//                errorCounter++;
+//            }
+//
+//        }
 
 
         /*
