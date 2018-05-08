@@ -14,7 +14,7 @@ It allows the simulation of microservice architectures in regard to resilience a
 
 In order to run the simulator you have to download the DesmoJ binary from [sourceforge](http://desmoj.sourceforge.net/download.html) and then include it into the project.
 
-## <a name="Input"></a>Input Model
+## <a name="Input"></a>Input Model (for Version 1.0)
 The input for the simulator is a _json_ file which contains all the information necessary to simulate the architecture.
 The following is a simple example for the _json_ input:
 
@@ -79,7 +79,7 @@ The following is a simple example for the _json_ input:
     {
       "service": "frontend",
       "operation": "login",
-      "interval": "10"
+      "time": "10"
     }
   ],
   "chaosmonkeys": [
