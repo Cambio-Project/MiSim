@@ -1,4 +1,4 @@
-package de.rss.fachstudie.MiSim.entities;
+package de.rss.fachstudie.MiSim.entities.patterns;
 
 public class Pattern {
     private String name = "";

@@ -1,5 +1,6 @@
 package de.rss.fachstudie.MiSim.export;
 
+import de.rss.fachstudie.MiSim.entities.Dependency;
 import de.rss.fachstudie.MiSim.entities.Microservice;
 import de.rss.fachstudie.MiSim.entities.Operation;
 import de.rss.fachstudie.MiSim.models.MainModel;
@@ -7,7 +8,6 @@ import de.rss.fachstudie.MiSim.models.MainModel;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.SortedMap;
 
 /**
  * The <code>DependencyGraph</code> class is used in order to create the graph that displays the dependencies between
@@ -116,8 +116,8 @@ public class DependecyGraph {
                 StringBuilder labels = new StringBuilder();
                 for (Operation op : microservices.get(id).getOperations()) {
                     labels.append("'").append(op.getName()).append("',");
-                    for(SortedMap<String, String> depService : op.getDependencies()) {
-                        int depId = getIdByName(depService.get("service"));
+                    for (Dependency depService : op.getDependencies()) {
+                        int depId = getIdByName(depService.getService());
                         json.append("{source:").append(id)
                                 .append(",target:").append(depId)
                                 .append(",value:").append(instanceLimit)

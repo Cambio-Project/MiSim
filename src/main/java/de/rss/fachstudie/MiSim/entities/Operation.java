@@ -1,10 +1,9 @@
 package de.rss.fachstudie.MiSim.entities;
 
+import de.rss.fachstudie.MiSim.entities.patterns.CircuitBreaker;
 import de.rss.fachstudie.MiSim.models.MainModel;
 import desmoj.core.simulator.Entity;
 import desmoj.core.simulator.Model;
-
-import java.util.SortedMap;
 
 /**
  * An operation connects two microservice instances. During a specified time interval the service
@@ -23,8 +22,8 @@ public class Operation extends Entity {
     private MainModel model;
     private String name = "";
     private int demand = 0;
-    private Pattern[] opatterns = null;
-    private SortedMap<String, String>[] dependencies;
+    private CircuitBreaker circuitBreaker = null;
+    private Dependency[] dependencies = null;
 
     public Operation(Model model, String s, boolean b) {
         super(model, s, b);
@@ -40,48 +39,26 @@ public class Operation extends Entity {
         this.name = name;
     }
 
-
-    public Pattern[] getPatterns() {
-        if (opatterns == null) {
-            opatterns = new Pattern[]{};
-        }
-        return opatterns;
+    public CircuitBreaker getCircuitBreaker() {
+        return circuitBreaker;
     }
 
-    public void setPatterns(Pattern[] patterns) {
-        if (opatterns == null) {
-            opatterns = new Pattern[]{};
-        }
-        this.opatterns = patterns;
+    public void setCircuitBreaker(CircuitBreaker circuitBreaker) {
+        this.circuitBreaker = circuitBreaker;
     }
 
-    public Pattern getPattern(String name) {
-        if (opatterns == null) {
-            opatterns = new Pattern[]{};
-        }
-        for (Pattern pattern : opatterns) {
-            if (pattern.getName().equals(name))
-                return pattern;
-        }
-        return null;
-    }
-
-    public boolean hasPattern(String name) {
-        if (opatterns == null) {
-            opatterns = new Pattern[]{};
-        }
-        for (Pattern pattern : opatterns) {
-            if (pattern.getName().equals(name))
-                return true;
+    public boolean hasCircuitBreaker() {
+        if (circuitBreaker != null) {
+            return true;
         }
         return false;
     }
 
-    public SortedMap<String, String>[] getDependencies() {
+    public Dependency[] getDependencies() {
         return dependencies;
     }
 
-    public void setDependencies(SortedMap<String, String>[] operations) {
+    public void setDependencies(Dependency[] operations) {
         this.dependencies = operations;
     }
 

@@ -1,5 +1,6 @@
 package de.rss.fachstudie.MiSim.entities;
 
+import de.rss.fachstudie.MiSim.entities.patterns.Pattern;
 import de.rss.fachstudie.MiSim.models.MainModel;
 import desmoj.core.simulator.Entity;
 import desmoj.core.simulator.Model;

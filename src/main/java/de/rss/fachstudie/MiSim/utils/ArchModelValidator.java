@@ -113,8 +113,8 @@ public class ArchModelValidator {
                     /*
                     Validate probability in each dependencie
                      */
-                    if (1 < Double.parseDouble(parser.microservices[microService].getOperations()[operation].getDependencies()[dependencie].get("probability")) ||
-                            0 > Double.parseDouble(parser.microservices[microService].getOperations()[operation].getDependencies()[dependencie].get("probability"))) {
+                    if (1 < parser.microservices[microService].getOperations()[operation].getDependencies()[dependencie].getProbability() ||
+                            0 > parser.microservices[microService].getOperations()[operation].getDependencies()[dependencie].getProbability()) {
                         System.out.println("ERROR MICROSERVICES: Microservice: " + parser.microservices[microService].getName() + " operation: " +
                                 parser.microservices[microService].getOperations()[operation].getName() +
                                 " -- Probability is not in range (0.0 - 1.0 are possible values)");
@@ -140,9 +140,9 @@ public class ArchModelValidator {
                     */
 
                     //get targeted micro service
-                    String tempMicroserviceName = parser.microservices[microService].getOperations()[operation].getDependencies()[dependencie].get("service");
+                    String tempMicroserviceName = parser.microservices[microService].getOperations()[operation].getDependencies()[dependencie].getService();
                     //get targeted operation name
-                    String tempOperationName = parser.microservices[microService].getOperations()[operation].getDependencies()[dependencie].get("operation");
+                    String tempOperationName = parser.microservices[microService].getOperations()[operation].getDependencies()[dependencie].getOperation();
 
                     if(microserviceNames.contains(tempMicroserviceName)){
                         //Named Microservice has been found now check for operation in named microservice

@@ -2,6 +2,7 @@ package de.rss.fachstudie.MiSim.entities;
 
 import desmoj.core.simulator.Entity;
 import desmoj.core.simulator.Model;
+
 import java.util.Stack;
 
 public class MessageObject extends Entity {
@@ -31,5 +32,12 @@ public class MessageObject extends Entity {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void killDependencies() {
+        while (!dependency.isEmpty()) {
+            Predecessor pre = dependency.pop();
+            pre.getStopEvent().schedule(pre.getEntity(), pre.getThread(), this);
+        }
     }
 }

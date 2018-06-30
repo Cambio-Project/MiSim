@@ -1,10 +1,7 @@
 package de.rss.fachstudie.MiSim.events;
 
 import co.paralleluniverse.fibers.SuspendExecution;
-import de.rss.fachstudie.MiSim.entities.MessageObject;
-import de.rss.fachstudie.MiSim.entities.Microservice;
-import de.rss.fachstudie.MiSim.entities.Operation;
-import de.rss.fachstudie.MiSim.entities.Predecessor;
+import de.rss.fachstudie.MiSim.entities.*;
 import de.rss.fachstudie.MiSim.models.MainModel;
 import de.rss.fachstudie.MiSim.resources.Thread;
 import desmoj.core.dist.ContDistUniform;
@@ -13,7 +10,6 @@ import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeSpan;
 
 import java.util.List;
-import java.util.SortedMap;
 
 /**
  * The <code>StartEvent</code> gets a <code>MessageObject</code> and schedules a <code>TimeSpan</code>
@@ -111,16 +107,16 @@ public class StartEvent extends Event<MessageObject> {
                 // Are there dependant operations
                 if (op.getDependencies().length > 0) {
 
-                    for (SortedMap<String, String> dependantOperation : op.getDependencies()) {
+                    for (Dependency dependency : op.getDependencies()) {
 
                         // Roll probability
                         ContDistUniform prob = new ContDistUniform(model, "", 0.0, 1.0, false, false);
-                        double probability = Double.parseDouble(dependantOperation.get("probability"));
+                        double probability = dependency.getProbability();
 
                         if (prob.sample() <= probability) {
 
-                            String nextOperation = dependantOperation.get("operation");
-                            String nextService = dependantOperation.get("service");
+                            String nextOperation = dependency.getOperation();
+                            String nextService = dependency.getService();
                             int nextServiceId = model.getIdByName(nextService);
 
                             // Add Stacked operation info to message object

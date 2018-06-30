@@ -26,6 +26,7 @@ public class Thread extends Entity {
     private double creationTime;
     private boolean isBlocked;
 
+
     public Thread(Model owner, String name, boolean b, int demand, StopEvent end, Microservice service, MessageObject mo) {
         super(owner, name, b);
 
@@ -114,5 +115,6 @@ public class Thread extends Entity {
     public void scheduleEndEvent() {
         endEvent.schedule(service, this, mobject);
     }
+
 
 }

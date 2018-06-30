@@ -28,7 +28,7 @@ public class StopEvent extends EventOf3Entities<Microservice, Thread, MessageObj
      * @param id          int: The ID of the microservice
      * @param operation   String: The name of the operation
      */
-    StopEvent(Model owner, String name, Boolean showInTrace, int id, String operation){
+    StopEvent(Model owner, String name, Boolean showInTrace, int id, String operation) {
         super(owner, name, showInTrace);
 
         this.id = id;
@@ -40,13 +40,13 @@ public class StopEvent extends EventOf3Entities<Microservice, Thread, MessageObj
      * The <code>eventRoutine</code> method of <code>StopEvent</code>.
      * Collects statistics and notifies depending operations that this operation is finished.
      *
-     * @param msEntity Microservice
-     * @param thread Thread
+     * @param msEntity      Microservice
+     * @param thread        Thread
      * @param messageObject MessageObject
      */
     @Override
     public void eventRoutine(Microservice msEntity, Thread thread, MessageObject messageObject) {
-        for(Operation operation : msEntity.getOperations()) {
+        for (Operation operation : msEntity.getOperations()) {
             if (operation.getName().equals(this.operation)) {
                 // Free stacked and waiting operations
                 if (messageObject.getDependency().size() > 0) {
@@ -76,6 +76,7 @@ public class StopEvent extends EventOf3Entities<Microservice, Thread, MessageObj
                 model.responseStatisitcs.get(id).get(msEntity.getSid()).update(model.presentTime().getTimeAsDouble() - thread.getCreationTime());
                 // Task Queue
                 model.taskQueueStatistics.get(id).update(model.taskQueues.get(id).size());
+
             }
         }
     }
