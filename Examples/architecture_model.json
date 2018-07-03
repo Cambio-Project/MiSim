@@ -1,0 +1,150 @@
+{
+  "microservices": [
+    {
+      "name": "B",
+      "instances": 1,
+      "patterns": [],
+      "capacity": 1000,
+      "operations": [
+        {
+          "name": "c",
+          "demand": 600,
+          "circuitBreaker": {
+            "rollingWindow": 10,
+            "requestVolumeThreshold": 4,
+            "errorThresholdPercentage": 0.5,
+            "sleepWindow": 5,
+            "timeout": 1
+          },
+          "dependencies": [
+            {
+              "service": "D",
+              "operation": "g",
+              "probability": 1.0
+            },
+            {
+              "service": "E",
+              "operation": "h",
+              "probability": 1.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "D",
+      "instances": 1,
+      "patterns": [],
+      "capacity": 1000,
+      "operations": [
+        {
+          "name": "g",
+          "demand": 600,
+          "circuitBreaker": null,
+          "dependencies": []
+        }
+      ]
+    },
+    {
+      "name": "E",
+      "instances": 1,
+      "patterns": [],
+      "capacity": 1000,
+      "operations": [
+        {
+          "name": "i",
+          "demand": 600,
+          "circuitBreaker": null,
+          "dependencies": []
+        },
+        {
+          "name": "h",
+          "demand": 600,
+          "circuitBreaker": null,
+          "dependencies": []
+        }
+      ]
+    },
+    {
+      "name": "C",
+      "instances": 1,
+      "patterns": [],
+      "capacity": 1000,
+      "operations": [
+        {
+          "name": "e",
+          "demand": 600,
+          "circuitBreaker": {
+            "rollingWindow": 10,
+            "requestVolumeThreshold": 4,
+            "errorThresholdPercentage": 0.5,
+            "sleepWindow": 5,
+            "timeout": 1
+          },
+          "dependencies": [
+            {
+              "service": "E",
+              "operation": "i",
+              "probability": 1.0
+            }
+          ]
+        },
+        {
+          "name": "f",
+          "demand": 100,
+          "circuitBreaker": null,
+          "dependencies": []
+        }
+      ]
+    },
+    {
+      "name": "A",
+      "instances": 1,
+      "patterns": [],
+      "capacity": 1000,
+      "operations": [
+        {
+          "name": "a",
+          "demand": 100,
+          "circuitBreaker": {
+            "rollingWindow": 10,
+            "requestVolumeThreshold": 4,
+            "errorThresholdPercentage": 0.5,
+            "sleepWindow": 5,
+            "timeout": 1
+          },
+          "dependencies": [
+            {
+              "service": "B",
+              "operation": "c",
+              "probability": 1
+            },
+            {
+              "service": "C",
+              "operation": "e",
+              "probability": 1
+            }
+          ]
+        },
+        {
+          "name": "b",
+          "demand": 100,
+          "circuitBreaker": {
+            "rollingWindow": 10,
+            "requestVolumeThreshold": 4,
+            "errorThresholdPercentage": 0.5,
+            "sleepWindow": 5,
+            "timeout": 1
+          },
+          "dependencies": [
+            {
+              "service": "C",
+              "operation": "f",
+              "probability": 1.0
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

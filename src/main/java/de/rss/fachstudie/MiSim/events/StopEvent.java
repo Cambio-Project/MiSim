@@ -73,6 +73,7 @@ public class StopEvent extends EventOf3Entities<Microservice, Thread, MessageObj
                 model.activeThreadStatistics.get(id).get(msEntity.getSid()).update(model.serviceCPU.get(id).get(msEntity.getSid()).getActiveThreads().size());
                 model.existingThreadStatistics.get(id).get(msEntity.getSid()).update(model.serviceCPU.get(id).get(msEntity.getSid()).getExistingThreads().size());
                 // Response Time
+                double lifeTime = model.presentTime().getTimeAsDouble() - thread.getCreationTime();
                 model.responseStatisitcs.get(id).get(msEntity.getSid()).update(model.presentTime().getTimeAsDouble() - thread.getCreationTime());
                 // Task Queue
                 model.taskQueueStatistics.get(id).update(model.taskQueues.get(id).size());

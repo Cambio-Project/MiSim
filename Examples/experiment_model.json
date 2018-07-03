@@ -1,0 +1,18 @@
+{
+  "simulation_meta_data": {
+    "experiment_name": "ABCDE Experiment",
+    "model_name": "Schema ABCDE",
+    "duration": 100,
+    "report": "",
+    "datapoints": 100,
+    "seed": 1234
+  },
+  "request_generators": [
+    {
+      "microservice": "A",
+      "operation": "a",
+      "interval": 1
+    }
+  ],
+  "chaosmonkeys": []
+}

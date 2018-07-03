@@ -19,8 +19,8 @@ import desmoj.core.simulator.Model;
  * dependencies:    an array containing dependant operations of other services
  */
 public class Operation extends Entity {
-    private MainModel model;
     private String name = "";
+    private MainModel model;
     private int demand = 0;
     private CircuitBreaker circuitBreaker = null;
     private Dependency[] dependencies = null;

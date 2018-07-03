@@ -2,6 +2,7 @@ package de.rss.fachstudie.MiSim.resources;
 
 import de.rss.fachstudie.MiSim.entities.MessageObject;
 import de.rss.fachstudie.MiSim.entities.Microservice;
+import de.rss.fachstudie.MiSim.entities.Operation;
 import de.rss.fachstudie.MiSim.events.StopEvent;
 import de.rss.fachstudie.MiSim.models.MainModel;
 import desmoj.core.simulator.Entity;
@@ -25,9 +26,10 @@ public class Thread extends Entity {
     private MessageObject mobject;
     private double creationTime;
     private boolean isBlocked;
+    private Operation operation;
 
 
-    public Thread(Model owner, String name, boolean b, int demand, StopEvent end, Microservice service, MessageObject mo) {
+    public Thread(Model owner, String name, boolean b, int demand, StopEvent end, Microservice service, MessageObject mo, Operation operation) {
         super(owner, name, b);
 
         model = (MainModel) owner;
@@ -38,6 +40,7 @@ public class Thread extends Entity {
         this.endEvent = end;
         this.service = service;
         this.mobject = mo;
+        this.operation = operation;
         creationTime = model.presentTime().getTimeAsDouble();
     }
 
@@ -110,6 +113,14 @@ public class Thread extends Entity {
 
     public void setMobject(MessageObject mobject) {
         this.mobject = mobject;
+    }
+
+    public Operation getOperation() {
+        return operation;
+    }
+
+    public void setOperation(Operation operation) {
+        this.operation = operation;
     }
 
     public void scheduleEndEvent() {

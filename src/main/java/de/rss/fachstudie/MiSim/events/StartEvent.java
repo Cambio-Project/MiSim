@@ -30,7 +30,7 @@ public class StartEvent extends Event<MessageObject> {
      * @param id          int: The ID of the microservice
      * @param operation   String: The name of the operation which will be performed
      */
-    public StartEvent(Model owner, String name, boolean showInTrace, int id, String operation){
+    public StartEvent(Model owner, String name, boolean showInTrace, int id, String operation) {
         super(owner, name, showInTrace);
 
         this.id = id;
@@ -47,9 +47,9 @@ public class StartEvent extends Event<MessageObject> {
     private Microservice getServiceEntity(int id) {
         double min = Double.POSITIVE_INFINITY;
         int i = 0;
-        for(int instance = 0; instance < model.services.get(id).size(); ++instance) {
-            if(!model.services.get(id).get(instance).isKilled()) {
-                if(model.serviceCPU.get(id).get(instance).getExistingThreads().size() < min) {
+        for (int instance = 0; instance < model.services.get(id).size(); ++instance) {
+            if (!model.services.get(id).get(instance).isKilled()) {
+                if (model.serviceCPU.get(id).get(instance).getExistingThreads().size() < min) {
                     min = model.serviceCPU.get(id).get(instance).getExistingThreads().size();
                     i = instance;
                 }
@@ -73,18 +73,20 @@ public class StartEvent extends Event<MessageObject> {
         Operation op = model.allMicroservices.get(id).getOperation(operation);
         Microservice msEntity = getServiceEntity(id);
         StopEvent msEndEvent = new StopEvent(model, "", model.getShowStopEvent(), id, operation);
-        Thread thread = new Thread(model, "", false, op.getDemand(), msEndEvent, msEntity, messageObject);
+        Thread thread = new Thread(model, "", false, op.getDemand(), msEndEvent, msEntity, messageObject, op);
 
         boolean hasResourceLimiter = msEntity.hasPattern("Resource Limiter");
         int resourceLimit = Integer.MAX_VALUE;
         double ratio = (model.services.get(id).get(0).getCapacity() / model.services.get(id).get(0).getOperation(operation).getDemand());
 
-        if(ratio >= 1) {
+        if (ratio >= 1) {
             resourceLimit = model.services.get(id).size() *
                     (model.services.get(id).get(0).getCapacity() / model.services.get(id).get(0).getOperation(operation).getDemand());
         } else {
             resourceLimit = model.services.get(id).size();
         }
+
+        model.serviceCPU.get(id).get(msEntity.getSid()).checkCircuitBreakers();
 
         if (!hasResourceLimiter || model.taskQueues.get(id).size() < resourceLimit) {
 
@@ -92,49 +94,59 @@ public class StartEvent extends Event<MessageObject> {
 
 
             boolean availServices = false;
-            for(Microservice m : model.services.get(id)) {
-                if(!m.isKilled()) {
+            for (Microservice m : model.services.get(id)) {
+                if (!m.isKilled()) {
                     availServices = true;
                     break;
                 }
             }
 
             // Check if there are available services
-            if(availServices) {
+            if (availServices) {
 
-                model.serviceCPU.get(id).get(msEntity.getSid()).addExistingThread(thread);
+                if (!model.serviceCPU.get(id).get(msEntity.getSid()).getOpenCircuits().contains(operation)) {
+                    model.serviceCPU.get(id).get(msEntity.getSid()).addExistingThread(thread, op);
 
-                // Are there dependant operations
-                if (op.getDependencies().length > 0) {
+                    // Are there dependant operations
+                    if (op.getDependencies().length > 0) {
 
-                    for (Dependency dependency : op.getDependencies()) {
+                        for (Dependency dependency : op.getDependencies()) {
 
-                        // Roll probability
-                        ContDistUniform prob = new ContDistUniform(model, "", 0.0, 1.0, false, false);
-                        double probability = dependency.getProbability();
+                            // Roll probability
+                            ContDistUniform prob = new ContDistUniform(model, "", 0.0, 1.0, false, false);
+                            double probability = dependency.getProbability();
 
-                        if (prob.sample() <= probability) {
+                            if (prob.sample() <= probability) {
 
-                            String nextOperation = dependency.getOperation();
-                            String nextService = dependency.getService();
-                            int nextServiceId = model.getIdByName(nextService);
+                                String nextOperation = dependency.getOperation();
+                                String nextService = dependency.getService();
+                                int nextServiceId = model.getIdByName(nextService);
 
-                            // Add Stacked operation info to message object
-                            Predecessor predecessor = new Predecessor(msEntity, thread, msEndEvent);
-                            messageObject.addDependency(predecessor);
+                                // Add Stacked operation info to message object
+                                Predecessor predecessor = new Predecessor(msEntity, thread, msEndEvent);
+                                messageObject.addDependency(predecessor);
 
-                            // Immediately start dependant operation
-                            StartEvent nextEvent = new StartEvent(model,"", model.getShowStartEvent(), nextServiceId, nextOperation);
-                            nextEvent.schedule(messageObject, new TimeSpan(0, model.getTimeUnit()));
-                        } else {
-                            // add thread to cpu
-                            model.serviceCPU.get(id).get(msEntity.getSid()).addThread(thread, op);
+                                // Immediately start dependant operation
+                                StartEvent nextEvent = new StartEvent(model, "", model.getShowStartEvent(), nextServiceId, nextOperation);
+                                nextEvent.schedule(messageObject, new TimeSpan(0, model.getTimeUnit()));
+                            } else {
+                                // add thread to cpu
+                                model.serviceCPU.get(id).get(msEntity.getSid()).addThread(thread, op);
+                            }
                         }
+                    } else {
+                        // add thread to cpu
+                        model.serviceCPU.get(id).get(msEntity.getSid()).addThread(thread, op);
                     }
                 } else {
+                    // fail fast
+                    double last = 0;
+                    List<Double> values = model.circuitBreakerStatistics.get(id).get(thread.getSid()).getDataValues();
+                    if (values != null)
+                        last = values.get(values.size() - 1);
+                    model.circuitBreakerStatistics.get(id).get(thread.getSid()).update(last + 1);
 
-                    // add thread to cpu
-                    model.serviceCPU.get(id).get(msEntity.getSid()).addThread(thread, op);
+                    msEndEvent.schedule(msEntity, thread, messageObject);
                 }
             } else {
                 msEndEvent.schedule(msEntity, thread, messageObject);
@@ -143,7 +155,7 @@ public class StartEvent extends Event<MessageObject> {
             // Resource Limiter
             double last = 0;
             List<Double> values = model.resourceLimiterStatistics.get(id).get(msEntity.getSid()).getDataValues();
-            if(values != null)
+            if (values != null)
                 last = values.get(values.size() - 1);
             model.resourceLimiterStatistics.get(id).get(msEntity.getSid()).update(last + 1);
         }
