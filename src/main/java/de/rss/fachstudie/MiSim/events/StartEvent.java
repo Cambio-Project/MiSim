@@ -120,6 +120,7 @@ public class StartEvent extends Event<MessageObject> {
 
                                 String nextOperation = dependency.getOperation();
                                 String nextService = dependency.getService();
+
                                 int nextServiceId = model.getIdByName(nextService);
 
                                 // Add Stacked operation info to message object

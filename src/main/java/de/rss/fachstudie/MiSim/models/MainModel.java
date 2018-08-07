@@ -131,7 +131,7 @@ public class MainModel extends Model {
 
         ExpModelParser expParser = new ExpModelParser(exp_model);
 
-        if (validator.valideArchModel(archParser)) {
+//        if (validator.valideArchModel(archParser)) {
             long startTime = System.nanoTime();
 
             MainModel model = new MainModel(null, ExpModelParser.simulation_meta_data.get("model_name"), true, true);
@@ -178,9 +178,9 @@ public class MainModel extends Model {
             System.out.println("Report took:                " + model.timeFormat(reportTime));
             System.out.println("Execution took:             " + model.timeFormat(executionTime));
             Toolkit.getDefaultToolkit().beep();
-        } else {
-            System.out.println("Your inserted input was not valide. Please check correctness of you JSON file.");
-        }
+//        } else {
+//            System.out.println("Your inserted input was not valide. Please check correctness of you JSON file.");
+//        }
     }
 
     public double getSimulationTime() {

@@ -35,22 +35,6 @@ public class CPU extends Event<Thread> {
 
     private List<String> openCircuits;
 
-//    private boolean hasCircuitBreaker = false;
-//    private CircuitBreaker.State cbState = CircuitBreaker.State.CLOSED;
-//    private boolean trialSent = false;
-//    private Thread trialThread = null;
-//    private double circuitBreakerTriggered = 0;
-//    private double sleepWindow = 0;
-//    private double timeout = 0;
-//    private double rollingWindow = 0;
-//    private double requestVolumeThreshold = 0;
-//    private double errorThresholdPercentage = 0;
-
-    // Circuit breaker stats
-//    private double requestVolume = 0;
-//    private double errorCount = 0;
-//    private double rollingWindowStarted = 0;
-
     public CPU(Model owner, String name, boolean showInTrace, int id, int sid, int capacity) {
         super(owner, name, showInTrace);
 
@@ -287,7 +271,7 @@ public class CPU extends Event<Thread> {
 
                         if (circuitBreaker != null) {
 
-                            // Reset stats if new rolling window
+                            // Reset stats of new rolling window
                             if ((time - cbData.getRollingWindowStartTime()) > circuitBreaker.getRollingWindow()) {
                                 cbData.setRequestVolume(0);
                                 cbData.setErrorCount(0);
@@ -396,6 +380,8 @@ public class CPU extends Event<Thread> {
                 cbData.increaseRequestVolume();
                 existingThreads.insert(thread);
             }
+        } else {
+            existingThreads.insert(thread);
         }
     }
 
