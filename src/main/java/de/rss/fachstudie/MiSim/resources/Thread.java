@@ -72,6 +72,10 @@ public class Thread extends Entity {
         return creationTime;
     }
 
+    public void setCreationTime(double creationTime) {
+        this.creationTime = creationTime;
+    }
+
     public boolean isBlocked() {
         return isBlocked;
     }
@@ -126,6 +130,4 @@ public class Thread extends Entity {
     public void scheduleEndEvent() {
         endEvent.schedule(service, this, mobject);
     }
-
-
 }

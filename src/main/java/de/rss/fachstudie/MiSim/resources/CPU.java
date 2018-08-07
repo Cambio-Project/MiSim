@@ -146,9 +146,6 @@ public class CPU extends Event<Thread> {
             }
         }
 
-        // Increment request volume
-//        requestVolume++;
-
         calculateMin();
     }
 

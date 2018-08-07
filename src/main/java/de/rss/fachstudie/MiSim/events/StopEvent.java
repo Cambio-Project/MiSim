@@ -1,13 +1,15 @@
 package de.rss.fachstudie.MiSim.events;
 
+import de.rss.fachstudie.MiSim.entities.DependencyNode;
 import de.rss.fachstudie.MiSim.entities.MessageObject;
 import de.rss.fachstudie.MiSim.entities.Microservice;
 import de.rss.fachstudie.MiSim.entities.Operation;
-import de.rss.fachstudie.MiSim.entities.Predecessor;
 import de.rss.fachstudie.MiSim.models.MainModel;
 import de.rss.fachstudie.MiSim.resources.Thread;
 import desmoj.core.simulator.EventOf3Entities;
 import desmoj.core.simulator.Model;
+
+import java.util.List;
 
 /**
  * The <code>StopEvent</code> is an <code>EventOf3Entities</code> which gets a <code>Microservice</code>,
@@ -49,15 +51,34 @@ public class StopEvent extends EventOf3Entities<Microservice, Thread, MessageObj
         for (Operation operation : msEntity.getOperations()) {
             if (operation.getName().equals(this.operation)) {
                 // Free stacked and waiting operations
-                if (messageObject.getDependency().size() > 0) {
+                if (messageObject.hasDependencies()) {
 
-                    Predecessor predecessor = messageObject.removeDependency();
-                    Microservice previousMs = predecessor.getEntity();
-                    Thread previousThread = predecessor.getThread();
-                    int previousId = previousMs.getId();
+                    // Do this to make sure we don't lose track of nextDependencies if we get killed by CB
+                    DependencyNode node = messageObject.getDependency(msEntity, operation);
+                    if (node != null) {
+                        List<DependencyNode> nextNodes = node.getNextNodes();
+                        for (DependencyNode nextNode : nextNodes) {
+                            nextNode.removeDependingNode(node);
+                        }
+                        node.emptyNextNodes();
+                    }
 
-                    // add thread to cpu
-                    model.serviceCPU.get(previousId).get(previousMs.getSid()).addThread(previousThread, operation);
+                    // Remove finished dependency and check if depending thread can be started
+                    DependencyNode depNode = messageObject.removeDependency(msEntity, operation);
+                    if (depNode != null) {
+                        for (DependencyNode depending : depNode.getDependingNodes()) {
+                            if (!depending.hasNextNodes()) {
+                                // This operation is not waiting for any dependencies
+                                Microservice dependingMs = depending.getService();
+                                Thread dependingThread = depending.getThread();
+                                int dependingID = dependingMs.getId();
+                                Operation dependingOp = depending.getOperation();
+
+                                // add thread to cpu
+                                model.serviceCPU.get(dependingID).get(dependingMs.getSid()).addThread(dependingThread, dependingOp);
+                            }
+                        }
+                    }
                 }
 
                 // Remove the message object from the task queue and the thread from the cpu

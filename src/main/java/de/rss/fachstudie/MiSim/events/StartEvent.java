@@ -1,7 +1,10 @@
 package de.rss.fachstudie.MiSim.events;
 
 import co.paralleluniverse.fibers.SuspendExecution;
-import de.rss.fachstudie.MiSim.entities.*;
+import de.rss.fachstudie.MiSim.entities.Dependency;
+import de.rss.fachstudie.MiSim.entities.MessageObject;
+import de.rss.fachstudie.MiSim.entities.Microservice;
+import de.rss.fachstudie.MiSim.entities.Operation;
 import de.rss.fachstudie.MiSim.models.MainModel;
 import de.rss.fachstudie.MiSim.resources.Thread;
 import desmoj.core.dist.ContDistUniform;
@@ -123,9 +126,10 @@ public class StartEvent extends Event<MessageObject> {
 
                                 int nextServiceId = model.getIdByName(nextService);
 
-                                // Add Stacked operation info to message object
-                                Predecessor predecessor = new Predecessor(msEntity, thread, msEndEvent);
-                                messageObject.addDependency(predecessor);
+                                // Add Dependency to messageObject
+                                Microservice nextServiceEntity = getServiceEntity(nextServiceId);
+                                Operation nextOperationEntity = model.allMicroservices.get(nextServiceId).getOperation(nextOperation);
+                                messageObject.addDependency(msEntity, op, nextServiceEntity, nextOperationEntity, thread);
 
                                 // Immediately start dependant operation
                                 StartEvent nextEvent = new StartEvent(model, "", model.getShowStartEvent(), nextServiceId, nextOperation);

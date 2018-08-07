@@ -1,29 +1,32 @@
 package de.rss.fachstudie.MiSim.entities;
 
+import de.rss.fachstudie.MiSim.resources.Thread;
 import desmoj.core.simulator.Entity;
 import desmoj.core.simulator.Model;
 
-import java.util.Stack;
-
 public class MessageObject extends Entity {
     private String name;
-    private Stack<Predecessor> dependency;
+    private DependencyGraph dependencyGraph = null;
 
     public MessageObject(Model owner, String name, boolean showInTrace) {
         super(owner, name, showInTrace);
-        dependency = new Stack<>();
+        dependencyGraph = new DependencyGraph();
     }
 
-    public Stack<Predecessor> getDependency() {
-        return dependency;
+    public boolean hasDependencies() {
+        return dependencyGraph.hasNodes();
     }
 
-    public void addDependency(Predecessor dependency) {
-        this.dependency.push(dependency);
+    public DependencyNode getDependency(Microservice service, Operation operation) {
+        return dependencyGraph.getNode(service, operation);
     }
 
-    public Predecessor removeDependency() {
-        return this.dependency.pop();
+    public void addDependency(Microservice s1, Operation o1, Microservice s2, Operation o2, Thread thread) {
+        dependencyGraph.insertDependency(s1, o1, s2, o2, thread);
+    }
+
+    public DependencyNode removeDependency(Microservice service, Operation operation) {
+        return dependencyGraph.removeNode(service, operation);
     }
 
     public String getName() {
@@ -32,12 +35,5 @@ public class MessageObject extends Entity {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public void killDependencies() {
-        while (!dependency.isEmpty()) {
-            Predecessor pre = dependency.pop();
-            pre.getStopEvent().schedule(pre.getEntity(), pre.getThread(), this);
-        }
     }
 }
