@@ -1,0 +1,134 @@
+{
+  "microservices": [
+    {
+      "name": "B",
+      "instances": 2,
+      "patterns": [],
+      "capacity": 1000,
+      "operations": [
+        {
+          "name": "b1",
+          "demand": 160,
+          "circuitBreaker": {
+            "rollingWindow": 10,
+            "requestVolumeThreshold": 4,
+            "errorThresholdPercentage": 0.5,
+            "sleepWindow": 5,
+            "timeout": 1
+          },
+          "dependencies": [
+            {
+              "service": "D",
+              "operation": "d1",
+              "probability": 1.0
+            },
+            {
+              "service": "E",
+              "operation": "e1",
+              "probability": 1.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "A",
+      "instances": 2,
+      "patterns": [],
+      "capacity": 1000,
+      "operations": [
+        {
+          "name": "a2",
+          "demand": 120,
+          "circuitBreaker": null,
+          "dependencies": [
+            {
+              "service": "C",
+              "operation": "c2",
+              "probability": 1.0
+            }
+          ]
+        },
+        {
+          "name": "a1",
+          "demand": 140,
+          "circuitBreaker": null,
+          "dependencies": [
+            {
+              "service": "B",
+              "operation": "b1",
+              "probability": 1.0
+            },
+            {
+              "service": "C",
+              "operation": "c1",
+              "probability": 1.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "D",
+      "instances": 1,
+      "patterns": [],
+      "capacity": 1000,
+      "operations": [
+        {
+          "name": "d1",
+          "demand": 170,
+          "dependencies": []
+        }
+      ]
+    },
+    {
+      "name": "E",
+      "instances": 2,
+      "patterns": [],
+      "capacity": 1000,
+      "operations": [
+        {
+          "name": "e2",
+          "demand": 180,
+          "dependencies": []
+        },
+        {
+          "name": "e1",
+          "demand": 430,
+          "dependencies": []
+        }
+      ]
+    },
+    {
+      "name": "C",
+      "instances": 1,
+      "patterns": [],
+      "capacity": 1000,
+      "operations": [
+        {
+          "name": "c1",
+          "demand": 192,
+          "circuitBreaker": {
+            "rollingWindow": 10,
+            "requestVolumeThreshold": 4,
+            "errorThresholdPercentage": 0.5,
+            "sleepWindow": 5,
+            "timeout": 1
+          },
+          "dependencies": [
+            {
+              "service": "E",
+              "operation": "e2",
+              "probability": 1.0
+            }
+          ]
+        },
+        {
+          "name": "c2",
+          "demand": 90,
+          "dependencies": []
+        }
+      ]
+    }
+  ]
+}

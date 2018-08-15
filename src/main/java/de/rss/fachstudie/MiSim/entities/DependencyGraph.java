@@ -75,7 +75,7 @@ public class DependencyGraph {
     }
 
     public boolean hasNodes() {
-        if (root.hasNextNodes()) {
+        if (root != null) {
             return true;
         }
         return false;

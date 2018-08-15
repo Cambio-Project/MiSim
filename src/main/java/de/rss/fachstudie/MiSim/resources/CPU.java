@@ -278,6 +278,9 @@ public class CPU extends Event<Thread> {
                             // Thread timed out
                             if (threadLifeTime >= circuitBreaker.getTimeout()) {
                                 thread.scheduleEndEvent();
+                                if (activeThreads.contains(thread)) {
+                                    activeThreads.remove(thread);
+                                }
                             }
                         }
                     }

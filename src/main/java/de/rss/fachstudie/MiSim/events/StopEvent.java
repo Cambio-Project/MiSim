@@ -51,34 +51,38 @@ public class StopEvent extends EventOf3Entities<Microservice, Thread, MessageObj
         for (Operation operation : msEntity.getOperations()) {
             if (operation.getName().equals(this.operation)) {
                 // Free stacked and waiting operations
-                if (messageObject.hasDependencies()) {
+                try {
+                    if (messageObject.hasDependencies()) {
 
-                    // Do this to make sure we don't lose track of nextDependencies if we get killed by CB
-                    DependencyNode node = messageObject.getDependency(msEntity, operation);
-                    if (node != null) {
-                        List<DependencyNode> nextNodes = node.getNextNodes();
-                        for (DependencyNode nextNode : nextNodes) {
-                            nextNode.removeDependingNode(node);
+                        // Do this to make sure we don't lose track of nextDependencies if we get killed by CB
+                        DependencyNode node = messageObject.getDependency(msEntity, operation);
+                        if (node != null) {
+                            List<DependencyNode> nextNodes = node.getNextNodes();
+                            for (DependencyNode nextNode : nextNodes) {
+                                nextNode.removeDependingNode(node);
+                            }
+                            node.emptyNextNodes();
                         }
-                        node.emptyNextNodes();
-                    }
 
-                    // Remove finished dependency and check if depending thread can be started
-                    DependencyNode depNode = messageObject.removeDependency(msEntity, operation);
-                    if (depNode != null) {
-                        for (DependencyNode depending : depNode.getDependingNodes()) {
-                            if (!depending.hasNextNodes()) {
-                                // This operation is not waiting for any dependencies
-                                Microservice dependingMs = depending.getService();
-                                Thread dependingThread = depending.getThread();
-                                int dependingID = dependingMs.getId();
-                                Operation dependingOp = depending.getOperation();
+                        // Remove finished dependency and check if depending thread can be started
+                        DependencyNode depNode = messageObject.removeDependency(msEntity, operation);
+                        if (depNode != null) {
+                            for (DependencyNode depending : depNode.getDependingNodes()) {
+                                if (!depending.hasNextNodes()) {
+                                    // This operation is not waiting for any dependencies
+                                    Microservice dependingMs = depending.getService();
+                                    Thread dependingThread = depending.getThread();
+                                    int dependingID = dependingMs.getId();
+                                    Operation dependingOp = depending.getOperation();
 
-                                // add thread to cpu
-                                model.serviceCPU.get(dependingID).get(dependingMs.getSid()).addThread(dependingThread, dependingOp);
+                                    // add thread to cpu
+                                    model.serviceCPU.get(dependingID).get(dependingMs.getSid()).addThread(dependingThread, dependingOp);
+                                }
                             }
                         }
                     }
+                } catch (NullPointerException e) {
+                    System.out.print("hier");
                 }
 
                 // Remove the message object from the task queue and the thread from the cpu
