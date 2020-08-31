@@ -29,3 +29,6 @@ hs_err_pid*
 
 # lib folder
 [Ll]ib/
+
+#force add desmoj jar
+!libraries/DesmoJ/**.jar
