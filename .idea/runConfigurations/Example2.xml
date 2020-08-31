@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Example2" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="de.rss.fachstudie.MiSim.models.MainModel" />
+    <module name="resilience-simulator" />
+    <option name="PROGRAM_PARAMETERS" value="-a $ProjectFileDir$\Examples\architecture_model_abcde.json -e $ProjectFileDir$\Examples\experiment_model_abcde.json -p" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
