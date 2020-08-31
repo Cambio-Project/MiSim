@@ -33,8 +33,8 @@ hs_err_pid*
 #force add desmoj jar
 !libraries/DesmoJ/**.jar
 
-
-
+#Example Experiment results
+ABCDE Experiment_*.html
   
 # JetBrains.gitignore
 # Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
