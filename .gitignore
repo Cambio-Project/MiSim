@@ -22,10 +22,10 @@
 hs_err_pid*
 
 # Report folder
-./Report
+[Rr]eport/
 
 # target folder
-./target
+[Tt]arget/
 
 # lib folder
-./lib
+[Ll]ib/
