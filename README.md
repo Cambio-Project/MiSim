@@ -6,12 +6,34 @@ It allows the simulation of microservice architectures in regard to resilience a
 
 **Table of contents:**
 - [Installation](#Installation)
+- [Execution](#Execution)
 - [Architectural Model](#arch_mod)
 - [Experiment Model](#exp_mod)
 
 ## <a name="Installation"></a>Installation
 
 In order to run the simulator you have to download the DesmoJ binary from [sourceforge](http://desmoj.sourceforge.net/download.html) and then include it into the project.
+
+## <a name="Execution"></a>Execution
+
+The simulation works only when the relative path `./Report` exists in execution directory.
+With the following file structure ...
+```
+project/
+|--- Examples/
+    |--- architecture_model.json
+    |--- experiment_model.json
+    |--- ...
+|--- Report/
+    |--- css/
+    |--- js/
+    |--- ...
+|--- MiSim.jar
+|--- ...
+```
+... use the following command to run a simulation:
+
+`java -jar MiSim.jar -a ./Examples/architecture_model.json -e ./Examples/experiment_model.json -p`
 
 ## <a name="arch_mod"></a>Architectural Model
 The architectural model is required as input for the simulator. It is saved in a _JSON_ file.
