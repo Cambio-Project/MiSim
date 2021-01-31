@@ -132,7 +132,7 @@ public class StartEvent extends Event<MessageObject> {
                                 messageObject.addDependency(msEntity, op, nextServiceEntity, nextOperationEntity, thread);
 
                                 // Immediately start dependant operation
-                                StartEvent nextEvent = new StartEvent(model, "Cascading Event: " + nextServiceEntity.getName() + "(" + operation + ")", model.getShowStartEvent(), nextServiceId, nextOperation);
+                                StartEvent nextEvent = new StartEvent(model, "Cascading Event: " + nextServiceEntity.getName() + "(" + nextOperation + ")", model.getShowStartEvent(), nextServiceId, nextOperation);
                                 nextEvent.schedule(messageObject, new TimeSpan(0, model.getTimeUnit()));
                             } else {
                                 // add thread to cpu
