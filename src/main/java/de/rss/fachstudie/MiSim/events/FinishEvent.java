@@ -11,8 +11,8 @@ import desmoj.core.simulator.Model;
 public class FinishEvent extends ExternalEvent {
     private MainModel model;
 
-    public FinishEvent(Model owner, String s, boolean b) {
-        super(owner, s, b);
+    public FinishEvent(Model owner,  String name, boolean showInTraceMode) {
+        super(owner, name, showInTraceMode);
 
         model = (MainModel) owner;
     }

@@ -23,6 +23,11 @@ public class InitialChaosMonkeyEvent extends ExternalEvent {
         this.microservice = model.allMicroservices.get(msId).getName();
     }
 
+    @Override
+    public String toString() {
+        return "ChaosMonkeyInitialEvent";
+    }
+
     public double getTime() {
         return this.time;
     }
@@ -37,10 +42,11 @@ public class InitialChaosMonkeyEvent extends ExternalEvent {
 
     @Override
     public void eventRoutine() throws SuspendExecution {
-        if(msId == -1) {
+        if (msId == -1) {
             msId = model.getIdByName(microservice);
         }
-        ChaosMonkeyEvent monkeyEvent = new ChaosMonkeyEvent(model, "", model.getShowMonkeyEvent(), msId, instances);
+        String monkeyName = this.getName().substring(0, getName().lastIndexOf("_Initializer"));
+        ChaosMonkeyEvent monkeyEvent = new ChaosMonkeyEvent(model, monkeyName, model.getShowMonkeyEvent(), msId, instances);
         monkeyEvent.schedule(new TimeSpan(time, model.getTimeUnit()));
     }
 }

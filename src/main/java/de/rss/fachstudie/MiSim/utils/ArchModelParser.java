@@ -13,13 +13,13 @@ import java.io.FileReader;
  */
 public class ArchModelParser {
     public static Microservice[] microservices;
-
-    public ArchModelParser(String filename) {
+    
+    public static void parseArchModelFile(String filename) {
         try {
             Gson gson = new Gson();
             JsonObject root = gson.fromJson(new JsonReader(new FileReader(filename)), JsonObject.class);
             microservices = gson.fromJson(root.get("microservices"), Microservice[].class);
-        } catch(FileNotFoundException ex) {
+        } catch (FileNotFoundException ex) {
             System.out.println("File " + filename + " not found");
         }
     }

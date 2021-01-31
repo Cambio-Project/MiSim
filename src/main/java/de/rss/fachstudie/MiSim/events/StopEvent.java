@@ -36,6 +36,7 @@ public class StopEvent extends EventOf3Entities<Microservice, Thread, MessageObj
         this.id = id;
         this.operation = operation;
         model = (MainModel) owner;
+        if(model.debugIsOn()) this.debugOn();
     }
 
     /**

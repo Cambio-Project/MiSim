@@ -84,6 +84,11 @@ public class MainModel extends Model {
         progressbar.setRequired(false);
         options.addOption(progressbar);
 
+        Option debugOutput = new Option("d", "debug", false, "activate debugoutput");
+        debugOutput.setRequired(false);
+        options.addOption(debugOutput);
+
+
         CommandLineParser cmdparser = new DefaultParser();
         HelpFormatter formatter = new HelpFormatter();
         CommandLine cmd;
@@ -97,8 +102,8 @@ public class MainModel extends Model {
             return;
         }
 
-        arch_model = cmd.getOptionValue("a");
-        exp_model = cmd.getOptionValue("e");
+        arch_model = cmd.getOptionValue(arch_model_opt.getOpt());
+        exp_model = cmd.getOptionValue(exp_model_opt.getOpt());
 
         if (arch_model.equals("")) {
             System.out.println("No architecture was specified");
@@ -126,7 +131,7 @@ public class MainModel extends Model {
             }
         }
 
-        ArchModelParser archParser = new ArchModelParser(arch_model);
+        ArchModelParser.parseArchModelFile(arch_model);
         ArchModelValidator validator = new ArchModelValidator();
 
         ExpModelParser expParser = new ExpModelParser(exp_model);
@@ -149,6 +154,7 @@ public class MainModel extends Model {
             exp.stop(new TimeInstant(model.getSimulationTime(), model.getTimeUnit()));
             exp.tracePeriod(new TimeInstant(0, model.getTimeUnit()), new TimeInstant(50, model.getTimeUnit()));
             exp.debugPeriod(new TimeInstant(0, model.getTimeUnit()), new TimeInstant(50, model.getTimeUnit()));
+        if(cmd.hasOption(debugOutput.getOpt())) exp.debugOn(new TimeInstant(0, model.getTimeUnit()));
 
 
             long setupTime = System.nanoTime() - startTime;
@@ -447,26 +453,38 @@ public class MainModel extends Model {
         // Fire off all generators for scheduling
         InitialEvent generators[] = ExpModelParser.request_generators;
         for (InitialEvent generator : generators) {
-            InitialEvent initEvent = new InitialEvent(this, "", showInitEvent, generator.getInterval(),
+            String genName = (generator.getName() != null ? generator.getName() : generator.getOperation());
+            InitialEvent initEvent = new InitialEvent(this, "Generator " + genName, showInitEvent, generator.getInterval(),
                     getIdByName(generator.getMicroservice()), generator.getOperation());
             initEvent.schedule(new TimeSpan(0, timeUnit));
         }
 
         // Fire off all monkeys for scheduling
-        InitialChaosMonkeyEvent monkeys[] = ExpModelParser.chaosmonkeys;
+        InitialChaosMonkeyEvent[] monkeys = ExpModelParser.chaosmonkeys;
+        int counter =0;
         for (InitialChaosMonkeyEvent monkey : monkeys) {
-            InitialChaosMonkeyEvent initMonkey = new InitialChaosMonkeyEvent(this, "", showMonkeyEvent,
+            String monkeyName = (monkey.getName() != null ? monkey.getName()  : "Chaos Monkey_" + counter++) +  "_Initializer";
+            InitialChaosMonkeyEvent initMonkey = new InitialChaosMonkeyEvent(this, monkeyName , showMonkeyEvent,
                     monkey.getTime(), getIdByName(monkey.getMicroservice()), monkey.getInstances());
             initMonkey.schedule(new TimeSpan(0, timeUnit));
         }
 
-        // Trigger Event every second to collect data
-        StatisticEvent statisticEvent = new StatisticEvent(this, "", false, simulationTime / datapoints);
-        //StatisticEvent statisticEvent = new StatisticEvent(this, "", false, 0.1);
-        statisticEvent.schedule(new TimeSpan(0, timeUnit));
+        InitialLatencyMonkeyEvent[] latencyMonkeys = ExpModelParser.latencymonkeys;
+        counter =0;
+        for (InitialLatencyMonkeyEvent monkey : latencyMonkeys) {
+            String monkeyName = (monkey.getName() != null ? monkey.getName()  : "Chaos Monkey_" + counter++) +  "_Initializer";
+            InitialLatencyMonkeyEvent initMonkey = new InitialLatencyMonkeyEvent(this, monkeyName , showMonkeyEvent,
+                    monkey.getTime(), getIdByName(monkey.getMicroservice()), monkey.getDelay());
+            initMonkey.schedule(new TimeSpan(0, timeUnit));
+        }
+
+
+
+        // Trigger Event to collect data as defined by user
+        StatisticEvent statisticEvent = new StatisticEvent(this, "StatisticsEvent", false, getSimulationTime() / datapoints);
 
         //Fire off the finish event which is called during at the end of the simulation
-        FinishEvent event = new FinishEvent(this, "", false);
+        FinishEvent event = new FinishEvent(this, "Finishing Event", false);
         event.schedule(new TimeSpan(simulationTime - 1, timeUnit));
     }
 

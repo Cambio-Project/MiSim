@@ -10,11 +10,12 @@ public class StatisticEvent extends ExternalEvent {
     private MainModel model;
     private double timeInterval = 0;
 
-    public StatisticEvent(Model owner, String s, boolean b, double interval) {
-        super(owner, s, b);
+    public StatisticEvent(Model owner, String name, boolean showInTraceMode, double interval) {
+        super(owner, name, showInTraceMode);
 
         model = (MainModel) owner;
         timeInterval = interval;
+        if(model.debugIsOn()) this.debugOn();
     }
 
     @Override

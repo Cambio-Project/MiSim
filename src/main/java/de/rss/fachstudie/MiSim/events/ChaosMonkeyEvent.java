@@ -71,5 +71,12 @@ public class ChaosMonkeyEvent extends ExternalEvent {
         if(this.instances > 0) {
             schedule(new TimeSpan(nextReschedule, model.getTimeUnit()));
         }
+        sendTraceNote("Chaos Monkey " + getQuotedName() + " was executed.");
+        sendTraceNote(String.format("There are %s instances left of service %s", hasServicesLeft ? "still" : "no", model.services.get(msId).first().getName()));
+    }
+
+    @Override
+    public String toString() {
+        return "ChaosMonkeyEvent";
     }
 }

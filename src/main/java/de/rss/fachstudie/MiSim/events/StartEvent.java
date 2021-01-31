@@ -65,7 +65,7 @@ public class StartEvent extends Event<MessageObject> {
     /**
      * The <code>eventRoutine</code> of the <code>StartEvent</code> which selects a microservice instance on which to
      * perfom this <code>Operation</code>, creates a <code>Thread</code> on that instance for the <code>Operation</code>
-     * and schedules the <code>StopEvent</code> of that <code>Operation</code>
+     * and schedules the <code>StopEvent</code> of that  <code>Operation</code>
      *
      * @param messageObject MessageObject
      * @throws SuspendExecution
@@ -75,8 +75,8 @@ public class StartEvent extends Event<MessageObject> {
 
         Operation op = model.allMicroservices.get(id).getOperation(operation);
         Microservice msEntity = getServiceEntity(id);
-        StopEvent msEndEvent = new StopEvent(model, "", model.getShowStopEvent(), id, operation);
-        Thread thread = new Thread(model, "", false, op.getDemand(), msEndEvent, msEntity, messageObject, op);
+        StopEvent msEndEvent = new StopEvent(model, "ThreadExecutionEndEvent", model.getShowStopEvent(), id, operation);
+        Thread thread = new Thread(model, "ThreadExecution", false, op.getDemand(), msEndEvent, msEntity, messageObject, op);
 
         boolean hasResourceLimiter = msEntity.hasPattern("Resource Limiter");
         int resourceLimit = Integer.MAX_VALUE;
@@ -132,7 +132,7 @@ public class StartEvent extends Event<MessageObject> {
                                 messageObject.addDependency(msEntity, op, nextServiceEntity, nextOperationEntity, thread);
 
                                 // Immediately start dependant operation
-                                StartEvent nextEvent = new StartEvent(model, "", model.getShowStartEvent(), nextServiceId, nextOperation);
+                                StartEvent nextEvent = new StartEvent(model, "Cascading Event: " + nextServiceEntity.getName() + "(" + operation + ")", model.getShowStartEvent(), nextServiceId, nextOperation);
                                 nextEvent.schedule(messageObject, new TimeSpan(0, model.getTimeUnit()));
                             } else {
                                 // add thread to cpu

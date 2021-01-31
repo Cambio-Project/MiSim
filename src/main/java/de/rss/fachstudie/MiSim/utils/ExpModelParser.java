@@ -30,9 +30,16 @@ public class ExpModelParser {
             request_generators = gson.fromJson(root.get("request_generators"), InitialEvent[].class);
             chaosmonkeys = gson.fromJson(root.get("chaosmonkeys"), InitialChaosMonkeyEvent[].class);
             latencymonkeys = gson.fromJson(root.get("latencymonkeys"), InitialLatencyMonkeyEvent[].class);
-            System.out.println(request_generators[0].getMicroservice());
-            System.out.println(request_generators[0].getOperation());
-            System.out.println(request_generators[0].getInterval());
+//            System.out.println(request_generators[0].getMicroservice());
+//            System.out.println(request_generators[0].getOperation());
+//            System.out.println(request_generators[0].getInterval());
+            if (chaosmonkeys == null) {
+                chaosmonkeys = new InitialChaosMonkeyEvent[0];
+            }
+            if (latencymonkeys == null) {
+                latencymonkeys = new InitialLatencyMonkeyEvent[0];
+            }
+
         } catch (FileNotFoundException ex) {
             System.out.println("File " + " not found");
         }

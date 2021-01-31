@@ -34,6 +34,7 @@ public class CPU extends Event<Thread> {
     private List<CircuitBreakerData> circuitBreakerDataList;
 
     private List<String> openCircuits;
+    private double delay = 0;
 
     public CPU(Model owner, String name, boolean showInTrace, int id, int sid, int capacity) {
         super(owner, name, showInTrace);
@@ -44,7 +45,7 @@ public class CPU extends Event<Thread> {
         this.capacity = capacity;
         lastThreadEntry = 0;
         cpuUsageMean = new TreeMap<>();
-        existingThreads = new Queue<Thread>(owner, "", false, false);
+        existingThreads = new Queue<>(owner, "", false, false);
 
         if (model.allMicroservices.get(id).hasPattern("Thread Pool")) {
             Pattern threadPool = model.allMicroservices.get(id).getPattern("Thread Pool");
@@ -74,6 +75,7 @@ public class CPU extends Event<Thread> {
 
     @Override
     public void eventRoutine(Thread threadToEnd) throws SuspendExecution {
+        sendTraceNote("Working on Operation " + threadToEnd.getOperation() +  ", left over demand=" + threadToEnd.getDemand());
         for (Thread thread : activeThreads) {
             thread.subtractDemand((int) smallestThread);
             if (thread.getDemand() == 0 || thread == threadToEnd) {
@@ -149,11 +151,15 @@ public class CPU extends Event<Thread> {
         calculateMin();
     }
 
+
+    /**
+     * Calculates which Thread has the least amount of work left and reschedules the this event to that point in time
+     */
     private void calculateMin() {
         Thread smallestThreadInstance = null;
         if (activeThreads.size() > 0) {
             smallestThreadInstance = activeThreads.get(0);
-            smallestThread = Double.POSITIVE_INFINITY;
+            smallestThread = smallestThreadInstance.getDemand();
             for (Thread t : activeThreads) {
                 if (t.getDemand() < smallestThread) {
                     smallestThread = t.getDemand();
@@ -162,14 +168,13 @@ public class CPU extends Event<Thread> {
             }
         }
 
-        // schedule to time when smallest thread is done
         if (!activeThreads.isEmpty()) {
             cycleTime = (activeThreads.size() * smallestThread) / capacity;
 
             if (isScheduled()) {
-                reSchedule(new TimeInstant(cycleTime + model.presentTime().getTimeAsDouble(), model.getTimeUnit()));
+                reSchedule(new TimeInstant(cycleTime + model.presentTime().getTimeAsDouble() + delay, model.getTimeUnit()));
             } else {
-                schedule(smallestThreadInstance, new TimeInstant(cycleTime + model.presentTime().getTimeAsDouble(), model.getTimeUnit()));
+                schedule(smallestThreadInstance, new TimeInstant(cycleTime + model.presentTime().getTimeAsDouble() + delay, model.getTimeUnit()));
             }
         }
     }
@@ -432,6 +437,10 @@ public class CPU extends Event<Thread> {
 
     public List<String> getOpenCircuits() {
         return openCircuits;
+    }
+
+    public void applyDelay(double delay) {
+        this.delay = delay;
     }
 }
 

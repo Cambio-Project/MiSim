@@ -143,4 +143,15 @@ public class Microservice extends Entity{
     public void setOperations(Operation[] operations) {
         this.operations = operations;
     }
+
+    @Override
+    public String toString() {
+        return this.getName();
+    }
+
+    @Override
+    public String getQuotedName() {
+        return "'" + this.getName() + "'";
+    }
+
 }

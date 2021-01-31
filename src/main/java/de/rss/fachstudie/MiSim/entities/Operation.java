@@ -69,4 +69,14 @@ public class Operation extends Entity {
     public void setDemand(int demand) {
         this.demand = demand;
     }
+
+    @Override
+    public String getQuotedName() {
+        return "'" + getName() + "'";
+    }
+
+    @Override
+    public String toString() {
+        return getName();
+    }
 }

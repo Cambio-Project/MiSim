@@ -5,7 +5,7 @@ import java.util.List;
 
 public class ArchModelValidator {
 
-    //        Returns true / false based on the correct dependencies of input file
+//        Returns true / false based on the correct dependencies of input file
 //        It will be checked:
 //        -All dependencies (per operation) depend on an existing micro service
 //        -The dependent micro service has the operation on which the dependencie points

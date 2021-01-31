@@ -10,6 +10,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.TreeMap;
 
 public class ExportReport {
@@ -71,7 +72,7 @@ public class ExportReport {
         DependecyGraph graph = new DependecyGraph(model, model.allMicroservices, 0);
 
         try {
-            Files.write(Paths.get("./Report/js/graph.js"), graph.printGraph().getBytes());
+            Files.write(Paths.get("./Report/js/graph.js"), graph.printGraph().getBytes(), StandardOpenOption.CREATE);
             System.out.println("\nCreated graph report.");
         } catch (IOException ex) {
             System.out.println("\nCould not create graph report.");
@@ -89,18 +90,18 @@ public class ExportReport {
         TreeMap<String, TreeMap<Double, Double>> threadPool = new TreeMap<>();
         TreeMap<String, TreeMap<Double, Double>> threadQueue = new TreeMap<>();
 
-        for(int id = 0; id < model.services.size(); id++) {
+        for (int id = 0; id < model.services.size(); id++) {
             String serviceName = model.services.get(id).get(0).getName();
             int instanceLimit = model.services.get(id).get(0).getInstances();
 
             if (ExpModelParser.simulation_meta_data.get("report").equals("minimalistic")) {
-                if(model.services.get(id).get(0).getInstances() < 10)
+                if (model.services.get(id).get(0).getInstances() < 10)
                     instanceLimit = model.services.get(id).get(0).getInstances();
                 else
                     instanceLimit = 10;
             }
 
-            for(int instance = 0; instance < instanceLimit; instance++) {
+            for (int instance = 0; instance < instanceLimit; instance++) {
 
                 Microservice ms = model.services.get(id).get(instance);
                 String file = ms.getName() + "_" + instance + ".txt";
@@ -165,10 +166,10 @@ public class ExportReport {
         String contents = divs + charts;
 
         try {
-            Files.write(Paths.get("./Report/js/chart.js"), contents.getBytes());
+            Files.write(Paths.get("./Report/js/chart.js"), contents.getBytes(), StandardOpenOption.CREATE);
             System.out.println("\nCreated chart report.");
         } catch (IOException ex) {
-            System.out.println("\nCould not create chart report.");
+            System.out.println("\nCould not create chart report. " + ex.toString());
         }
     }
 
@@ -178,9 +179,9 @@ public class ExportReport {
             String line;
             int index = 0;
             while ((line = br.readLine()) != null) {
-                if(index > 0) {
+                if (index > 0) {
                     String kvp[] = line.split("\\s+");
-                    if(kvp.length > 1) {
+                    if (kvp.length > 1) {
                         values.put(Double.parseDouble(kvp[0]), Double.parseDouble(kvp[1]));
                     }
                 }
