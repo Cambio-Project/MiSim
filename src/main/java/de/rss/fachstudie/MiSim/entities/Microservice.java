@@ -1,23 +1,21 @@
 package de.rss.fachstudie.MiSim.entities;
 
+import de.rss.fachstudie.MiSim.entities.networking.NoInstanceAvailableException;
 import de.rss.fachstudie.MiSim.entities.patterns.Pattern;
 import de.rss.fachstudie.MiSim.models.MainModel;
 import desmoj.core.simulator.Entity;
 import desmoj.core.simulator.Model;
 
 /**
- * A Microservice represents a collection of services.
- * Each instance is able to call operations to another service instance.
- *
- * model:       reference to the experiment model
- * id:          internal unique number to identify a service
- * sid:         service id (maps to the number of existing instances)
- * name:        the given name of the service, defined by the input
- * CPU:         the computing power a microservice has available
- * instances:   number of instances a service can create
- * operations:  an array of dependent operations
+ * A Microservice represents a collection of services. Each instance is able to call operations to another service
+ * instance.
+ * <p>
+ * model:       reference to the experiment model id:          internal unique number to identify a service sid: service
+ * id (maps to the number of existing instances) name:        the given name of the service, defined by the input CPU:
+ * the computing power a microservice has available instances:   number of instances a service can create operations:
+ * an array of dependent operations
  */
-public class Microservice extends Entity{
+public class Microservice extends Entity {
     private MainModel model;
     private boolean killed = false;
     private int id;
@@ -28,11 +26,12 @@ public class Microservice extends Entity{
     private Pattern[] spatterns = null;
     private Operation[] operations;
 
-    public Microservice(Model owner, String name, boolean showInTrace){
-        super(owner, name , showInTrace);
+    public Microservice(Model owner, String name, boolean showInTrace) {
+        super(owner, name, showInTrace);
 
         this.model = (MainModel) owner;
         spatterns = new Pattern[]{};
+
     }
 
     public boolean isKilled() {
@@ -85,8 +84,7 @@ public class Microservice extends Entity{
      * Check if the <code>Microservice</code> implements the passed pattern.
      *
      * @param name String: The name of the pattern
-     * @return boolean: True if the pattern is implemented
-     * False if the pattern isn't implemented
+     * @return boolean: True if the pattern is implemented False if the pattern isn't implemented
      */
     public boolean hasPattern(String name) {
         if (spatterns == null) {
@@ -132,8 +130,8 @@ public class Microservice extends Entity{
     }
 
     public Operation getOperation(String name) {
-        for(Operation o : operations) {
-            if(o.getName().equals(name)) {
+        for (Operation o : operations) {
+            if (o.getName().equals(name)) {
                 return o;
             }
         }
@@ -142,6 +140,9 @@ public class Microservice extends Entity{
 
     public void setOperations(Operation[] operations) {
         this.operations = operations;
+        for (Operation operation : operations) {
+            operation.setOwner(this);
+        }
     }
 
     @Override
@@ -154,4 +155,12 @@ public class Microservice extends Entity{
         return "'" + this.getName() + "'";
     }
 
+
+    private MicroserviceInstance instance;
+
+    public MicroserviceInstance getNextAvailableInstance() throws NoInstanceAvailableException {
+        if (instance == null)
+            instance = new MicroserviceInstance(model, name + "_Instance", this.traceIsOn(), this, 0);
+        return instance;
+    }
 }

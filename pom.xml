@@ -4,9 +4,11 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>microservice_resilience_simulator</groupId>
-    <artifactId>main</artifactId>
+    <groupId>de.orcas</groupId>
+    <artifactId>misim</artifactId>
+    <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
+
 
     <build>
         <plugins>
@@ -19,15 +21,22 @@
                     <target>1.8</target>
                 </configuration>
             </plugin>
+
         </plugins>
     </build>
 
     <dependencies>
-        <!-- gson -->
+        <!-- util -->
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
             <version>2.8.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.javatuples</groupId>
+            <artifactId>javatuples</artifactId>
+            <version>1.2</version>
         </dependency>
 
         <!-- apache commons-cli -->
@@ -36,12 +45,24 @@
             <artifactId>commons-cli</artifactId>
             <version>1.4</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-math3</artifactId>
+            <version>3.5</version>
+        </dependency>
 
         <dependency>
             <groupId>desmoj</groupId>
             <artifactId>desmoj</artifactId>
             <version>2.5.1e</version>
         </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>5.5.2</version>
+        </dependency>
+        <!-- Testing -->
+
 
     </dependencies>
 

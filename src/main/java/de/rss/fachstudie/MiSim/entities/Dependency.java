@@ -3,7 +3,7 @@ package de.rss.fachstudie.MiSim.entities;
 public class Dependency {
     private String service;
     private String operation;
-    private double probability;
+    private double probability =  1;
 
     public Dependency() {
 

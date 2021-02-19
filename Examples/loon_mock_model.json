@@ -1,0 +1,119 @@
+{
+  "microservices": [
+    {
+      "name": "gateway",
+      "instances": 1,
+      "patterns": [],
+      "capacity": 10,
+      "operations": [
+        {
+          "name": "gateway.PING",
+          "demand": 1,
+          "dependencies": []
+        },
+        {
+          "name": "INTERNAL_DEP",
+          "demand": 1,
+          "dependencies": [
+            {
+              "service": "loon-service",
+              "operation": "call_loon-service2",
+              "probability": 1.0
+            }
+          ]
+        },
+        {
+          "name": "EXTERNAL_DEP",
+          "demand": 1,
+          "dependencies": [
+            {
+              "service": "loon-service",
+              "operation": "call_external_service",
+              "probability": 1.0
+            }
+          ]
+        },
+        {
+          "name": "gateway.DB_READ",
+          "demand": 1,
+          "dependencies": [
+            {
+              "service": "loon-service",
+              "operation": "loon-service.DB_READ",
+              "probability": 1.0
+            }
+          ]
+        },
+        {
+          "name": "gateway.DB_WRITE",
+          "demand": 1,
+          "dependencies": [
+            {
+              "service": "loon-service",
+              "operation": "loon-service.DB_WRITE",
+              "probability": 1.0
+            }
+          ]
+        },
+        {
+          "name": "UNAFFECTED_SERVICE",
+          "demand": 1,
+          "dependencies": [
+            {
+              "service": "loon-service2",
+              "operation": "loon-service2.get",
+              "probability": 1.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "loon-service",
+      "instances": 2,
+      "patterns": [],
+      "capacity": 100,
+      "operations": [
+        {
+          "name": "loon-service.DB_WRITE",
+          "demand": 5,
+          "dependencies": []
+        },
+        {
+          "name": "loon-service.DB_READ",
+          "demand": 3,
+          "dependencies": []
+        },
+        {
+          "name": "call_loon-service2",
+          "demand": 2,
+          "dependencies": [
+            {
+              "service": "loon-service2",
+              "operation": "loon-service2.get",
+              "probability": 1.0
+            }
+          ]
+        },
+        {
+          "name": "call_external_service",
+          "demand": 10,
+          "dependencies": []
+        }
+      ]
+    },
+    {
+      "name": "loon-service2",
+      "instances": 2,
+      "patterns": [],
+      "capacity": 200,
+      "operations": [
+        {
+          "name": "loon-service2.get",
+          "demand": 5,
+          "dependencies": []
+        }
+      ]
+    }
+  ]
+}

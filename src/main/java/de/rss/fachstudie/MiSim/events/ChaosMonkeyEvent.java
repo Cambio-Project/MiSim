@@ -8,9 +8,9 @@ import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeSpan;
 
 /**
- * A <code>ChaosMonkeyEvent</code> is an <code>ExternalEvent</code> that gets scheduled at the begin
- * of the experiment. It terminates a specified number of Microservice instances from a specified <code>Microservice</code>
- * in its <code>eventRoutine</code> method.
+ * A <code>ChaosMonkeyEvent</code> is an <code>ExternalEvent</code> that gets scheduled at the begin of the experiment.
+ * It terminates a specified number of Microservice instances from a specified <code>Microservice</code> in its
+ * <code>eventRoutine</code> method.
  */
 public class ChaosMonkeyEvent extends ExternalEvent {
     private MainModel model;
@@ -36,17 +36,17 @@ public class ChaosMonkeyEvent extends ExternalEvent {
     }
 
     /**
-     * The eventRoutine of the <code>ChaosMonkeyEvent</code>.
-     * Terminates a specified number of instances of a specified <code>Microservice</code>.
+     * The eventRoutine of the <code>ChaosMonkeyEvent</code>. Terminates a specified number of instances of a specified
+     * <code>Microservice</code>.
      *
      * @throws SuspendExecution
      */
     @Override
     public void eventRoutine() throws SuspendExecution {
 
-        for(int i = 0; i < instances; ++i) {
-            for(Microservice msEntity : model.services.get(msId)) {
-                if(!msEntity.isKilled()) {
+        for (int i = 0; i < instances; ++i) {
+            for (Microservice msEntity : model.services.get(msId)) {
+                if (!msEntity.isKilled()) {
                     msEntity.setKilled(true);
                     model.serviceCPU.get(msEntity.getId()).get(msEntity.getSid()).getExistingThreads().removeAll();
                     model.serviceCPU.get(msEntity.getId()).get(msEntity.getSid()).getActiveThreads().removeAll();
@@ -57,18 +57,19 @@ public class ChaosMonkeyEvent extends ExternalEvent {
         }
 
         boolean hasServicesLeft = false;
-        for(int instance = 0; instance < model.services.get(msId).size(); ++instance) {
-            if(!model.services.get(msId).get(instance).isKilled()) {
+        for (int instance = 0; instance < model.services.get(msId).size(); ++instance) {
+            if (!model.services.get(msId).get(instance).isKilled()) {
                 hasServicesLeft = true;
                 break;
             }
         }
 
-        if(!hasServicesLeft) {
+
+        if (!hasServicesLeft) {
             model.taskQueues.get(msId).removeAll();
         }
 
-        if(this.instances > 0) {
+        if (this.instances > 0) {
             schedule(new TimeSpan(nextReschedule, model.getTimeUnit()));
         }
         sendTraceNote("Chaos Monkey " + getQuotedName() + " was executed.");

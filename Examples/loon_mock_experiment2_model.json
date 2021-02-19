@@ -1,0 +1,49 @@
+{
+  "simulation_meta_data": {
+    "experiment_name": "Loon-Mock-Experiment1",
+    "model_name": "Scenario 1",
+    "duration": 180,
+    "report": "",
+    "datapoints": 180,
+    "seed": 1337
+  },
+  "request_generators": [
+    {
+      "microservice": "gateway",
+      "operation": "gateway.PING",
+      "interval": 1
+    },
+    {
+      "microservice": "gateway",
+      "operation": "INTERNAL_DEP",
+      "interval": 3
+    },
+    { 
+      "microservice": "gateway",
+      "operation": "EXTERNAL_DEP",
+      "interval": 3
+    },
+    {
+      "microservice": "gateway",
+      "operation": "gateway.DB_READ",
+      "interval": 2
+    },
+    {
+      "microservice": "gateway",
+      "operation": "gateway.DB_WRITE",
+      "interval": 2
+    },
+    {
+      "microservice": "gateway",
+      "operation": "UNAFFECTED_SERVICE",
+      "interval": 2
+    }
+  ],
+  "latencymonkeys": [
+    {
+      "microservice": "loon-service",
+      "delay": 0.5,
+      "time": 30
+    }
+  ]
+}

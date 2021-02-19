@@ -6,6 +6,7 @@ import de.rss.fachstudie.MiSim.entities.Operation;
 import de.rss.fachstudie.MiSim.events.StopEvent;
 import de.rss.fachstudie.MiSim.models.MainModel;
 import desmoj.core.simulator.Entity;
+import desmoj.core.simulator.EventOf3Entities;
 import desmoj.core.simulator.Model;
 
 /**
@@ -21,7 +22,7 @@ public class Thread extends Entity {
     private int sid;
     private int tid;
     private int demand;
-    private StopEvent endEvent;
+    private EventOf3Entities<Microservice, Thread, MessageObject> endEvent;
     private Microservice service;
     private MessageObject mobject;
     private double creationTime;
@@ -29,7 +30,7 @@ public class Thread extends Entity {
     private Operation operation;
 
 
-    public Thread(Model owner, String name, boolean b, int demand, StopEvent end, Microservice service, MessageObject mo, Operation operation) {
+    public Thread(Model owner, String name, boolean b, int demand, EventOf3Entities<Microservice, Thread, MessageObject> end, Microservice service, MessageObject mo, Operation operation) {
         super(owner, name, b);
 
         model = (MainModel) owner;
@@ -95,11 +96,11 @@ public class Thread extends Entity {
             demand = 0;
     }
 
-    public StopEvent getEndEvent() {
+    public EventOf3Entities<Microservice, Thread, MessageObject> getEndEvent() {
         return endEvent;
     }
 
-    public void setEndEvent(StopEvent endEvent) {
+    public void setEndEvent(EventOf3Entities<Microservice, Thread, MessageObject> endEvent) {
         this.endEvent = endEvent;
     }
 

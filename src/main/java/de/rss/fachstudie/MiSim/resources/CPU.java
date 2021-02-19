@@ -36,19 +36,19 @@ public class CPU extends Event<Thread> {
     private List<String> openCircuits;
     private double delay = 0;
 
-    public CPU(Model owner, String name, boolean showInTrace, int id, int sid, int capacity) {
+    public CPU(Model owner, String name, boolean showInTrace, int msID, int instanceID, int capacity) {
         super(owner, name, showInTrace);
 
         model = (MainModel) owner;
-        this.id = id;
-        this.sid = sid;
+        this.id = msID;
+        this.sid = instanceID;
         this.capacity = capacity;
         lastThreadEntry = 0;
         cpuUsageMean = new TreeMap<>();
         existingThreads = new Queue<>(owner, "", false, false);
 
-        if (model.allMicroservices.get(id).hasPattern("Thread Pool")) {
-            Pattern threadPool = model.allMicroservices.get(id).getPattern("Thread Pool");
+        if (model.allMicroservices.get(msID).hasPattern("Thread Pool")) {
+            Pattern threadPool = model.allMicroservices.get(msID).getPattern("Thread Pool");
             if (threadPool.getArguments().length > 0) {
                 threadPoolSize = threadPool.getArgument(0);
             } else {
