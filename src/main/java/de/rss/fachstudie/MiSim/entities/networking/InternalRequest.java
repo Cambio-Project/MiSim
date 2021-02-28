@@ -1,7 +1,7 @@
 package de.rss.fachstudie.MiSim.entities.networking;
 
-import de.rss.fachstudie.MiSim.entities.MicroserviceInstance;
-import de.rss.fachstudie.MiSim.models.MainModel;
+import de.rss.fachstudie.MiSim.entities.microservice.MicroserviceInstance;
+import desmoj.core.simulator.Model;
 
 /**
  * @author Lion Wagner
@@ -10,7 +10,7 @@ public class InternalRequest extends Request {
 
     private final MicroserviceInstance sender;
 
-    public InternalRequest(MainModel model, boolean showInTrace, NetworkDependency dependency, MicroserviceInstance sender) {
+    public InternalRequest(Model model, boolean showInTrace, NetworkDependency dependency, MicroserviceInstance sender) {
         super(model,
                 String.format("Cascading Request %s(%s)", dependency.getTarget_op().getOwner(), dependency.getTarget_op()),
                 showInTrace,
@@ -24,13 +24,4 @@ public class InternalRequest extends Request {
         return sender;
     }
 
-    @Override
-    protected void onDependenciesComplete() {
-
-    }
-
-    @Override
-    protected void onComputationComplete() {
-
-    }
 }

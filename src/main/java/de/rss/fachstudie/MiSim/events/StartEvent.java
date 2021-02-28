@@ -3,7 +3,7 @@ package de.rss.fachstudie.MiSim.events;
 import co.paralleluniverse.fibers.SuspendExecution;
 import de.rss.fachstudie.MiSim.entities.Dependency;
 import de.rss.fachstudie.MiSim.entities.MessageObject;
-import de.rss.fachstudie.MiSim.entities.Microservice;
+import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
 import de.rss.fachstudie.MiSim.entities.Operation;
 import de.rss.fachstudie.MiSim.models.MainModel;
 import de.rss.fachstudie.MiSim.resources.Thread;

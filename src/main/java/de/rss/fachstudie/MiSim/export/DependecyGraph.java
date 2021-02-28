@@ -1,7 +1,7 @@
 package de.rss.fachstudie.MiSim.export;
 
 import de.rss.fachstudie.MiSim.entities.Dependency;
-import de.rss.fachstudie.MiSim.entities.Microservice;
+import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
 import de.rss.fachstudie.MiSim.entities.Operation;
 import de.rss.fachstudie.MiSim.models.MainModel;
 
@@ -78,14 +78,14 @@ public class DependecyGraph {
                 }
                 nodes.add(id);
 
-                int instanceLimit = microservices.get(id).getInstances();
+                int instanceLimit = microservices.get(id).getInstancesCount();
                 if(model.getReport().equals("minimalistic")) {
-                    instanceLimit = (microservices.get(id).getInstances() < 10) ? microservices.get(id).getInstances() : 10;
+                    instanceLimit = (microservices.get(id).getInstancesCount() < 10) ? microservices.get(id).getInstancesCount() : 10;
                 }
                 for(int i = 0; i < instanceLimit; ++i) {
                     json.append("{name:'").append(microservices.get(id).getName())
                             .append("',id:")
-                            .append(id + microservices.get(id).getInstances() + microservices.keySet().size() * i)
+                            .append(id + microservices.get(id).getInstancesCount() + microservices.keySet().size() * i)
                             .append(",labels:[")
                             .append(labels.substring(0, labels.length() - 1))
                             .append("],group:")
@@ -106,9 +106,9 @@ public class DependecyGraph {
         nodes = new ArrayList<>();
         for(Integer id : microservices.keySet()) {
 
-            int instanceLimit = microservices.get(id).getInstances();
+            int instanceLimit = microservices.get(id).getInstancesCount();
             if(model.getReport().equals("minimalistic")) {
-                instanceLimit = (microservices.get(id).getInstances() < 10) ? microservices.get(id).getInstances() : 10;
+                instanceLimit = (microservices.get(id).getInstancesCount() < 10) ? microservices.get(id).getInstancesCount() : 10;
             }
 
             if(!nodes.contains(id)) {

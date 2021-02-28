@@ -1,11 +1,12 @@
 package de.rss.fachstudie.MiSim.entities.networking;
 
 import de.rss.fachstudie.MiSim.entities.Dependency;
+import de.rss.fachstudie.MiSim.entities.DependencyGraph;
 import de.rss.fachstudie.MiSim.entities.MessageObject;
-import de.rss.fachstudie.MiSim.entities.MicroserviceInstance;
 import de.rss.fachstudie.MiSim.entities.Operation;
-import de.rss.fachstudie.MiSim.models.MainModel;
+import de.rss.fachstudie.MiSim.entities.microservice.MicroserviceInstance;
 import desmoj.core.dist.ContDistUniform;
+import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 import org.apache.commons.math3.util.Precision;
 
@@ -16,6 +17,8 @@ import java.util.Set;
  * @author Lion Wagner
  */
 public abstract class Request extends MessageObject {
+    protected static final DependencyGraph dependencyGraph = new DependencyGraph();
+
     public final Operation operation;
     private final Set<NetworkDependency> dependencyRequests = new HashSet<>();
 
@@ -25,16 +28,22 @@ public abstract class Request extends MessageObject {
     private boolean dependencies_completed = false;
 
     private final Request parent;
+    private NetworkRequestSendEvent sendEvent;
+    private NetworkRequestReceiveEvent receiveEvent;
+    private NetworkRequestCanceledEvent canceledEvent;
 
     private TimeInstant timestamp_send;
     private TimeInstant timestamp_received;
+    private TimeInstant timestamp_received_at_handler;
+    private TimeInstant timestamp_computation_completed;
+    private TimeInstant timestamp_dependencies_completed;
 
 
-    public Request(MainModel model, String name, boolean showInTrace, Operation operation) {
+    public Request(Model model, String name, boolean showInTrace, Operation operation) {
         this(model, name, showInTrace, null, operation);
     }
 
-    public Request(MainModel model, String name, boolean showInTrace, Request parent, Operation operation) {
+    public Request(Model model, String name, boolean showInTrace, Request parent, Operation operation) {
         super(model, name, showInTrace);
         this.operation = operation;
         createDependencies();
@@ -51,15 +60,13 @@ public abstract class Request extends MessageObject {
             double probability = dependency.getProbability();
             if (prob.sample() <= probability) {
 
-                String nextOperation = dependency.getOperation();
-                String nextService = dependency.getService();
-
-                int nextServiceId = getModel().getIdByName(nextService);
-                Operation nextOperationEntity = model.allMicroservices.get(nextServiceId).getOperation(nextOperation);
+                Operation nextOperationEntity = dependency.getOperation_instance();
 
                 NetworkDependency dep = new NetworkDependency(this, nextOperationEntity);
 
                 dependencyRequests.add(dep);
+                if (parent != null)
+                    dependencyGraph.insertDependency(parent.getHandler().getOwner(), parent.operation, nextOperationEntity.getOwner(), nextOperationEntity, null);
             }
         }
     }
@@ -80,6 +87,14 @@ public abstract class Request extends MessageObject {
         return computation_completed && dependencies_completed;
     }
 
+    public boolean isComputation_completed() {
+        return computation_completed;
+    }
+
+    public boolean isDependencies_completed() {
+        return dependencies_completed;
+    }
+
     public TimeInstant getTimestamp_received() {
         return timestamp_received;
     }
@@ -88,10 +103,23 @@ public abstract class Request extends MessageObject {
         return timestamp_send;
     }
 
+    public void setSendEvent(NetworkRequestSendEvent sendEvent) {
+        this.sendEvent = sendEvent;
+    }
+
+    public void setReceiveEvent(NetworkRequestReceiveEvent receiveEvent) {
+        this.receiveEvent = receiveEvent;
+    }
+
+    public void setCanceledEvent(NetworkRequestCanceledEvent canceledEvent) {
+        this.canceledEvent = canceledEvent;
+    }
+
     public final void setComputation_completed() {
         if (this.computation_completed)
             throw new IllegalStateException("Computation was already completed!");
         this.computation_completed = true;
+        timestamp_computation_completed = presentTime();
         onComputationComplete();
         if (dependencies_completed && computation_completed) {
             onCompletion();
@@ -103,8 +131,8 @@ public abstract class Request extends MessageObject {
         if (this.dependencies_completed)
             throw new IllegalStateException("Dependencies were already completed!");
         this.dependencies_completed = true;
+        timestamp_dependencies_completed = presentTime();
         onDependenciesComplete();
-
         if (dependencies_completed && computation_completed) {
             onCompletion();
         }
@@ -114,10 +142,17 @@ public abstract class Request extends MessageObject {
 
     public final void stampReceived(TimeInstant stamp) {
         this.setTimestamp_received(stamp);
+        onReceive();
     }
 
     public final void stampSendoff(TimeInstant stamp) {
         this.setTimestamp_send(stamp);
+    }
+
+    public final void stampReceivedAtHandler(TimeInstant stamp) {
+        if (this.timestamp_received_at_handler != null)
+            throw new IllegalStateException("This Request was already received by its handler.");
+        this.timestamp_received_at_handler = stamp;
     }
 
     private void setTimestamp_received(TimeInstant timestamp_received) {
@@ -131,6 +166,7 @@ public abstract class Request extends MessageObject {
             throw new IllegalStateException("Receive Stamp is already set!");
         this.timestamp_send = timestamp_send;
     }
+
 
     public final void notifyDependencyHasFinished(Request request) {
         for (NetworkDependency networkDependency : dependencyRequests) {
@@ -159,6 +195,14 @@ public abstract class Request extends MessageObject {
         return responsetime;
     }
 
+    public final double getDependencyWaitTime() {
+        return timestamp_dependencies_completed.getTimeAsDouble() - timestamp_send.getTimeAsDouble();
+    }
+
+    public final double getComputeTime() {
+        return timestamp_computation_completed.getTimeAsDouble() - timestamp_dependencies_completed.getTimeAsDouble();
+    }
+
     public final boolean areDependencies_completed() {
         return dependencies_completed;
     }
@@ -169,12 +213,20 @@ public abstract class Request extends MessageObject {
      * these are essentially Events in a programmatic sense (like in C#, not like in DES)
      */
     protected void onDependenciesComplete() {
+        sendDebugNote(String.format("Dependencies Completed: %s", getQuotedName()));
     }
 
     protected void onComputationComplete() {
+        sendDebugNote(String.format("Computation Completed: %s", getQuotedName()));
     }
 
     protected void onCompletion() {
+        sendDebugNote(String.format("Completed %s!", getQuotedName()));
+    }
+
+    protected void onReceive() {
+        sendDebugNote(String.format("Arrived at Parent %s!", getQuotedName()));
+
     }
 
     public void setHandler(MicroserviceInstance handler) {

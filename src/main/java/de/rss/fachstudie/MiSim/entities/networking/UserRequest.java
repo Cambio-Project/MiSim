@@ -1,32 +1,24 @@
 package de.rss.fachstudie.MiSim.entities.networking;
 
 import de.rss.fachstudie.MiSim.entities.Operation;
-import de.rss.fachstudie.MiSim.models.MainModel;
+import de.rss.fachstudie.MiSim.export.MultiDataPointReporter;
+import desmoj.core.simulator.Model;
 
 /**
  * @author Lion Wagner
  */
-public class UserRequest extends Request{
+public class UserRequest extends Request {
 
-    public UserRequest(MainModel model, String name, boolean showInTrace, Operation operation) {
+    private static final MultiDataPointReporter reporter = new MultiDataPointReporter();
+
+    public UserRequest(Model model, String name, boolean showInTrace, Operation operation) {
         super(model, name, showInTrace, null, operation);
     }
 
-    @Override
-    protected void onDependenciesComplete() {
-        super.onDependenciesComplete();
-        sendTraceNote(String.format("Dependencies Completed: %s", getQuotedName()));
-    }
 
     @Override
-    protected void onComputationComplete() {
-        super.onComputationComplete();
-        sendTraceNote(String.format("Computation Completed: %s", getQuotedName()));
-    }
-
-    @Override
-    protected void onCompletion() {
-        super.onCompletion();
-        sendTraceNote(String.format("Completed %s!", getQuotedName()));
+    protected void onReceive() {
+        super.onReceive();
+        reporter.addDatapoint(operation.getName() + "_ResponseTimes", presentTime(), getResponseTime());
     }
 }

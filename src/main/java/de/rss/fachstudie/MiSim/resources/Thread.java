@@ -1,23 +1,19 @@
 package de.rss.fachstudie.MiSim.resources;
 
 import de.rss.fachstudie.MiSim.entities.MessageObject;
-import de.rss.fachstudie.MiSim.entities.Microservice;
 import de.rss.fachstudie.MiSim.entities.Operation;
-import de.rss.fachstudie.MiSim.events.StopEvent;
+import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
 import de.rss.fachstudie.MiSim.models.MainModel;
 import desmoj.core.simulator.Entity;
 import desmoj.core.simulator.EventOf3Entities;
 import desmoj.core.simulator.Model;
 
 /**
- * A Thread describes a part of a microservice instance.
- * This thread can performs work in form of operations.
- *
- * id:  the service id it belongs to
- * tid: the thread id (map to the number of existing threads in the service)
+ * A Thread describes a part of a microservice instance. This thread can performs work in form of operations.
+ * <p>
+ * id:  the service id it belongs to tid: the thread id (map to the number of existing threads in the service)
  */
 public class Thread extends Entity {
-    MainModel model;
     private int id;
     private int sid;
     private int tid;
@@ -33,16 +29,15 @@ public class Thread extends Entity {
     public Thread(Model owner, String name, boolean b, int demand, EventOf3Entities<Microservice, Thread, MessageObject> end, Microservice service, MessageObject mo, Operation operation) {
         super(owner, name, b);
 
-        model = (MainModel) owner;
         this.id = service.getId();
         this.sid = service.getSid();
-        this.tid = model.serviceCPU.get(service.getId()).get(service.getSid()).getExistingThreads().size();
+//        this.tid = MainModel.serviceCPU.get(service.getId()).get(service.getSid()).getExistingThreads().size();
         this.demand = demand;
         this.endEvent = end;
         this.service = service;
         this.mobject = mo;
         this.operation = operation;
-        creationTime = model.presentTime().getTimeAsDouble();
+        creationTime = getModel().presentTime().getTimeAsDouble();
     }
 
     public int getId() {
@@ -90,7 +85,7 @@ public class Thread extends Entity {
     }
 
     public void subtractDemand(double value) {
-        if(demand - value > 0)
+        if (demand - value > 0)
             this.demand -= value;
         else
             demand = 0;

@@ -2,6 +2,8 @@ package de.rss.fachstudie.MiSim.resources;
 
 import co.paralleluniverse.fibers.SuspendExecution;
 import de.rss.fachstudie.MiSim.entities.Operation;
+import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
+import de.rss.fachstudie.MiSim.entities.microservice.MicroserviceInstance;
 import de.rss.fachstudie.MiSim.entities.patterns.CircuitBreaker;
 import de.rss.fachstudie.MiSim.entities.patterns.Pattern;
 import de.rss.fachstudie.MiSim.models.MainModel;
@@ -13,7 +15,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class CPU extends Event<Thread> {
-    private MainModel model;
+    private Model model;
     private int id = -1;
     private int sid = -1;
     private int capacity = 0;
@@ -36,26 +38,28 @@ public class CPU extends Event<Thread> {
     private List<String> openCircuits;
     private double delay = 0;
 
-    public CPU(Model owner, String name, boolean showInTrace, int msID, int instanceID, int capacity) {
-        super(owner, name, showInTrace);
+    public CPU(Model model, String name, boolean showInTrace, MicroserviceInstance owningInstance) {
+        super(model, name, showInTrace);
 
-        model = (MainModel) owner;
-        this.id = msID;
-        this.sid = instanceID;
-        this.capacity = capacity;
+        this.model = model;
+        this.id = owningInstance.getOwner().getId();
+        this.sid = owningInstance.getInstanceID();
+        this.capacity = owningInstance.getOwner().getCapacity();
         lastThreadEntry = 0;
         cpuUsageMean = new TreeMap<>();
-        existingThreads = new Queue<>(owner, "", false, false);
+        existingThreads = new Queue<>(model, "", false, false);
 
-        if (model.allMicroservices.get(msID).hasPattern("Thread Pool")) {
-            Pattern threadPool = model.allMicroservices.get(msID).getPattern("Thread Pool");
+        Microservice ownerMS = owningInstance.getOwner();
+
+        if (ownerMS.hasPattern("Thread Pool")) {
+            Pattern threadPool = ownerMS.getPattern("Thread Pool");
             if (threadPool.getArguments().length > 0) {
                 threadPoolSize = threadPool.getArgument(0);
             } else {
                 // Default
                 threadPoolSize = 10;
             }
-            activeThreads = new Queue<>(owner, "", QueueBased.FIFO, threadPoolSize, false, false);
+            activeThreads = new Queue<>(model, "", QueueBased.FIFO, threadPoolSize, false, false);
             hasThreadPool = true;
             if (threadPool.getArguments().length > 1) {
                 threadQueueSize = threadPool.getArgument(1);
@@ -63,10 +67,47 @@ public class CPU extends Event<Thread> {
                 // Default
                 threadQueueSize = 10;
             }
-            waitingThreads = new Queue<>(owner, "", QueueBased.FIFO, threadQueueSize, false, false);
+            waitingThreads = new Queue<>(model, "", QueueBased.FIFO, threadQueueSize, false, false);
             hasThreadQueue = true;
         } else {
-            activeThreads = new Queue<>(owner, "", false, false);
+            activeThreads = new Queue<>(model, "", false, false);
+        }
+
+        circuitBreakerDataList = new ArrayList<>();
+        openCircuits = new ArrayList<>();
+    }
+
+    public CPU(Model model, String name, boolean showInTrace, int msID, int instanceID, int capacity) {
+        super(model, name, showInTrace);
+
+        this.model = (MainModel) model;
+        this.id = msID;
+        this.sid = instanceID;
+        this.capacity = capacity;
+        lastThreadEntry = 0;
+        cpuUsageMean = new TreeMap<>();
+        existingThreads = new Queue<>(model, "", false, false);
+
+        if (MainModel.allMicroservices.get(msID).hasPattern("Thread Pool")) {
+            Pattern threadPool = MainModel.allMicroservices.get(msID).getPattern("Thread Pool");
+            if (threadPool.getArguments().length > 0) {
+                threadPoolSize = threadPool.getArgument(0);
+            } else {
+                // Default
+                threadPoolSize = 10;
+            }
+            activeThreads = new Queue<>(model, "", QueueBased.FIFO, threadPoolSize, false, false);
+            hasThreadPool = true;
+            if (threadPool.getArguments().length > 1) {
+                threadQueueSize = threadPool.getArgument(1);
+            } else {
+                // Default
+                threadQueueSize = 10;
+            }
+            waitingThreads = new Queue<>(model, "", QueueBased.FIFO, threadQueueSize, false, false);
+            hasThreadQueue = true;
+        } else {
+            activeThreads = new Queue<>(model, "", false, false);
         }
 
         circuitBreakerDataList = new ArrayList<CircuitBreakerData>();
@@ -75,7 +116,7 @@ public class CPU extends Event<Thread> {
 
     @Override
     public void eventRoutine(Thread threadToEnd) throws SuspendExecution {
-        sendTraceNote("Working on Operation " + threadToEnd.getOperation() +  ", left over demand=" + threadToEnd.getDemand());
+//        sendTraceNote("Working on Operation " + threadToEnd.getOperation() + ", left over demand=" + threadToEnd.getDemand());
         for (Thread thread : activeThreads) {
             thread.subtractDemand((int) smallestThread);
             if (thread.getDemand() == 0 || thread == threadToEnd) {
@@ -121,10 +162,10 @@ public class CPU extends Event<Thread> {
 
                     // statistics
                     double last = 0;
-                    List<Double> values = model.threadQueueStatistics.get(thread.getId()).get(thread.getSid()).getDataValues();
+                    List<Double> values = MainModel.threadQueueStatistics.get(thread.getId()).get(thread.getSid()).getDataValues();
                     if (values != null)
                         last = values.get(values.size() - 1);
-                    model.threadQueueStatistics.get(thread.getId()).get(thread.getSid()).update(last + 1);
+                    MainModel.threadQueueStatistics.get(thread.getId()).get(thread.getSid()).update(last + 1);
                 }
             } else {
                 // thread pool is too big, send default response
@@ -132,10 +173,10 @@ public class CPU extends Event<Thread> {
 
                 // statistics
                 double last = 0;
-                List<Double> values = model.threadPoolStatistics.get(thread.getId()).get(thread.getSid()).getDataValues();
+                List<Double> values = MainModel.threadPoolStatistics.get(thread.getId()).get(thread.getSid()).getDataValues();
                 if (values != null)
                     last = values.get(values.size() - 1);
-                model.threadPoolStatistics.get(thread.getId()).get(thread.getSid()).update(last + 1);
+                MainModel.threadPoolStatistics.get(thread.getId()).get(thread.getSid()).update(last + 1);
             }
         }
 
@@ -171,10 +212,11 @@ public class CPU extends Event<Thread> {
         if (!activeThreads.isEmpty()) {
             cycleTime = (activeThreads.size() * smallestThread) / capacity;
 
+            TimeSpan nextTargetTime = new TimeSpan(cycleTime, MainModel.getTimeUnit());
             if (isScheduled()) {
-                reSchedule(new TimeInstant(cycleTime + model.presentTime().getTimeAsDouble() + delay, model.getTimeUnit()));
+                reSchedule(nextTargetTime);
             } else {
-                schedule(smallestThreadInstance, new TimeInstant(cycleTime + model.presentTime().getTimeAsDouble() + delay, model.getTimeUnit()));
+                schedule(smallestThreadInstance, nextTargetTime);
             }
         }
     }
@@ -374,10 +416,10 @@ public class CPU extends Event<Thread> {
             } else if (cbData.getState() == CircuitBreaker.State.OPEN) {
                 // Circuit is open -> fallback/fail fast
                 double last = 0;
-                List<Double> values = model.circuitBreakerStatistics.get(id).get(sid).getDataValues();
+                List<Double> values = MainModel.circuitBreakerStatistics.get(id).get(sid).getDataValues();
                 if (values != null)
                     last = values.get(values.size() - 1);
-                model.circuitBreakerStatistics.get(id).get(sid).update(last + 1);
+                MainModel.circuitBreakerStatistics.get(id).get(sid).update(last + 1);
 
                 // Kill Thread
                 thread.scheduleEndEvent();
@@ -439,8 +481,18 @@ public class CPU extends Event<Thread> {
         return openCircuits;
     }
 
-    public void applyDelay(double delay) {
-        this.delay = delay;
+    /**
+     * Calculates how many clock cycles this cpu still has to work to finish all current Threads.
+     *
+     * @return the current relative work demand in multiples of the capacity
+     */
+    public double getCurrentRelativeWorkDemand() {
+        double currentDemandSum = 0.0;
+        for (Thread existingThread : existingThreads) {
+            currentDemandSum += existingThread.getDemand();
+        }
+        return currentDemandSum / this.capacity;
+
     }
 }
 

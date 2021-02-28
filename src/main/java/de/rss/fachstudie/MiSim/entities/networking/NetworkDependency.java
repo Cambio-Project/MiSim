@@ -1,6 +1,6 @@
 package de.rss.fachstudie.MiSim.entities.networking;
 
-import de.rss.fachstudie.MiSim.entities.Microservice;
+import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
 import de.rss.fachstudie.MiSim.entities.Operation;
 
 /**

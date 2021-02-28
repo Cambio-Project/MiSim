@@ -1,8 +1,7 @@
-package de.rss.fachstudie.MiSim.utils;
+package de.rss.fachstudie.MiSim.parsing;
 
-import de.rss.fachstudie.MiSim.entities.Microservice;
+import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
 import de.rss.fachstudie.MiSim.entities.Operation;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 

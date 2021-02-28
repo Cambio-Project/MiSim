@@ -1,16 +1,17 @@
 package de.rss.fachstudie.MiSim.entities.networking;
 
 import co.paralleluniverse.fibers.SuspendExecution;
-import de.rss.fachstudie.MiSim.models.MainModel;
+import desmoj.core.simulator.Event;
+import desmoj.core.simulator.Model;
 
 /**
  * @author Lion Wagner
  */
-public class NetworkRequestCancledEvent extends MainModelAwareRequestEvent {
+public class NetworkRequestCanceledEvent extends Event<Request> {
 
     private final Throwable reason;
 
-    public NetworkRequestCancledEvent(MainModel model, String name, boolean showInTrace, Throwable reason) {
+    public NetworkRequestCanceledEvent(Model model, String name, boolean showInTrace, Throwable reason) {
         super(model, name, showInTrace);
         this.reason = reason;
     }

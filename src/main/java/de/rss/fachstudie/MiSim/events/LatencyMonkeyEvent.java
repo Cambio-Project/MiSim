@@ -1,6 +1,6 @@
 package de.rss.fachstudie.MiSim.events;
 
-import de.rss.fachstudie.MiSim.entities.Microservice;
+import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
 import de.rss.fachstudie.MiSim.models.MainModel;
 import de.rss.fachstudie.MiSim.resources.CPU;
 import desmoj.core.simulator.ExternalEvent;
@@ -28,11 +28,7 @@ public class LatencyMonkeyEvent extends ExternalEvent {
 
     @Override
     public void eventRoutine() {
-        for (Microservice msEntity : model.services.get(msId)) {
-            for (CPU cpu : model.serviceCPU.get(msEntity.getId()).values()) {
-                cpu.applyDelay(delay);
-            }
-        }
+        //TODO: Add delay to microservice
 
     }
 

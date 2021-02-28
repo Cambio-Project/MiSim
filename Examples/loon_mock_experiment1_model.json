@@ -11,32 +11,32 @@
     {
       "microservice": "gateway",
       "operation": "gateway.PING",
-      "interval": 1
+      "limbo_profile": "./Examples/loon_mock_arrival_rates.csv"
     },
     {
       "microservice": "gateway",
       "operation": "INTERNAL_DEP",
-      "interval": 1
+      "interval": 0.5
     },
     { 
       "microservice": "gateway",
       "operation": "EXTERNAL_DEP",
-      "interval": 3
+      "interval": 1
     },
     {
       "microservice": "gateway",
       "operation": "gateway.DB_READ",
-      "interval": 2
+      "interval": 1
     },
     {
       "microservice": "gateway",
       "operation": "gateway.DB_WRITE",
-      "interval": 2
+      "interval": 0.5
     },
     {
       "microservice": "gateway",
       "operation": "UNAFFECTED_SERVICE",
-      "interval": 2
+      "interval": 1
     }
   ],
   "chaosmonkeys": [

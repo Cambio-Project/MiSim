@@ -5,6 +5,7 @@
       "instances": 1,
       "patterns": [],
       "capacity": 10,
+      "loadbalancer_strategy": "even",
       "operations": [
         {
           "name": "gateway.PING",
@@ -70,9 +71,9 @@
     },
     {
       "name": "loon-service",
-      "instances": 2,
+      "instances": 1,
       "patterns": [],
-      "capacity": 100,
+      "capacity": 15,
       "operations": [
         {
           "name": "loon-service.DB_WRITE",
@@ -86,7 +87,7 @@
         },
         {
           "name": "call_loon-service2",
-          "demand": 2,
+          "demand": 4,
           "dependencies": [
             {
               "service": "loon-service2",
@@ -104,9 +105,9 @@
     },
     {
       "name": "loon-service2",
-      "instances": 2,
+      "instances": 1,
       "patterns": [],
-      "capacity": 200,
+      "capacity": 10,
       "operations": [
         {
           "name": "loon-service2.get",

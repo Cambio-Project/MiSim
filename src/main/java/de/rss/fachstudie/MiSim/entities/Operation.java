@@ -1,8 +1,7 @@
 package de.rss.fachstudie.MiSim.entities;
 
-import de.rss.fachstudie.MiSim.entities.networking.MainModelAwareEntity;
+import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
 import de.rss.fachstudie.MiSim.entities.patterns.CircuitBreaker;
-import de.rss.fachstudie.MiSim.models.MainModel;
 import desmoj.core.simulator.Entity;
 import desmoj.core.simulator.Model;
 
@@ -16,24 +15,16 @@ import desmoj.core.simulator.Model;
  * only executed if a certain probability is reached dependencies:    an array containing dependant operations of other
  * services
  */
-public class Operation extends MainModelAwareEntity {
-    private String name = "";
+public class Operation extends Entity {
     private int demand = 0;
     private CircuitBreaker circuitBreaker = null;
-    private Dependency[] dependencies = null;
-    private Microservice owner =null;
+    private Dependency[] dependencies = new Dependency[0];
+    private Microservice owner = null;
 
-    public Operation(MainModel model, String name, boolean showInTrace) {
-        super(model, name, showInTrace);;
+    public Operation(Model model, String name, boolean showInTrace) {
+        super(model, name, showInTrace);
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
 
     public CircuitBreaker getCircuitBreaker() {
         return circuitBreaker;
@@ -44,10 +35,7 @@ public class Operation extends MainModelAwareEntity {
     }
 
     public boolean hasCircuitBreaker() {
-        if (circuitBreaker != null) {
-            return true;
-        }
-        return false;
+        return circuitBreaker != null;
     }
 
     public Dependency[] getDependencies() {

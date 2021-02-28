@@ -1,4 +1,4 @@
-package de.rss.fachstudie.MiSim.utils;
+package de.rss.fachstudie.MiSim.parsing;
 
 import de.rss.fachstudie.MiSim.models.MainModel;
 import org.junit.jupiter.api.Test;

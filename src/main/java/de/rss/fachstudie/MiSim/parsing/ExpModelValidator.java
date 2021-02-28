@@ -1,4 +1,4 @@
-package de.rss.fachstudie.MiSim.utils;
+package de.rss.fachstudie.MiSim.parsing;
 
 public class ExpModelValidator {
 

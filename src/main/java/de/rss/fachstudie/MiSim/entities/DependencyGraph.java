@@ -1,5 +1,6 @@
 package de.rss.fachstudie.MiSim.entities;
 
+import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
 import de.rss.fachstudie.MiSim.resources.Thread;
 
 public class DependencyGraph {

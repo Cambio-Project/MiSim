@@ -1,4 +1,4 @@
-package de.rss.fachstudie.MiSim.utils;
+package de.rss.fachstudie.MiSim.parsing;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,7 +69,7 @@ public class ArchModelValidator {
 //                    //adress correct micro service
 //                    if(parser.monkeys[i].getMicroservice().equals(parser.microservices[j].getName())){
 //                        //check if number of instances that are going to be killed are bigger than existing instances
-//                        if(parser.monkeys[i].getInstances() > parser.microservices[j].getInstances()){
+//                        if(parser.monkeys[i].getInstancesCount() > parser.microservices[j].getInstancesCount()){
 //                            System.out.println("WARNING CHAOSMONEKYS: Monkey number : " + i + " tries to kill more instances then available");
 //                        }
 //                    }

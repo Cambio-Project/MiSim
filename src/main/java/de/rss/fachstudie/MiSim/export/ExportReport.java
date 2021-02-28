@@ -1,8 +1,8 @@
 package de.rss.fachstudie.MiSim.export;
 
-import de.rss.fachstudie.MiSim.entities.Microservice;
+import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
 import de.rss.fachstudie.MiSim.models.MainModel;
-import de.rss.fachstudie.MiSim.utils.ExpModelParser;
+import de.rss.fachstudie.MiSim.parsing.ExpModelParser;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -92,11 +92,11 @@ public class ExportReport {
 
         for (int id = 0; id < model.services.size(); id++) {
             String serviceName = model.services.get(id).get(0).getName();
-            int instanceLimit = model.services.get(id).get(0).getInstances();
+            int instanceLimit = model.services.get(id).get(0).getInstancesCount();
 
             if (ExpModelParser.simulation_meta_data.get("report").equals("minimalistic")) {
-                if (model.services.get(id).get(0).getInstances() < 10)
-                    instanceLimit = model.services.get(id).get(0).getInstances();
+                if (model.services.get(id).get(0).getInstancesCount() < 10)
+                    instanceLimit = model.services.get(id).get(0).getInstancesCount();
                 else
                     instanceLimit = 10;
             }

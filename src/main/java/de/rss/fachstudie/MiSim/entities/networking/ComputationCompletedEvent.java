@@ -1,8 +1,7 @@
 package de.rss.fachstudie.MiSim.entities.networking;
 
 import de.rss.fachstudie.MiSim.entities.MessageObject;
-import de.rss.fachstudie.MiSim.entities.Microservice;
-import de.rss.fachstudie.MiSim.entities.MicroserviceInstance;
+import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
 import de.rss.fachstudie.MiSim.resources.Thread;
 import desmoj.core.simulator.EventOf3Entities;
 import desmoj.core.simulator.Model;
@@ -18,9 +17,9 @@ public class ComputationCompletedEvent extends EventOf3Entities<Microservice, Th
 
     @Override
     public void eventRoutine(Microservice microservice, Thread thread, MessageObject messageObject) {
-        Request rsq = (Request) messageObject;
-        sendTraceNote(String.format("Request %s was computed.", rsq.getQuotedName()));
-        rsq.setComputation_completed();
+        Request rqs = (Request) messageObject;
+        sendTraceNote(String.format("Request %s was computed.", rqs.getQuotedName()));
+        rqs.setComputation_completed();
     }
 
     @Override

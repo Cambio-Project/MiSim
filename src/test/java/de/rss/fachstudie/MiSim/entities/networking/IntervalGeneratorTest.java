@@ -1,6 +1,6 @@
 package de.rss.fachstudie.MiSim.entities.networking;
 
-import de.rss.fachstudie.MiSim.entities.Microservice;
+import de.rss.fachstudie.MiSim.entities.generator.IntervalGenerator;
 import de.rss.fachstudie.MiSim.models.MainModel;
 import desmoj.core.simulator.Experiment;
 import org.junit.jupiter.api.BeforeAll;

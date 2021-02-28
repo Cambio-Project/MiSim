@@ -1,16 +1,18 @@
 package de.rss.fachstudie.MiSim.entities;
 
-import de.rss.fachstudie.MiSim.entities.networking.MainModelAwareEntity;
-import de.rss.fachstudie.MiSim.models.MainModel;
+import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
 import de.rss.fachstudie.MiSim.resources.Thread;
+import desmoj.core.simulator.Entity;
+import desmoj.core.simulator.Model;
 
-public class MessageObject extends MainModelAwareEntity {
+public class MessageObject extends Entity {
     private String name;
     private DependencyGraph dependencyGraph = null;
 
-    public MessageObject(MainModel owner, String name, boolean showInTrace) {
+    public MessageObject(Model owner, String name, boolean showInTrace) {
         super(owner, name, showInTrace);
         dependencyGraph = new DependencyGraph();
+        this.name = name;
     }
 
     public boolean hasDependencies() {

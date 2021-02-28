@@ -2,7 +2,7 @@ package de.rss.fachstudie.MiSim.events;
 
 import de.rss.fachstudie.MiSim.entities.DependencyNode;
 import de.rss.fachstudie.MiSim.entities.MessageObject;
-import de.rss.fachstudie.MiSim.entities.Microservice;
+import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
 import de.rss.fachstudie.MiSim.entities.Operation;
 import de.rss.fachstudie.MiSim.models.MainModel;
 import de.rss.fachstudie.MiSim.resources.Thread;
@@ -76,8 +76,9 @@ public class StopEvent extends EventOf3Entities<Microservice, Thread, MessageObj
                                     int dependingID = dependingMs.getId();
                                     Operation dependingOp = depending.getOperation();
 
+                                    if(dependingThread==null) continue;
                                     // add thread to cpu
-                                    model.serviceCPU.get(dependingID).get(dependingMs.getSid()).addThread(dependingThread, dependingOp);
+                                    MainModel.serviceCPU.get(dependingID).get(dependingMs.getSid()).addThread(dependingThread, dependingOp);
                                 }
                             }
                         }

@@ -1,4 +1,4 @@
-package de.rss.fachstudie.MiSim.utils;
+package de.rss.fachstudie.MiSim.parsing;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -18,6 +18,7 @@ import java.util.HashMap;
 public class ExpModelParser {
     public static HashMap<String, String> simulation_meta_data;
     public static InitialEvent[] request_generators;
+    public static GeneratorPOJO[] generators;
     public static InitialChaosMonkeyEvent[] chaosmonkeys;
     public static InitialLatencyMonkeyEvent[] latencymonkeys;
 
@@ -27,7 +28,8 @@ public class ExpModelParser {
             JsonObject root = gson.fromJson(new JsonReader(new FileReader(filename)), JsonObject.class);
             simulation_meta_data = gson.fromJson(root.get("simulation_meta_data"), new TypeToken<HashMap<String, String>>() {
             }.getType());
-            request_generators = gson.fromJson(root.get("request_generators"), InitialEvent[].class);
+            generators = gson.fromJson(root.get("request_generators"), GeneratorPOJO[].class);
+            //request_generators = gson.fromJson(root.get("request_generators"), InitialEvent[].class);
             chaosmonkeys = gson.fromJson(root.get("chaosmonkeys"), InitialChaosMonkeyEvent[].class);
             latencymonkeys = gson.fromJson(root.get("latencymonkeys"), InitialLatencyMonkeyEvent[].class);
 //            System.out.println(request_generators[0].getMicroservice());
