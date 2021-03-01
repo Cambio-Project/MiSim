@@ -103,7 +103,7 @@ public class LIMBOGenerator extends Generator {
     protected TimeInstant getFirstTargetTime() {
         if (workingCopy_targetTimes.isEmpty())
             throw new GeneratorStopException("Load Profile does not define any loads.");
-        return new TimeInstant(workingCopy_targetTimes.pollFirst().getValue0());
+        return getNextTimeInstant();
     }
 
     private TimeInstant getNextTimeInstant() {
