@@ -25,6 +25,5 @@ public class FinishEvent extends ExternalEvent {
                 model.serviceCPU.get(id).get(instance).releaseUnfinishedThreads();
             }
         }
-        model.STATISTICS_COLLECTOR.write_out();
     }
 }

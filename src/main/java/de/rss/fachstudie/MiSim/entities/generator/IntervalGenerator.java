@@ -2,22 +2,39 @@ package de.rss.fachstudie.MiSim.entities.generator;
 
 import de.rss.fachstudie.MiSim.entities.Operation;
 import de.rss.fachstudie.MiSim.models.MainModel;
-import desmoj.core.dist.ContDistUniform;
-import desmoj.core.dist.NumericalDist;
 import desmoj.core.simulator.TimeInstant;
 
 /**
+ * Generator that produces UserRequestArrivalEvent at a target Service Endpoint on an interval.
+ * <p>
+ * This generator provides the following json options to the architecture:
+ * <table border="1">
+ *   <tr>
+ *      <td>Name </td>      <td> Default Value </td> <td> Description</td>
+ *   </tr>
+ *   <tr>
+ *      <td>interval</td>   <td>NONE(required)</td>  <td>Interval in ms to generate requests</td>
+ *   </tr>
+ *   <tr>
+ *      <td> start </td>    <td>0</td>               <td>Starting time in ms of the generator.</td>
+ *   </tr>
+ * </table>
+ *
  * @author Lion Wagner
  */
 public final class IntervalGenerator extends Generator {
 
     private final double interval;
-    private final NumericalDist<Double> dist;
+    private final double start;
 
     public IntervalGenerator(MainModel model, String name, boolean showInTrace, Operation operation, double interval) {
+        this(model, name, showInTrace, operation, interval, 0);
+    }
+
+    public IntervalGenerator(MainModel model, String name, boolean showInTrace, Operation operation, double interval, double start) {
         super(model, name, showInTrace, operation);
-        this.interval = interval;
-        dist = new ContDistUniform(model, name, interval, interval, true, true);
+        this.interval = interval; //TODO: Time Unit
+        this.start = start;
     }
 
     @Override
@@ -28,6 +45,6 @@ public final class IntervalGenerator extends Generator {
 
     @Override
     protected TimeInstant getFirstTargetTime() {
-        return presentTime();
+        return new TimeInstant(start);
     }
 }

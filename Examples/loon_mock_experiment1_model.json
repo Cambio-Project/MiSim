@@ -11,14 +11,16 @@
     {
       "microservice": "gateway",
       "operation": "gateway.PING",
-      "limbo_profile": "./Examples/loon_mock_arrival_rates.csv"
+      "limbo_model": "./Examples/loon_mock_arrival_rates_simple.csv",
+      "repeating": true,
+      "repetition_skip": 30
     },
     {
       "microservice": "gateway",
       "operation": "INTERNAL_DEP",
       "interval": 0.5
     },
-    { 
+    {
       "microservice": "gateway",
       "operation": "EXTERNAL_DEP",
       "interval": 1

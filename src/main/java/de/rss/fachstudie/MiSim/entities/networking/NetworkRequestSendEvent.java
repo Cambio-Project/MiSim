@@ -1,58 +1,70 @@
 package de.rss.fachstudie.MiSim.entities.networking;
 
 import co.paralleluniverse.fibers.SuspendExecution;
-import de.rss.fachstudie.MiSim.entities.microservice.MicroserviceInstance;
 import desmoj.core.dist.ContDistNormal;
 import desmoj.core.dist.NumericalDist;
-import desmoj.core.simulator.Event;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 
 /**
+ * Event that represents the sending of a request.
+ *
+ * Can introduce network delay.
+ * 
  * @author Lion Wagner
  */
-public class NetworkRequestSendEvent extends Event<Request> {
+public class NetworkRequestSendEvent extends NetworkRequestEvent {
 
-    private final MicroserviceInstance sender;
     private NetworkRequestReceiveEvent receiverEvent;
     private final NumericalDist<Double> rng;
 
-    public NetworkRequestSendEvent(Model model, String name, boolean showInTrace, MicroserviceInstance sender) {
-        super(model, name, showInTrace);
-        this.sender = sender;
+    public NetworkRequestSendEvent(Model model, String name, boolean showInTrace, Request request, IRequestUpdateListener listener) {
+        super(model, name, showInTrace, listener, request);
         rng = new ContDistNormal(model, name + "_RNG", 20, 10, true, false);
+        request.setSendEvent(this);
     }
 
-
     @Override
-    public void eventRoutine(Request request) throws SuspendExecution {
-        request.stampSendoff(presentTime());
+    public void eventRoutine() throws SuspendExecution {
+        traveling_request.stampSendoff(presentTime());
+        Request request = traveling_request;
 
-        if(request instanceof RequestAnswer && request.getParent() instanceof UserRequest){
+        if (request instanceof RequestAnswer && request.getParent() instanceof UserRequest) {
             request = ((RequestAnswer) request).unpack(); //unpack the request if its an answer to a UserRequest
         }
 
-        if (!request.hasParent()) { // if it is completed and has no parent we are done
+        if (!request.hasParent()) { // if it is completed and has no parent the request ist considered done
             request.stampReceived(presentTime());
             return;
         }
 
+        //calculate next delay
         double nextDelay;
         do {
             nextDelay = rng.sample() / 1000;
-        } while (nextDelay < 0); //ensures a positve delay, due to "infinte" gaussian deviation
+        } while (nextDelay < 0); //ensures a positive delay, due to "infinite" gaussian deviation
 
-        nextDelay =0; //TODO remove
+        nextDelay = 0; //TODO remove
+        //TODO: add network delay from DelayMonkey
 
-        receiverEvent = new NetworkRequestReceiveEvent(getModel(), String.format("Receiving of %s", request.getQuotedName()), traceIsOn());
+        receiverEvent = new NetworkRequestReceiveEvent(getModel(), String.format("Receiving of %s", request.getQuotedName()), traceIsOn(), updateListener, request);
         TimeInstant next_receiveTime = new TimeInstant(presentTime().getTimeAsDouble() + nextDelay);
-        receiverEvent.schedule(request, next_receiveTime);//TODO: add network delay
-        request.setReceiveEvent(receiverEvent);
+
+        receiverEvent.schedule(next_receiveTime);
+
+        //TODO: schedule NetworkRequestTimeOutCheckEvent, to check the request after a timeout duration
+        //TODO: depending on implementation one could also check for instance availability here to simulate client side load balancing behavior more accurately
+
+        traveling_request.setReceiveEvent(receiverEvent);
+        updateListener.onRequestSend(traveling_request);
     }
 
 
     public void cancel() {
+        super.cancel();
         receiverEvent.cancel();
-        //TODO: fire canceledEvent after network timeout
+        new NetworkRequestCanceledEvent(getModel(), "RequestCanceledEvent", traceIsOn(), updateListener, traveling_request, "Sending was forcibly aborted!");
+
     }
+
 }

@@ -6,7 +6,6 @@ import de.rss.fachstudie.MiSim.entities.Operation;
 import de.rss.fachstudie.MiSim.entities.generator.IntervalGenerator;
 import de.rss.fachstudie.MiSim.entities.generator.LIMBOGenerator;
 import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
-import de.rss.fachstudie.MiSim.entities.networking.ReportCollector;
 import de.rss.fachstudie.MiSim.events.FinishEvent;
 import de.rss.fachstudie.MiSim.events.StatisticEvent;
 import de.rss.fachstudie.MiSim.export.ExportReport;
@@ -70,7 +69,6 @@ public class MainModel extends Model {
     public HashMap<Integer, HashMap<Integer, TimeSeries>> resourceLimiterStatistics;
     public HashMap<Integer, TimeSeries> taskQueueStatistics;
 
-    public static ReportCollector STATISTICS_COLLECTOR = new ReportCollector();
 
     public void setSimulationTime(double simTime) {
         if (simTime > 0)
@@ -505,7 +503,7 @@ public class MainModel extends Model {
 //            initEvent.schedule(new TimeSpan(0, timeUnit));
 //        }
 
-//        generators = new GeneratorPOJO[]{generators[2]};
+        generators = new GeneratorPOJO[]{generators[0]};
         for (GeneratorPOJO generator : generators) {
             Operation op = MainModel.microservices.stream()
                     .filter(microservice -> microservice.getName().matches(String.format("^%s(#[0-9]*)?$", generator.microservice)))
@@ -517,10 +515,10 @@ public class MainModel extends Model {
                 continue;
             }
 
-            if (!StringUtils.isEmpty(generator.limbo_profile)) {
-                new LIMBOGenerator(this, "Limbo Generator " + op.getQuotedName(), true, op, new File(generator.limbo_profile));
+            if (!StringUtils.isEmpty(generator.limbo_model)) {
+                new LIMBOGenerator(this, "Limbo Generator " + op.getQuotedName(), true, op, new File(generator.limbo_model), generator.repeating, generator.repetition_skip);
             } else if (generator.interval > 0)
-                new IntervalGenerator(this, "Interval Generator " + op.getQuotedName(), true, op, generator.interval);
+                new IntervalGenerator(this, "Interval Generator " + op.getQuotedName(), true, op, generator.interval, generator.start);
 
         }
 

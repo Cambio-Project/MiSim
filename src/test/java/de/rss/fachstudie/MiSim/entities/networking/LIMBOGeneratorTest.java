@@ -14,12 +14,13 @@ import java.util.concurrent.TimeUnit;
 
 class LIMBOGeneratorTest {
     private static final Experiment exp = new Experiment("Test Experiment");
-    ;
+
     private static File arrivalRates;
     private static TestModel model;
     private static Microservice service;
 
     private static final File testFile = new File("src/test/resources/test_loon_mock_arrival_rates.csv");
+
 
 
     @BeforeAll

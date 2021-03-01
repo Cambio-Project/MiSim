@@ -16,7 +16,6 @@ class CSVExporter extends AbstractTableFormatter {
     private static final Path REPORT_FOLDER = Paths.get("Report", "raw");
     private static final String FILE_EXTENSION = ".csv";
 
-    private final Path targetFilePath;
     private final FileOutput out;
 
     private CSVExporter(String datasetName) {
@@ -25,7 +24,7 @@ class CSVExporter extends AbstractTableFormatter {
 
     private CSVExporter(String datasetName, String seperator) {
         REPORT_FOLDER.toFile().mkdirs();
-        targetFilePath = Paths.get(String.valueOf(REPORT_FOLDER), datasetName + FILE_EXTENSION);
+        Path targetFilePath = Paths.get(String.valueOf(REPORT_FOLDER), datasetName + FILE_EXTENSION);
         FileOutput.setSeparator(seperator);
         out = new FileOutput();
         out.open(targetFilePath.toAbsolutePath().toString());

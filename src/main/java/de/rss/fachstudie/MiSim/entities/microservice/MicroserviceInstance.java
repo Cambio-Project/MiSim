@@ -58,10 +58,9 @@ public class MicroserviceInstance extends Entity implements IRequestUpdateListen
         //2. requests' dependecies were all recevied -> send it to the cpu for handling. The CPU will "send" it back to this method once its done.
         //3. request does have dependencies -> create internal
         if (request.isCompleted()) {
-            NetworkRequestSendEvent sendEvent = new NetworkRequestSendEvent(getModel(), "Request_Answer_" + request.getQuotedName(), traceIsOn(), this);
+            NetworkRequestSendEvent sendEvent = new NetworkRequestSendEvent(getModel(), "Request_Answer_" + request.getQuotedName(), traceIsOn(), new RequestAnswer(request), this);
 
-            sendEvent.schedule(new RequestAnswer(request));//send away the answer
-            //currentRequestsToHandle.remove(request);
+            sendEvent.schedule();//send away the answer
 
         } else if (request.getDependencyRequests().isEmpty() || request.areDependencies_completed()) {
             ComputationCompletedEvent computationCompletedEvent = new ComputationCompletedEvent(getModel(), String.format("ComputationEnd %s", request.getQuotedName()), traceIsOn());
@@ -75,12 +74,12 @@ public class MicroserviceInstance extends Entity implements IRequestUpdateListen
                 Request internalRequest = new InternalRequest(getModel(), this.traceIsOn(), dependency, this);
                 currentInternalRequests.add(internalRequest);
 
-                NetworkRequestSendEvent sendEvent = new NetworkRequestSendEvent(getModel(), String.format("Send Cascading_Request for %s", request.getQuotedName()), traceIsOn(), this);
-                sendEvent.schedule(internalRequest, presentTime());
+                NetworkRequestSendEvent sendEvent = new NetworkRequestSendEvent(getModel(), String.format("Send Cascading_Request for %s", request.getQuotedName()), traceIsOn(), internalRequest, this);
+                sendEvent.schedule(presentTime());
             }
         }
 
-        collectQueueStatistics(); //collecting Statsitics
+        collectQueueStatistics(); //collecting Statistics
     }
 
     /**
@@ -163,7 +162,7 @@ public class MicroserviceInstance extends Entity implements IRequestUpdateListen
 
     @Override
     public void onRequestArrivalAtTarget(Request request) {
-        if(request instanceof RequestAnswer){
+        if (request instanceof RequestAnswer) {
             request = ((RequestAnswer) request).unpack();
         }
 

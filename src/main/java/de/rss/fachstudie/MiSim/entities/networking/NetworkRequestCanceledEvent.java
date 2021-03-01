@@ -1,24 +1,25 @@
 package de.rss.fachstudie.MiSim.entities.networking;
 
 import co.paralleluniverse.fibers.SuspendExecution;
-import desmoj.core.simulator.Event;
 import desmoj.core.simulator.Model;
 
 /**
+ * Event that should be scheduled when a request gets canceled.
+ *
  * @author Lion Wagner
  */
-public class NetworkRequestCanceledEvent extends Event<Request> {
+public class NetworkRequestCanceledEvent extends NetworkRequestEvent {
 
-    private final Throwable reason;
+    private final String reason;
 
-    public NetworkRequestCanceledEvent(Model model, String name, boolean showInTrace, Throwable reason) {
-        super(model, name, showInTrace);
+    public NetworkRequestCanceledEvent(Model model, String name, boolean showInTrace, IRequestUpdateListener listener, Request request, String reason) {
+        super(model, name, showInTrace, listener, request);
         this.reason = reason;
     }
 
     @Override
-    public void eventRoutine(Request request) throws SuspendExecution {
-        if (traceIsOn())
-            sendTraceNote(String.format("Request %s was not handled. Cause: %s", request.getQuotedName(), reason.getMessage()));
+    public void eventRoutine() throws SuspendExecution {
+        sendTraceNote(String.format("Request %s was not handled. Cause: %s", traveling_request.getQuotedName(), reason));
+        updateListener.onRequestFailed(traveling_request);
     }
 }
