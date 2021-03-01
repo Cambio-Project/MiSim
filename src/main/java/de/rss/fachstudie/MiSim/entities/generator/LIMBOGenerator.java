@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -42,8 +43,8 @@ public class LIMBOGenerator extends Generator {
 
 
     private final List<Pair<Double, Integer>> targetTimes;
+    private LinkedList<Pair<Double, Integer>> workingCopy_targetTimes;
     private Pair<Double, Integer> currentPair; //holds the amount of missing request for the current
-    private int currentPairIndex = 0;
     private int repetitions = 0;
     private double maxTimeShift = 0;
 
@@ -67,6 +68,7 @@ public class LIMBOGenerator extends Generator {
         super(model, name, showInTrace, operation);
 
         targetTimes = getPairList(LimboProfile);
+        workingCopy_targetTimes = new LinkedList<>(targetTimes);
         this.repeating = repeating;
         this.repetition_skip = repetition_skip;
     }
@@ -86,7 +88,9 @@ public class LIMBOGenerator extends Generator {
         } catch (ArrayIndexOutOfBoundsException e) {
             //TODO: throw Exception for malformed Limbo file
         }
+        tmpList = tmpList.stream().filter(objects -> objects.getValue1() > 0).collect(Collectors.toList()); // remove entries with 0 load
         tmpList.sort(Comparator.comparing(Pair::getValue0)); //ensure sorting
+
         return tmpList;
     }
 
@@ -97,29 +101,30 @@ public class LIMBOGenerator extends Generator {
 
     @Override
     protected TimeInstant getFirstTargetTime() {
-        return getNextTimeInstant();
+        if (workingCopy_targetTimes.isEmpty())
+            throw new GeneratorStopException("Load Profile does not define any loads.");
+        return new TimeInstant(workingCopy_targetTimes.pollFirst().getValue0());
     }
 
     private TimeInstant getNextTimeInstant() {
-        if (currentPair != null && currentPair.getValue1() > 0) {
-            currentPair = currentPair.setAt1(currentPair.getValue1() - 1);
-            return new TimeInstant(
-                    currentPair.getValue0() +
-                            repetitions * (maxTimeShift + repetition_skip));
-        } else {
-            if (currentPairIndex >= targetTimes.size()) {
+        if (currentPair == null || currentPair.getValue1() <= 0) { //if current pairs is empty
+            if (workingCopy_targetTimes.isEmpty()) {
                 if (repeating) {
                     repetitions++;
                     maxTimeShift = currentPair.getValue0();
-                    currentPairIndex = 0;
                     currentPair = null;
+                    workingCopy_targetTimes = new LinkedList<>(targetTimes);
                     return getNextTimeInstant();
-                } else {
+                }
+            } else {
+                currentPair = workingCopy_targetTimes.pollFirst();
+                if (currentPair == null) {
                     throw new GeneratorStopException("No further rates are defined.");
                 }
             }
-            currentPair = targetTimes.get(currentPairIndex++);
-            return getNextTimeInstant();
         }
+
+        currentPair = currentPair.setAt1(currentPair.getValue1() - 1);
+        return new TimeInstant(currentPair.getValue0() + repetitions * (maxTimeShift + repetition_skip));
     }
 }

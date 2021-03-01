@@ -51,8 +51,23 @@ public abstract class Generator extends ExternalEvent implements IRequestUpdateL
         this.model = model;
         this.operation = operation;
         super.sendTraceNote("starting Generator " + this.getQuotedName());
-        this.schedule(new TimeInstant(0));
         reporter = new MultiDataPointReporter(name);
+        schedule();
+
+    }
+
+    private void doInitialSchedule() {
+        try {
+            TimeInstant next = getNextExecutionTimeInstance();
+            if (next == null) throw new GeneratorStopException();
+
+            if (this.isScheduled()) this.reSchedule(next);
+            else this.schedule(next);
+
+        } catch (GeneratorStopException e) {
+            sendWarning("Generator %s did not start.", this.getClass().getCanonicalName(), "Load profile was faulty.",
+                    "Check your request generators definition and input for errors.");
+        }
     }
 
 
@@ -68,6 +83,7 @@ public abstract class Generator extends ExternalEvent implements IRequestUpdateL
 
     /**
      * Method to compute used get the first target time. Called by the superclass upon need for the first TimeInstance.
+     * Should return a constant value.
      * <p>
      * Can return {@code null} or throw a {@link GeneratorStopException} to stop the generator.
      *
@@ -95,11 +111,21 @@ public abstract class Generator extends ExternalEvent implements IRequestUpdateL
     }
 
 
+    /**
+     * This method is automatically called by the Generator itself. (by rescheduling itself)
+     * <p>
+     * If absolutely needed it can be manually called to send the schedule the next Request immediately.
+     *
+     * @throws SuspendExecution
+     */
     @Override
     public void eventRoutine() throws SuspendExecution {
+        if (lastTargetTime == null) {
+            doInitialSchedule();
+            return;
+        }
 
         UserRequest request = new UserRequest(model, String.format("User_Request@([%s] %s)", operation.getOwner().getName(), operation.getName()), true, operation);
-
         NetworkRequestEvent event = new UserRequestArrivalEvent(model, String.format("User_Request@(%s) ", operation.getQuotedName()), this.traceIsOn(), this, request);
         event.schedule(presentTime());
 
@@ -110,6 +136,7 @@ public abstract class Generator extends ExternalEvent implements IRequestUpdateL
             sendTraceNote(String.format("Generator %s has stopped.\nReason: %s", this.getQuotedName(), e.getMessage()));
             return;
         }
+
 
         if (nextExecutionTimeInstance == null) {
             sendWarning(
