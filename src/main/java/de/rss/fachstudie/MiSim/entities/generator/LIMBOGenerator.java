@@ -115,12 +115,11 @@ public class LIMBOGenerator extends Generator {
                     currentPair = null;
                     workingCopy_targetTimes = new LinkedList<>(targetTimes);
                     return getNextTimeInstant();
+                } else {
+                    throw new GeneratorStopException("No further rates are defined.");
                 }
             } else {
                 currentPair = workingCopy_targetTimes.pollFirst();
-                if (currentPair == null) {
-                    throw new GeneratorStopException("No further rates are defined.");
-                }
             }
         }
 
