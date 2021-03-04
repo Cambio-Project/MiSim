@@ -3,11 +3,11 @@ package de.rss.fachstudie.MiSim.entities.networking;
 import de.rss.fachstudie.MiSim.entities.Operation;
 import de.rss.fachstudie.MiSim.entities.generator.GeneratorStopException;
 import de.rss.fachstudie.MiSim.entities.generator.LIMBOGenerator;
-import desmoj.core.simulator.Experiment;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import testutils.TestExperiment;
 import testutils.TestModel;
 
 import java.io.File;
@@ -23,11 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 class LIMBOGeneratorTest {
-    private static class TestExperiment extends Experiment {
-        public TestExperiment() {
-            super("TestExperiment");
-        }
-    }
 
     /**
      * Test class that exposes the important next TargetTime for testing
