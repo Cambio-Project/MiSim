@@ -1,7 +1,6 @@
 package de.rss.fachstudie.MiSim.resources;
 
 
-import desmoj.core.simulator.Model;
 import org.javatuples.Pair;
 import org.junit.jupiter.api.*;
 import testutils.TestExperiment;
@@ -12,8 +11,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class CPUProcessSchedulerTest<T extends CPUProcessScheduler> {
 
@@ -33,13 +31,41 @@ class CPUProcessSchedulerTest<T extends CPUProcessScheduler> {
         Class<? extends T> genericType = ((Class<? extends T>) ((ParameterizedType) this.getClass().
                 getGenericSuperclass()).getActualTypeArguments()[0]);
 
-        Constructor<? extends T> constructor = genericType.getConstructor(Model.class, String.class, boolean.class);
-        this.scheduler = constructor.newInstance(mod, "TestScheduler", false);
+        Constructor<? extends T> constructor = genericType.getConstructor(String.class);
+        this.scheduler = constructor.newInstance("TestScheduler");
     }
 
     @Test
     public void returnsNullOnEmpty() {
         assertNull(scheduler.retrieveNextProcess());
+    }
+
+    @Test
+    public void returnsHasToScheduleCorrectly() {
+        assertFalse(scheduler.hasThreadsToSchedule());
+        scheduler.enterProcess(new CPUProcess(1));
+        assertTrue(scheduler.hasThreadsToSchedule());
+    }
+
+    @Test
+    public void detectsThreadsToSchedule() {
+        assertFalse(scheduler.hasThreadsToSchedule());
+        scheduler.enterProcess(new CPUProcess(1));
+        assertTrue(scheduler.hasThreadsToSchedule());
+    }
+
+    @Test
+    public void doesNotReschedule() {
+        scheduler.enterProcess(new CPUProcess(1));
+        scheduler.enterProcess(new CPUProcess(2));
+        scheduler.enterProcess(new CPUProcess(3));
+        scheduler.enterProcess(new CPUProcess(4));
+        for (int i = 0; i < 4; i++) {
+            scheduler.retrieveNextProcessNoReschedule();
+        }
+        assertEquals(0, scheduler.getTotalWorkDemand());
+        assertNull(scheduler.retrieveNextProcess());
+        assertNull(scheduler.retrieveNextProcessNoReschedule());
     }
 
     @Test
@@ -138,7 +164,5 @@ class CPUProcessSchedulerTest<T extends CPUProcessScheduler> {
             Pair<CPUProcess, Integer> current = results.get(i);
             assertEquals(arrivalList.get(expectedResult[i] - 1).getValue0(), current.getValue0());
         }
-
-
     }
 }

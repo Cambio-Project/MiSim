@@ -1,6 +1,5 @@
 package de.rss.fachstudie.MiSim.resources;
 
-import desmoj.core.simulator.Model;
 import org.javatuples.Pair;
 
 import java.util.LinkedList;
@@ -18,8 +17,8 @@ public class FIFOScheduler extends CPUProcessScheduler {
 
     private final Queue<CPUProcess> processes = new LinkedList<>();
 
-    public FIFOScheduler(Model model, String name, boolean showInTrace) {
-        super(model, name, showInTrace);
+    public FIFOScheduler(String name) {
+        super(name);
     }
 
 
@@ -47,5 +46,34 @@ public class FIFOScheduler extends CPUProcessScheduler {
 
         int demand = processes.peek().getDemandTotal();
         return new Pair<>(processes.poll(), demand);
+    }
+
+    /**
+     * Pulls the next Process to handle and its assigned time/work quantum.<br> Prevents automatic rescheduling of the
+     * process like in round robin scheduling.
+     * <p>
+     * This method is used to offer scheduling for multithreading.
+     *
+     * @return a pair containing the next process to handle and its assigned time quantum.
+     */
+    @Override
+    public Pair<CPUProcess, Integer> retrieveNextProcessNoReschedule() {
+        return retrieveNextProcess();
+    }
+
+    /**
+     * @return true if there is a thread ready to schedule, false otherwise
+     */
+    @Override
+    public boolean hasThreadsToSchedule() {
+        return !processes.isEmpty();
+    }
+
+    /**
+     * @return the sum of the demand remainder of all processes that are currently in queue.
+     */
+    @Override
+    public int getTotalWorkDemand() {
+        return processes.stream().mapToInt(CPUProcess::getDemandRemainder).sum();
     }
 }

@@ -1,6 +1,5 @@
 package de.rss.fachstudie.MiSim.resources;
 
-import desmoj.core.simulator.Model;
 import org.javatuples.Pair;
 
 import java.util.*;
@@ -30,8 +29,8 @@ public final class RoundRobinScheduler extends CPUProcessScheduler {
     private int current_quantum;
     private boolean update_quantum = true;
 
-    public RoundRobinScheduler(Model model, String name, boolean showInTrace) {
-        super(model, name, showInTrace);
+    public RoundRobinScheduler(String name) {
+        super(name);
     }
 
     /**
@@ -83,7 +82,8 @@ public final class RoundRobinScheduler extends CPUProcessScheduler {
      *
      * @return a pair containing the next process to handle and its assigned time quantum.
      */
-    public Pair<CPUProcess, Integer> retrieveNextProcessNoRotate() {
+    @Override
+    public Pair<CPUProcess, Integer> retrieveNextProcessNoReschedule() {
         Pair<CPUProcess, Integer> nextTarget = retrieveNextProcess();
         if (nextTarget == null) return null;
         processes.remove(nextTarget.getValue0());
@@ -111,5 +111,22 @@ public final class RoundRobinScheduler extends CPUProcessScheduler {
 
         current_quantum = Math.max(median, 25);
         update_quantum = false;
+    }
+
+
+    /**
+     * @return true if there is a thread ready to schedule, false otherwise
+     */
+    @Override
+    public boolean hasThreadsToSchedule() {
+        return !processes.isEmpty();
+    }
+
+    /**
+     * @return the sum of the demand remainder of all processes that are currently in queue.
+     */
+    @Override
+    public int getTotalWorkDemand() {
+        return processes.stream().mapToInt(CPUProcess::getDemandRemainder).sum();
     }
 }

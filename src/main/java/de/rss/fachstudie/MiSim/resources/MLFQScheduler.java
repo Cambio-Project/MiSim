@@ -1,10 +1,11 @@
 package de.rss.fachstudie.MiSim.resources;
 
-import desmoj.core.simulator.Model;
 import org.javatuples.Pair;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Implements a <b>M</b>ulti-<b>L</b>evel <b>F</b>eedback <b>Q</b>ueue scheduler.
@@ -23,18 +24,20 @@ import java.util.List;
  */
 public class MLFQScheduler extends CPUProcessScheduler {
 
-    List<RoundRobinScheduler> queues = new ArrayList<>();
+    private final List<RoundRobinScheduler> queues = new ArrayList<>();
 
-    public MLFQScheduler(Model model, String name, boolean showInTrace) {
-        this(model, name, showInTrace, 3);
+    private final HashMap<CPUProcess, Integer> assigned_queue = new HashMap<>(); //holds the information in which queue a
+
+    public MLFQScheduler(String name) {
+        this(name, 3);
     }
 
-    public MLFQScheduler(Model model, String name, boolean showInTrace, int levels) {
-        super(model, name, showInTrace);
-        assert levels > 0;
+    public MLFQScheduler(String name, int levels) {
+        super(name);
+        if (levels <= 0) throw new IllegalArgumentException("Level count has to be positive.");
 
         for (int i = 0; i < levels; i++) {
-            queues.add(new RoundRobinScheduler(model, name + "_Queue" + i, false));
+            queues.add(new RoundRobinScheduler(name + "_Queue" + i));
         }
     }
 
@@ -46,7 +49,13 @@ public class MLFQScheduler extends CPUProcessScheduler {
      */
     @Override
     public void enterProcess(CPUProcess process) {
-        queues.get(0).enterProcess(process);
+        Objects.requireNonNull(process);
+        if (assigned_queue.containsKey(process)) {
+            queues.get(assigned_queue.get(process)).enterProcess(process);
+        } else {
+            queues.get(0).enterProcess(process);
+            assigned_queue.put(process, 0);
+        }
     }
 
     /**
@@ -60,17 +69,80 @@ public class MLFQScheduler extends CPUProcessScheduler {
 
         for (int i = 0; i < queues.size() - 1; i++) {
             RoundRobinScheduler queue = queues.get(i);
-            next = queue.retrieveNextProcessNoRotate();
+            next = queue.retrieveNextProcessNoReschedule();
             if (next != null) {
-                if (next.getValue0().getDemandRemainder() > next.getValue1()) { //if Process will not finish in the current burst put it a queue lower
+                //if Process will not finish in the current burst put it a queue lower
+                if (next.getValue0().getDemandRemainder() > next.getValue1()) {
                     queues.get(i + 1).enterProcess(next.getValue0());
+                    assigned_queue.put(next.getValue0(), i + 1);
                 }
+                //otherwise, it will be finished and assigned_queue does not need to hold the information any longer.
+                assigned_queue.remove(next.getValue0());
                 break;
             }
         }
 
-        if (next == null)
+        if (next == null) {
             next = queues.get(queues.size() - 1).retrieveNextProcess();
+        }
+
+        if (next != null) {
+            assigned_queue.put(next.getValue0(), queues.size() - 1);
+        }
         return next;
     }
+
+    /**
+     * Pulls the next Process to handle and its assigned time/work quantum.<br> Prevents automatic rescheduling of the
+     * process like in round robin scheduling.
+     * <p>
+     * This method is used to offer scheduling for multithreading.
+     *
+     * @return a pair containing the next process to handle and its assigned time quantum.
+     */
+    @Override
+    public Pair<CPUProcess, Integer> retrieveNextProcessNoReschedule() {
+        //differences to retrieveNextProcess are marked with comments
+
+        Pair<CPUProcess, Integer> next = null;
+
+        for (int i = 0; i < queues.size() - 1; i++) {
+            RoundRobinScheduler queue = queues.get(i);
+            next = queue.retrieveNextProcessNoReschedule();
+            if (next != null) {
+                if (next.getValue0().getDemandRemainder() > next.getValue1()) {
+                    //does not reschedule to lower queue here, instead tells the assigned_queue that it will be there on next manual enter
+                    assigned_queue.put(next.getValue0(), i + 1);
+                }
+                assigned_queue.remove(next.getValue0());
+                break;
+            }
+        }
+
+        if (next == null) {
+            next = queues.get(queues.size() - 1).retrieveNextProcessNoReschedule();//does not reschedule process
+        }
+        if (next != null) {
+            assigned_queue.put(next.getValue0(), queues.size() - 1);
+        }
+        return next;
+    }
+
+    /**
+     * @return true if there is a thread ready to schedule, false otherwise
+     */
+    @Override
+    public boolean hasThreadsToSchedule() {
+        return queues.stream().anyMatch(CPUProcessScheduler::hasThreadsToSchedule);
+    }
+
+    /**
+     * @return the sum of the demand remainder of all processes that are currently in queue.
+     */
+    @Override
+    public int getTotalWorkDemand() {
+        return queues.stream().mapToInt(RoundRobinScheduler::getTotalWorkDemand).sum();
+    }
+
+
 }

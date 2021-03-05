@@ -4,12 +4,12 @@
       "name": "gateway",
       "instances": 1,
       "patterns": [],
-      "capacity": 10,
+      "capacity": 100,
       "loadbalancer_strategy": "even",
       "operations": [
         {
           "name": "gateway.PING",
-          "demand": 1,
+          "demand": 30,
           "dependencies": []
         },
         {

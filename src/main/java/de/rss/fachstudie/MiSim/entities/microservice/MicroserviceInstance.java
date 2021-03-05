@@ -2,8 +2,8 @@ package de.rss.fachstudie.MiSim.entities.microservice;
 
 import de.rss.fachstudie.MiSim.entities.networking.*;
 import de.rss.fachstudie.MiSim.export.MultiDataPointReporter;
-import de.rss.fachstudie.MiSim.resources.CPU;
-import de.rss.fachstudie.MiSim.resources.Thread;
+import de.rss.fachstudie.MiSim.resources.CPUImpl;
+import de.rss.fachstudie.MiSim.resources.CPUProcess;
 import desmoj.core.simulator.Entity;
 import desmoj.core.simulator.Model;
 
@@ -14,7 +14,7 @@ import java.util.LinkedHashSet;
  */
 public class MicroserviceInstance extends Entity implements IRequestUpdateListener {
 
-    private final CPU cpu;
+    private final CPUImpl cpu;
     private final Microservice owner;
     private final int instanceID;
 
@@ -28,7 +28,7 @@ public class MicroserviceInstance extends Entity implements IRequestUpdateListen
         super(model, name, showInTrace);
         this.owner = microservice;
         this.instanceID = instanceID;
-        this.cpu = new CPU(model, String.format("%s_CPU", name), showInTrace, this);
+        this.cpu = new CPUImpl(model, String.format("%s_CPU", name), showInTrace, microservice.getCapacity());
 
         reporter = new MultiDataPointReporter(name + "_");
 
@@ -63,11 +63,8 @@ public class MicroserviceInstance extends Entity implements IRequestUpdateListen
             sendEvent.schedule();//send away the answer
 
         } else if (request.getDependencyRequests().isEmpty() || request.areDependencies_completed()) {
-            ComputationCompletedEvent computationCompletedEvent = new ComputationCompletedEvent(getModel(), String.format("ComputationEnd %s", request.getQuotedName()), traceIsOn());
-
-            Thread thread = new Thread(getModel(), String.format("%s_Thread", getName()), this.traceIsOn(), request.operation.getDemand(), computationCompletedEvent, owner, request, request.operation);
-            cpu.addThread(thread, request.operation);
-
+            CPUProcess newProcess = new CPUProcess(request);
+            cpu.submitProcess(newProcess);
         } else {
             for (NetworkDependency dependency : request.getDependencyRequests()) {
 
