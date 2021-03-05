@@ -25,6 +25,7 @@ public class ComputationBurstCompletedEvent extends ExternalEvent {
         this.ending_process = ending_process;
         this.owner = owner;
         this.work_done = work_done;
+        this.ending_process.setCurrentBurstCompletionEvent(this);
     }
 
     @Override

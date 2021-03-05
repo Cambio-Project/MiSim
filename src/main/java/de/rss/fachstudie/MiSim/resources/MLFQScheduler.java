@@ -144,5 +144,12 @@ public class MLFQScheduler extends CPUProcessScheduler {
         return queues.stream().mapToInt(RoundRobinScheduler::getTotalWorkDemand).sum();
     }
 
+    /**
+     * Clears all current processes from the scheduler
+     */
+    @Override
+    public void clear() {
+        queues.forEach(RoundRobinScheduler::clear);
+    }
 
 }

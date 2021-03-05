@@ -52,4 +52,9 @@ public abstract class CPUProcessScheduler {
      * @return the sum of the demand remainder of all processes that are currently in queue.
      */
     public abstract int getTotalWorkDemand();
+
+    /**
+     * Clears all current processes from the scheduler
+     */
+    public abstract void clear();
 }

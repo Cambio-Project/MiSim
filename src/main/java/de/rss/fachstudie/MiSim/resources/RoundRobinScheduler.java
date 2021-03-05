@@ -129,4 +129,12 @@ public final class RoundRobinScheduler extends CPUProcessScheduler {
     public int getTotalWorkDemand() {
         return processes.stream().mapToInt(CPUProcess::getDemandRemainder).sum();
     }
+
+    /**
+     * Clears all current processes from the scheduler
+     */
+    @Override
+    public void clear() {
+        processes.clear();
+    }
 }

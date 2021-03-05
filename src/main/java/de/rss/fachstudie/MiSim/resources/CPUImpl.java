@@ -13,7 +13,7 @@ import java.util.Set;
 
 public final class CPUImpl extends ExternalEvent {
 
-    private static final int DEFAULT_THREADPOOLSIZE = 3;
+    private static final int DEFAULT_THREADPOOLSIZE = 6;
 
     private final MultiDataPointReporter reporter;
     private final CPUProcessScheduler scheduler;
@@ -114,6 +114,14 @@ public final class CPUImpl extends ExternalEvent {
         double activeWorkRemainder = activeProcesses.stream().mapToDouble(value -> value.getDemandRemainder(presentTime(), capacity)).sum();
         double workTotal = totalQueuedWorkRemainder + activeWorkRemainder;
         return workTotal / (threadPoolSize * capacity);
+    }
+
+    /**
+     * Forcibly stops all currently running and scheduled processes.
+     */
+    public void clear(){
+        scheduler.clear();
+        activeProcesses.forEach(CPUProcess::cancel);
     }
 }
 

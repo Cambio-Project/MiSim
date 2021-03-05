@@ -18,6 +18,7 @@ public final class CPUProcess implements Comparable<CPUProcess> {
     private final Request request;
     private TimeInstant startOfCurrentBurst;
     private int demandRemainder;
+    private ComputationBurstCompletedEvent currentBurstCompletionEvent;
 
     /**
      * Constructor that can be used to create artificial load onto the system
@@ -89,4 +90,15 @@ public final class CPUProcess implements Comparable<CPUProcess> {
     }
 
 
+    /**
+     * Cancels the current Burst of the this process and reset its progress.
+     */
+    public void cancel() {
+        if (currentBurstCompletionEvent != null)
+            currentBurstCompletionEvent.cancel();
+    }
+
+    public void setCurrentBurstCompletionEvent(ComputationBurstCompletedEvent currentBurstCompletionEvent) {
+        this.currentBurstCompletionEvent = currentBurstCompletionEvent;
+    }
 }
