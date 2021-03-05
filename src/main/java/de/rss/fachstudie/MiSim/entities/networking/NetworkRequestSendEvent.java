@@ -4,13 +4,13 @@ import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.dist.ContDistNormal;
 import desmoj.core.dist.NumericalDist;
 import desmoj.core.simulator.Model;
-import desmoj.core.simulator.TimeInstant;
+import desmoj.core.simulator.TimeSpan;
 
 /**
  * Event that represents the sending of a request.
- *
+ * <p>
  * Can introduce network delay.
- * 
+ *
  * @author Lion Wagner
  */
 public class NetworkRequestSendEvent extends NetworkRequestEvent {
@@ -44,13 +44,11 @@ public class NetworkRequestSendEvent extends NetworkRequestEvent {
             nextDelay = rng.sample() / 1000;
         } while (nextDelay < 0); //ensures a positive delay, due to "infinite" gaussian deviation
 
-        nextDelay = 0; //TODO remove
+
         //TODO: add network delay from DelayMonkey
 
         receiverEvent = new NetworkRequestReceiveEvent(getModel(), String.format("Receiving of %s", request.getQuotedName()), traceIsOn(), updateListener, request);
-        TimeInstant next_receiveTime = new TimeInstant(presentTime().getTimeAsDouble() + nextDelay);
-
-        receiverEvent.schedule(next_receiveTime);
+        receiverEvent.schedule(new TimeSpan(nextDelay));
 
         //TODO: schedule NetworkRequestTimeOutCheckEvent, to check the request after a timeout duration
         //TODO: depending on implementation one could also check for instance availability here to simulate client side load balancing behavior more accurately
