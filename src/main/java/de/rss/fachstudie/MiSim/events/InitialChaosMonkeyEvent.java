@@ -46,7 +46,7 @@ public class InitialChaosMonkeyEvent extends ExternalEvent {
             msId = model.getIdByName(microservice);
         }
         String monkeyName = this.getName().substring(0, getName().lastIndexOf("_Initializer"));
-        ChaosMonkeyEvent monkeyEvent = new ChaosMonkeyEvent(model, monkeyName, model.getShowMonkeyEvent(), msId, instances);
+        ChaosMonkeyEvent monkeyEvent = new ChaosMonkeyEvent(model, monkeyName, model.getShowMonkeyEvent(), null, instances);
         monkeyEvent.schedule(new TimeSpan(time, model.getTimeUnit()));
     }
 }

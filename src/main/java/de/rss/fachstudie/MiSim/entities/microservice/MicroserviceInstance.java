@@ -22,6 +22,9 @@ public class MicroserviceInstance extends Entity implements IRequestUpdateListen
     private LinkedHashSet<Request> currentRequestsToHandle = new LinkedHashSet<>(); //Queue with only unique entries
     private LinkedHashSet<Request> currentInternalRequests = new LinkedHashSet<>(); //Queue with only unique entries
 
+    private LinkedHashSet<NetworkRequestSendEvent> currentAnswers = new LinkedHashSet<>(); //Contains all current outgoing answers
+    private LinkedHashSet<NetworkRequestSendEvent> currentInternalSends = new LinkedHashSet<>(); //contains all current outgoing dependency requests
+
     private final MultiDataPointReporter reporter;
 
     public MicroserviceInstance(Model model, String name, boolean showInTrace, Microservice microservice, int instanceID) {
@@ -137,7 +140,19 @@ public class MicroserviceInstance extends Entity implements IRequestUpdateListen
         if (this.state == InstanceState.KILLED) {
             throw new IllegalStateException(String.format("Cannot kill Instance %s: This instance was already killed. (Current State [%s])", this.getQuotedName(), state.name()));
         }
-        //TODO: cancel all Requests
+        changeState(InstanceState.KILLED);
+
+        //clears all currently running calculations
+        cpu.clear();
+        //cancel all send answers
+        currentAnswers.forEach(NetworkRequestSendEvent::cancel);
+        //cancel all send answers
+        currentInternalSends.forEach(NetworkRequestSendEvent::cancel);
+
+        //TODO: notify sender of currently handled requests, that the requests failed (TCP/behavior)
+        currentRequestsToHandle.forEach(Request::cancelExecutionAtHandler);
+
+
     }
 
     public final Microservice getOwner() {

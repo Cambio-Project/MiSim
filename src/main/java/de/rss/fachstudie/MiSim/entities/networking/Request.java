@@ -246,4 +246,25 @@ public abstract class Request extends MessageObject {
         this.updateListener = updateListener;
     }
 
+    /**
+     * used to cancel this request
+     */
+    public void cancelExecutionAtHandler() {
+        //TODO: delay could be added here to simulate sending of the HTTP/TCP connection failure
+        //Be careful: then messages can arrive at killed services.
+
+
+        Request request = this; //unpack if request is an
+//        if(request instanceof RequestAnswer)
+//            request = ((RequestAnswer) request).unpack();
+
+
+        // (may be fixed) TODO: minor: Completed UserRequests sometimes appear here if a MicroserviceInstance#die call has priority over the IRequestUpdateListener#onRequestArrivalAtTarget
+//        if (request instanceof UserRequest && request.isCompleted()) {
+//            return;
+//        }
+        NetworkRequestEvent cancelEvent = new NetworkRequestCanceledEvent(getModel(), String.format("%s canceled", request.getQuotedName()), request.traceIsOn(), request, "Request was canceled by handler");
+        cancelEvent.schedule(presentTime());
+        request.canceledEvent = canceledEvent;
+    }
 }

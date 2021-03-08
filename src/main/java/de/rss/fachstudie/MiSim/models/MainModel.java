@@ -6,6 +6,7 @@ import de.rss.fachstudie.MiSim.entities.Operation;
 import de.rss.fachstudie.MiSim.entities.generator.IntervalGenerator;
 import de.rss.fachstudie.MiSim.entities.generator.LIMBOGenerator;
 import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
+import de.rss.fachstudie.MiSim.events.ChaosMonkeyEvent;
 import de.rss.fachstudie.MiSim.events.FinishEvent;
 import de.rss.fachstudie.MiSim.events.StatisticEvent;
 import de.rss.fachstudie.MiSim.export.ExportReport;
@@ -363,7 +364,7 @@ public class MainModel extends Model {
                 msEntity.setName(microservices[id].getName());
                 msEntity.setPatterns(microservices[id].getPatterns());
                 msEntity.setCapacity(microservices[id].getCapacity());
-                msEntity.updateInstancesCount(microservices[id].getInstancesCount());
+                msEntity.scaleToInstancesCount(microservices[id].getInstancesCount());
                 msEntity.setOperations(microservices[id].getOperations());
                 idleQueue.insert(msEntity);
                 allMicroservices.put(id, msEntity);
@@ -504,7 +505,7 @@ public class MainModel extends Model {
 //            initEvent.schedule(new TimeSpan(0, timeUnit));
 //        }
 
-        generators = new GeneratorPOJO[]{generators[0]};
+//        generators = new GeneratorPOJO[]{generators[3]};
         for (GeneratorPOJO generator : generators) {
             Operation op = MainModel.microservices.stream()
                     .filter(microservice -> microservice.getName().matches(String.format("^%s(#[0-9]*)?$", generator.microservice)))
@@ -522,6 +523,15 @@ public class MainModel extends Model {
                 new IntervalGenerator(this, "Interval Generator " + op.getQuotedName(), true, op, generator.interval, generator.start);
 
         }
+
+
+        Microservice msToKill = microservices.stream().filter(microservice -> microservice.getName().contains("gateway")).findFirst().get();
+
+        ChaosMonkeyEvent chaosMonkey = new ChaosMonkeyEvent(this, "ChaosMonkey", true, msToKill, 2);
+        chaosMonkey.schedule(new TimeInstant(100));
+
+        chaosMonkey = new ChaosMonkeyEvent(this, "ChaosMonkey", true, msToKill, 1);
+        chaosMonkey.schedule(new TimeInstant(50));
 
 //        // Fire off all monkeys for scheduling
 //        InitialChaosMonkeyEvent[] monkeys = ExpModelParser.chaosmonkeys;

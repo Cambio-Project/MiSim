@@ -51,7 +51,7 @@ public class Microservice extends Entity {
 
     public synchronized void start() {
         started = true;
-        updateInstancesCount(targetInstanceCount);
+        scaleToInstancesCount(targetInstanceCount);
     }
 
     public boolean isKilled() {
@@ -144,14 +144,14 @@ public class Microservice extends Entity {
     public synchronized void setInstancesCount(final int numberOfInstances) {
         targetInstanceCount = numberOfInstances;
         if (started)
-            updateInstancesCount(numberOfInstances);
+            scaleToInstancesCount(numberOfInstances);
     }
 
-    public synchronized void updateInstancesCount(final int numberOfInstances) {
+
+    public synchronized void scaleToInstancesCount(final int numberOfInstances) {
         if (!started)
             throw new IllegalStateException("Microservice was not started. Use start() first or setInstanceCount()");
 
-        reporter.addDatapoint("InstanceCount", presentTime(), numberOfInstances);
 
         while (getInstancesCount() != numberOfInstances) {
             Event<MicroserviceInstance> changeEvent;
@@ -171,6 +171,33 @@ public class Microservice extends Entity {
             changeEvent.schedule(changedInstance, presentTime());
         }
 
+        reporter.addDatapoint("InstanceCount", presentTime(), instancesSet.size());
+
+    }
+
+
+    /**
+     * Kills the given number of services many random instances. Accepts numbers larger than the current amount of
+     * instances.
+     *
+     * @param numberOfInstances
+     */
+    public synchronized void killInstances(final int numberOfInstances) {
+        for (int i = 0; i < numberOfInstances; i++) {
+            killInstance();
+        }
+    }
+
+    /**
+     * Kills a random instance. Can be called on a service that has 0 running instances.
+     */
+    public synchronized void killInstance() {
+        //TODO: use UniformDistribution form desmoj
+        MicroserviceInstance instanceToKill = instancesSet.stream().findFirst().orElse(null);
+        if (instanceToKill == null) return;
+        instanceToKill.die();
+        instancesSet.remove(instanceToKill);
+        reporter.addDatapoint("InstanceCount", presentTime(), instancesSet.size());
     }
 
 
