@@ -212,7 +212,7 @@ public class Microservice extends Entity {
 
 
     public MicroserviceInstance getNextAvailableInstance() throws NoInstanceAvailableException {
-        return isKilled() ? null : loadBalancer.getNextInstance();
+        return loadBalancer.getNextInstance();
     }
 
 }

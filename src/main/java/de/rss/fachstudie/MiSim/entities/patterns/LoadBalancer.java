@@ -2,6 +2,7 @@ package de.rss.fachstudie.MiSim.entities.patterns;
 
 import de.rss.fachstudie.MiSim.entities.microservice.InstanceState;
 import de.rss.fachstudie.MiSim.entities.microservice.MicroserviceInstance;
+import de.rss.fachstudie.MiSim.entities.networking.NoInstanceAvailableException;
 import desmoj.core.simulator.Entity;
 import desmoj.core.simulator.Model;
 
@@ -28,7 +29,7 @@ public final class LoadBalancer extends Entity {
     }
 
 
-    public MicroserviceInstance getNextInstance() {
+    public MicroserviceInstance getNextInstance() throws NoInstanceAvailableException {
         //filter for all running Instances
         Collection<MicroserviceInstance> running_instances = instances
                 .stream()
@@ -36,9 +37,10 @@ public final class LoadBalancer extends Entity {
                 .collect(Collectors.toList());
         final MicroserviceInstance next = loadBalancingStrategy.getNextInstance(running_instances);
         lastChosenInstance = next;
-        if (next != null) {
-            distribution.merge(next, 1, Integer::sum);
-        }
+
+        if (next == null) throw new NoInstanceAvailableException();
+
+        distribution.merge(next, 1, Integer::sum);
         return next;
     }
 
