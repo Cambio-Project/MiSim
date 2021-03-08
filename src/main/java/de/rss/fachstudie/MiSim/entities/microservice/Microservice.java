@@ -5,6 +5,7 @@ import de.rss.fachstudie.MiSim.entities.networking.NoInstanceAvailableException;
 import de.rss.fachstudie.MiSim.entities.patterns.LoadBalancer;
 import de.rss.fachstudie.MiSim.entities.patterns.LoadBalancingStrategy;
 import de.rss.fachstudie.MiSim.entities.patterns.Pattern;
+import de.rss.fachstudie.MiSim.export.ContinuousMultiDataPointReporter;
 import de.rss.fachstudie.MiSim.export.MultiDataPointReporter;
 import desmoj.core.simulator.Entity;
 import desmoj.core.simulator.Event;
@@ -45,7 +46,7 @@ public class Microservice extends Entity {
         spatterns = new Pattern[]{};
         loadBalancer = new LoadBalancer(model, "Loadbalancer of " + this.getQuotedName(), traceIsOn(), instancesSet);
         setLoadBalancingStrategy("random");//defaulting to random lb
-        reporter = new MultiDataPointReporter(name + "_");
+        reporter = new ContinuousMultiDataPointReporter(name + "_");
     }
 
     public synchronized void start() {
