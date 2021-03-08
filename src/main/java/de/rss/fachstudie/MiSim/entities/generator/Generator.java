@@ -126,7 +126,8 @@ public abstract class Generator extends ExternalEvent implements IRequestUpdateL
         }
 
         UserRequest request = new UserRequest(model, String.format("User_Request@([%s] %s)", operation.getOwner().getName(), operation.getName()), true, operation);
-        NetworkRequestEvent event = new UserRequestArrivalEvent(model, String.format("User_Request@(%s) ", operation.getQuotedName()), this.traceIsOn(), this, request);
+        request.setUpdateListener(this);
+        NetworkRequestEvent event = new UserRequestArrivalEvent(model, String.format("User_Request@(%s) ", operation.getQuotedName()), this.traceIsOn(), request);
         event.schedule(presentTime());
 
         TimeInstant nextExecutionTimeInstance;

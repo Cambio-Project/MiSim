@@ -18,8 +18,8 @@ public class NetworkRequestSendEvent extends NetworkRequestEvent {
     private NetworkRequestReceiveEvent receiverEvent;
     private final NumericalDist<Double> rng;
 
-    public NetworkRequestSendEvent(Model model, String name, boolean showInTrace, Request request, IRequestUpdateListener listener) {
-        super(model, name, showInTrace, listener, request);
+    public NetworkRequestSendEvent(Model model, String name, boolean showInTrace, Request request) {
+        super(model, name, showInTrace, request);
         rng = new ContDistNormal(model, name + "_RNG", 20, 10, true, false);
         request.setSendEvent(this);
     }
@@ -35,6 +35,7 @@ public class NetworkRequestSendEvent extends NetworkRequestEvent {
 
         if (!request.hasParent()) { // if it is completed and has no parent the request ist considered done
             request.stampReceived(presentTime());
+            updateListener.onRequestArrivalAtTarget(request);
             return;
         }
 
@@ -47,7 +48,7 @@ public class NetworkRequestSendEvent extends NetworkRequestEvent {
 
         //TODO: add network delay from DelayMonkey
 
-        receiverEvent = new NetworkRequestReceiveEvent(getModel(), String.format("Receiving of %s", request.getQuotedName()), traceIsOn(), updateListener, request);
+        receiverEvent = new NetworkRequestReceiveEvent(getModel(), String.format("Receiving of %s", request.getQuotedName()), traceIsOn(), request);
         receiverEvent.schedule(new TimeSpan(nextDelay));
 
         //TODO: schedule NetworkRequestTimeOutCheckEvent, to check the request after a timeout duration
@@ -60,9 +61,13 @@ public class NetworkRequestSendEvent extends NetworkRequestEvent {
 
     public void cancel() {
         super.cancel();
-        receiverEvent.cancel();
-        new NetworkRequestCanceledEvent(getModel(), "RequestCanceledEvent", traceIsOn(), updateListener, traveling_request, "Sending was forcibly aborted!");
 
+        // An answer to a UserRequest cannot be canceled, since they are not send back to the user.
+        // Rather they are considered completed once the answer is send by the handling instance.
+        if (traveling_request instanceof RequestAnswer && traveling_request.getParent() instanceof UserRequest) return;
+
+        receiverEvent.cancel();
+        new NetworkRequestCanceledEvent(getModel(), "RequestCanceledEvent", traceIsOn(), traveling_request, "Sending was forcibly aborted!");
     }
 
 }

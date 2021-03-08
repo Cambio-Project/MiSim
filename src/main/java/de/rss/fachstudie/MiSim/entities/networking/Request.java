@@ -31,6 +31,7 @@ public abstract class Request extends MessageObject {
     private NetworkRequestSendEvent sendEvent;
     private NetworkRequestReceiveEvent receiveEvent;
     private NetworkRequestCanceledEvent canceledEvent;
+    private IRequestUpdateListener updateListener; //TODO: minor: allow list of listeners so e.g. a tracing tool can be injected by each creation.
 
     private TimeInstant timestamp_send;
     private TimeInstant timestamp_received;
@@ -136,8 +137,8 @@ public abstract class Request extends MessageObject {
         if (dependencies_completed && computation_completed) {
             onCompletion();
         }
-        if (handler_instance != null)
-            handler_instance.handle(this); //resubmitting itself for further handling
+        if (handler_instance != null && handler_instance.checkIfCanHandle(this))
+             handler_instance.handle(this); //resubmitting itself for further handling
     }
 
     public final void stampReceived(TimeInstant stamp) {
@@ -236,4 +237,13 @@ public abstract class Request extends MessageObject {
     public MicroserviceInstance getHandler() {
         return handler_instance;
     }
+
+    public IRequestUpdateListener getUpdateListener() {
+        return updateListener;
+    }
+
+    public void setUpdateListener(IRequestUpdateListener updateListener) {
+        this.updateListener = updateListener;
+    }
+
 }

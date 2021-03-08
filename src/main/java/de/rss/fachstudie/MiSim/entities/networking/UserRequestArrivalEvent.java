@@ -8,8 +8,8 @@ import desmoj.core.simulator.Model;
  */
 public final class UserRequestArrivalEvent extends NetworkRequestReceiveEvent {
 
-    public UserRequestArrivalEvent(Model model, String name, boolean showInTrace, IRequestUpdateListener listener, Request request) {
-        super(model, name, showInTrace, listener, request);
+    public UserRequestArrivalEvent(Model model, String name, boolean showInTrace,  Request request) {
+        super(model, name, showInTrace,  request);
     }
 
     @Override

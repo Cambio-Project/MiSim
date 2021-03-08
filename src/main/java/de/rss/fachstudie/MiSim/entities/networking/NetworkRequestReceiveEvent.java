@@ -7,7 +7,7 @@ import desmoj.core.simulator.Model;
 
 /**
  * Event that represents the successful arrival of a request at its target instance.
- *
+ * <p>
  * Gives the traveling request to the receiving handler on arrival.
  *
  * @author Lion Wagner
@@ -15,8 +15,8 @@ import desmoj.core.simulator.Model;
 public class NetworkRequestReceiveEvent extends NetworkRequestEvent {
 
 
-    public NetworkRequestReceiveEvent(Model model, String name, boolean showInTrace, IRequestUpdateListener listener, Request request) {
-        super(model, name, showInTrace, listener, request);
+    public NetworkRequestReceiveEvent(Model model, String name, boolean showInTrace, Request request) {
+        super(model, name, showInTrace, request);
     }
 
     @Override
@@ -33,6 +33,7 @@ public class NetworkRequestReceiveEvent extends NetworkRequestEvent {
             if (requestInstance.hasParent()) { //if there is a parent, the request is a cascading request, therefore: notify the parent request that its dependency answer has arrived
                 Request parent_request = requestInstance.getParent();
                 parent_request.notifyDependencyHasFinished(requestInstance);
+                updateListener.onRequestArrivalAtTarget(traveling_request);
             } else {
                 throw new IllegalStateException("Internal Error: Receive Event caught a request without parent (don't know where to send this).\n" + requestInstance.toString());
             }
@@ -45,9 +46,11 @@ public class NetworkRequestReceiveEvent extends NetworkRequestEvent {
                 MicroserviceInstance instance = receivingMicroservice.getNextAvailableInstance();
                 requestInstance.setHandler(instance);
                 instance.handle(requestInstance); //give request to handler
+                updateListener.onRequestArrivalAtTarget(traveling_request);
             } catch (NoInstanceAvailableException e) { //if no instance is available we tell the listener that its canceled (indirectly via the CancelEvents)
-                new NetworkRequestCanceledEvent(getModel(), "RequestCanceledEvent", traceIsOn(), updateListener, traveling_request,
-                        String.format("No Instance for Service %s was available.", receivingMicroservice.getQuotedName())).schedule();
+                new NetworkRequestCanceledEvent(getModel(), "RequestCanceledEvent", traceIsOn(), traveling_request,
+                        String.format("No Instance for Service %s was available.", receivingMicroservice.getQuotedName()))
+                        .schedule(presentTime());
             }
             //TODO: maybe do a special case if the whole service is killed?
         }

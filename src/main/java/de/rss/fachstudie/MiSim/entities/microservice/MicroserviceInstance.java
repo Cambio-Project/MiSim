@@ -58,8 +58,10 @@ public class MicroserviceInstance extends Entity implements IRequestUpdateListen
         //2. requests' dependecies were all recevied -> send it to the cpu for handling. The CPU will "send" it back to this method once its done.
         //3. request does have dependencies -> create internal
         if (request.isCompleted()) {
-            NetworkRequestSendEvent sendEvent = new NetworkRequestSendEvent(getModel(), "Request_Answer_" + request.getQuotedName(), traceIsOn(), new RequestAnswer(request), this);
-
+            RequestAnswer answer = new RequestAnswer(request);
+            answer.setUpdateListener(this);
+            NetworkRequestSendEvent sendEvent = new NetworkRequestSendEvent(getModel(), "Request_Answer_" + request.getQuotedName(), traceIsOn(), answer);
+            currentAnswers.add(sendEvent);
             sendEvent.schedule();//send away the answer
 
         } else if (request.getDependencyRequests().isEmpty() || request.areDependencies_completed()) {
@@ -69,9 +71,11 @@ public class MicroserviceInstance extends Entity implements IRequestUpdateListen
             for (NetworkDependency dependency : request.getDependencyRequests()) {
 
                 Request internalRequest = new InternalRequest(getModel(), this.traceIsOn(), dependency, this);
+                internalRequest.setUpdateListener(this);
                 currentInternalRequests.add(internalRequest);
 
-                NetworkRequestSendEvent sendEvent = new NetworkRequestSendEvent(getModel(), String.format("Send Cascading_Request for %s", request.getQuotedName()), traceIsOn(), internalRequest, this);
+                NetworkRequestSendEvent sendEvent = new NetworkRequestSendEvent(getModel(), String.format("Send Cascading_Request for %s", request.getQuotedName()), traceIsOn(), internalRequest);
+                currentInternalSends.add(sendEvent);
                 sendEvent.schedule(presentTime());
             }
         }
@@ -153,7 +157,7 @@ public class MicroserviceInstance extends Entity implements IRequestUpdateListen
     }
 
     @Override
-    public void onRequestFailed(Request request) {
+    public void onRequestFailed(Request failed_request) {
         //TODO: Retry and Circuitbreaker
     }
 

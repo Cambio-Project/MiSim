@@ -12,8 +12,8 @@ public class NetworkRequestCanceledEvent extends NetworkRequestEvent {
 
     private final String reason;
 
-    public NetworkRequestCanceledEvent(Model model, String name, boolean showInTrace, IRequestUpdateListener listener, Request request, String reason) {
-        super(model, name, showInTrace, listener, request);
+    public NetworkRequestCanceledEvent(Model model, String name, boolean showInTrace, Request request, String reason) {
+        super(model, name, showInTrace, request);
         this.reason = reason;
     }
 
