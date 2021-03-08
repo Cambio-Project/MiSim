@@ -1,6 +1,7 @@
 package de.rss.fachstudie.MiSim.entities.networking;
 
 import co.paralleluniverse.fibers.SuspendExecution;
+import de.rss.fachstudie.MiSim.misc.Priority;
 import desmoj.core.simulator.Model;
 
 /**
@@ -15,6 +16,7 @@ public class NetworkRequestCanceledEvent extends NetworkRequestEvent {
     public NetworkRequestCanceledEvent(Model model, String name, boolean showInTrace, Request request, String reason) {
         super(model, name, showInTrace, request);
         this.reason = reason;
+        setSchedulingPriority(Priority.VERY_HIGH);
     }
 
     @Override

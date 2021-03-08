@@ -10,6 +10,7 @@ import de.rss.fachstudie.MiSim.events.FinishEvent;
 import de.rss.fachstudie.MiSim.events.StatisticEvent;
 import de.rss.fachstudie.MiSim.export.ExportReport;
 import de.rss.fachstudie.MiSim.export.ReportWriter;
+import de.rss.fachstudie.MiSim.misc.Priority;
 import de.rss.fachstudie.MiSim.parsing.ArchModelParser;
 import de.rss.fachstudie.MiSim.parsing.ArchModelValidator;
 import de.rss.fachstudie.MiSim.parsing.ExpModelParser;
@@ -547,6 +548,7 @@ public class MainModel extends Model {
 
         //Fire off the finish event which is called during at the end of the simulation
         FinishEvent event = new FinishEvent(this, "Finishing Event", false);
+        event.setSchedulingPriority(Priority.HIGH);
         event.schedule(new TimeInstant(simulationTime));
     }
 
