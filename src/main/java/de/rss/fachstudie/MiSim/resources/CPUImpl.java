@@ -93,9 +93,9 @@ public final class CPUImpl extends ExternalEvent {
     void onBurstFinished(CPUProcess process) {
         if (process.getDemandRemainder() > 0) {
             scheduler.enterProcess(process); //if process is not finished reschedule it
-        } else {
-            activeProcesses.remove(process); //otherwise the process is not active anymore
         }
+
+        activeProcesses.remove(process); //the process whose burst finished is not active anymore
 
         //since at least one thread should be free now, a reschedule happens
         forceScheduleNow();
@@ -119,9 +119,9 @@ public final class CPUImpl extends ExternalEvent {
     /**
      * Forcibly stops all currently running and scheduled processes.
      */
-    public void clear(){
-        scheduler.clear();
+    public synchronized void clear(){
         activeProcesses.forEach(CPUProcess::cancel);
+        scheduler.clear();
     }
 }
 
