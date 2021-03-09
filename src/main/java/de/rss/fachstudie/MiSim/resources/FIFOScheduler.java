@@ -84,4 +84,10 @@ public class FIFOScheduler extends CPUProcessScheduler {
     public void clear() {
         processes.clear();
     }
+
+
+    @Override
+    public int size() {
+        return processes.size();
+    }
 }

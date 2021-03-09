@@ -46,7 +46,7 @@ public class Microservice extends Entity {
         spatterns = new Pattern[]{};
         loadBalancer = new LoadBalancer(model, "Loadbalancer of " + this.getQuotedName(), traceIsOn(), instancesSet);
         setLoadBalancingStrategy("random");//defaulting to random lb
-        reporter = new ContinuousMultiDataPointReporter(name + "_");
+        reporter = new ContinuousMultiDataPointReporter(String.format("S[%s]_", name));
     }
 
     public synchronized void start() {
@@ -158,7 +158,7 @@ public class Microservice extends Entity {
             MicroserviceInstance changedInstance;
 
             if (getInstancesCount() < numberOfInstances) {
-                changedInstance = new MicroserviceInstance(getModel(), String.format("[%s] Instance %d_", getName(), instanceSpawnCounter), this.traceIsOn(), this, instanceSpawnCounter);
+                changedInstance = new MicroserviceInstance(getModel(), String.format("[%s]_I%d", getName(), instanceSpawnCounter), this.traceIsOn(), this, instanceSpawnCounter);
                 instanceSpawnCounter++;
                 changeEvent = new InstanceStartupEvent(getModel(), "Instance Startup of " + changedInstance.getQuotedName(), traceIsOn());
                 instancesSet.add(changedInstance);
@@ -242,4 +242,8 @@ public class Microservice extends Entity {
         return loadBalancer.getNextInstance();
     }
 
+
+    public void finalizeStatistics() {
+        reporter.addDatapoint("InstanceCount", presentTime(), instancesSet.size());
+    }
 }

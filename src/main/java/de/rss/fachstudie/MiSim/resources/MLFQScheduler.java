@@ -152,4 +152,9 @@ public class MLFQScheduler extends CPUProcessScheduler {
         queues.forEach(RoundRobinScheduler::clear);
     }
 
+    @Override
+    public int size() {
+        return queues.stream().mapToInt(CPUProcessScheduler::size).sum();
+    }
+
 }

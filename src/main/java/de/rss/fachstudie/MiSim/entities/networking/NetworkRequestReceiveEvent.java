@@ -28,15 +28,16 @@ public class NetworkRequestReceiveEvent extends NetworkRequestEvent {
         }
 
         if (requestInstance.isCompleted()) {
-            requestInstance.stampReceived(presentTime());//if the request is completed stamp it as (results) received
-
-            if (requestInstance.hasParent()) { //if there is a parent, the request is a cascading request, therefore: notify the parent request that its dependency answer has arrived
-                Request parent_request = requestInstance.getParent();
-                parent_request.notifyDependencyHasFinished(requestInstance);
-                updateListener.onRequestArrivalAtTarget(traveling_request);
-            } else {
+            if (!requestInstance.hasParent()) {
                 throw new IllegalStateException("Internal Error: Receive Event caught a request without parent (don't know where to send this).\n" + requestInstance.toString());
             }
+            requestInstance.stampReceived(presentTime());//if the request is completed stamp it as (results) received
+            //if there is a parent, the request is a cascading request, therefore: notify the parent request that its dependency answer has arrived
+            Request parent_request = requestInstance.getParent();
+            parent_request.notifyDependencyHasFinished(requestInstance);
+            updateListener.onRequestResultArrivedAtRequester(requestInstance);
+            updateListener.onRequestArrivalAtTarget(traveling_request);
+
         } else {
 
             Microservice receivingMicroservice = requestInstance.operation.getOwner();

@@ -11,6 +11,7 @@ import desmoj.core.simulator.TimeInstant;
 import org.apache.commons.math3.util.Precision;
 
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Set;
 
 /**
@@ -31,7 +32,7 @@ public abstract class Request extends MessageObject {
     private NetworkRequestSendEvent sendEvent;
     private NetworkRequestReceiveEvent receiveEvent;
     private NetworkRequestCanceledEvent canceledEvent;
-    private IRequestUpdateListener updateListener; //TODO: minor: allow list of listeners so e.g. a tracing tool can be injected by each creation.
+    private LinkedList<IRequestUpdateListener> updateListeners = new LinkedList<>(); //TODO: minor: allow list of listeners so e.g. a tracing tool can be injected by each creation.
 
     private TimeInstant timestamp_send;
     private TimeInstant timestamp_received;
@@ -138,7 +139,7 @@ public abstract class Request extends MessageObject {
             onCompletion();
         }
         if (handler_instance != null && handler_instance.checkIfCanHandle(this))
-             handler_instance.handle(this); //resubmitting itself for further handling
+            handler_instance.handle(this); //resubmitting itself for further handling
     }
 
     public final void stampReceived(TimeInstant stamp) {
@@ -227,7 +228,6 @@ public abstract class Request extends MessageObject {
 
     protected void onReceive() {
         sendDebugNote(String.format("Arrived at Parent %s!", getQuotedName()));
-
     }
 
     public void setHandler(MicroserviceInstance handler) {
@@ -238,12 +238,12 @@ public abstract class Request extends MessageObject {
         return handler_instance;
     }
 
-    public IRequestUpdateListener getUpdateListener() {
-        return updateListener;
+    public LinkedList<IRequestUpdateListener> getUpdateListeners() {
+        return updateListeners;
     }
 
-    public void setUpdateListener(IRequestUpdateListener updateListener) {
-        this.updateListener = updateListener;
+    public void addUpdateListener(IRequestUpdateListener updateListener) {
+        this.updateListeners.add(updateListener);
     }
 
     /**

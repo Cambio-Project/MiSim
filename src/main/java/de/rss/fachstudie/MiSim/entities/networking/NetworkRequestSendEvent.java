@@ -35,7 +35,8 @@ public class NetworkRequestSendEvent extends NetworkRequestEvent {
 
         if (!request.hasParent()) { // if it is completed and has no parent the request ist considered done
             request.stampReceived(presentTime());
-            updateListener.onRequestArrivalAtTarget(request);
+            updateListener.onRequestArrivalAtTarget(traveling_request);
+            updateListener.onRequestResultArrivedAtRequester(request);
             return;
         }
 

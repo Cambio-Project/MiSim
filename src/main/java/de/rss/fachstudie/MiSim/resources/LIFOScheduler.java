@@ -84,4 +84,10 @@ public class LIFOScheduler extends CPUProcessScheduler {
     public void clear() {
         processes.clear();
     }
+
+
+    @Override
+    public int size() {
+        return processes.size();
+    }
 }

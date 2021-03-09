@@ -13,8 +13,8 @@ import java.util.TreeMap;
  */
 public class MultiDataPointReporter extends Reporter {
 
-    private final HashMap<String, TreeMap<TimeInstant, ?>> dataSets = new HashMap<>();
-    private final String datasets_prefix;
+    protected final HashMap<String, TreeMap<TimeInstant, ?>> dataSets = new HashMap<>();
+    protected final String datasets_prefix;
 
     public MultiDataPointReporter() {
         this("");

@@ -13,11 +13,11 @@ import java.util.Set;
 
 public final class CPUImpl extends ExternalEvent {
 
-    private static final int DEFAULT_THREADPOOLSIZE = 6;
+    private static final int DEFAULT_THREADPOOLSIZE = 4;
 
     private final MultiDataPointReporter reporter;
     private final CPUProcessScheduler scheduler;
-    private final int capacity; //computation capacity of one thread in one (1.0) simulation time unit
+    private final int capacity_per_thread; //computation capacity of one thread in one (1.0) simulation time unit
 
     private final int threadPoolSize; //counts the current size of the thread pool, just in case its atomic
     private final Set<CPUProcess> activeProcesses;
@@ -37,11 +37,12 @@ public final class CPUImpl extends ExternalEvent {
 
     public CPUImpl(Model model, String name, boolean showInTrace, int capacity, CPUProcessScheduler scheduler, final int threadPoolSize) {
         super(model, name, showInTrace);
-        reporter = new MultiDataPointReporter(name);
+        String[] names = name.split("_");
         this.scheduler = scheduler;
-        this.capacity = capacity;
+        this.capacity_per_thread = capacity;
         this.threadPoolSize = threadPoolSize;
         activeProcesses = new HashSet<>(threadPoolSize);
+        reporter = new MultiDataPointReporter(String.format("C%s_[%s]_", names[0], names[1]));
     }
 
     public void submitProcess(CPUProcess process) {
@@ -49,6 +50,7 @@ public final class CPUImpl extends ExternalEvent {
         if (hasProcessAndThreadReady()) {
             forceScheduleNow();
         }
+        reporter.addDatapoint("TotalProcesses", presentTime(), getProcessesCount());
     }
 
     public void submitRequest(Request request) {
@@ -63,7 +65,7 @@ public final class CPUImpl extends ExternalEvent {
             int nextTotalDemand = next.getValue1();
 
             nextProcess.stampCurrentBurstStarted(presentTime());
-            TimeSpan processBurstDuration = new TimeSpan(nextTotalDemand / (double) capacity);
+            TimeSpan processBurstDuration = new TimeSpan(nextTotalDemand / (double) capacity_per_thread);
 
             ComputationBurstCompletedEvent endEvent = new ComputationBurstCompletedEvent(getModel(),
                     String.format("Computation burst finished of %s",
@@ -75,6 +77,9 @@ public final class CPUImpl extends ExternalEvent {
             endEvent.schedule(processBurstDuration);
             activeProcesses.add(nextProcess);
         }
+
+        reporter.addDatapoint("ActiveProcesses", presentTime(), activeProcesses.size());
+        reporter.addDatapoint("Usage", presentTime(), activeProcesses.size() / (double)threadPoolSize);
     }
 
     private boolean hasProcessAndThreadReady() {
@@ -82,7 +87,7 @@ public final class CPUImpl extends ExternalEvent {
     }
 
     private int getPerThreadCapacity() {
-        return capacity;
+        return capacity_per_thread;
     }
 
     private boolean hasThreadsAvailable() {
@@ -99,6 +104,11 @@ public final class CPUImpl extends ExternalEvent {
 
         //since at least one thread should be free now, a reschedule happens
         forceScheduleNow();
+
+        reporter.addDatapoint("ActiveProcesses", presentTime(), activeProcesses.size());
+        reporter.addDatapoint("TotalProcesses", presentTime(), getProcessesCount());
+        reporter.addDatapoint("Usage", presentTime(), activeProcesses.size() / (double)threadPoolSize);
+
     }
 
     private void forceScheduleNow() {
@@ -109,19 +119,26 @@ public final class CPUImpl extends ExternalEvent {
         }
     }
 
+    private int getProcessesCount() {
+        return scheduler.size() + activeProcesses.size();
+    }
+
+
     public double getCurrentRelativeWorkDemand() {
         int totalQueuedWorkRemainder = scheduler.getTotalWorkDemand();
-        double activeWorkRemainder = activeProcesses.stream().mapToDouble(value -> value.getDemandRemainder(presentTime(), capacity)).sum();
+        double activeWorkRemainder = activeProcesses.stream().mapToDouble(value -> value.getDemandRemainder(presentTime(), capacity_per_thread)).sum();
         double workTotal = totalQueuedWorkRemainder + activeWorkRemainder;
-        return workTotal / (threadPoolSize * capacity);
+        return workTotal / (threadPoolSize * capacity_per_thread);
     }
 
     /**
      * Forcibly stops all currently running and scheduled processes.
      */
-    public synchronized void clear(){
+    public synchronized void clear() {
         activeProcesses.forEach(CPUProcess::cancel);
         scheduler.clear();
     }
+
+
 }
 

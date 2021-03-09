@@ -57,4 +57,6 @@ public abstract class CPUProcessScheduler {
      * Clears all current processes from the scheduler
      */
     public abstract void clear();
+
+    public abstract int size();
 }

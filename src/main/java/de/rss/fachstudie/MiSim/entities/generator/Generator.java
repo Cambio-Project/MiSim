@@ -3,6 +3,7 @@ package de.rss.fachstudie.MiSim.entities.generator;
 import co.paralleluniverse.fibers.SuspendExecution;
 import de.rss.fachstudie.MiSim.entities.Operation;
 import de.rss.fachstudie.MiSim.entities.networking.*;
+import de.rss.fachstudie.MiSim.export.AccumulativeDatPointReporter;
 import de.rss.fachstudie.MiSim.export.MultiDataPointReporter;
 import desmoj.core.simulator.ExternalEvent;
 import desmoj.core.simulator.Model;
@@ -31,11 +32,7 @@ public abstract class Generator extends ExternalEvent implements IRequestUpdateL
     private TimeInstant nextTargetTime;
 
     protected final MultiDataPointReporter reporter;
-
-    /**
-     * Counter for how many Requests were send at the current nextTargetTime Used for Reporting.
-     */
-    private int currentTimestepSendCount = 0;
+    protected final AccumulativeDatPointReporter accReporter;
 
     /**
      * Superclass for all generators. Automatically takes care of output reporting and pulling/scheduling and basic
@@ -51,7 +48,10 @@ public abstract class Generator extends ExternalEvent implements IRequestUpdateL
         this.model = model;
         this.operation = operation;
         super.sendTraceNote("starting Generator " + this.getQuotedName());
-        reporter = new MultiDataPointReporter(name);
+
+        String reportName = String.format("G[%s]_[%s(%s)]_", this.getClass().getSimpleName(), operation.getOwner().getName(), operation.getName());
+        reporter = new MultiDataPointReporter(reportName);
+        accReporter = new AccumulativeDatPointReporter(reportName);
         schedule();
 
     }
@@ -97,14 +97,7 @@ public abstract class Generator extends ExternalEvent implements IRequestUpdateL
     private TimeInstant getNextExecutionTimeInstance() {
         nextTargetTime = lastTargetTime == null ? getFirstTargetTime() : getNextTargetTime(lastTargetTime);
 
-        if (nextTargetTime.equals(lastTargetTime)) {
-            currentTimestepSendCount = currentTimestepSendCount + 1;
-        } else {
-            if (lastTargetTime != null) {
-                reporter.addDatapoint("Load", lastTargetTime, currentTimestepSendCount);
-            }
-            currentTimestepSendCount = 1;
-        }
+        accReporter.addDatapoint("Load", nextTargetTime, 1);
 
         lastTargetTime = nextTargetTime;
         return nextTargetTime;
@@ -126,7 +119,7 @@ public abstract class Generator extends ExternalEvent implements IRequestUpdateL
         }
 
         UserRequest request = new UserRequest(model, String.format("User_Request@([%s] %s)", operation.getOwner().getName(), operation.getName()), true, operation);
-        request.setUpdateListener(this);
+        request.addUpdateListener(this);
         NetworkRequestEvent event = new UserRequestArrivalEvent(model, String.format("User_Request@(%s) ", operation.getQuotedName()), this.traceIsOn(), request);
         event.schedule(presentTime());
 
@@ -163,24 +156,29 @@ public abstract class Generator extends ExternalEvent implements IRequestUpdateL
     }
 
     /**
-     * Listener for the successful completion of the sending process. Provides a reference to the successfully arrived
-     * request.
-     *
-     * @param request
-     */
-    @Override
-    public void onRequestArrivalAtTarget(Request request) {
-        //ignored
-    }
-
-    /**
      * Listener for the failure of the sending process. This could for example be due to the receiving service not being
      * available, the request being canceled or timed out. Provides a reference to the failed request.
-     *
-     * @param request
      */
     @Override
     public void onRequestFailed(Request request) {
         sendTraceNote(String.format("Arrival of Request %s failed.", request));
+        TimeInstant currentTime = new TimeInstant(Math.ceil(presentTime().getTimeAsDouble()));
+
+        accReporter.addDatapoint("FailedRequests", currentTime, 1);
+        //also creates a datapoint for successful requests so they can be directly compared
+        accReporter.addDatapoint("SuccessfulRequests", currentTime, 0);
+    }
+
+    /**
+     * Listener for the successful receiving of the answer of a request.
+     */
+    @Override
+    public void onRequestResultArrivedAtRequester(Request request) {
+        sendTraceNote(String.format("Successfully completed Request %s.", request));
+        TimeInstant currentTime = new TimeInstant(Math.ceil(presentTime().getTimeAsDouble()));
+
+        accReporter.addDatapoint("SuccessfulRequests", currentTime, 1);
+        //also creates a datapoint for failed requests so they can be directly compared
+        accReporter.addDatapoint("FailedRequests", currentTime, 0);
     }
 }

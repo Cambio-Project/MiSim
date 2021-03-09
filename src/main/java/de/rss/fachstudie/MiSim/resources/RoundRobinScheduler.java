@@ -138,4 +138,9 @@ public final class RoundRobinScheduler extends CPUProcessScheduler {
         processes.clear();
         executedWithCurrentQuantum.clear();
     }
+
+    @Override
+    public int size() {
+        return processes.size();
+    }
 }

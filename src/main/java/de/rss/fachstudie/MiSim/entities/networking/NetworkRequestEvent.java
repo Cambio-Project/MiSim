@@ -4,6 +4,8 @@ import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.ExternalEvent;
 import desmoj.core.simulator.Model;
 
+import java.util.List;
+
 /**
  * Superclass for network events that take care of exactly one Request. Provides its subclasses with references to the
  * traveling request and the sending Listener.
@@ -16,13 +18,37 @@ import desmoj.core.simulator.Model;
  */
 public abstract class NetworkRequestEvent extends ExternalEvent {
 
-    protected final IRequestUpdateListener updateListener;
+    private final List<IRequestUpdateListener> updateListeners;
     protected final Request traveling_request;
+
+    protected final IRequestUpdateListener updateListener;
 
     public NetworkRequestEvent(Model model, String name, boolean showInTrace, Request request) {
         super(model, name, showInTrace);
         this.traveling_request = request;
-        updateListener = request.getUpdateListener();
+        updateListeners = request.getUpdateListeners();
+        updateListener = new IRequestUpdateListener() {
+            @Override
+            public void onRequestFailed(Request request) {
+                updateListeners.forEach(listener -> listener.onRequestFailed(request));
+            }
+
+            @Override
+            public void onRequestArrivalAtTarget(Request request) {
+                updateListeners.forEach(listener -> listener.onRequestArrivalAtTarget(request));
+            }
+
+            @Override
+            public void onRequestSend(Request request) {
+                updateListeners.forEach(listener -> listener.onRequestSend(request));
+
+            }
+
+            @Override
+            public void onRequestResultArrivedAtRequester(Request request) {
+                updateListeners.forEach(listener -> listener.onRequestResultArrivedAtRequester(request));
+            }
+        };
     }
 
     /**
@@ -31,7 +57,5 @@ public abstract class NetworkRequestEvent extends ExternalEvent {
     @Override
     public abstract void eventRoutine() throws SuspendExecution;
 
-    public final IRequestUpdateListener getUpdateListener() {
-        return updateListener;
-    }
+
 }

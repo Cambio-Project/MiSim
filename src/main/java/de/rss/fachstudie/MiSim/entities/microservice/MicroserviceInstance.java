@@ -33,7 +33,8 @@ public class MicroserviceInstance extends Entity implements IRequestUpdateListen
         this.instanceID = instanceID;
         this.cpu = new CPUImpl(model, String.format("%s_CPU", name), showInTrace, microservice.getCapacity());
 
-        reporter = new MultiDataPointReporter(name + "_");
+        String[] names = name.split("_");
+        reporter = new MultiDataPointReporter(String.format("I%s_[%s]_", names[0], names[1]));
 
         changeState(InstanceState.CREATED);
     }
@@ -62,7 +63,7 @@ public class MicroserviceInstance extends Entity implements IRequestUpdateListen
         //3. request does have dependencies -> create internal
         if (request.isCompleted()) {
             RequestAnswer answer = new RequestAnswer(request);
-            answer.setUpdateListener(this);
+            answer.addUpdateListener(this);
             NetworkRequestSendEvent sendEvent = new NetworkRequestSendEvent(getModel(), "Request_Answer_" + request.getQuotedName(), traceIsOn(), answer);
             currentAnswers.add(sendEvent);
             sendEvent.schedule();//send away the answer
@@ -74,7 +75,7 @@ public class MicroserviceInstance extends Entity implements IRequestUpdateListen
             for (NetworkDependency dependency : request.getDependencyRequests()) {
 
                 Request internalRequest = new InternalRequest(getModel(), this.traceIsOn(), dependency, this);
-                internalRequest.setUpdateListener(this);
+                internalRequest.addUpdateListener(this);
                 currentInternalRequests.add(internalRequest);
 
                 NetworkRequestSendEvent sendEvent = new NetworkRequestSendEvent(getModel(), String.format("Send Cascading_Request for %s", request.getQuotedName()), traceIsOn(), internalRequest);

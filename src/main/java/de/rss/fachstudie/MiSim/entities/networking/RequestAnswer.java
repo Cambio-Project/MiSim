@@ -15,6 +15,7 @@ public final class RequestAnswer extends Request {
                 wrappedRequest.traceIsOn(),
                 wrappedRequest,
                 new Operation(wrappedRequest.getModel(), "Dummy", false)); //inserting dummy operation
+        this.getUpdateListeners().addAll(wrappedRequest.getUpdateListeners());
     }
 
 
