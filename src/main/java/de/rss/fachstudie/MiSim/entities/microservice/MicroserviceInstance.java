@@ -10,6 +10,7 @@ import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 
 import java.util.LinkedHashSet;
+import java.util.stream.Stream;
 
 /**
  * @author Lion Wagner
@@ -181,10 +182,11 @@ public class MicroserviceInstance extends Entity implements IRequestUpdateListen
 
         //clears all currently running calculations
         cpu.clear();
-        //cancel all send answers
-        currentAnswers.forEach(NetworkRequestSendEvent::cancel);
-        //cancel all send answers
-        currentInternalSends.forEach(NetworkRequestSendEvent::cancel);
+
+        //cancel all send answers and send current internal requests
+        Stream.concat(currentAnswers.stream(), currentInternalSends.stream()).forEach(networkEvent -> {
+            if (networkEvent.isScheduled()) networkEvent.cancel();
+        });
 
         //TODO: notify sender of currently handled requests, that the requests failed (TCP/behavior)
         currentRequestsToHandle.forEach(Request::cancelExecutionAtHandler);

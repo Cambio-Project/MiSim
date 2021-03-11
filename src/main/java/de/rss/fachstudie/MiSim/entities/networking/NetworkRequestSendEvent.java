@@ -67,7 +67,8 @@ public class NetworkRequestSendEvent extends NetworkRequestEvent {
         // Rather they are considered completed once the answer is send by the handling instance.
         if (traveling_request instanceof RequestAnswer && traveling_request.getParent() instanceof UserRequest) return;
 
-        receiverEvent.cancel();
+        if(receiverEvent.isScheduled())
+            receiverEvent.cancel();
         new NetworkRequestCanceledEvent(getModel(), "RequestCanceledEvent", traceIsOn(), traveling_request, RequestFailedReason.REQUESTING_INSTANCE_DIED, "Sending was forcibly aborted!");
     }
 
