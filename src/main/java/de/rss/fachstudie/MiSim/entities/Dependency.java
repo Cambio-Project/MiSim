@@ -7,16 +7,22 @@ public class Dependency {
     private String operation;
     private Microservice microservice;
     private Operation operation_instance;
-    private double probability =  1;
+    private double probability = 1;
 
     public Dependency() {
 
     }
 
     public Dependency(String service, String operation) {
+        this(service, operation, 1);
+    }
+
+    public Dependency(String service, String operation, double probability) {
         this.service = service;
         this.operation = operation;
+        this.probability = probability;
     }
+
 
     public String getService() {
         return service;
