@@ -35,8 +35,8 @@ public class NetworkRequestSendEvent extends NetworkRequestEvent {
 
         if (!request.hasParent()) { // if it is completed and has no parent the request ist considered done
             request.stampReceived(presentTime());
-            updateListener.onRequestArrivalAtTarget(traveling_request);
-            updateListener.onRequestResultArrivedAtRequester(request);
+            updateListener.onRequestArrivalAtTarget(traveling_request, presentTime());
+            updateListener.onRequestResultArrivedAtRequester(request, presentTime());
             return;
         }
 
@@ -56,7 +56,7 @@ public class NetworkRequestSendEvent extends NetworkRequestEvent {
         //TODO: depending on implementation one could also check for instance availability here to simulate client side load balancing behavior more accurately
 
         traveling_request.setReceiveEvent(receiverEvent);
-        updateListener.onRequestSend(traveling_request);
+        updateListener.onRequestSend(traveling_request, presentTime());
     }
 
 
@@ -68,7 +68,7 @@ public class NetworkRequestSendEvent extends NetworkRequestEvent {
         if (traveling_request instanceof RequestAnswer && traveling_request.getParent() instanceof UserRequest) return;
 
         receiverEvent.cancel();
-        new NetworkRequestCanceledEvent(getModel(), "RequestCanceledEvent", traceIsOn(), traveling_request, "Sending was forcibly aborted!");
+        new NetworkRequestCanceledEvent(getModel(), "RequestCanceledEvent", traceIsOn(), traveling_request, RequestFailedReason.REQUESTING_INSTANCE_DIED, "Sending was forcibly aborted!");
     }
 
 }

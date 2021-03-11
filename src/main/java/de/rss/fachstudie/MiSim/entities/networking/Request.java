@@ -105,6 +105,10 @@ public abstract class Request extends MessageObject {
         return timestamp_send;
     }
 
+    public void resetSendTimeStamps(){
+        timestamp_send = null;
+    }
+
     public void setSendEvent(NetworkRequestSendEvent sendEvent) {
         this.sendEvent = sendEvent;
     }
@@ -165,7 +169,7 @@ public abstract class Request extends MessageObject {
 
     private void setTimestamp_send(TimeInstant timestamp_send) {
         if (this.timestamp_send != null)
-            throw new IllegalStateException("Receive Stamp is already set!");
+            throw new IllegalStateException("Send Stamp is already set!");
         this.timestamp_send = timestamp_send;
     }
 
@@ -183,6 +187,16 @@ public abstract class Request extends MessageObject {
         if (dependencyRequests.stream().allMatch(NetworkDependency::isCompleted)) {
             setDependencies_completed();
         }
+    }
+
+
+    public NetworkDependency getRelatedDependency(Request request) {
+        for (NetworkDependency networkDependency : dependencyRequests) {
+            if (networkDependency.getChild_request() == request) {
+              return networkDependency;
+            }
+        }
+        return null;
     }
 
     public final double getResponseTime() {
@@ -263,8 +277,9 @@ public abstract class Request extends MessageObject {
 //        if (request instanceof UserRequest && request.isCompleted()) {
 //            return;
 //        }
-        NetworkRequestEvent cancelEvent = new NetworkRequestCanceledEvent(getModel(), String.format("%s canceled", request.getQuotedName()), request.traceIsOn(), request, "Request was canceled by handler");
+        NetworkRequestEvent cancelEvent = new NetworkRequestCanceledEvent(getModel(), String.format("%s canceled", request.getQuotedName()), request.traceIsOn(), request, RequestFailedReason.HANDLING_INSTANCE_DIED);
         cancelEvent.schedule(presentTime());
         request.canceledEvent = canceledEvent;
     }
+
 }

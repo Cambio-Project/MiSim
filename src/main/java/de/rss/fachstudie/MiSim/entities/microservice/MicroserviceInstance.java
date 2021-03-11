@@ -1,11 +1,13 @@
 package de.rss.fachstudie.MiSim.entities.microservice;
 
 import de.rss.fachstudie.MiSim.entities.networking.*;
+import de.rss.fachstudie.MiSim.entities.patterns.RetryManager;
 import de.rss.fachstudie.MiSim.export.MultiDataPointReporter;
 import de.rss.fachstudie.MiSim.resources.CPUImpl;
 import de.rss.fachstudie.MiSim.resources.CPUProcess;
 import desmoj.core.simulator.Entity;
 import desmoj.core.simulator.Model;
+import desmoj.core.simulator.TimeInstant;
 
 import java.util.LinkedHashSet;
 
@@ -27,6 +29,26 @@ public class MicroserviceInstance extends Entity implements IRequestUpdateListen
 
     private final MultiDataPointReporter reporter;
 
+    private final RetryManager retryManager;
+
+    private final IRequestUpdateListener completionListener = new IRequestUpdateListener() {
+        public MicroserviceInstance owner;
+
+        @Override
+        public void onRequestArrivalAtTarget(Request request, TimeInstant when) {
+            Request request_instance = request;
+            if (request_instance instanceof RequestAnswer) {
+                request_instance = ((RequestAnswer) request_instance).unpack();
+            }
+
+            currentRequestsToHandle.remove(request_instance);
+            if (currentRequestsToHandle.isEmpty() && getState() == InstanceState.SHUTTING_DOWN) {
+                InstanceShutdownEndEvent event = new InstanceShutdownEndEvent(getModel(), String.format("Instance %s Shutdown End", owner.getQuotedName()), traceIsOn());
+                event.schedule(owner); //shutdown after the last answer was send. It doesn't care if the original sender does not live anymore
+            }
+        }
+    };
+
     public MicroserviceInstance(Model model, String name, boolean showInTrace, Microservice microservice, int instanceID) {
         super(model, name, showInTrace);
         this.owner = microservice;
@@ -37,6 +59,15 @@ public class MicroserviceInstance extends Entity implements IRequestUpdateListen
         reporter = new MultiDataPointReporter(String.format("I%s_[%s]_", names[0], names[1]));
 
         changeState(InstanceState.CREATED);
+
+        try {
+            completionListener.getClass().getField("owner").set(completionListener, this);//injecting this as owner
+        } catch (IllegalAccessException | NoSuchFieldException e) {
+            e.printStackTrace();
+        }
+
+
+        retryManager = new RetryManager(model, String.format("RetryManager of %s", this.getQuotedName()), false, this);
     }
 
     public double getUsage() {
@@ -63,7 +94,7 @@ public class MicroserviceInstance extends Entity implements IRequestUpdateListen
         //3. request does have dependencies -> create internal
         if (request.isCompleted()) {
             RequestAnswer answer = new RequestAnswer(request);
-            answer.addUpdateListener(this);
+            answer.addUpdateListener(completionListener);
             NetworkRequestSendEvent sendEvent = new NetworkRequestSendEvent(getModel(), "Request_Answer_" + request.getQuotedName(), traceIsOn(), answer);
             currentAnswers.add(sendEvent);
             sendEvent.schedule();//send away the answer
@@ -75,8 +106,10 @@ public class MicroserviceInstance extends Entity implements IRequestUpdateListen
             for (NetworkDependency dependency : request.getDependencyRequests()) {
 
                 Request internalRequest = new InternalRequest(getModel(), this.traceIsOn(), dependency, this);
-                internalRequest.addUpdateListener(this);
+                internalRequest.addUpdateListener(completionListener);
+                internalRequest.addUpdateListener(retryManager);
                 currentInternalRequests.add(internalRequest);
+
 
                 NetworkRequestSendEvent sendEvent = new NetworkRequestSendEvent(getModel(), String.format("Send Cascading_Request for %s", request.getQuotedName()), traceIsOn(), internalRequest);
                 currentInternalSends.add(sendEvent);
@@ -143,6 +176,9 @@ public class MicroserviceInstance extends Entity implements IRequestUpdateListen
         }
         changeState(InstanceState.KILLED);
 
+
+        retryManager.clear();
+
         //clears all currently running calculations
         cpu.clear();
         //cancel all send answers
@@ -164,6 +200,9 @@ public class MicroserviceInstance extends Entity implements IRequestUpdateListen
         return instanceID;
     }
 
+    private void initializeRequestSuccessListener() {
+
+    }
 
     private void collectQueueStatistics() {
         reporter.addDatapoint("SendOff_Internal_Requests", presentTime(), currentInternalRequests.size());
@@ -173,20 +212,10 @@ public class MicroserviceInstance extends Entity implements IRequestUpdateListen
     }
 
     @Override
-    public void onRequestFailed(Request failed_request) {
+    public void onRequestFailed(final Request request, final TimeInstant when, final RequestFailedReason reason) {
         //TODO: Retry and Circuitbreaker
+
     }
 
-    @Override
-    public void onRequestArrivalAtTarget(Request request) {
-        if (request instanceof RequestAnswer) {
-            request = ((RequestAnswer) request).unpack();
-        }
 
-        currentRequestsToHandle.remove(request);
-        if (currentRequestsToHandle.isEmpty() && getState() == InstanceState.SHUTTING_DOWN) {
-            InstanceShutdownEndEvent event = new InstanceShutdownEndEvent(getModel(), String.format("Instance %s Shutdown End", this.getQuotedName()), traceIsOn());
-            event.schedule(this); //shutdown after the last answer was send. It doesn't care if the original sender does not live anymore
-        }
-    }
 }

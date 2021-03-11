@@ -3,6 +3,7 @@ package de.rss.fachstudie.MiSim.entities.networking;
 import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.ExternalEvent;
 import desmoj.core.simulator.Model;
+import desmoj.core.simulator.TimeInstant;
 
 import java.util.List;
 
@@ -27,26 +28,27 @@ public abstract class NetworkRequestEvent extends ExternalEvent {
         super(model, name, showInTrace);
         this.traveling_request = request;
         updateListeners = request.getUpdateListeners();
+
+        //adapter, so each inheriting object only sees one anonymous updateListener
         updateListener = new IRequestUpdateListener() {
             @Override
-            public void onRequestFailed(Request request) {
-                updateListeners.forEach(listener -> listener.onRequestFailed(request));
+            public void onRequestFailed(final Request request, final TimeInstant when, final RequestFailedReason reason) {
+                updateListeners.forEach(listener -> listener.onRequestFailed(request, when, reason));
             }
 
             @Override
-            public void onRequestArrivalAtTarget(Request request) {
-                updateListeners.forEach(listener -> listener.onRequestArrivalAtTarget(request));
+            public void onRequestArrivalAtTarget(Request request, TimeInstant when) {
+                updateListeners.forEach(listener -> listener.onRequestArrivalAtTarget(request, when));
             }
 
             @Override
-            public void onRequestSend(Request request) {
-                updateListeners.forEach(listener -> listener.onRequestSend(request));
-
+            public void onRequestSend(Request request, TimeInstant when) {
+                updateListeners.forEach(listener -> listener.onRequestSend(request, when));
             }
 
             @Override
-            public void onRequestResultArrivedAtRequester(Request request) {
-                updateListeners.forEach(listener -> listener.onRequestResultArrivedAtRequester(request));
+            public void onRequestResultArrivedAtRequester(Request request, TimeInstant when) {
+                updateListeners.forEach(listener -> listener.onRequestResultArrivedAtRequester(request, when));
             }
         };
     }

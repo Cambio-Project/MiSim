@@ -160,8 +160,8 @@ public abstract class Generator extends ExternalEvent implements IRequestUpdateL
      * available, the request being canceled or timed out. Provides a reference to the failed request.
      */
     @Override
-    public void onRequestFailed(Request request) {
-        sendTraceNote(String.format("Arrival of Request %s failed.", request));
+    public void onRequestFailed(Request request, TimeInstant when, RequestFailedReason reason) {
+        sendTraceNote(String.format("Arrival of Request %s failed at %s.", request, when));
         TimeInstant currentTime = new TimeInstant(Math.ceil(presentTime().getTimeAsDouble()));
 
         accReporter.addDatapoint("FailedRequests", currentTime, 1);
@@ -173,8 +173,8 @@ public abstract class Generator extends ExternalEvent implements IRequestUpdateL
      * Listener for the successful receiving of the answer of a request.
      */
     @Override
-    public void onRequestResultArrivedAtRequester(Request request) {
-        sendTraceNote(String.format("Successfully completed Request %s.", request));
+    public void onRequestResultArrivedAtRequester(Request request, TimeInstant when) {
+        sendTraceNote(String.format("Successfully completed Request %s at %s.", request, when));
         TimeInstant currentTime = new TimeInstant(Math.ceil(presentTime().getTimeAsDouble()));
 
         accReporter.addDatapoint("SuccessfulRequests", currentTime, 1);

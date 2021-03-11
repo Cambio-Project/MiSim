@@ -35,21 +35,22 @@ public class NetworkRequestReceiveEvent extends NetworkRequestEvent {
             //if there is a parent, the request is a cascading request, therefore: notify the parent request that its dependency answer has arrived
             Request parent_request = requestInstance.getParent();
             parent_request.notifyDependencyHasFinished(requestInstance);
-            updateListener.onRequestResultArrivedAtRequester(requestInstance);
-            updateListener.onRequestArrivalAtTarget(traveling_request);
+            updateListener.onRequestResultArrivedAtRequester(requestInstance, presentTime());
+            updateListener.onRequestArrivalAtTarget(traveling_request, presentTime());
 
         } else {
 
             Microservice receivingMicroservice = requestInstance.operation.getOwner();
             try {
                 //let the owning microservice instance decide which instance should handle this Request
-                //TODO: this can be moved to NetworkRequestSendEvent
+                //TODO: this might be moved to NetworkRequestSendEvent
                 MicroserviceInstance instance = receivingMicroservice.getNextAvailableInstance();
                 requestInstance.setHandler(instance);
                 instance.handle(requestInstance); //give request to handler
-                updateListener.onRequestArrivalAtTarget(traveling_request);
+                updateListener.onRequestArrivalAtTarget(traveling_request, presentTime());
             } catch (NoInstanceAvailableException e) { //if no instance is available we tell the listener that its canceled (indirectly via the CancelEvents)
                 new NetworkRequestCanceledEvent(getModel(), "RequestCanceledEvent", traceIsOn(), traveling_request,
+                        RequestFailedReason.NO_INSTANCE_AVAILABLE,
                         String.format("No Instance for Service %s was available.", receivingMicroservice.getQuotedName()))
                         .schedule(presentTime());
             }
