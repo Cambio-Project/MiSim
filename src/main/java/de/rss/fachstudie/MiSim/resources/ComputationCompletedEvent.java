@@ -3,7 +3,6 @@ package de.rss.fachstudie.MiSim.resources;
 import co.paralleluniverse.fibers.SuspendExecution;
 import de.rss.fachstudie.MiSim.entities.networking.Request;
 import desmoj.core.simulator.Event;
-import desmoj.core.simulator.ExternalEvent;
 import desmoj.core.simulator.Model;
 
 /**
@@ -19,6 +18,7 @@ public class ComputationCompletedEvent extends Event<Request> {
     public void eventRoutine(Request request) throws SuspendExecution {
         sendTraceNote(String.format("Request %s was computed.", request.getQuotedName()));
         request.setComputation_completed();
+        request.getHandler().handle(request); //resubmitting itself for further handling
     }
 
 }

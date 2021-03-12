@@ -1,6 +1,8 @@
 package de.rss.fachstudie.MiSim.entities.networking;
 
 import co.paralleluniverse.fibers.SuspendExecution;
+import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
+import de.rss.fachstudie.MiSim.entities.microservice.MicroserviceInstance;
 import desmoj.core.dist.ContDistNormal;
 import desmoj.core.dist.NumericalDist;
 import desmoj.core.simulator.Model;
@@ -17,9 +19,23 @@ public class NetworkRequestSendEvent extends NetworkRequestEvent {
 
     private NetworkRequestReceiveEvent receiverEvent;
     private final NumericalDist<Double> rng;
+    private final Microservice targetService;
+    private final MicroserviceInstance targetInstance;
 
-    public NetworkRequestSendEvent(Model model, String name, boolean showInTrace, Request request) {
+    public NetworkRequestSendEvent(Model model, String name, boolean showInTrace, Request request, MicroserviceInstance target) {
+        this(model, name, showInTrace, request, null, target);
+//        Objects.requireNonNull(target);
+    }
+
+    public NetworkRequestSendEvent(Model model, String name, boolean showInTrace, Request request, Microservice target) {
+        this(model, name, showInTrace, request, target, null);
+//        Objects.requireNonNull(target);
+    }
+
+    private NetworkRequestSendEvent(Model model, String name, boolean showInTrace, Request request, Microservice targetService, MicroserviceInstance targetInstance) {
         super(model, name, showInTrace, request);
+        this.targetService = targetService;
+        this.targetInstance = targetInstance;
         rng = new ContDistNormal(model, name + "_RNG", 20, 10, true, false);
         request.setSendEvent(this);
     }
@@ -27,16 +43,14 @@ public class NetworkRequestSendEvent extends NetworkRequestEvent {
     @Override
     public void eventRoutine() throws SuspendExecution {
         traveling_request.stampSendoff(presentTime());
-        Request request = traveling_request;
 
-        if (request instanceof RequestAnswer && request.getParent() instanceof UserRequest) {
-            request = ((RequestAnswer) request).unpack(); //unpack the request if its an answer to a UserRequest
-        }
 
-        if (!request.hasParent()) { // if it is completed and has no parent the request ist considered done
-            request.stampReceived(presentTime());
+        if (traveling_request instanceof RequestAnswer && traveling_request.getParent() instanceof UserRequest) {
+            // if an answer to a UserRequest is send, it will be considered done (since there is no receiver)
+            traveling_request.stampReceived(presentTime());
+            traveling_request.getParent().stampReceived(presentTime());
             updateListener.onRequestArrivalAtTarget(traveling_request, presentTime());
-            updateListener.onRequestResultArrivedAtRequester(request, presentTime());
+            updateListener.onRequestResultArrivedAtRequester(traveling_request.getParent(), presentTime());
             return;
         }
 
@@ -46,17 +60,24 @@ public class NetworkRequestSendEvent extends NetworkRequestEvent {
             nextDelay = rng.sample() / 1000;
         } while (nextDelay < 0); //ensures a positive delay, due to "infinite" gaussian deviation
 
-
         //TODO: add network delay from DelayMonkey
-
-        receiverEvent = new NetworkRequestReceiveEvent(getModel(), String.format("Receiving of %s", request.getQuotedName()), traceIsOn(), request);
-        receiverEvent.schedule(new TimeSpan(nextDelay));
-
-        //TODO: schedule NetworkRequestTimeOutCheckEvent, to check the request after a timeout duration
-        //TODO: depending on implementation one could also check for instance availability here to simulate client side load balancing behavior more accurately
-
-        traveling_request.setReceiveEvent(receiverEvent);
         updateListener.onRequestSend(traveling_request, presentTime());
+
+        MicroserviceInstance targetInstance = retrieveTargetInstance();
+        if (targetInstance == null) {
+            NetworkRequestEvent cancelEvent = new NetworkRequestCanceledEvent(getModel(), "RequestCanceledEvent", traceIsOn(), traveling_request,
+                    RequestFailedReason.NO_INSTANCE_AVAILABLE,
+                    String.format("No Instance for Service %s was available.", targetService.getQuotedName()));
+            cancelEvent.schedule(new TimeSpan(nextDelay));
+        } else {
+            receiverEvent = new NetworkRequestReceiveEvent(getModel(), String.format("Receiving of %s", traveling_request.getQuotedName()), traceIsOn(), traveling_request, targetInstance);
+            receiverEvent.schedule(new TimeSpan(nextDelay));
+
+            //TODO: schedule NetworkRequestTimeOutCheckEvent, to check the request after a timeout duration
+
+            traveling_request.setReceiveEvent(receiverEvent);
+
+        }
     }
 
 
@@ -67,9 +88,22 @@ public class NetworkRequestSendEvent extends NetworkRequestEvent {
         // Rather they are considered completed once the answer is send by the handling instance.
         if (traveling_request instanceof RequestAnswer && traveling_request.getParent() instanceof UserRequest) return;
 
-        if(receiverEvent.isScheduled())
+        if (receiverEvent != null && receiverEvent.isScheduled())
             receiverEvent.cancel();
         new NetworkRequestCanceledEvent(getModel(), "RequestCanceledEvent", traceIsOn(), traveling_request, RequestFailedReason.REQUESTING_INSTANCE_DIED, "Sending was forcibly aborted!");
+    }
+
+    protected MicroserviceInstance retrieveTargetInstance() {
+        if (targetInstance != null) return targetInstance;
+        else if (targetService == null) throw new IllegalStateException("Sender cant find a valid target instance.");
+        else {
+            try {
+                return targetService.getNextAvailableInstance();
+            } catch (NoInstanceAvailableException e) {
+                return null;
+                //TODO: maybe do a special case if the whole service is killed?
+            }
+        }
     }
 
 }

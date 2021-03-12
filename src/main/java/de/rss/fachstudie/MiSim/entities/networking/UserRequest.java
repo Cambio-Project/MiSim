@@ -12,7 +12,7 @@ public class UserRequest extends Request {
     private static final MultiDataPointReporter reporter = new MultiDataPointReporter("R");
 
     public UserRequest(Model model, String name, boolean showInTrace, Operation operation) {
-        super(model, name, showInTrace, null, operation);
+        super(model, name, showInTrace, null, operation, null);//TODO: insert generator as requester here
     }
 
 

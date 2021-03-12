@@ -6,10 +6,12 @@ import de.rss.fachstudie.MiSim.entities.Operation;
 import de.rss.fachstudie.MiSim.entities.generator.IntervalGenerator;
 import de.rss.fachstudie.MiSim.entities.generator.LIMBOGenerator;
 import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
+import de.rss.fachstudie.MiSim.entities.microservice.MicroserviceScaleEvent;
 import de.rss.fachstudie.MiSim.events.ChaosMonkeyEvent;
 import de.rss.fachstudie.MiSim.events.FinishEvent;
 import de.rss.fachstudie.MiSim.events.StatisticEvent;
 import de.rss.fachstudie.MiSim.export.ExportReport;
+import de.rss.fachstudie.MiSim.export.MultiDataPointReporter;
 import de.rss.fachstudie.MiSim.export.ReportWriter;
 import de.rss.fachstudie.MiSim.misc.Priority;
 import de.rss.fachstudie.MiSim.parsing.ArchModelParser;
@@ -27,6 +29,11 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.awt.*;
 import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -71,6 +78,7 @@ public class MainModel extends Model {
     public HashMap<Integer, HashMap<Integer, TimeSeries>> resourceLimiterStatistics;
     public HashMap<Integer, TimeSeries> taskQueueStatistics;
 
+    public static MultiDataPointReporter generalReporter = new MultiDataPointReporter();
 
     public void setSimulationTime(double simTime) {
         if (simTime > 0)
@@ -180,6 +188,13 @@ public class MainModel extends Model {
 
         //exp.report();
         exp.finish();
+
+        try {
+            Files.createDirectories(Paths.get(".", "Report", "raw"));
+            Files.write(Paths.get(".", "Report", "raw", "_meta.txt"), ("{\"duration\": " + ExpModelParser.simulation_meta_data.get("duration") + "}").getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         Map<String, TreeMap<TimeInstant, Object>> data = de.rss.fachstudie.MiSim.export.ReportCollector.getInstance().collect_data();
         TreeMap<String, TreeMap<TimeInstant, Object>> sortedData = new TreeMap<>(data);
@@ -505,7 +520,7 @@ public class MainModel extends Model {
 //            initEvent.schedule(new TimeSpan(0, timeUnit));
 //        }
 
-//        generators = new GeneratorPOJO[]{generators[3]};
+//        generators = new GeneratorPOJO[]{generators[1]};
         for (GeneratorPOJO generator : generators) {
             Operation op = MainModel.microservices.stream()
                     .filter(microservice -> microservice.getName().matches(String.format("^%s(#[0-9]*)?$", generator.microservice)))
@@ -525,13 +540,22 @@ public class MainModel extends Model {
         }
 
 
-        Microservice msToKill = microservices.stream().filter(microservice -> microservice.getName().contains("gateway")).findFirst().get();
+        Microservice msToKill = microservices.stream().filter(microservice -> microservice.getName().equals("loon-service")).findFirst().get();
 
-        ChaosMonkeyEvent chaosMonkey = new ChaosMonkeyEvent(this, "ChaosMonkey", true, msToKill, 2);
-        chaosMonkey.schedule(new TimeInstant(100));
+        ChaosMonkeyEvent chaosMonkey;
 
         chaosMonkey = new ChaosMonkeyEvent(this, "ChaosMonkey", true, msToKill, 1);
         chaosMonkey.schedule(new TimeInstant(50));
+
+        chaosMonkey = new ChaosMonkeyEvent(this, "ChaosMonkey", true, msToKill, 2);
+        chaosMonkey.schedule(new TimeInstant(75));
+
+        MicroserviceScaleEvent scaleEvent = new MicroserviceScaleEvent(this, "ScaleEvent", true, msToKill, 2);
+        scaleEvent.schedule(new TimeInstant(120));
+
+//        chaosMonkey = new ChaosMonkeyEvent(this, "ChaosMonkey", true, msToKill, 1);
+//        chaosMonkey.schedule(new TimeInstant(150));
+
 
 //        // Fire off all monkeys for scheduling
 //        InitialChaosMonkeyEvent[] monkeys = ExpModelParser.chaosmonkeys;

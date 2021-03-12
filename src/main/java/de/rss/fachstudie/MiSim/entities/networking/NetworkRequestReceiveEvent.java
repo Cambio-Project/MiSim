@@ -1,7 +1,6 @@
 package de.rss.fachstudie.MiSim.entities.networking;
 
 import co.paralleluniverse.fibers.SuspendExecution;
-import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
 import de.rss.fachstudie.MiSim.entities.microservice.MicroserviceInstance;
 import desmoj.core.simulator.Model;
 
@@ -14,47 +13,29 @@ import desmoj.core.simulator.Model;
  */
 public class NetworkRequestReceiveEvent extends NetworkRequestEvent {
 
+    private final MicroserviceInstance receivingInstance;
 
-    public NetworkRequestReceiveEvent(Model model, String name, boolean showInTrace, Request request) {
+    public NetworkRequestReceiveEvent(Model model, String name, boolean showInTrace, Request request, MicroserviceInstance receiver) {
         super(model, name, showInTrace, request);
+        receivingInstance = receiver;
     }
 
     @Override
     public void eventRoutine() throws SuspendExecution {
-        Request requestInstance = traveling_request;
+        traveling_request.stampReceivedAtHandler(presentTime());
 
-        if (requestInstance instanceof RequestAnswer) {
-            requestInstance = ((RequestAnswer) requestInstance).unpack(); //unpack if its a request answer
-        }
+        try {
+            receivingInstance.handle(traveling_request);
 
-        if (requestInstance.isCompleted()) {
-            if (!requestInstance.hasParent()) {
-                throw new IllegalStateException("Internal Error: Receive Event caught a request without parent (don't know where to send this).\n" + requestInstance.toString());
+            if (traveling_request instanceof RequestAnswer) {
+                updateListener.onRequestResultArrivedAtRequester(((RequestAnswer) traveling_request).unpack(), presentTime());
             }
-            requestInstance.stampReceived(presentTime());//if the request is completed stamp it as (results) received
-            //if there is a parent, the request is a cascading request, therefore: notify the parent request that its dependency answer has arrived
-            Request parent_request = requestInstance.getParent();
-            parent_request.notifyDependencyHasFinished(requestInstance);
-            updateListener.onRequestResultArrivedAtRequester(requestInstance, presentTime());
+
             updateListener.onRequestArrivalAtTarget(traveling_request, presentTime());
-
-        } else {
-
-            Microservice receivingMicroservice = requestInstance.operation.getOwner();
-            try {
-                //let the owning microservice instance decide which instance should handle this Request
-                //TODO: this might be moved to NetworkRequestSendEvent
-                MicroserviceInstance instance = receivingMicroservice.getNextAvailableInstance();
-                requestInstance.setHandler(instance);
-                instance.handle(requestInstance); //give request to handler
-                updateListener.onRequestArrivalAtTarget(traveling_request, presentTime());
-            } catch (NoInstanceAvailableException e) { //if no instance is available we tell the listener that its canceled (indirectly via the CancelEvents)
-                new NetworkRequestCanceledEvent(getModel(), "RequestCanceledEvent", traceIsOn(), traveling_request,
-                        RequestFailedReason.NO_INSTANCE_AVAILABLE,
-                        String.format("No Instance for Service %s was available.", receivingMicroservice.getQuotedName()))
-                        .schedule(presentTime());
-            }
-            //TODO: maybe do a special case if the whole service is killed?
+        } catch (IllegalStateException e) {
+            NetworkRequestEvent event = new NetworkRequestCanceledEvent(getModel(), String.format("CANCEL Event for %s", traveling_request.getQuotedName()), traceIsOn(), traveling_request, RequestFailedReason.HANDLING_INSTANCE_DIED);
+            event.schedule(presentTime());
         }
+
     }
 }

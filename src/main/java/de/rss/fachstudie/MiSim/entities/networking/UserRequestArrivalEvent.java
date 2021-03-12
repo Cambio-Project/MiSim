@@ -1,6 +1,8 @@
 package de.rss.fachstudie.MiSim.entities.networking;
 
 import co.paralleluniverse.fibers.SuspendExecution;
+import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
+import de.rss.fachstudie.MiSim.entities.microservice.MicroserviceInstance;
 import desmoj.core.simulator.Model;
 
 /**
@@ -8,8 +10,8 @@ import desmoj.core.simulator.Model;
  */
 public final class UserRequestArrivalEvent extends NetworkRequestReceiveEvent {
 
-    public UserRequestArrivalEvent(Model model, String name, boolean showInTrace, Request request) {
-        super(model, name, showInTrace, request);
+    public UserRequestArrivalEvent(Model model, String name, boolean showInTrace, Request request, MicroserviceInstance receiver) {
+        super(model, name, showInTrace, request, receiver);
     }
 
     @Override

@@ -120,31 +120,44 @@ public abstract class Generator extends ExternalEvent implements IRequestUpdateL
 
         UserRequest request = new UserRequest(model, String.format("User_Request@([%s] %s)", operation.getOwner().getName(), operation.getName()), true, operation);
         request.addUpdateListener(this);
-        NetworkRequestEvent event = new UserRequestArrivalEvent(model, String.format("User_Request@(%s) ", operation.getQuotedName()), this.traceIsOn(), request);
-        event.schedule(presentTime());
 
-        TimeInstant nextExecutionTimeInstance;
         try {
-            nextExecutionTimeInstance = getNextExecutionTimeInstance();
-        } catch (GeneratorStopException e) {
-            sendTraceNote(String.format("Generator %s has stopped.\nReason: %s", this.getQuotedName(), e.getMessage()));
-            return;
+            NetworkRequestEvent event = new UserRequestArrivalEvent(model,
+                    String.format("User_Request@(%s) ",
+                            operation.getQuotedName()),
+                    this.traceIsOn(),
+                    request,
+                    operation.getOwner().getNextAvailableInstance());
+
+
+            event.schedule(presentTime());
+
+            TimeInstant nextExecutionTimeInstance;
+            try {
+                nextExecutionTimeInstance = getNextExecutionTimeInstance();
+            } catch (GeneratorStopException e) {
+                sendTraceNote(String.format("Generator %s has stopped.\nReason: %s", this.getQuotedName(), e.getMessage()));
+                return;
+            }
+
+
+            if (nextExecutionTimeInstance == null) {
+                sendWarning(
+                        String.format("Did not schedule event %s",
+                                event.getQuotedName()), this.getClass().getTypeName(),
+                        "Next time to schedule the event was 'null'.",
+                        "Check your request generators definition and input for errors.");
+                return;
+            }
+
+            if (this.isScheduled())
+                this.reSchedule(nextExecutionTimeInstance);
+            else this.schedule(nextExecutionTimeInstance);
+
+        } catch (NoInstanceAvailableException e) {
+            onRequestFailed(request, presentTime(), RequestFailedReason.NO_INSTANCE_AVAILABLE);
+
         }
-
-
-        if (nextExecutionTimeInstance == null) {
-            sendWarning(
-                    String.format("Did not schedule event %s",
-                            event.getQuotedName()), this.getClass().getTypeName(),
-                    "Next time to schedule the event was 'null'.",
-                    "Check your request generators definition and input for errors.");
-            return;
-        }
-
-        if (this.isScheduled())
-            this.reSchedule(nextExecutionTimeInstance);
-        else this.schedule(nextExecutionTimeInstance);
-
     }
 
     public TimeInstant getLastTargetTime() {

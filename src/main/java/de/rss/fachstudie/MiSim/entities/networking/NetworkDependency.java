@@ -25,7 +25,7 @@ public class NetworkDependency {
         return parent_request;
     }
 
-    public Microservice getTarget_ms() {
+    public Microservice getTarget_Service() {
         return target_ms;
     }
 
@@ -37,7 +37,7 @@ public class NetworkDependency {
         return completed;
     }
 
-    public void setCompleted() {
+    void setCompleted() {
         this.completed = true;
     }
 

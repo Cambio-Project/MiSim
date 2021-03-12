@@ -1,6 +1,7 @@
 package de.rss.fachstudie.MiSim.resources;
 
 import co.paralleluniverse.fibers.SuspendExecution;
+import de.rss.fachstudie.MiSim.entities.microservice.MicroserviceInstance;
 import de.rss.fachstudie.MiSim.entities.networking.Request;
 import de.rss.fachstudie.MiSim.export.MultiDataPointReporter;
 import desmoj.core.simulator.ExternalEvent;
@@ -11,7 +12,34 @@ import org.javatuples.Pair;
 import java.util.HashSet;
 import java.util.Set;
 
-public final class CPUImpl extends ExternalEvent {
+public class CPUImpl extends ExternalEvent {
+
+    /**
+     * Represents a CPU owned by a Microservice Instant
+     */
+    public static final class OwnedCPU extends CPUImpl {
+        private final MicroserviceInstance owner;
+
+        public OwnedCPU(Model model, String name, boolean showInTrace, int capacity, MicroserviceInstance owner) {
+            super(model, name, showInTrace, capacity);
+            this.owner = owner;
+        }
+
+        public OwnedCPU(Model model, String name, boolean showInTrace, int capacity, int threadPoolSize, MicroserviceInstance owner) {
+            super(model, name, showInTrace, capacity, threadPoolSize);
+            this.owner = owner;
+        }
+
+        public OwnedCPU(Model model, String name, boolean showInTrace, int capacity, CPUProcessScheduler scheduler, MicroserviceInstance owner) {
+            super(model, name, showInTrace, capacity, scheduler);
+            this.owner = owner;
+        }
+
+        public OwnedCPU(Model model, String name, boolean showInTrace, int capacity, CPUProcessScheduler scheduler, int threadPoolSize, MicroserviceInstance owner) {
+            super(model, name, showInTrace, capacity, scheduler, threadPoolSize);
+            this.owner = owner;
+        }
+    }
 
     private static final int DEFAULT_THREADPOOLSIZE = 4;
 
@@ -53,10 +81,6 @@ public final class CPUImpl extends ExternalEvent {
         reporter.addDatapoint("TotalProcesses", presentTime(), getProcessesCount());
     }
 
-    public void submitRequest(Request request) {
-        submitProcess(new CPUProcess(request));
-    }
-
     @Override
     public void eventRoutine() throws SuspendExecution {
         while (hasProcessAndThreadReady()) {
@@ -79,7 +103,7 @@ public final class CPUImpl extends ExternalEvent {
         }
 
         reporter.addDatapoint("ActiveProcesses", presentTime(), activeProcesses.size());
-        reporter.addDatapoint("Usage", presentTime(), activeProcesses.size() / (double)threadPoolSize);
+        reporter.addDatapoint("Usage", presentTime(), activeProcesses.size() / (double) threadPoolSize);
     }
 
     private boolean hasProcessAndThreadReady() {
@@ -107,7 +131,7 @@ public final class CPUImpl extends ExternalEvent {
 
         reporter.addDatapoint("ActiveProcesses", presentTime(), activeProcesses.size());
         reporter.addDatapoint("TotalProcesses", presentTime(), getProcessesCount());
-        reporter.addDatapoint("Usage", presentTime(), activeProcesses.size() / (double)threadPoolSize);
+        reporter.addDatapoint("Usage", presentTime(), activeProcesses.size() / (double) threadPoolSize);
 
     }
 

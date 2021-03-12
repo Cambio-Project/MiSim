@@ -59,5 +59,7 @@ public abstract class NetworkRequestEvent extends ExternalEvent {
     @Override
     public abstract void eventRoutine() throws SuspendExecution;
 
-
+    public Request getTraveling_request() {
+        return traveling_request;
+    }
 }

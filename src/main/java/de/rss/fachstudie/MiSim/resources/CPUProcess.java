@@ -33,6 +33,7 @@ public final class CPUProcess implements Comparable<CPUProcess> {
         this(request.operation.getDemand(), request);
     }
 
+
     private CPUProcess(int demand, Request request) {
         if (demand < 0) throw new IllegalArgumentException("Demand has to be 0 or greater");
         this.demandTotal = demand;

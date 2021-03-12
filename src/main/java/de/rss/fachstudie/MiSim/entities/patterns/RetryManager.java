@@ -11,24 +11,22 @@ import java.util.Map;
 import java.util.Random;
 
 /**
- * Retry implementation that employs a
+ * Retry implementation that employs a jitter based exponential backoff. see https://aws.amazon.com/de/blogs/architecture/exponential-backoff-and-jitter/
  *
  * @author Lion Wagner
  */
 public class RetryManager extends Entity implements IRequestUpdateListener {
 
     Map<NetworkDependency, Integer> requestIndex = new HashMap<>();
-    private int maxTries = 5;
-    private double baseBackoff = 0.004;
+    private int maxTries = 10;
+    private double baseBackoff = 0.010;
     private double maxBackoff = 1;
     private int exponentialBackoffBase = 3;
-    private final IRequestUpdateListener listener;
+    private final IRetryListener listener;
 
-
-    public RetryManager(Model model, String s, boolean b, IRequestUpdateListener listener) {
+    public RetryManager(Model model, String s, boolean b, IRetryListener listener) {
         super(model, s, b);
         this.listener = listener;
-
     }
 
     @Override
@@ -36,15 +34,16 @@ public class RetryManager extends Entity implements IRequestUpdateListener {
         NetworkDependency dep = request.getParent().getRelatedDependency(request);
         if (!requestIndex.containsKey(dep)) return;
 
-        int tries = requestIndex.merge(dep, 1, Integer::sum);
+        int tries = requestIndex.get(dep);
 
         if (tries < maxTries) {
             double steadyDelay = Math.min(baseBackoff * Math.pow(exponentialBackoffBase, tries), maxBackoff);
             double jitterDelay = new Random().nextDouble() * steadyDelay;
 
-            request = new InternalRequest(getModel(), this.traceIsOn(), dep, request.getHandler()); //updates the dependency that had the original request as child
-            NetworkRequestEvent newSendEvent = new NetworkRequestSendEvent(getModel(), String.format("Retry of sending %s", request.getQuotedName()), true, request);
-            request.addUpdateListener(this);
+            Request newRequest = new InternalRequest(getModel(), this.traceIsOn(), dep, request.getRequester()); //updates the dependency that had the original request as child
+            NetworkRequestSendEvent newSendEvent = new NetworkRequestSendEvent(getModel(), String.format("Retry of sending %s", request.getQuotedName()), true, newRequest, dep.getTarget_Service());
+            newRequest.addUpdateListener(this);
+            listener.onRetry(newRequest, newSendEvent);
             newSendEvent.schedule(new TimeSpan(jitterDelay));
 
         } else {
@@ -63,7 +62,7 @@ public class RetryManager extends Entity implements IRequestUpdateListener {
         if (!(request instanceof RequestAnswer)) //Request answers will not be repeated
         {
             NetworkDependency dep = request.getParent().getRelatedDependency(request);
-            requestIndex.put(dep, 1);
+            requestIndex.merge(dep, 1, Integer::sum);
         }
 
     }
@@ -77,5 +76,8 @@ public class RetryManager extends Entity implements IRequestUpdateListener {
 
     public void clear() {
         requestIndex.clear();
+        traceOn();
+        sendTraceNote(String.format("Clearing Retry %s", this.getQuotedName()));
+        traceOff();
     }
 }

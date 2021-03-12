@@ -2,10 +2,10 @@ package de.rss.fachstudie.MiSim.entities.networking;
 
 import de.rss.fachstudie.MiSim.entities.Dependency;
 import de.rss.fachstudie.MiSim.entities.DependencyGraph;
-import de.rss.fachstudie.MiSim.entities.MessageObject;
 import de.rss.fachstudie.MiSim.entities.Operation;
 import de.rss.fachstudie.MiSim.entities.microservice.MicroserviceInstance;
 import desmoj.core.dist.ContDistUniform;
+import desmoj.core.simulator.Entity;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 import org.apache.commons.math3.util.Precision;
@@ -17,11 +17,11 @@ import java.util.Set;
 /**
  * @author Lion Wagner
  */
-public abstract class Request extends MessageObject {
+public abstract class Request extends Entity {
     protected static final DependencyGraph dependencyGraph = new DependencyGraph();
 
     public final Operation operation;
-    private final Set<NetworkDependency> dependencyRequests = new HashSet<>();
+    private final Set<NetworkDependency> dependencies = new HashSet<>();
 
 
     private MicroserviceInstance handler_instance; //microservice instance that collects dependencies of this request and computes it
@@ -29,6 +29,7 @@ public abstract class Request extends MessageObject {
     private boolean dependencies_completed = false;
 
     private final Request parent;
+    private final MicroserviceInstance requester;
     private NetworkRequestSendEvent sendEvent;
     private NetworkRequestReceiveEvent receiveEvent;
     private NetworkRequestCanceledEvent canceledEvent;
@@ -41,17 +42,15 @@ public abstract class Request extends MessageObject {
     private TimeInstant timestamp_dependencies_completed;
 
 
-    public Request(Model model, String name, boolean showInTrace, Operation operation) {
-        this(model, name, showInTrace, null, operation);
-    }
-
-    public Request(Model model, String name, boolean showInTrace, Request parent, Operation operation) {
+    public Request(Model model, String name, boolean showInTrace, Request parent, Operation operation, MicroserviceInstance requester) {
         super(model, name, showInTrace);
         this.operation = operation;
+        this.requester = requester;
         createDependencies();
-        if (dependencyRequests.isEmpty()) setDependencies_completed();
+        if (dependencies.isEmpty()) notifyDependencyHasFinished(null);
         this.parent = parent;
     }
+
 
     private void createDependencies() {
 
@@ -66,15 +65,15 @@ public abstract class Request extends MessageObject {
 
                 NetworkDependency dep = new NetworkDependency(this, nextOperationEntity);
 
-                dependencyRequests.add(dep);
+                dependencies.add(dep);
                 if (parent != null)
                     dependencyGraph.insertDependency(parent.getHandler().getOwner(), parent.operation, nextOperationEntity.getOwner(), nextOperationEntity, null);
             }
         }
     }
 
-    public final Set<NetworkDependency> getDependencyRequests() {
-        return dependencyRequests;
+    public final Set<NetworkDependency> getDependencies() {
+        return dependencies;
     }
 
     public final Request getParent() {
@@ -83,6 +82,10 @@ public abstract class Request extends MessageObject {
 
     public final boolean hasParent() {
         return parent != null;
+    }
+
+    public MicroserviceInstance getRequester() {
+        return requester;
     }
 
     public final boolean isCompleted() {
@@ -105,7 +108,7 @@ public abstract class Request extends MessageObject {
         return timestamp_send;
     }
 
-    public void resetSendTimeStamps(){
+    public void resetSendTimeStamps() {
         timestamp_send = null;
     }
 
@@ -130,7 +133,6 @@ public abstract class Request extends MessageObject {
         if (dependencies_completed && computation_completed) {
             onCompletion();
         }
-        handler_instance.handle(this); //resubmitting itself for further handling
     }
 
     private void setDependencies_completed() {
@@ -173,27 +175,32 @@ public abstract class Request extends MessageObject {
         this.timestamp_send = timestamp_send;
     }
 
+    public boolean notifyDependencyHasFinished(NetworkDependency dep) {
+        if (this.dependencies_completed)
+            throw new IllegalStateException("Dependencies were already completed!");
 
-    public final void notifyDependencyHasFinished(Request request) {
-        for (NetworkDependency networkDependency : dependencyRequests) {
-            if (networkDependency.getChild_request() == request) {
-                if (networkDependency.isCompleted()) {
-                    throw new IllegalStateException("Request cannot be finished twice!");
-                } else
-                    networkDependency.setCompleted();
+        if (dep !=null) {
+            if (!dependencies.contains(dep))
+                throw new IllegalStateException("This dependency is not part of this Request");
+            dep.setCompleted();
+        }
+
+        if ((dependencies.stream().allMatch(NetworkDependency::isCompleted))) {
+            this.dependencies_completed = true;
+            onDependenciesComplete();
+            if (dependencies_completed && computation_completed) {
+                onCompletion();
             }
+            return true;
         }
-
-        if (dependencyRequests.stream().allMatch(NetworkDependency::isCompleted)) {
-            setDependencies_completed();
-        }
+        return false;
     }
 
 
     public NetworkDependency getRelatedDependency(Request request) {
-        for (NetworkDependency networkDependency : dependencyRequests) {
+        for (NetworkDependency networkDependency : dependencies) {
             if (networkDependency.getChild_request() == request) {
-              return networkDependency;
+                return networkDependency;
             }
         }
         return null;
@@ -277,7 +284,7 @@ public abstract class Request extends MessageObject {
 //        if (request instanceof UserRequest && request.isCompleted()) {
 //            return;
 //        }
-        NetworkRequestEvent cancelEvent = new NetworkRequestCanceledEvent(getModel(), String.format("%s canceled", request.getQuotedName()), request.traceIsOn(), request, RequestFailedReason.HANDLING_INSTANCE_DIED);
+        NetworkRequestEvent cancelEvent = new NetworkRequestCanceledEvent(getModel(), String.format("CANCEL Event for %s", request.getQuotedName()), request.traceIsOn(), request, RequestFailedReason.HANDLING_INSTANCE_DIED);
         cancelEvent.schedule(presentTime());
         request.canceledEvent = canceledEvent;
     }
