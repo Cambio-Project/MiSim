@@ -5,7 +5,7 @@ import desmoj.core.simulator.ExternalEvent;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 
-import java.util.List;
+import java.util.Collection;
 
 /**
  * Superclass for network events that take care of exactly one Request. Provides its subclasses with references to the
@@ -19,7 +19,7 @@ import java.util.List;
  */
 public abstract class NetworkRequestEvent extends ExternalEvent {
 
-    private final List<IRequestUpdateListener> updateListeners;
+    private final Collection<IRequestUpdateListener> updateListeners;
     protected final Request traveling_request;
 
     protected final IRequestUpdateListener updateListener;

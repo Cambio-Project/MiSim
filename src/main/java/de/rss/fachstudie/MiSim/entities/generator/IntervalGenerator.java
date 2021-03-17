@@ -2,6 +2,7 @@ package de.rss.fachstudie.MiSim.entities.generator;
 
 import de.rss.fachstudie.MiSim.entities.Operation;
 import de.rss.fachstudie.MiSim.models.MainModel;
+import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 
 /**
@@ -27,11 +28,11 @@ public final class IntervalGenerator extends Generator {
     private final double interval;
     private final double start;
 
-    public IntervalGenerator(MainModel model, String name, boolean showInTrace, Operation operation, double interval) {
+    public IntervalGenerator(Model model, String name, boolean showInTrace, Operation operation, double interval) {
         this(model, name, showInTrace, operation, interval, 0);
     }
 
-    public IntervalGenerator(MainModel model, String name, boolean showInTrace, Operation operation, double interval, double start) {
+    public IntervalGenerator(Model model, String name, boolean showInTrace, Operation operation, double interval, double start) {
         super(model, name, showInTrace, operation);
         this.interval = interval; //TODO: Time Unit
         this.start = start;
@@ -45,6 +46,9 @@ public final class IntervalGenerator extends Generator {
 
     @Override
     protected TimeInstant getFirstTargetTime() {
+        if(interval ==0){
+            throw new GeneratorStopException("Interval was not above 0.");
+        }
         return new TimeInstant(start);
     }
 }

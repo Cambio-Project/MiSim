@@ -29,8 +29,8 @@ public class InitialLatencyMonkeyEvent extends ExternalEvent {
             msId = model.getIdByName(microservice);
         }
         String monkeyName = this.getName().substring(0, getName().lastIndexOf("_Initializer"));
-        LatencyMonkeyEvent monkeyEvent = new LatencyMonkeyEvent(model, monkeyName, model.getShowMonkeyEvent(), msId, delay);
-        monkeyEvent.schedule(new TimeSpan(time, model.getTimeUnit()));
+//        LatencyMonkeyEvent monkeyEvent = new LatencyMonkeyEvent(model, monkeyName, model.getShowMonkeyEvent(), msId, delay);
+//        monkeyEvent.schedule(new TimeSpan(time, model.getTimeUnit()));
     }
 
 

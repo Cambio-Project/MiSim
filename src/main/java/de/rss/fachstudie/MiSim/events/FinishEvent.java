@@ -6,7 +6,7 @@ import desmoj.core.simulator.ExternalEvent;
 import desmoj.core.simulator.Model;
 
 /**
- * A <code>FinishEvent</code> is an <code>ExternalEvent</code> that is called
+ * A <code>FinishEvent</code> is an <code>ExternalEvent</code> that is called upon the end of the simulation.
  */
 public class FinishEvent extends ExternalEvent {
     private MainModel model;
@@ -19,12 +19,7 @@ public class FinishEvent extends ExternalEvent {
 
     @Override
     public void eventRoutine() throws SuspendExecution {
-        // Finish all threads in the task queue and save the response time
-//        for (int id = 0; id < model.serviceCPU.size(); ++id) {
-//            for (int instance = 0; instance < model.serviceCPU.get(id).size(); ++instance) {
-//                model.serviceCPU.get(id).get(instance).releaseUnfinishedThreads();
-//            }
-//        }
+
         MainModel.microservices.forEach(microservice -> microservice.finalizeStatistics());
 
     }

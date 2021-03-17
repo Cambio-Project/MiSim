@@ -1,23 +1,19 @@
 package de.rss.fachstudie.MiSim.models;
 
-import de.rss.fachstudie.MiSim.entities.Dependency;
 import de.rss.fachstudie.MiSim.entities.MessageObject;
-import de.rss.fachstudie.MiSim.entities.Operation;
-import de.rss.fachstudie.MiSim.entities.generator.IntervalGenerator;
-import de.rss.fachstudie.MiSim.entities.generator.LIMBOGenerator;
+import de.rss.fachstudie.MiSim.entities.generator.Generator;
 import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
 import de.rss.fachstudie.MiSim.entities.microservice.MicroserviceScaleEvent;
 import de.rss.fachstudie.MiSim.events.ChaosMonkeyEvent;
 import de.rss.fachstudie.MiSim.events.FinishEvent;
+import de.rss.fachstudie.MiSim.events.LatencyMonkeyEvent;
 import de.rss.fachstudie.MiSim.events.StatisticEvent;
 import de.rss.fachstudie.MiSim.export.ExportReport;
 import de.rss.fachstudie.MiSim.export.MultiDataPointReporter;
 import de.rss.fachstudie.MiSim.export.ReportWriter;
 import de.rss.fachstudie.MiSim.misc.Priority;
 import de.rss.fachstudie.MiSim.parsing.ArchModelParser;
-import de.rss.fachstudie.MiSim.parsing.ArchModelValidator;
 import de.rss.fachstudie.MiSim.parsing.ExpModelParser;
-import de.rss.fachstudie.MiSim.parsing.GeneratorPOJO;
 import de.rss.fachstudie.MiSim.resources.CPU;
 import desmoj.core.simulator.Experiment;
 import desmoj.core.simulator.Model;
@@ -25,7 +21,7 @@ import desmoj.core.simulator.Queue;
 import desmoj.core.simulator.TimeInstant;
 import desmoj.core.statistic.TimeSeries;
 import org.apache.commons.cli.*;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.math3.analysis.function.Exp;
 
 import java.awt.*;
 import java.io.File;
@@ -36,11 +32,10 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 /**
  * Main class to start the experiment. This class will load the input file and create a model out of it.
- * doInitialSchedules Starts the inital event. init Gets called at the start of the experiment and loads all relevant
+ * doInitialSchedules Starts the inital event. initFields Gets called at the start of the experiment and loads all relevant
  * experiment resources.
  */
 public class MainModel extends Model {
@@ -152,10 +147,8 @@ public class MainModel extends Model {
             }
         }
 
-        ArchModelParser.parseArchModelFile(arch_model);
-        ArchModelValidator validator = new ArchModelValidator();
 
-        ExpModelParser expParser = new ExpModelParser(exp_model);
+        ExpModelParser.loadMetadata(Paths.get(exp_model));
 
 //        if (validator.valideArchModel(archParser)) {
         long startTime = System.nanoTime();
@@ -177,6 +170,13 @@ public class MainModel extends Model {
         exp.tracePeriod(new TimeInstant(0, getTimeUnit()), new TimeInstant(model.getSimulationTime(), getTimeUnit()));
         exp.debugPeriod(new TimeInstant(0, getTimeUnit()), new TimeInstant(model.getSimulationTime(), getTimeUnit()));
         if (cmd.hasOption(debugOutput.getOpt())) exp.debugOn(new TimeInstant(0, getTimeUnit()));
+
+
+//        ArchModelParser.parseArchModelFile(arch_model);
+        Set<Microservice> microservices = ArchModelParser.parseArchModelFile(Paths.get(arch_model), model);
+        MainModel.microservices = microservices;
+        ExpModelParser.parseExperimentData(Paths.get(exp_model), model, microservices);
+
 
         long setupTime = System.nanoTime() - startTime;
         long tempTime = System.nanoTime();
@@ -200,10 +200,10 @@ public class MainModel extends Model {
         TreeMap<String, TreeMap<TimeInstant, Object>> sortedData = new TreeMap<>(data);
         ReportWriter.writeReporterCollectorOutput(sortedData);
 
-        if (!ExpModelParser.simulation_meta_data.get("report").equals("none")) {
-            ExportReport exportReport = new ExportReport(model);
-            System.out.println("\nCreated Report successfully.");
-        }
+//        if (!ExpModelParser.simulation_meta_data.get("report").equals("none")) {
+//            ExportReport exportReport = new ExportReport(model);
+//            System.out.println("\nCreated Report successfully.");
+//        }
 
         long reportTime = System.nanoTime() - tempTime;
         long executionTime = System.nanoTime() - startTime;
@@ -316,155 +316,6 @@ public class MainModel extends Model {
      */
     @Override
     public void init() {
-        // Resources
-        serviceCPU = new HashMap<>();
-
-        // Queues
-        allMicroservices = new HashMap<>();
-        taskQueues = new HashMap<>();
-        services = new HashMap<>();
-
-        // Resources
-        serviceCPU = new HashMap<>();
-
-        // Statistics
-        activeThreadStatistics = new HashMap<>();
-        existingThreadStatistics = new HashMap<>();
-        cpuStatistics = new HashMap<>();
-        responseStatisitcs = new HashMap<>();
-        circuitBreakerStatistics = new HashMap<>();
-        threadPoolStatistics = new HashMap<>();
-        threadQueueStatistics = new HashMap<>();
-        resourceLimiterStatistics = new HashMap<>();
-        taskQueueStatistics = new HashMap<>();
-
-        // Create folder for statistics file
-        File resPath = new File(resourcePath);
-        if (!resPath.exists()) {
-            resPath.mkdir();
-        }
-
-
-        // Load Microservices
-        Microservice[] microservices = ArchModelParser.microservices;
-        for (int id = 0; id < microservices.length; id++) {
-
-            String serviceName = microservices[id].getName();
-
-            // Queues
-            Queue<Microservice> idleQueue = new Queue<>(this, "Idle Queue: " + serviceName, true, true);
-            Queue<MessageObject> taskQueue = new Queue<>(this, "Task Queue: " + serviceName, true, true);
-
-            // Resources
-            HashMap<Integer, CPU> cpu = new HashMap<>();
-
-            // Statistics
-            HashMap<Integer, TimeSeries> activeThreadStats = new HashMap<>();
-            HashMap<Integer, TimeSeries> existingThreadStats = new HashMap<>();
-            HashMap<Integer, TimeSeries> cpuStats = new HashMap<>();
-            HashMap<Integer, TimeSeries> responseStats = new HashMap<>();
-            HashMap<Integer, TimeSeries> threadPoolStats = new HashMap<>();
-            HashMap<Integer, TimeSeries> threadQueueStats = new HashMap<>();
-            HashMap<Integer, TimeSeries> resourceLimiterStats = new HashMap<>();
-            HashMap<Integer, TimeSeries> circuitBreakerStats = new HashMap<>();
-            TimeSeries taskQueueWork = new TimeSeries(this, "Task Queue: " + serviceName,
-                    resourcePath + "TaskQueue_" + serviceName + ".txt",
-                    new TimeInstant(0.0, timeUnit), new TimeInstant(getSimulationTime(), timeUnit), false, false);
-
-
-            for (int instance = 0; instance < microservices[id].getInstancesCount(); instance++) {
-                Microservice msEntity = new Microservice(this, microservices[id].getName(), true);
-                msEntity.setId(id);
-                msEntity.setSid(instance);
-                msEntity.setName(microservices[id].getName());
-                msEntity.setPatterns(microservices[id].getPatterns());
-                msEntity.setCapacity(microservices[id].getCapacity());
-                msEntity.scaleToInstancesCount(microservices[id].getInstancesCount());
-                msEntity.setOperations(microservices[id].getOperations());
-                idleQueue.insert(msEntity);
-                allMicroservices.put(id, msEntity);
-
-                // Resources
-                CPU msCPU = new CPU(this, microservices[id].getName() + " CPU " + cpu.size(), false, id, instance, msEntity.getCapacity());
-                cpu.put(instance, msCPU);
-                String postfix = serviceName + " #" + instance;
-                String file = serviceName + "_" + instance + ".txt";
-
-                // Statistics
-                TimeSeries activeInstances = new TimeSeries(this, "Active Threads: " + postfix,
-                        resourcePath + "ActiveThreads_" + file,
-                        new TimeInstant(0.0, timeUnit), new TimeInstant(getSimulationTime(), timeUnit), false, false);
-
-                TimeSeries existingInstances = new TimeSeries(this, "Existing Threads: " + postfix,
-                        resourcePath + "ExistingThreads_" + file,
-                        new TimeInstant(0.0, timeUnit), new TimeInstant(getSimulationTime(), timeUnit), false, false);
-
-                TimeSeries activeCPU = new TimeSeries(this, "Used CPU: " + postfix,
-                        resourcePath + "CPU_" + file,
-                        new TimeInstant(0.0, timeUnit), new TimeInstant(getSimulationTime(), timeUnit), false, false);
-
-                TimeSeries responseTime = new TimeSeries(this, "Response Time: " + postfix,
-                        resourcePath + "ResponseTime_" + file,
-                        new TimeInstant(0.0, timeUnit), new TimeInstant(getSimulationTime(), timeUnit), false, false);
-
-                TimeSeries threadPool = new TimeSeries(this, "Tasks refused by Thread Pool: " + postfix,
-                        resourcePath + "ThreadPool_" + file,
-                        new TimeInstant(0.0, timeUnit), new TimeInstant(getSimulationTime(), timeUnit), false, false);
-
-                TimeSeries threadQueue = new TimeSeries(this, "Tasks refused by Thread Queue: " + postfix,
-                        resourcePath + "ThreadQueue_" + file,
-                        new TimeInstant(0.0, timeUnit), new TimeInstant(getSimulationTime(), timeUnit), false, false);
-
-                TimeSeries resourceLimiter = new TimeSeries(this, "Tasks refused by Resource Limiter: " + postfix,
-                        resourcePath + "ResourceLimiter_" + file,
-                        new TimeInstant(0.0, timeUnit), new TimeInstant(getSimulationTime(), timeUnit), false, false);
-
-                TimeSeries circuitBreaker = new TimeSeries(this, "Tasks refused by Circuit Breaker: " + postfix,
-                        resourcePath + "CircuitBreaker_" + file,
-                        new TimeInstant(0.0, timeUnit), new TimeInstant(getSimulationTime(), timeUnit), false, false);
-
-                activeThreadStats.put(instance, activeInstances);
-                existingThreadStats.put(instance, existingInstances);
-                cpuStats.put(instance, activeCPU);
-                responseStats.put(instance, responseTime);
-                threadPoolStats.put(instance, threadPool);
-                threadQueueStats.put(instance, threadQueue);
-                resourceLimiterStats.put(instance, resourceLimiter);
-                circuitBreakerStats.put(instance, circuitBreaker);
-            }
-            // Queues
-            taskQueues.put(id, taskQueue);
-            services.put(id, idleQueue);
-
-            // Resources
-            serviceCPU.put(id, cpu);
-
-            // Statistics
-            activeThreadStatistics.put(id, activeThreadStats);
-            existingThreadStatistics.put(id, existingThreadStats);
-            cpuStatistics.put(id, cpuStats);
-            responseStatisitcs.put(id, responseStats);
-            circuitBreakerStatistics.put(id, circuitBreakerStats);
-            threadPoolStatistics.put(id, threadPoolStats);
-            threadQueueStatistics.put(id, threadQueueStats);
-            resourceLimiterStatistics.put(id, resourceLimiterStats);
-            taskQueueStatistics.put(id, taskQueueWork);
-        }
-
-        //parse Microservices
-        MainModel.microservices.addAll(Arrays.stream(ArchModelParser.microservicePojos)
-                .map(microservicePOJO -> microservicePOJO.convertToMicroservice(this, traceIsOn()))
-                .collect(Collectors.toSet()));
-        //build dependencies
-        MainModel.microservices.forEach(microservice -> {
-            for (Operation operation : microservice.getOperations()) {
-                for (Dependency dependency : operation.getDependencies()) {
-                    Microservice targetService = getMicroserviceFromName(dependency.getService());
-                    dependency.setMicroservice(targetService);
-                    dependency.setOperation_instance(targetService.getOperation(dependency.getOperation()));
-                }
-            }
-        });
 
 
     }
@@ -511,82 +362,24 @@ public class MainModel extends Model {
 
         MainModel.microservices.forEach(Microservice::start); //initalizes spawning of instances
 
-        // Fire off all generators for scheduling
-        GeneratorPOJO[] generators = ExpModelParser.generators;
-//        for (InitialEvent generator : generators) {
-//            String genName = (generator.getName() != null ? generator.getName() : generator.getOperation());
-//            InitialEvent initEvent = new InitialEvent(this, "Generator " + genName, showInitEvent, generator.getInterval(),
-//                    getIdByName(generator.getMicroservice()), generator.getOperation());
-//            initEvent.schedule(new TimeSpan(0, timeUnit));
-//        }
-
-//        generators = new GeneratorPOJO[]{generators[1]};
-        for (GeneratorPOJO generator : generators) {
-            Operation op = MainModel.microservices.stream()
-                    .filter(microservice -> microservice.getName().matches(String.format("^%s(#[0-9]*)?$", generator.microservice)))
-                    .map(microservice -> microservice.getOperation(microservice.getName() + "_" + generator.operation))
-                    .findFirst()
-                    .orElse(null);
-
-            if (op == null) {
-                continue;
-            }
-
-            if (!StringUtils.isEmpty(generator.limbo_model)) {
-                new LIMBOGenerator(this, "Limbo Generator " + op.getQuotedName(), true, op, new File(generator.limbo_model), generator.repeating, generator.repetition_skip);
-            } else if (generator.interval > 0)
-                new IntervalGenerator(this, "Interval Generator " + op.getQuotedName(), true, op, generator.interval, generator.start);
-
+        for (Generator generator : ExpModelParser.generators) {
+            generator.schedule(presentTime());
         }
 
+        for (ChaosMonkeyEvent chaosmonkey : ExpModelParser.chaosmonkeys) {
+            chaosmonkey.schedule(chaosmonkey.getTargetTime());
+        }
 
-        Microservice msToKill = microservices.stream().filter(microservice -> microservice.getName().equals("loon-service")).findFirst().get();
+        for (LatencyMonkeyEvent latencymonkey : ExpModelParser.latencymonkeys) {
+            latencymonkey.schedule(latencymonkey.getTargetTime());
+        }
 
-        ChaosMonkeyEvent chaosMonkey;
-
-        chaosMonkey = new ChaosMonkeyEvent(this, "ChaosMonkey", true, msToKill, 1);
-        chaosMonkey.schedule(new TimeInstant(50));
-
-        chaosMonkey = new ChaosMonkeyEvent(this, "ChaosMonkey", true, msToKill, 2);
-        chaosMonkey.schedule(new TimeInstant(75));
-
-        MicroserviceScaleEvent scaleEvent = new MicroserviceScaleEvent(this, "ScaleEvent", true, msToKill, 2);
-        scaleEvent.schedule(new TimeInstant(120));
-
-//        chaosMonkey = new ChaosMonkeyEvent(this, "ChaosMonkey", true, msToKill, 1);
-//        chaosMonkey.schedule(new TimeInstant(150));
-
-
-//        // Fire off all monkeys for scheduling
-//        InitialChaosMonkeyEvent[] monkeys = ExpModelParser.chaosmonkeys;
-//        int counter = 0;
-//        for (InitialChaosMonkeyEvent monkey : monkeys) {
-//            String monkeyName = (monkey.getName() != null ? monkey.getName() : "Chaos Monkey_" + counter++) + "_Initializer";
-//            InitialChaosMonkeyEvent initMonkey = new InitialChaosMonkeyEvent(this, monkeyName, showMonkeyEvent,
-//                    monkey.getTime(), getIdByName(monkey.getMicroservice()), monkey.getInstancesCount());
-//            initMonkey.schedule(new TimeSpan(0, timeUnit));
-//        }
-//
-//        InitialLatencyMonkeyEvent[] latencyMonkeys = ExpModelParser.latencymonkeys;
-//        counter = 0;
-//        for (InitialLatencyMonkeyEvent monkey : latencyMonkeys) {
-//            String monkeyName = (monkey.getName() != null ? monkey.getName() : "Chaos Monkey_" + counter++) + "_Initializer";
-//            InitialLatencyMonkeyEvent initMonkey = new InitialLatencyMonkeyEvent(this, monkeyName, showMonkeyEvent,
-//                    monkey.getTime(), getIdByName(monkey.getMicroservice()), monkey.getDelay());
-//            initMonkey.schedule(new TimeSpan(0, timeUnit));
-//        }
-
-
-        // Trigger Event to collect data as defined by user
-        StatisticEvent statisticEvent = new StatisticEvent(this, "StatisticsEvent", false, getSimulationTime() / datapoints);
+//        MicroserviceScaleEvent scaleEvent = new MicroserviceScaleEvent(this, "ScaleEvent", true, getMicroserviceFromName("loon-service"), 2);
+//        scaleEvent.schedule(new TimeInstant(120));
 
         //Fire off the finish event which is called during at the end of the simulation
         FinishEvent event = new FinishEvent(this, "Finishing Event", false);
         event.setSchedulingPriority(Priority.HIGH);
         event.schedule(new TimeInstant(simulationTime));
-    }
-
-    public void log(Integer message) {
-        System.out.println(this.presentTime() + ": \t" + message);
     }
 }

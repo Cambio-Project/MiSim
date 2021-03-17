@@ -60,7 +60,9 @@ public class NetworkRequestSendEvent extends NetworkRequestEvent {
             nextDelay = rng.sample() / 1000;
         } while (nextDelay < 0); //ensures a positive delay, due to "infinite" gaussian deviation
 
-        //TODO: add network delay from DelayMonkey
+        nextDelay = customizeLatency(nextDelay);
+
+        //Apply custom latency and/or add delay of latency injection
         updateListener.onRequestSend(traveling_request, presentTime());
 
         MicroserviceInstance targetInstance = retrieveTargetInstance();
@@ -76,8 +78,24 @@ public class NetworkRequestSendEvent extends NetworkRequestEvent {
             //TODO: schedule NetworkRequestTimeOutCheckEvent, to check the request after a timeout duration
 
             traveling_request.setReceiveEvent(receiverEvent);
-
         }
+    }
+
+    private double customizeLatency(double nextDelay) {
+        double modifiedDelay = nextDelay;
+        if (traveling_request.hasParent()) {
+            NetworkDependency dep = traveling_request.getParent().getRelatedDependency(traveling_request);
+            if(traveling_request instanceof RequestAnswer){
+                Request parent = ((RequestAnswer) traveling_request).unpack();
+                dep = parent.getParent().getRelatedDependency(parent);
+            }
+
+            if (dep.hasCustomDelay()) {
+                modifiedDelay = dep.getNextCustomDelay();
+            }
+            modifiedDelay += dep.getNextExtraDelay();
+        }
+        return modifiedDelay;
     }
 
 

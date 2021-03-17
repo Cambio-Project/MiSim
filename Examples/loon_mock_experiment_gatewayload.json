@@ -1,0 +1,34 @@
+{
+  "simulation_meta_data": {
+    "experiment_name": "Loon-Mock-Gateway_Load-Experiment",
+    "model_name": "Gateway Load",
+    "duration": 200,
+    "report": "",
+    "datapoints": 200,
+    "seed": 1337
+  },
+  "request_generators": [
+    {
+      "microservice": "gateway",
+      "operation": "gateway.PING",
+      "limbo_model": "./Examples/loon_mock_arrival_rates.csv",
+      "repeating": true,
+      "repetition_skip": 5
+    },
+    {
+      "microservice": "gateway",
+      "operation": "INTERNAL_DEP",
+      "interval": 0.25
+    },
+    {
+      "microservice": "gateway",
+      "operation": "gateway.DB_READ",
+      "interval": 0.25
+    },
+    {
+      "microservice": "gateway",
+      "operation": "UNAFFECTED_SERVICE",
+      "interval": 0.25
+    }
+  ]
+}

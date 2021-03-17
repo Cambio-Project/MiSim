@@ -7,6 +7,8 @@ import de.rss.fachstudie.MiSim.entities.patterns.LoadBalancingStrategy;
 import de.rss.fachstudie.MiSim.entities.patterns.Pattern;
 import de.rss.fachstudie.MiSim.export.ContinuousMultiDataPointReporter;
 import de.rss.fachstudie.MiSim.export.MultiDataPointReporter;
+import de.rss.fachstudie.MiSim.parsing.PatternData;
+import desmoj.core.dist.NumericalDist;
 import desmoj.core.simulator.Entity;
 import desmoj.core.simulator.Event;
 import desmoj.core.simulator.Model;
@@ -39,6 +41,7 @@ public class Microservice extends Entity {
     private Operation[] operations;
     private int instanceSpawnCounter = 0;
     private final MultiDataPointReporter reporter;
+    private PatternData[] patterns;
 
     public Microservice(Model model, String name, boolean showInTrace) {
         super(model, name, showInTrace);
@@ -103,29 +106,15 @@ public class Microservice extends Entity {
     /**
      * Check if the <code>Microservice</code> implements the passed pattern.
      *
-     * @param name String: The name of the pattern
+     * @param type String: The type of the pattern
      * @return boolean: True if the pattern is implemented False if the pattern isn't implemented
      */
-    public boolean hasPattern(String name) {
-        if (spatterns == null) {
-            spatterns = new Pattern[]{};
-        }
-        for (Pattern pattern : spatterns) {
-            if (pattern.getName().equals(name)) {
-                return true;
-            }
-        }
+    public boolean hasPattern(String type) {
         return false;
     }
 
     public Pattern getPattern(String name) {
-        if (spatterns == null) {
-            spatterns = new Pattern[]{};
-        }
-        for (Pattern pattern : spatterns) {
-            if (pattern.getName().equals(name))
-                return pattern;
-        }
+
         return null;
     }
 
@@ -159,6 +148,7 @@ public class Microservice extends Entity {
 
             if (getInstancesCount() < numberOfInstances) {
                 changedInstance = new MicroserviceInstance(getModel(), String.format("[%s]_I%d", getName(), instanceSpawnCounter), this.traceIsOn(), this, instanceSpawnCounter);
+                changedInstance.activatePatterns(patterns);
                 instanceSpawnCounter++;
                 changeEvent = new InstanceStartupEvent(getModel(), "Instance Startup of " + changedInstance.getQuotedName(), traceIsOn());
                 instancesSet.add(changedInstance);
@@ -207,8 +197,8 @@ public class Microservice extends Entity {
 
     public Operation getOperation(String name) {
         return Arrays.stream(operations)
-                .filter(operation -> operation.getName().matches(String.format("^(%s_)?%s(#[0-9]*)?$", this.getName(), name)))
-                .findFirst()
+                .filter(operation -> operation.getName().matches(String.format("^(%s_)?\\(?%s\\)?(#[0-9]*)?$", this.getName(), name)))
+                .findAny()
                 .orElse(null);
     }
 
@@ -245,5 +235,22 @@ public class Microservice extends Entity {
 
     public void finalizeStatistics() {
         reporter.addDatapoint("InstanceCount", presentTime(), instancesSet.size());
+    }
+
+    public void applyDelay(NumericalDist<Double> dist, Operation operation_src, Operation operation_trg) {
+        if (operation_trg == null) {
+            if (operation_src == null) {
+                //delay all operations
+                for (Operation operation : operations) {
+                    operation.applyDelay(dist);
+                }
+                return;
+            }
+        }
+        operation_src.applyDelay(dist, operation_trg);
+    }
+
+    public void setPatternData(PatternData[] patterns) {
+        this.patterns = patterns;
     }
 }

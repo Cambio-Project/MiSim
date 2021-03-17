@@ -1,8 +1,8 @@
 package de.rss.fachstudie.MiSim.export;
 
-import de.rss.fachstudie.MiSim.parsing.OperationPOJO;
 import desmoj.core.simulator.TimeInstant;
 import desmoj.core.simulator.TimeOperations;
+import javafx.util.Pair;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,7 +48,7 @@ class MultiDataPointReporterTest {
         reporter.addDatapoint("Test", new TimeInstant(0), 42);
         reporter.addDatapoint("Test", new TimeInstant(1), "Hello");
         reporter.addDatapoint("Test2", new TimeInstant(1), 1337.2f);
-        reporter.addDatapoint("Test3", new TimeInstant(1), new OperationPOJO());
+        reporter.addDatapoint("Test3", new TimeInstant(1), new Pair<>(new TimeInstant(42), 54.3));
     }
 
 }

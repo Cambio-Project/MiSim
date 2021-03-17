@@ -1,23 +1,21 @@
 package de.rss.fachstudie.MiSim.parsing;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class ArchModelValidator {
 
-//        Returns true / false based on the correct dependencies of input file
+    //        Returns true / false based on the correct dependencies of input file
 //        It will be checked:
 //        -All dependencies (per operation) depend on an existing micro service
 //        -The dependent micro service has the operation on which the dependencie points
     public boolean valideArchModel(ArchModelParser parser) {
 
-        List<String> microserviceNames = new ArrayList<String>();
-        int errorCounter = 0;
-
-        //Add all existing microservice names into a list
-        for(int n = 0; n < parser.microservices.length; n++){
-            microserviceNames.add(parser.microservices[n].getName());
-        }
+        return true;
+//        List<String> microserviceNames = new ArrayList<String>();
+//        int errorCounter = 0;
+//
+//        //Add all existing microservice names into a list
+//        for(int n = 0; n < parser.microservices.length; n++){
+//            microserviceNames.add(parser.microservices[n].getName());
+//        }
 
 
 //        /*
@@ -87,7 +85,7 @@ public class ArchModelValidator {
         and dependencie probability
          */
         //Walk over all micro services
-        for(int microService = 0; microService < parser.microservices.length; microService++){
+//        for (int microService = 0; microService < parser.microservices.length; microService++) {
 
 
             /*
@@ -103,85 +101,86 @@ public class ArchModelValidator {
                 }
             }
             */
-
-
-            //walk over all operations
-            for(int operation = 0; operation < parser.microservices[microService].getOperations().length; operation++){
-                //walk over all dependencies
-                for(int dependencie = 0; dependencie < parser.microservices[microService].getOperations()[operation].getDependencies().length; dependencie ++ ) {
-
-                    /*
-                    Validate probability in each dependencie
-                     */
-                    if (1 < parser.microservices[microService].getOperations()[operation].getDependencies()[dependencie].getProbability() ||
-                            0 > parser.microservices[microService].getOperations()[operation].getDependencies()[dependencie].getProbability()) {
-                        System.out.println("ERROR MICROSERVICES: Microservice: " + parser.microservices[microService].getName() + " operation: " +
-                                parser.microservices[microService].getOperations()[operation].getName() +
-                                " -- Probability is not in range (0.0 - 1.0 are possible values)");
-                        errorCounter++;
-                    }
-
-                    /*
-                    Verify patterns in operations
-                     */
-                    /*
-                    for (int patterns = 0; patterns < parser.microservices[microService].getOperations()[operation].getPatterns().length; patterns++) {
-
-                        if (!parser.microservices[microService].getOperations()[operation].getPatterns()[patterns].equals("Circuit Breaker")
-                                && !parser.microservices[microService].getOperations()[operation].getPatterns()[patterns].isEmpty()) {
-                            System.out.println("ERROR MICROSERVICES: Microservice: " + parser.microservices[microService].getName() + "operation: " +
-                                    parser.microservices[microService].getOperations()[operation].getName() + " -- uses a not verified pattern. " +
-                                    "Currently only \"Circuit Breaker\" is allowed");
-                            errorCounter++;
-                        }
-
-
-                    }
-                    */
-
-                    //get targeted micro service
-                    String tempMicroserviceName = parser.microservices[microService].getOperations()[operation].getDependencies()[dependencie].getService();
-                    //get targeted operation name
-                    String tempOperationName = parser.microservices[microService].getOperations()[operation].getDependencies()[dependencie].getOperation();
-
-                    if(microserviceNames.contains(tempMicroserviceName)){
-                        //Named Microservice has been found now check for operation in named microservice
-
-                        //walk over all micro services
-                        loop: for(int i = 0; i < parser.microservices.length; i++){
-                            //found micro service with name equal to target micro service
-                            if(tempMicroserviceName.equals(parser.microservices[i].getName())){
-                                //run over all operations in target micro service
-
-                                for(int j = 0; j < parser.microservices[i].getOperations().length; j ++){
-                                    if(tempOperationName.equals(parser.microservices[i].getOperations()[j].getName())){
-                                        break loop;
-                                    } else {
-                                        //Last loop run was unsucessfull
-                                        if(j == parser.microservices[i].getOperations().length-1){
-                                            System.out.println("ERROR MICROSERIVCES: Could not finde operation : " + tempOperationName + " : in micro service : "
-                                                    + tempMicroserviceName + " : in a dependencie in : " +parser.microservices[microService].getName());
-                                            errorCounter++;
-                                            break loop;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    } else {
-                        System.out.println("ERROR MICROSERVICES: Could not finde microservice : " + tempMicroserviceName +
-                                " : located in a dependencie in : " + parser.microservices[microService].getName());
-                        errorCounter++;
-                    }
-                }
-            }
-        }
-
-        if(errorCounter > 0){
-            System.out.println("Syntax error count: " + errorCounter );
-            return false;
-        } else {
-            return true;
-        }
+//
+//
+//            //walk over all operations
+//            for(int operation = 0; operation < parser.microservices[microService].getOperations().length; operation++){
+//                //walk over all dependencies
+//                for(int dependencie = 0; dependencie < parser.microservices[microService].getOperations()[operation].getDependencies().length; dependencie ++ ) {
+//
+//                    /*
+//                    Validate probability in each dependencie
+//                     */
+//                    if (1 < parser.microservices[microService].getOperations()[operation].getDependencies()[dependencie].getProbability() ||
+//                            0 > parser.microservices[microService].getOperations()[operation].getDependencies()[dependencie].getProbability()) {
+//                        System.out.println("ERROR MICROSERVICES: Microservice: " + parser.microservices[microService].getName() + " operation: " +
+//                                parser.microservices[microService].getOperations()[operation].getName() +
+//                                " -- Probability is not in range (0.0 - 1.0 are possible values)");
+//                        errorCounter++;
+//                    }
+//
+//                    /*
+//                    Verify patterns in operations
+//                     */
+//                    /*
+//                    for (int patterns = 0; patterns < parser.microservices[microService].getOperations()[operation].getPatterns().length; patterns++) {
+//
+//                        if (!parser.microservices[microService].getOperations()[operation].getPatterns()[patterns].equals("Circuit Breaker")
+//                                && !parser.microservices[microService].getOperations()[operation].getPatterns()[patterns].isEmpty()) {
+//                            System.out.println("ERROR MICROSERVICES: Microservice: " + parser.microservices[microService].getName() + "operation: " +
+//                                    parser.microservices[microService].getOperations()[operation].getName() + " -- uses a not verified pattern. " +
+//                                    "Currently only \"Circuit Breaker\" is allowed");
+//                            errorCounter++;
+//                        }
+//
+//
+//                    }
+//                    */
+//
+//                    //get targeted micro service
+//                    String tempMicroserviceName = parser.microservices[microService].getOperations()[operation].getDependencies()[dependencie].getService();
+//                    //get targeted operation name
+//                    String tempOperationName = parser.microservices[microService].getOperations()[operation].getDependencies()[dependencie].getOperation();
+//
+//                    if(microserviceNames.contains(tempMicroserviceName)){
+//                        //Named Microservice has been found now check for operation in named microservice
+//
+//                        //walk over all micro services
+//                        loop: for(int i = 0; i < parser.microservices.length; i++){
+//                            //found micro service with name equal to target micro service
+//                            if(tempMicroserviceName.equals(parser.microservices[i].getName())){
+//                                //run over all operations in target micro service
+//
+//                                for(int j = 0; j < parser.microservices[i].getOperations().length; j ++){
+//                                    if(tempOperationName.equals(parser.microservices[i].getOperations()[j].getName())){
+//                                        break loop;
+//                                    } else {
+//                                        //Last loop run was unsucessfull
+//                                        if(j == parser.microservices[i].getOperations().length-1){
+//                                            System.out.println("ERROR MICROSERIVCES: Could not finde operation : " + tempOperationName + " : in micro service : "
+//                                                    + tempMicroserviceName + " : in a dependencie in : " +parser.microservices[microService].getName());
+//                                            errorCounter++;
+//                                            break loop;
+//                                        }
+//                                    }
+//                                }
+//                            }
+//                        }
+//                    } else {
+//                        System.out.println("ERROR MICROSERVICES: Could not finde microservice : " + tempMicroserviceName +
+//                                " : located in a dependencie in : " + parser.microservices[microService].getName());
+//                        errorCounter++;
+//                    }
+//                }
+//            }
+//        }
+//
+//        if(errorCounter > 0){
+//            System.out.println("Syntax error count: " + errorCounter );
+//            return false;
+//        } else {
+//            return true;
     }
 }
+
+

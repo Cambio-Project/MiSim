@@ -10,12 +10,12 @@ import java.util.TreeMap;
 /**
  * @author Lion Wagner
  */
-public class AccumulativeDatPointReporter extends MultiDataPointReporter {
+public class AccumulativeDataPointReporter extends MultiDataPointReporter {
 
-    public AccumulativeDatPointReporter() {
+    public AccumulativeDataPointReporter() {
     }
 
-    public AccumulativeDatPointReporter(String datasets_prefix) {
+    public AccumulativeDataPointReporter(String datasets_prefix) {
         super(datasets_prefix);
     }
 

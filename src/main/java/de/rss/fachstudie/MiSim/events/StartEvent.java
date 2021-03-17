@@ -119,8 +119,8 @@ public class StartEvent extends Event<MessageObject> {
 
                             if (prob.sample() <= probability) {
 
-                                String nextOperation = dependency.getOperation();
-                                String nextService = dependency.getService();
+                                String nextOperation = dependency.getTargetOperation().getName();
+                                String nextService = dependency.getTargetMicroservice().getName();
 
                                 int nextServiceId = model.getIdByName(nextService);
 

@@ -51,27 +51,27 @@ public class CPU extends Event<Thread> {
 
         Microservice ownerMS = owningInstance.getOwner();
 
-        if (ownerMS.hasPattern("Thread Pool")) {
-            Pattern threadPool = ownerMS.getPattern("Thread Pool");
-            if (threadPool.getArguments().length > 0) {
-                threadPoolSize = threadPool.getArgument(0);
-            } else {
-                // Default
-                threadPoolSize = 10;
-            }
-            activeThreads = new Queue<>(model, "", QueueBased.FIFO, threadPoolSize, false, false);
-            hasThreadPool = true;
-            if (threadPool.getArguments().length > 1) {
-                threadQueueSize = threadPool.getArgument(1);
-            } else {
-                // Default
-                threadQueueSize = 10;
-            }
-            waitingThreads = new Queue<>(model, "", QueueBased.FIFO, threadQueueSize, false, false);
-            hasThreadQueue = true;
-        } else {
-            activeThreads = new Queue<>(model, "", false, false);
-        }
+//        if (ownerMS.hasPattern("Thread Pool")) {
+//            Pattern threadPool = ownerMS.getPattern("Thread Pool");
+//            if (threadPool.getArguments().length > 0) {
+//                threadPoolSize = threadPool.getArgument(0);
+//            } else {
+//                // Default
+//                threadPoolSize = 10;
+//            }
+//            activeThreads = new Queue<>(model, "", QueueBased.FIFO, threadPoolSize, false, false);
+//            hasThreadPool = true;
+//            if (threadPool.getArguments().length > 1) {
+//                threadQueueSize = threadPool.getArgument(1);
+//            } else {
+//                // Default
+//                threadQueueSize = 10;
+//            }
+//            waitingThreads = new Queue<>(model, "", QueueBased.FIFO, threadQueueSize, false, false);
+//            hasThreadQueue = true;
+//        } else {
+//            activeThreads = new Queue<>(model, "", false, false);
+//        }
 
         circuitBreakerDataList = new ArrayList<>();
         openCircuits = new ArrayList<>();
@@ -89,23 +89,23 @@ public class CPU extends Event<Thread> {
         existingThreads = new Queue<>(model, "", false, false);
 
         if (MainModel.allMicroservices.get(msID).hasPattern("Thread Pool")) {
-            Pattern threadPool = MainModel.allMicroservices.get(msID).getPattern("Thread Pool");
-            if (threadPool.getArguments().length > 0) {
-                threadPoolSize = threadPool.getArgument(0);
-            } else {
-                // Default
-                threadPoolSize = 10;
-            }
-            activeThreads = new Queue<>(model, "", QueueBased.FIFO, threadPoolSize, false, false);
-            hasThreadPool = true;
-            if (threadPool.getArguments().length > 1) {
-                threadQueueSize = threadPool.getArgument(1);
-            } else {
-                // Default
-                threadQueueSize = 10;
-            }
-            waitingThreads = new Queue<>(model, "", QueueBased.FIFO, threadQueueSize, false, false);
-            hasThreadQueue = true;
+//            Pattern threadPool = MainModel.allMicroservices.get(msID).getPattern("Thread Pool");
+//            if (threadPool.getArguments().length > 0) {
+//                threadPoolSize = threadPool.getArgument(0);
+//            } else {
+//                // Default
+//                threadPoolSize = 10;
+//            }
+//            activeThreads = new Queue<>(model, "", QueueBased.FIFO, threadPoolSize, false, false);
+//            hasThreadPool = true;
+//            if (threadPool.getArguments().length > 1) {
+//                threadQueueSize = threadPool.getArgument(1);
+//            } else {
+//                // Default
+//                threadQueueSize = 10;
+//            }
+//            waitingThreads = new Queue<>(model, "", QueueBased.FIFO, threadQueueSize, false, false);
+//            hasThreadQueue = true;
         } else {
             activeThreads = new Queue<>(model, "", false, false);
         }

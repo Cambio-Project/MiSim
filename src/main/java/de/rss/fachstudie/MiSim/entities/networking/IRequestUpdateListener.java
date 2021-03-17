@@ -2,7 +2,7 @@ package de.rss.fachstudie.MiSim.entities.networking;
 
 import desmoj.core.simulator.TimeInstant;
 
-public interface IRequestUpdateListener {
+public interface IRequestUpdateListener extends Comparable<IRequestUpdateListener> {
 
 
     /**
@@ -31,5 +31,16 @@ public interface IRequestUpdateListener {
      */
     default void onRequestResultArrivedAtRequester(final Request request, final TimeInstant when) {
 
+    }
+
+
+    default int getListeningPriority() {
+        return 0;
+    }
+
+    @Override
+    default int compareTo(IRequestUpdateListener o) {
+        if (o == null) return 0;
+        return o.getListeningPriority() - this.getListeningPriority();//inversed comparission so higher values have higher priority
     }
 }

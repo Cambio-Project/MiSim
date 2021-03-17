@@ -117,7 +117,7 @@ public class DependecyGraph {
                 for (Operation op : microservices.get(id).getOperations()) {
                     labels.append("'").append(op.getName()).append("',");
                     for (Dependency depService : op.getDependencies()) {
-                        int depId = getIdByName(depService.getService());
+                        int depId = getIdByName(depService.getTargetMicroservice().getName());
                         json.append("{source:").append(id)
                                 .append(",target:").append(depId)
                                 .append(",value:").append(instanceLimit)

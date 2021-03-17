@@ -1,23 +1,24 @@
 package de.rss.fachstudie.MiSim.entities.microservice;
 
 import de.rss.fachstudie.MiSim.entities.networking.*;
-import de.rss.fachstudie.MiSim.entities.patterns.IRetryListener;
+import de.rss.fachstudie.MiSim.entities.patterns.NetworkPattern;
+import de.rss.fachstudie.MiSim.entities.patterns.Pattern;
 import de.rss.fachstudie.MiSim.entities.patterns.RetryManager;
 import de.rss.fachstudie.MiSim.export.MultiDataPointReporter;
+import de.rss.fachstudie.MiSim.parsing.PatternData;
 import de.rss.fachstudie.MiSim.resources.CPUImpl;
 import de.rss.fachstudie.MiSim.resources.CPUProcess;
-import desmoj.core.simulator.Entity;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 
-import java.util.LinkedHashSet;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
  * @author Lion Wagner
  */
-public class MicroserviceInstance extends Entity implements IRequestUpdateListener, IRetryListener {
+public class MicroserviceInstance extends RequestSender implements IRequestUpdateListener {
 
     private final CPUImpl cpu;
     private final Microservice owner;
@@ -27,48 +28,12 @@ public class MicroserviceInstance extends Entity implements IRequestUpdateListen
     private LinkedHashSet<Request> currentRequestsToHandle = new LinkedHashSet<>(); //Queue with only unique entries
     private LinkedHashSet<NetworkDependency> currentlyOpenDependencies = new LinkedHashSet<>(); //Queue with only unique entries
 
-    private LinkedHashSet<NetworkRequestSendEvent> currentAnswers = new LinkedHashSet<>(); //Contains all current outgoing answers
-    private LinkedHashSet<NetworkRequestSendEvent> currentInternalSends = new LinkedHashSet<>(); //contains all current outgoing dependency requests
+    private LinkedHashSet<RequestAnswer> currentAnswers = new LinkedHashSet<>(); //Contains all current outgoing answers
+    private LinkedHashSet<InternalRequest> currentInternalSends = new LinkedHashSet<>(); //contains all current outgoing dependency requests
 
     private final MultiDataPointReporter reporter;
 
-    private final RetryManager retryManager;
-
-    /**
-     * Observer/Listener of requests send by this instance.
-     */
-    private final IRequestUpdateListener sendCompletionListener = new IRequestUpdateListener() {
-        public MicroserviceInstance owner;
-
-        @Override
-        public void onRequestArrivalAtTarget(Request request, TimeInstant when) {
-            removeSendEvents(request);
-        }
-
-        @Override
-        public void onRequestFailed(Request request, TimeInstant when, RequestFailedReason reason) {
-            removeSendEvents(request);
-        }
-
-        private void removeSendEvents(Request request) {
-            if (request instanceof RequestAnswer) { //answer arrived successfully at the target
-                NetworkRequestSendEvent sendEvent = currentAnswers
-                        .stream()
-                        .filter(networkRequestSendEvent -> networkRequestSendEvent.getTraveling_request() == request)
-                        .findAny()
-                        .orElse(null);
-                currentInternalSends.remove(sendEvent);
-
-            } else if (request instanceof InternalRequest) { //dependency request arrives at target
-                NetworkRequestSendEvent sendEvent = currentAnswers
-                        .stream()
-                        .filter(networkRequestSendEvent -> networkRequestSendEvent.getTraveling_request() == request)
-                        .findAny()
-                        .orElse(null);
-                currentAnswers.remove(sendEvent);
-            }
-        }
-    };
+    private Set<Pattern> patterns = new HashSet<>();
 
     public MicroserviceInstance(Model model, String name, boolean showInTrace, Microservice microservice, int instanceID) {
         super(model, name, showInTrace);
@@ -81,14 +46,16 @@ public class MicroserviceInstance extends Entity implements IRequestUpdateListen
 
         changeState(InstanceState.CREATED);
 
-        try {
-            sendCompletionListener.getClass().getField("owner").set(sendCompletionListener, this);//injecting this as owner
-        } catch (IllegalAccessException | NoSuchFieldException e) {
-            e.printStackTrace();
-        }
+        this.addUpdateListener(this);
+    }
 
-
-        retryManager = new RetryManager(model, String.format("RetryManager of %s", this.getQuotedName()), false, this);
+    public void activatePatterns(PatternData[] patterns) {
+        this.patterns = Arrays.stream(patterns)
+                .map(patternData -> patternData.getNewInstance(this))
+                .collect(Collectors.toSet());
+        this.patterns.stream()
+                .filter(pattern -> pattern instanceof NetworkPattern)
+                .forEach(pattern -> addUpdateListener((NetworkPattern) pattern));
     }
 
     public double getUsage() {
@@ -161,10 +128,7 @@ public class MicroserviceInstance extends Entity implements IRequestUpdateListen
         //3. request does have dependencies -> create internal request
         if (request.isCompleted()) {
             RequestAnswer answer = new RequestAnswer(request, this);
-            answer.addUpdateListener(sendCompletionListener);
-            NetworkRequestSendEvent sendEvent = new NetworkRequestSendEvent(getModel(), "Request_Answer_" + request.getQuotedName(), traceIsOn(), answer, request.getRequester());
-            currentAnswers.add(sendEvent);
-            sendEvent.schedule();//send away the answer
+            sendRequest("Request_Answer_" + request.getQuotedName(), answer, request.getRequester());
 
             int size = currentRequestsToHandle.size();
             currentRequestsToHandle.remove(request);
@@ -181,19 +145,13 @@ public class MicroserviceInstance extends Entity implements IRequestUpdateListen
             cpu.submitProcess(newProcess);
         } else {
             for (NetworkDependency dependency : request.getDependencies()) {
-
-                Request internalRequest = new InternalRequest(getModel(), this.traceIsOn(), dependency, this);
-                internalRequest.addUpdateListener(sendCompletionListener);
-                internalRequest.addUpdateListener(retryManager);
                 currentlyOpenDependencies.add(dependency);
 
+                Request internalRequest = new InternalRequest(getModel(), this.traceIsOn(), dependency, this);
+                sendRequest(String.format("Send Cascading_Request for %s", request.getQuotedName()), internalRequest, dependency.getTarget_Service());
 
-                NetworkRequestSendEvent sendEvent = new NetworkRequestSendEvent(getModel(), String.format("Send Cascading_Request for %s", request.getQuotedName()), traceIsOn(), internalRequest, dependency.getTarget_Service());
-                currentInternalSends.add(sendEvent);
-                sendEvent.schedule(presentTime());
             }
         }
-
     }
 
 
@@ -239,17 +197,15 @@ public class MicroserviceInstance extends Entity implements IRequestUpdateListen
         changeState(InstanceState.KILLED);
 
 
-        retryManager.clear();
+        patterns.forEach(Pattern::close);
 
         //clears all currently running calculations
         cpu.clear();
 
         //cancel all send answers and send current internal requests
-        Stream.concat(currentAnswers.stream(), currentInternalSends.stream()).forEach(networkEvent -> {
-            if (networkEvent.isScheduled()) networkEvent.cancel();
-        });
+        Stream.concat(currentAnswers.stream(), currentInternalSends.stream()).forEach(Request::cancelSending);
 
-        //TODO: notify sender of currently handled requests, that the requests failed (TCP/behavior)
+        //notify sender of currently handled requests, that the requests failed (TCP/behavior)
         currentRequestsToHandle.forEach(Request::cancelExecutionAtHandler);
 
 
@@ -274,8 +230,20 @@ public class MicroserviceInstance extends Entity implements IRequestUpdateListen
     @Override
     public void onRequestFailed(final Request request, final TimeInstant when, final RequestFailedReason reason) {
         //called if an internal request definitely failed (e.g after 5 retries or circuit breaker has no idea what to do)
-        if (request instanceof RequestAnswer) //does not care about Request answeres.
+        if (request instanceof RequestAnswer) //specifically does not care about request answers failing.
+        {
+            currentAnswers.remove(request);
             return;
+        }
+
+        if (request instanceof InternalRequest)
+            currentInternalSends.remove(request);
+
+        if (patterns.stream().anyMatch(pattern -> pattern instanceof RetryManager)) {
+            if (reason != RequestFailedReason.MAX_RETRIES_REACHED) {
+                return;
+            }
+        }
 
         NetworkDependency failedDependency = request.getParent().getRelatedDependency(request);
         if (!currentlyOpenDependencies.contains(failedDependency) || !currentRequestsToHandle.contains(request.getParent())) {
@@ -293,10 +261,11 @@ public class MicroserviceInstance extends Entity implements IRequestUpdateListen
                 String.format("Dependency %s", request.getQuotedName()));
         cancelEvent.schedule(presentTime());
 
-        //cancel all internal requests of dependencies of the parent
-        for (NetworkRequestSendEvent internalSend : currentInternalSends) {
-            if (internalSend.isScheduled() && internalSend.getTraveling_request().getParent() == parentToCancel)
-                internalSend.cancel();
+        //cancel all internal requests  of the parent that are underway
+        for (InternalRequest internalSend : currentInternalSends) {
+            if (internalSend.getParent() == parentToCancel) {
+                internalSend.cancelSending();
+            }
         }
         currentlyOpenDependencies.removeAll(parentToCancel.getDependencies());
         currentRequestsToHandle.remove(parentToCancel);
@@ -305,11 +274,30 @@ public class MicroserviceInstance extends Entity implements IRequestUpdateListen
     }
 
     @Override
-    public void onRetry(Request newRequest, NetworkRequestSendEvent event) {
-        newRequest.addUpdateListener(sendCompletionListener);
-        if (newRequest instanceof InternalRequest) {
-            currentInternalSends.add(event);
+    public void onRequestArrivalAtTarget(Request request, TimeInstant when) {
+        if (request instanceof RequestAnswer)
+            currentAnswers.remove(request);
+
+        collectQueueStatistics(); //collecting Statistics
+    }
+
+    @Override
+    public void onRequestSend(Request request, TimeInstant when) {
+        if (request instanceof RequestAnswer) {
+            currentAnswers.add((RequestAnswer) request);
+        } else if (request instanceof InternalRequest) {
+            currentInternalSends.add((InternalRequest) request);
         }
+
+        collectQueueStatistics(); //collecting Statistics
+    }
+
+    @Override
+    public void onRequestResultArrivedAtRequester(Request request, TimeInstant when) {
+        if (request instanceof InternalRequest)
+            currentInternalSends.remove(request);
+
+        collectQueueStatistics(); //collecting Statistics
     }
 
 }

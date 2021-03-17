@@ -2,76 +2,81 @@
   "microservices": [
     {
       "name": "gateway",
-      "instances": 1,
-      "patterns": [],
-      "capacity": 100,
+      "instances": 2,
+      "capacity": 20,
       "loadbalancer_strategy": "even",
       "operations": [
         {
           "name": "gateway.PING",
-          "demand": 30,
+          "demand": 2,
           "dependencies": []
         },
         {
           "name": "INTERNAL_DEP",
-          "demand": 1,
+          "demand": 2,
           "dependencies": [
             {
               "service": "loon-service",
-              "operation": "call_loon-service2",
-              "probability": 1.0
+              "operation": "call_loon-service2"
             }
           ]
         },
         {
           "name": "EXTERNAL_DEP",
-          "demand": 1,
+          "demand": 2,
           "dependencies": [
             {
               "service": "loon-service",
-              "operation": "call_external_service",
-              "probability": 1.0
+              "operation": "call_external_service"
             }
           ]
         },
         {
           "name": "gateway.DB_READ",
-          "demand": 1,
+          "demand": 2,
           "dependencies": [
             {
               "service": "loon-service",
-              "operation": "loon-service.DB_READ",
-              "probability": 1.0
+              "operation": "loon-service.DB_READ"
             }
           ]
         },
         {
           "name": "gateway.DB_WRITE",
-          "demand": 1,
+          "demand": 2,
           "dependencies": [
             {
               "service": "loon-service",
-              "operation": "loon-service.DB_WRITE",
-              "probability": 1.0
+              "operation": "loon-service.DB_WRITE"
             }
           ]
         },
         {
           "name": "UNAFFECTED_SERVICE",
-          "demand": 1,
+          "demand": 2,
           "dependencies": [
             {
               "service": "loon-service2",
-              "operation": "loon-service2.get",
-              "probability": 1.0
+              "operation": "loon-service2.get"
             }
           ]
+        }
+      ],
+      "patterns": [
+        {
+          "type": "retry",
+          "config": {
+            "maxTries": 6,
+            "baseBackoff": 0.02,
+            "maxBackoff": 1,
+            "base": 2
+          }
         }
       ]
     },
     {
       "name": "loon-service",
-      "instances": 1,
+      "instances": 2,
       "patterns": [],
       "capacity": 15,
       "operations": [
@@ -91,8 +96,7 @@
           "dependencies": [
             {
               "service": "loon-service2",
-              "operation": "loon-service2.get",
-              "probability": 1.0
+              "operation": "loon-service2.get"
             }
           ]
         },

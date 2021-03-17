@@ -5,6 +5,9 @@ import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
 import de.rss.fachstudie.MiSim.misc.Priority;
 import desmoj.core.simulator.ExternalEvent;
 import desmoj.core.simulator.Model;
+import desmoj.core.simulator.TimeInstant;
+
+import java.util.Objects;
 
 /**
  * A <code>ChaosMonkeyEvent</code> is an <code>ExternalEvent</code> that gets scheduled at the begin of the experiment.
@@ -14,6 +17,7 @@ import desmoj.core.simulator.Model;
 public class ChaosMonkeyEvent extends ExternalEvent {
     private final int instances;
     private final Microservice microservice;
+    private TimeInstant targetTime;
 
     /**
      * Instantiate a <code>ChaosMonkeyEvent</code>.
@@ -52,5 +56,15 @@ public class ChaosMonkeyEvent extends ExternalEvent {
     @Override
     public String toString() {
         return "ChaosMonkeyEvent";
+    }
+
+
+    public TimeInstant getTargetTime() {
+        return targetTime;
+    }
+
+    public void setTargetTime(TimeInstant targetTime) {
+        Objects.requireNonNull(targetTime);
+        this.targetTime = targetTime;
     }
 }

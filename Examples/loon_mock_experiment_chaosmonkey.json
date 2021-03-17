@@ -1,7 +1,7 @@
 {
   "simulation_meta_data": {
-    "experiment_name": "Loon-Mock-Experiment1",
-    "model_name": "Scenario 1",
+    "experiment_name": "Loon-Mock-ChaosMonkey-Test",
+    "model_name": "Scenario ChaosMonkey",
     "duration": 200,
     "report": "",
     "datapoints": 200,
@@ -11,9 +11,7 @@
     {
       "microservice": "gateway",
       "operation": "gateway.PING",
-      "limbo_model": "./Examples/loon_mock_arrival_rates_simple.csv",
-      "repeating": true,
-      "repetition_skip": 30
+      "interval": 0.5
     },
     {
       "microservice": "gateway",
@@ -22,23 +20,15 @@
     },
     {
       "microservice": "gateway",
-      "operation": "EXTERNAL_DEP",
-      "interval": 1
-    },
-    {
-      "microservice": "gateway",
       "operation": "gateway.DB_READ",
-      "interval": 1
-    },
-    {
-      "microservice": "gateway",
-      "operation": "gateway.DB_WRITE",
-      "interval": 0.5
+      "limbo_model": "./Examples/loon_mock_arrival_rates.csv",
+      "repeating": true,
+      "repetition_skip": 5
     },
     {
       "microservice": "gateway",
       "operation": "UNAFFECTED_SERVICE",
-      "interval": 1
+      "interval": 0.5
     }
   ],
   "chaosmonkeys": [
@@ -46,6 +36,16 @@
       "microservice": "loon-service",
       "instances": 1,
       "time": 30
+    },
+    {
+      "microservice": "loon-service",
+      "instances": 1,
+      "time": 60
+    },
+    {
+      "microservice": "gateway",
+      "instances": 3,
+      "time": 210
     }
   ]
 }

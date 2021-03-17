@@ -1,8 +1,8 @@
 {
   "simulation_meta_data": {
-    "experiment_name": "Loon-Mock-Experiment1",
-    "model_name": "Scenario 1",
-    "duration": 180,
+    "experiment_name": "Loon-Mock-Delay-Injection",
+    "model_name": "Delay-Injection",
+    "duration": 200,
     "report": "",
     "datapoints": 180,
     "seed": 1337
@@ -16,34 +16,31 @@
     {
       "microservice": "gateway",
       "operation": "INTERNAL_DEP",
-      "interval": 3
-    },
-    { 
-      "microservice": "gateway",
-      "operation": "EXTERNAL_DEP",
-      "interval": 3
+      "interval": 1
     },
     {
       "microservice": "gateway",
       "operation": "gateway.DB_READ",
-      "interval": 2
-    },
-    {
-      "microservice": "gateway",
-      "operation": "gateway.DB_WRITE",
-      "interval": 2
+      "interval": 1
     },
     {
       "microservice": "gateway",
       "operation": "UNAFFECTED_SERVICE",
-      "interval": 2
+      "interval": 1
     }
   ],
   "latencymonkeys": [
     {
       "microservice": "loon-service",
-      "delay": 0.5,
-      "time": 30
+      "delay": 0.3,
+      "std_deviation": 0.1,
+      "time": 120,
+      "duration": 30
+    },
+    {
+      "microservice": "gateway",
+      "delay": 0.3,
+      "time": 50
     }
   ]
 }

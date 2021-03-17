@@ -3,7 +3,7 @@ package de.rss.fachstudie.MiSim.entities.generator;
 import co.paralleluniverse.fibers.SuspendExecution;
 import de.rss.fachstudie.MiSim.entities.Operation;
 import de.rss.fachstudie.MiSim.entities.networking.*;
-import de.rss.fachstudie.MiSim.export.AccumulativeDatPointReporter;
+import de.rss.fachstudie.MiSim.export.AccumulativeDataPointReporter;
 import de.rss.fachstudie.MiSim.export.MultiDataPointReporter;
 import desmoj.core.simulator.ExternalEvent;
 import desmoj.core.simulator.Model;
@@ -32,7 +32,7 @@ public abstract class Generator extends ExternalEvent implements IRequestUpdateL
     private TimeInstant nextTargetTime;
 
     protected final MultiDataPointReporter reporter;
-    protected final AccumulativeDatPointReporter accReporter;
+    protected final AccumulativeDataPointReporter accReporter;
 
     /**
      * Superclass for all generators. Automatically takes care of output reporting and pulling/scheduling and basic
@@ -51,9 +51,7 @@ public abstract class Generator extends ExternalEvent implements IRequestUpdateL
 
         String reportName = String.format("G[%s]_[%s(%s)]_", this.getClass().getSimpleName(), operation.getOwner().getName(), operation.getName());
         reporter = new MultiDataPointReporter(reportName);
-        accReporter = new AccumulativeDatPointReporter(reportName);
-        schedule();
-
+        accReporter = new AccumulativeDataPointReporter(reportName);
     }
 
     private void doInitialSchedule() {
@@ -65,7 +63,7 @@ public abstract class Generator extends ExternalEvent implements IRequestUpdateL
             else this.schedule(next);
 
         } catch (GeneratorStopException e) {
-            sendWarning("Generator %s did not start.", this.getClass().getCanonicalName(), "Load profile was faulty.",
+            sendWarning(String.format("Generator %s did not start.", this.getName()), this.getClass().getCanonicalName(), e.getMessage(),
                     "Check your request generators definition and input for errors.");
         }
     }

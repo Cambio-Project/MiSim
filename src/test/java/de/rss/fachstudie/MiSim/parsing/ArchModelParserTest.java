@@ -6,13 +6,14 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.nio.file.Paths;
 
 class ArchModelParserTest {
 
     @BeforeAll
     static void beforeAll() {
-        File f = new File("./Examples/loon_mock_model.json");
-        ArchModelParser.parseArchModelFile(f.getAbsolutePath());
+        File f = new File("./Examples/loon_mock_architecture_model.json");
+        ArchModelParser.parseArchModelFile(Paths.get(f.getAbsolutePath()),null);
     }
 
     @Test

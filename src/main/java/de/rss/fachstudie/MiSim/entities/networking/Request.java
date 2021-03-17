@@ -10,9 +10,7 @@ import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 import org.apache.commons.math3.util.Precision;
 
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Lion Wagner
@@ -33,7 +31,7 @@ public abstract class Request extends Entity {
     private NetworkRequestSendEvent sendEvent;
     private NetworkRequestReceiveEvent receiveEvent;
     private NetworkRequestCanceledEvent canceledEvent;
-    private LinkedList<IRequestUpdateListener> updateListeners = new LinkedList<>(); //TODO: minor: allow list of listeners so e.g. a tracing tool can be injected by each creation.
+    private PriorityQueue<IRequestUpdateListener> updateListeners = new PriorityQueue<>(); //TODO: minor: allow list of listeners so e.g. a tracing tool can be injected by each creation.
 
     private TimeInstant timestamp_send;
     private TimeInstant timestamp_received;
@@ -61,9 +59,9 @@ public abstract class Request extends Entity {
             double probability = dependency.getProbability();
             if (prob.sample() <= probability) {
 
-                Operation nextOperationEntity = dependency.getOperation_instance();
+                Operation nextOperationEntity = dependency.getTargetOperation();
 
-                NetworkDependency dep = new NetworkDependency(this, nextOperationEntity);
+                NetworkDependency dep = new NetworkDependency(this, nextOperationEntity, dependency);
 
                 dependencies.add(dep);
                 if (parent != null)
@@ -179,7 +177,7 @@ public abstract class Request extends Entity {
         if (this.dependencies_completed)
             throw new IllegalStateException("Dependencies were already completed!");
 
-        if (dep !=null) {
+        if (dep != null) {
             if (!dependencies.contains(dep))
                 throw new IllegalStateException("This dependency is not part of this Request");
             dep.setCompleted();
@@ -259,12 +257,18 @@ public abstract class Request extends Entity {
         return handler_instance;
     }
 
-    public LinkedList<IRequestUpdateListener> getUpdateListeners() {
+    public Collection<IRequestUpdateListener> getUpdateListeners() {
         return updateListeners;
     }
 
     public void addUpdateListener(IRequestUpdateListener updateListener) {
         this.updateListeners.add(updateListener);
+    }
+
+
+    public void cancelSending(){
+        if(sendEvent.isScheduled())
+            sendEvent.cancel();
     }
 
     /**
@@ -280,7 +284,7 @@ public abstract class Request extends Entity {
 //            request = ((RequestAnswer) request).unpack();
 
 
-        // (may be fixed) TODO: minor: Completed UserRequests sometimes appear here if a MicroserviceInstance#die call has priority over the IRequestUpdateListener#onRequestArrivalAtTarget
+        // (may be fixed) TODO: minor: Completed UserRequests sometimes appear here if a MicroserviceInstance#close call has priority over the IRequestUpdateListener#onRequestArrivalAtTarget
 //        if (request instanceof UserRequest && request.isCompleted()) {
 //            return;
 //        }
