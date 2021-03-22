@@ -8,11 +8,12 @@ import de.rss.fachstudie.MiSim.export.MultiDataPointReporter;
 import desmoj.core.simulator.ExternalEvent;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
+import desmoj.core.simulator.TimeSpan;
 
 /**
  * @author Lion Wagner
  */
-public abstract class Generator extends ExternalEvent implements IRequestUpdateListener {
+public abstract class Generator extends RequestSender implements IRequestUpdateListener {
 
     protected final Model model;
 
@@ -34,6 +35,24 @@ public abstract class Generator extends ExternalEvent implements IRequestUpdateL
     protected final MultiDataPointReporter reporter;
     protected final AccumulativeDataPointReporter accReporter;
 
+    private final GeneratorTriggerEvent trigger;
+
+    private class GeneratorTriggerEvent extends ExternalEvent {
+
+        private final Generator generator;
+
+        public GeneratorTriggerEvent(Model model, String s, boolean b, Generator generator) {
+            super(model, s, b);
+            this.generator = generator;
+        }
+
+        @Override
+        public void eventRoutine() throws SuspendExecution {
+            generator.eventRoutine();
+        }
+    }
+
+
     /**
      * Superclass for all generators. Automatically takes care of output reporting and pulling/scheduling and basic
      * monitoring or Requests.
@@ -52,6 +71,10 @@ public abstract class Generator extends ExternalEvent implements IRequestUpdateL
         String reportName = String.format("G[%s]_[%s(%s)]_", this.getClass().getSimpleName(), operation.getOwner().getName(), operation.getName());
         reporter = new MultiDataPointReporter(reportName);
         accReporter = new AccumulativeDataPointReporter(reportName);
+
+        trigger = new GeneratorTriggerEvent(model, null, false, this);
+
+        addUpdateListener(this);
     }
 
     private void doInitialSchedule() {
@@ -59,8 +82,8 @@ public abstract class Generator extends ExternalEvent implements IRequestUpdateL
             TimeInstant next = getNextExecutionTimeInstance();
             if (next == null) throw new GeneratorStopException();
 
-            if (this.isScheduled()) this.reSchedule(next);
-            else this.schedule(next);
+            if (trigger.isScheduled()) trigger.reSchedule(next);
+            else trigger.schedule(next);
 
         } catch (GeneratorStopException e) {
             sendWarning(String.format("Generator %s did not start.", this.getName()), this.getClass().getCanonicalName(), e.getMessage(),
@@ -106,29 +129,19 @@ public abstract class Generator extends ExternalEvent implements IRequestUpdateL
      * This method is automatically called by the Generator itself. (by rescheduling itself)
      * <p>
      * If absolutely needed it can be manually called to send the schedule the next Request immediately.
-     *
-     * @throws SuspendExecution
      */
-    @Override
-    public void eventRoutine() throws SuspendExecution {
+    public void eventRoutine() {
         if (lastTargetTime == null) {
             doInitialSchedule();
             return;
         }
 
         UserRequest request = new UserRequest(model, String.format("User_Request@([%s] %s)", operation.getOwner().getName(), operation.getName()), true, operation);
-        request.addUpdateListener(this);
 
         try {
-            NetworkRequestEvent event = new UserRequestArrivalEvent(model,
-                    String.format("User_Request@(%s) ",
-                            operation.getQuotedName()),
-                    this.traceIsOn(),
-                    request,
-                    operation.getOwner().getNextAvailableInstance());
 
-
-            event.schedule(presentTime());
+            sendRequest(String.format("User_Request@(%s) ",
+                    operation.getQuotedName()), request, operation.getOwner().getNextAvailableInstance(), new TimeSpan(0));
 
             TimeInstant nextExecutionTimeInstance;
             try {
@@ -141,20 +154,19 @@ public abstract class Generator extends ExternalEvent implements IRequestUpdateL
 
             if (nextExecutionTimeInstance == null) {
                 sendWarning(
-                        String.format("Did not schedule event %s",
-                                event.getQuotedName()), this.getClass().getTypeName(),
+                        String.format("Did not schedule next trigger of %s",
+                                this.getName()), this.getClass().getTypeName(),
                         "Next time to schedule the event was 'null'.",
                         "Check your request generators definition and input for errors.");
                 return;
             }
 
-            if (this.isScheduled())
-                this.reSchedule(nextExecutionTimeInstance);
-            else this.schedule(nextExecutionTimeInstance);
+            if (trigger.isScheduled())
+                trigger.reSchedule(nextExecutionTimeInstance);
+            else trigger.schedule(nextExecutionTimeInstance);
 
         } catch (NoInstanceAvailableException e) {
             onRequestFailed(request, presentTime(), RequestFailedReason.NO_INSTANCE_AVAILABLE);
-
         }
     }
 
@@ -171,25 +183,27 @@ public abstract class Generator extends ExternalEvent implements IRequestUpdateL
      * available, the request being canceled or timed out. Provides a reference to the failed request.
      */
     @Override
-    public void onRequestFailed(Request request, TimeInstant when, RequestFailedReason reason) {
+    public boolean onRequestFailed(Request request, TimeInstant when, RequestFailedReason reason) {
         sendTraceNote(String.format("Arrival of Request %s failed at %s.", request, when));
         TimeInstant currentTime = new TimeInstant(Math.ceil(presentTime().getTimeAsDouble()));
 
         accReporter.addDatapoint("FailedRequests", currentTime, 1);
         //also creates a datapoint for successful requests so they can be directly compared
         accReporter.addDatapoint("SuccessfulRequests", currentTime, 0);
+        return true;
     }
 
     /**
      * Listener for the successful receiving of the answer of a request.
      */
     @Override
-    public void onRequestResultArrivedAtRequester(Request request, TimeInstant when) {
+    public boolean onRequestResultArrivedAtRequester(Request request, TimeInstant when) {
         sendTraceNote(String.format("Successfully completed Request %s at %s.", request, when));
         TimeInstant currentTime = new TimeInstant(Math.ceil(presentTime().getTimeAsDouble()));
 
         accReporter.addDatapoint("SuccessfulRequests", currentTime, 1);
         //also creates a datapoint for failed requests so they can be directly compared
         accReporter.addDatapoint("FailedRequests", currentTime, 0);
+        return true;
     }
 }

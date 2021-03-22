@@ -21,68 +21,77 @@ import java.util.Random;
 public class RetryManager extends NetworkPattern implements IRequestUpdateListener {
 
     @FromJson
-    private final int maxTries = 5;
+    private int maxTries = 5;
     @FromJson
-    private final double baseBackoff = 0.010;
+    private double baseBackoff = 0.010;
     @FromJson
-    private final double maxBackoff = 1;
+    private double maxBackoff = 1;
     @FromJson
-    private final int base = 3;
+    private int base = 3;
     @FromJson
-    private final boolean jittering = true;
+    private boolean jittering = false;
 
     private final Map<NetworkDependency, Integer> requestIndex = new HashMap<>();
 
-    public RetryManager(Model model, String s, boolean b, MicroserviceInstance listener) {
-        super(model, s, b, listener);
+    public RetryManager(Model model, String name, boolean showInTrace, MicroserviceInstance listener) {
+        super(model, name, showInTrace, listener);
     }
 
     @Override
     public int getListeningPriority() {
-        return Priority.HIGH;
+        return Priority.VERY_HIGH;
     }
 
     @Override
-    public void onRequestFailed(Request request, TimeInstant when, RequestFailedReason reason) {
+    public boolean onRequestFailed(Request request, TimeInstant when, RequestFailedReason reason) {
+        if (reason == RequestFailedReason.MAX_RETRIES_REACHED) return false;
+
         NetworkDependency dep = request.getParent().getRelatedDependency(request);
-        if (!requestIndex.containsKey(dep)) return;
+        if (!requestIndex.containsKey(dep)) return false;
 
         int tries = requestIndex.get(dep);
 
         if (tries < maxTries) {
             double delay = Math.min(baseBackoff * Math.pow(base, tries), maxBackoff);
 
-            if (jittering) delay = new Random().nextDouble() * delay;
+            if (jittering) {
+                delay = new Random().nextDouble() * delay;
+            }
 
             Request newRequest = new InternalRequest(getModel(), this.traceIsOn(), dep, request.getRequester()); //updates the dependency that had the original request as child
-            owner.sendRequest(String.format("Retry of sending %s", request.getQuotedName()), newRequest, dep.getTarget_Service(), new TimeSpan(delay));
+            owner.sendRequest(String.format("Collecting dependency %s", dep.getQuotedName()), newRequest, dep.getTarget_Service(), new TimeSpan(delay));
+            sendTraceNote(String.format("Try %d, send Request: %s", tries + 1, newRequest.getQuotedName()));
         } else {
-            owner.onRequestFailed(request, when, RequestFailedReason.MAX_RETRIES_REACHED);
+            owner.updateListenerProxy.onRequestFailed(request, when, RequestFailedReason.MAX_RETRIES_REACHED); //notify everyone that a request failed
+            sendTraceNote(String.format("Max Retries Reached for Dependency %s", dep));
+            return true;
         }
+        return false;
     }
 
     @Override
-    public void onRequestArrivalAtTarget(Request request, TimeInstant when) {
-        NetworkDependency dep = request.getParent().getRelatedDependency(request);
-        requestIndex.remove(dep);
+    public boolean onRequestArrivalAtTarget(Request request, TimeInstant when) {
+        return false;
     }
 
     @Override
-    public void onRequestSend(Request request, TimeInstant when) {
+    public boolean onRequestSend(Request request, TimeInstant when) {
         if (!(request instanceof RequestAnswer)) //Request answers will not be repeated
         {
             NetworkDependency dep = request.getParent().getRelatedDependency(request);
             requestIndex.merge(dep, 1, Integer::sum);
         }
+        return false;
     }
 
     @Override
-    public void onRequestResultArrivedAtRequester(Request request, TimeInstant when) {
+    public boolean onRequestResultArrivedAtRequester(Request request, TimeInstant when) {
         if (request.getParent() == null) {
-            return;
+            return true;
         }
         NetworkDependency dep = request.getParent().getRelatedDependency(request);
         requestIndex.remove(dep);
+        return false;
     }
 
     @Override

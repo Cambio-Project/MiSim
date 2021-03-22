@@ -4,6 +4,9 @@ import co.paralleluniverse.fibers.SuspendExecution;
 import de.rss.fachstudie.MiSim.misc.Priority;
 import desmoj.core.simulator.Model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Event that should be scheduled when a request gets canceled.
  *
@@ -14,6 +17,8 @@ public class NetworkRequestCanceledEvent extends NetworkRequestEvent {
     private final RequestFailedReason reason;
     private final String details;
 
+    private static List<NetworkDependency> canceledDependencies = new ArrayList<>();
+
     public NetworkRequestCanceledEvent(Model model, String name, boolean showInTrace, Request request, RequestFailedReason reason) {
         this(model, name, showInTrace, request, reason, null);
     }
@@ -23,6 +28,13 @@ public class NetworkRequestCanceledEvent extends NetworkRequestEvent {
         this.reason = reason;
         this.details = details;
         setSchedulingPriority(Priority.VERY_HIGH);
+
+//        if(request instanceof InternalRequest){
+//            if(canceledDependencies.contains(((InternalRequest) request).getDependency())){
+//                System.out.print("ok");
+//            }
+//            canceledDependencies.add(((InternalRequest) request).getDependency());
+//        }
     }
 
     @Override

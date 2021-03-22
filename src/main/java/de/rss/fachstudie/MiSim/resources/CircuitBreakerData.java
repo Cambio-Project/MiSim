@@ -1,12 +1,12 @@
 package de.rss.fachstudie.MiSim.resources;
 
 import de.rss.fachstudie.MiSim.entities.Operation;
-import de.rss.fachstudie.MiSim.entities.patterns.CircuitBreaker;
+import de.rss.fachstudie.MiSim.entities.patterns.CircuitBreakerState;
 
 public class CircuitBreakerData {
 
     private Operation operation;
-    private CircuitBreaker.State state;
+    private CircuitBreakerState.BreakerState state;
     private double requestVolume;
     private double errorCount;
     private double rollingWindowStartTime;
@@ -17,7 +17,7 @@ public class CircuitBreakerData {
     public CircuitBreakerData(Operation operation) {
         this.operation = operation;
 
-        this.state = CircuitBreaker.State.CLOSED;
+        this.state = CircuitBreakerState.BreakerState.CLOSED;
         this.requestVolume = 0;
         this.errorCount = 0;
         this.rollingWindowStartTime = -1;
@@ -34,11 +34,11 @@ public class CircuitBreakerData {
         this.operation = operation;
     }
 
-    public CircuitBreaker.State getState() {
+    public CircuitBreakerState.BreakerState getState() {
         return state;
     }
 
-    public void setState(CircuitBreaker.State state) {
+    public void setState(CircuitBreakerState.BreakerState state) {
         this.state = state;
     }
 

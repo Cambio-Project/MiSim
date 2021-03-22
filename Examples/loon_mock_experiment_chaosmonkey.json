@@ -11,41 +11,49 @@
     {
       "microservice": "gateway",
       "operation": "gateway.PING",
-      "interval": 0.5
+      "interval": 0
     },
     {
       "microservice": "gateway",
       "operation": "INTERNAL_DEP",
-      "interval": 0.5
+      "limbo_model": "./Examples/loon_mock_arrival_rates.csv",
+      "repeating": true,
+      "repetition_skip": 5
+
     },
     {
       "microservice": "gateway",
       "operation": "gateway.DB_READ",
-      "limbo_model": "./Examples/loon_mock_arrival_rates.csv",
-      "repeating": true,
-      "repetition_skip": 5
+      "interval": 0
     },
     {
       "microservice": "gateway",
       "operation": "UNAFFECTED_SERVICE",
-      "interval": 0.5
+      "interval": 0
     }
   ],
   "chaosmonkeys": [
     {
       "microservice": "loon-service",
-      "instances": 1,
+      "instances": 0,
       "time": 30
     },
     {
-      "microservice": "loon-service",
-      "instances": 1,
+      "microservice": "loon-service2",
+      "instances": 2,
       "time": 60
     },
     {
       "microservice": "gateway",
       "instances": 3,
       "time": 210
+    }
+  ],
+  "summonermonkeys": [
+    {
+      "microservice": "loon-service2",
+      "instances": 2,
+      "time": 100
     }
   ]
 }

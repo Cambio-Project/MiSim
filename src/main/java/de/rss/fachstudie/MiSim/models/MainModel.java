@@ -4,10 +4,7 @@ import de.rss.fachstudie.MiSim.entities.MessageObject;
 import de.rss.fachstudie.MiSim.entities.generator.Generator;
 import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
 import de.rss.fachstudie.MiSim.entities.microservice.MicroserviceScaleEvent;
-import de.rss.fachstudie.MiSim.events.ChaosMonkeyEvent;
-import de.rss.fachstudie.MiSim.events.FinishEvent;
-import de.rss.fachstudie.MiSim.events.LatencyMonkeyEvent;
-import de.rss.fachstudie.MiSim.events.StatisticEvent;
+import de.rss.fachstudie.MiSim.events.*;
 import de.rss.fachstudie.MiSim.export.ExportReport;
 import de.rss.fachstudie.MiSim.export.MultiDataPointReporter;
 import de.rss.fachstudie.MiSim.export.ReportWriter;
@@ -363,7 +360,7 @@ public class MainModel extends Model {
         MainModel.microservices.forEach(Microservice::start); //initalizes spawning of instances
 
         for (Generator generator : ExpModelParser.generators) {
-            generator.schedule(presentTime());
+            generator.eventRoutine();
         }
 
         for (ChaosMonkeyEvent chaosmonkey : ExpModelParser.chaosmonkeys) {
@@ -372,6 +369,10 @@ public class MainModel extends Model {
 
         for (LatencyMonkeyEvent latencymonkey : ExpModelParser.latencymonkeys) {
             latencymonkey.schedule(latencymonkey.getTargetTime());
+        }
+
+        for (SummonerMonkeyEvent summoner : ExpModelParser.summoners) {
+            summoner.schedule(summoner.getTargetTime());
         }
 
 //        MicroserviceScaleEvent scaleEvent = new MicroserviceScaleEvent(this, "ScaleEvent", true, getMicroserviceFromName("loon-service"), 2);

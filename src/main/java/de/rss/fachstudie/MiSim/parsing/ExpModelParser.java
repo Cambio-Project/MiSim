@@ -8,6 +8,7 @@ import de.rss.fachstudie.MiSim.entities.generator.Generator;
 import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
 import de.rss.fachstudie.MiSim.events.ChaosMonkeyEvent;
 import de.rss.fachstudie.MiSim.events.LatencyMonkeyEvent;
+import de.rss.fachstudie.MiSim.events.SummonerMonkeyEvent;
 import de.rss.fachstudie.MiSim.models.MainModel;
 
 import java.io.FileNotFoundException;
@@ -25,6 +26,7 @@ public class ExpModelParser {
     public static Generator[] generators = new Generator[0];
     public static ChaosMonkeyEvent[] chaosmonkeys = new ChaosMonkeyEvent[0];
     public static LatencyMonkeyEvent[] latencymonkeys = new LatencyMonkeyEvent[0];
+    public static SummonerMonkeyEvent[] summoners = new SummonerMonkeyEvent[0];
 
 
     public static void loadMetadata(Path path) {
@@ -48,6 +50,7 @@ public class ExpModelParser {
             GeneratorParser[] generatorData = gson.fromJson(root.get("request_generators"), GeneratorParser[].class);
             ChaosMonkeyParser[] chaosmonkeyData = gson.fromJson(root.get("chaosmonkeys"), ChaosMonkeyParser[].class);
             LatencyMonkeyParser[] latencymonkeyData = gson.fromJson(root.get("latencymonkeys"), LatencyMonkeyParser[].class);
+            SummonerMonkeyParser[] summonerMonkeyData = gson.fromJson(root.get("summonermonkeys"), SummonerMonkeyParser[].class);
 
             if (generatorData != null && generatorData.length > 0)
                 generators = Arrays.stream(generatorData)
@@ -61,6 +64,12 @@ public class ExpModelParser {
                 latencymonkeys = Arrays.stream(latencymonkeyData)
                         .map(latencyMonkeyParser -> latencyMonkeyParser.convertToObject(model, microservices))
                         .toArray(value -> new LatencyMonkeyEvent[latencymonkeyData.length]);
+            if (summonerMonkeyData != null && summonerMonkeyData.length > 0)
+                summoners = Arrays.stream(summonerMonkeyData)
+                        .map(latencyMonkeyParser -> latencyMonkeyParser.convertToObject(model, microservices))
+                        .toArray(value -> new SummonerMonkeyEvent[summonerMonkeyData.length]);
+
+
         } catch (FileNotFoundException ex) {
             System.out.println("File " + " not found");
         }

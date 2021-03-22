@@ -3,11 +3,13 @@ package de.rss.fachstudie.MiSim.entities.networking;
 import de.rss.fachstudie.MiSim.entities.Dependency;
 import de.rss.fachstudie.MiSim.entities.Operation;
 import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
+import desmoj.core.simulator.Entity;
+import desmoj.core.simulator.Model;
 
 /**
  * @author Lion Wagner
  */
-public class NetworkDependency {
+public class NetworkDependency extends Entity {
 
     private final Request parent_request;
     private final Microservice target_ms;
@@ -16,7 +18,8 @@ public class NetworkDependency {
     private boolean completed;
     private Request child_request;
 
-    public NetworkDependency(Request parent_request, Operation target_op, Dependency dependency_data) {
+    public NetworkDependency(Model model, Request parent_request, Operation target_op, Dependency dependency_data) {
+        super(model, String.format("Dependency(%s)of[%s]", target_op.getName(), parent_request.getName()), false);
         this.parent_request = parent_request;
         this.target_op = target_op;
         this.target_ms = target_op.getOwner();

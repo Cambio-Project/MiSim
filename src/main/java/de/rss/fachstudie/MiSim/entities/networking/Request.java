@@ -10,7 +10,10 @@ import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 import org.apache.commons.math3.util.Precision;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.PriorityQueue;
+import java.util.Set;
 
 /**
  * @author Lion Wagner
@@ -61,7 +64,7 @@ public abstract class Request extends Entity {
 
                 Operation nextOperationEntity = dependency.getTargetOperation();
 
-                NetworkDependency dep = new NetworkDependency(this, nextOperationEntity, dependency);
+                NetworkDependency dep = new NetworkDependency(getModel(), this, nextOperationEntity, dependency);
 
                 dependencies.add(dep);
                 if (parent != null)
@@ -266,9 +269,10 @@ public abstract class Request extends Entity {
     }
 
 
-    public void cancelSending(){
-        if(sendEvent.isScheduled())
+    public void cancelSending() {
+        if (sendEvent.isScheduled())
             sendEvent.cancel();
+        sendEvent.setCanceled();
     }
 
     /**
@@ -292,5 +296,6 @@ public abstract class Request extends Entity {
         cancelEvent.schedule(presentTime());
         request.canceledEvent = canceledEvent;
     }
+
 
 }

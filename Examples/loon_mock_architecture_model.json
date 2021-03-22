@@ -2,8 +2,8 @@
   "microservices": [
     {
       "name": "gateway",
-      "instances": 2,
-      "capacity": 20,
+      "instances": 1,
+      "capacity": 200000,
       "loadbalancer_strategy": "even",
       "operations": [
         {
@@ -66,17 +66,24 @@
         {
           "type": "retry",
           "config": {
-            "maxTries": 6,
+            "maxTries": 5,
             "baseBackoff": 0.02,
             "maxBackoff": 1,
-            "base": 2
+            "base": 2,
+            "jittering": true
+          }
+        },
+        {
+          "type": "circuitbreaker",
+          "config": {
+            "errorThresholdPercentage": 0.7
           }
         }
       ]
     },
     {
       "name": "loon-service",
-      "instances": 2,
+      "instances": 1,
       "patterns": [],
       "capacity": 15,
       "operations": [

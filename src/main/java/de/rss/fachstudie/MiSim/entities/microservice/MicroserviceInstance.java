@@ -1,6 +1,7 @@
 package de.rss.fachstudie.MiSim.entities.microservice;
 
 import de.rss.fachstudie.MiSim.entities.networking.*;
+import de.rss.fachstudie.MiSim.entities.patterns.CircuitBreaker;
 import de.rss.fachstudie.MiSim.entities.patterns.NetworkPattern;
 import de.rss.fachstudie.MiSim.entities.patterns.Pattern;
 import de.rss.fachstudie.MiSim.entities.patterns.RetryManager;
@@ -34,6 +35,11 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
     private final MultiDataPointReporter reporter;
 
     private Set<Pattern> patterns = new HashSet<>();
+
+    //debugging lists
+    private List<NetworkDependency> closedDependencies = new ArrayList<>();
+    private List<NetworkDependency> abortedDependencies = new ArrayList<>();
+
 
     public MicroserviceInstance(Model model, String name, boolean showInTrace, Microservice microservice, int instanceID) {
         super(model, name, showInTrace);
@@ -108,7 +114,8 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
 
         if (!currentlyOpenDependencies.remove(dep) || !currentRequestsToHandle.contains(dep.getParent_request())) {
             throw new IllegalStateException("This Request is not handled by this Instance");
-        }
+        } else
+            closedDependencies.add(dep);
 
         Request parent = dep.getParent_request();
         if (parent.notifyDependencyHasFinished(dep)) {
@@ -148,8 +155,8 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
                 currentlyOpenDependencies.add(dependency);
 
                 Request internalRequest = new InternalRequest(getModel(), this.traceIsOn(), dependency, this);
-                sendRequest(String.format("Send Cascading_Request for %s", request.getQuotedName()), internalRequest, dependency.getTarget_Service());
-
+                sendRequest(String.format("Collecting dependency %s", dependency.getQuotedName()), internalRequest, dependency.getTarget_Service());
+                sendTraceNote(String.format("Try 1, send Request: %s ", internalRequest.getQuotedName()));
             }
         }
     }
@@ -228,24 +235,84 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
     }
 
     @Override
-    public void onRequestFailed(final Request request, final TimeInstant when, final RequestFailedReason reason) {
-        //called if an internal request definitely failed (e.g after 5 retries or circuit breaker has no idea what to do)
+    public boolean onRequestFailed(final Request request, final TimeInstant when, final RequestFailedReason reason) {
+
         if (request instanceof RequestAnswer) //specifically does not care about request answers failing.
         {
             currentAnswers.remove(request);
-            return;
+            return true;
         }
 
         if (request instanceof InternalRequest)
             currentInternalSends.remove(request);
 
-        if (patterns.stream().anyMatch(pattern -> pattern instanceof RetryManager)) {
-            if (reason != RequestFailedReason.MAX_RETRIES_REACHED) {
-                return;
+
+        if (patterns.stream().anyMatch(pattern -> pattern instanceof CircuitBreaker)) {
+            if (reason == RequestFailedReason.CIRCUIT_IS_OPEN || reason == RequestFailedReason.REQUEST_VOLUME_REACHED) {
+                //TODO: activate fallback behavior
+                letRequestFail(request);
+                return true;
             }
         }
 
-        NetworkDependency failedDependency = request.getParent().getRelatedDependency(request);
+
+        if (patterns.stream().anyMatch(pattern -> pattern instanceof RetryManager)) {
+            if (reason != RequestFailedReason.MAX_RETRIES_REACHED) {
+                return false;
+            }
+        }
+
+        letRequestFail(request);
+
+        collectQueueStatistics(); //collecting Statistics
+        return false;
+    }
+
+    @Override
+    public boolean onRequestArrivalAtTarget(Request request, TimeInstant when) {
+        if (request instanceof RequestAnswer)
+            currentAnswers.remove(request);
+        else if (request instanceof InternalRequest) {
+            currentInternalSends.remove(request);
+        }
+
+        collectQueueStatistics(); //collecting
+        return false;
+    }
+
+    @Override
+    public boolean onRequestSend(Request request, TimeInstant when) {
+        if (request instanceof RequestAnswer) {
+            currentAnswers.add((RequestAnswer) request);
+        } else if (request instanceof InternalRequest) {
+            currentInternalSends.add((InternalRequest) request);
+        }
+
+        collectQueueStatistics(); //collecting Statistics
+        return false;
+    }
+
+    @Override
+    public boolean onRequestResultArrivedAtRequester(Request request, TimeInstant when) {
+        if (request instanceof InternalRequest)
+            currentInternalSends.remove(request);
+
+        collectQueueStatistics(); //collecting Statistics
+        return false;
+    }
+
+
+    private void letRequestFail(final Request request_to_fail) {
+
+        InternalRequest request = (InternalRequest) request_to_fail;
+        NetworkDependency failedDependency = request.getDependency();
+
+        if (failedDependency.getChild_request() != request_to_fail) { // this is true if the Dependency already has a new child request attached to it
+            request_to_fail.cancel();
+            return;
+        }
+
+
         if (!currentlyOpenDependencies.contains(failedDependency) || !currentRequestsToHandle.contains(request.getParent())) {
             throw new IllegalArgumentException("The given request was not request by this Instance.");
         }
@@ -267,37 +334,9 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
                 internalSend.cancelSending();
             }
         }
+        abortedDependencies.addAll(parentToCancel.getDependencies());
         currentlyOpenDependencies.removeAll(parentToCancel.getDependencies());
         currentRequestsToHandle.remove(parentToCancel);
-
-        collectQueueStatistics(); //collecting Statistics
-    }
-
-    @Override
-    public void onRequestArrivalAtTarget(Request request, TimeInstant when) {
-        if (request instanceof RequestAnswer)
-            currentAnswers.remove(request);
-
-        collectQueueStatistics(); //collecting Statistics
-    }
-
-    @Override
-    public void onRequestSend(Request request, TimeInstant when) {
-        if (request instanceof RequestAnswer) {
-            currentAnswers.add((RequestAnswer) request);
-        } else if (request instanceof InternalRequest) {
-            currentInternalSends.add((InternalRequest) request);
-        }
-
-        collectQueueStatistics(); //collecting Statistics
-    }
-
-    @Override
-    public void onRequestResultArrivedAtRequester(Request request, TimeInstant when) {
-        if (request instanceof InternalRequest)
-            currentInternalSends.remove(request);
-
-        collectQueueStatistics(); //collecting Statistics
     }
 
 }

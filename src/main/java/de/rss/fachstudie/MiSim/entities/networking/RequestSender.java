@@ -4,17 +4,18 @@ import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
 import de.rss.fachstudie.MiSim.entities.microservice.MicroserviceInstance;
 import desmoj.core.simulator.Entity;
 import desmoj.core.simulator.Model;
+import desmoj.core.simulator.TimeInstant;
 import desmoj.core.simulator.TimeSpan;
 
 import java.util.Objects;
-import java.util.PriorityQueue;
+import java.util.TreeSet;
 
 /**
  * @author Lion Wagner
  */
 public class RequestSender extends Entity {
 
-    private final PriorityQueue<IRequestUpdateListener> updateListeners = new PriorityQueue<>();
+    private final TreeSet<IRequestUpdateListener> updateListeners = new TreeSet<>();
 
     public RequestSender(Model model, String s, boolean b) {
         super(model, s, b);
@@ -46,7 +47,7 @@ public class RequestSender extends Entity {
     }
 
     private NetworkRequestSendEvent sendRequestInternal(String eventName, Request request, Object target, TimeSpan delay) {
-        updateListeners.forEach(request::addUpdateListener);
+        request.addUpdateListener(updateListenerProxy);
 
         NetworkRequestSendEvent sendEvent;
         if (target == null || target.getClass() == Microservice.class)
@@ -56,4 +57,27 @@ public class RequestSender extends Entity {
         sendEvent.schedule(delay);
         return sendEvent;
     }
+
+    public final IRequestUpdateListener updateListenerProxy = new IRequestUpdateListener() {
+        @Override
+        public boolean onRequestFailed(Request request, TimeInstant when, RequestFailedReason reason) {
+            return updateListeners.stream().anyMatch(listener -> listener.onRequestFailed(request, when, reason));
+        }
+
+        @Override
+        public boolean onRequestArrivalAtTarget(Request request, TimeInstant when) {
+            return updateListeners.stream().anyMatch(listener -> listener.onRequestArrivalAtTarget(request, when));
+        }
+
+        @Override
+        public boolean onRequestSend(Request request, TimeInstant when) {
+            return updateListeners.stream().anyMatch(listener -> listener.onRequestSend(request, when));
+        }
+
+        @Override
+        public boolean onRequestResultArrivedAtRequester(Request request, TimeInstant when) {
+            return updateListeners.stream().anyMatch(listener -> listener.onRequestResultArrivedAtRequester(request, when));
+        }
+    };
+
 }

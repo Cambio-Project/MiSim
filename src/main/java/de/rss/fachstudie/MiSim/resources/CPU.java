@@ -5,7 +5,7 @@ import de.rss.fachstudie.MiSim.entities.Operation;
 import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
 import de.rss.fachstudie.MiSim.entities.microservice.MicroserviceInstance;
 import de.rss.fachstudie.MiSim.entities.patterns.CircuitBreaker;
-import de.rss.fachstudie.MiSim.entities.patterns.Pattern;
+import de.rss.fachstudie.MiSim.entities.patterns.CircuitBreakerState;
 import de.rss.fachstudie.MiSim.models.MainModel;
 import desmoj.core.simulator.*;
 
@@ -261,7 +261,7 @@ public class CPU extends Event<Thread> {
             CircuitBreaker circuitBreaker = cbData.getOperation().getCircuitBreaker();
 
             // Circuit is closed
-            if (cbData.getState() == CircuitBreaker.State.CLOSED) {
+            if (cbData.getState() == CircuitBreakerState.BreakerState.CLOSED) {
                 // Check if circuit reached requestVolumeThreshold
                 if (cbData.getRequestVolume() >= circuitBreaker.getRequestVolumeThreshold()) {
                     double errorPercentage = cbData.getErrorCount() / cbData.getRequestVolume();
@@ -275,7 +275,7 @@ public class CPU extends Event<Thread> {
             }
 
             // Circuit is open
-            if (cbData.getState() == CircuitBreaker.State.OPEN) {
+            if (cbData.getState() == CircuitBreakerState.BreakerState.OPEN) {
                 // Sleep window expired -> Set state to half open
                 if (time > (cbData.getCbOpenTime() + circuitBreaker.getSleepWindow())) {
                     halfOpenCircuit(cbData);
@@ -283,7 +283,7 @@ public class CPU extends Event<Thread> {
             }
 
             // Circuit is half open
-            if (cbData.getState() == CircuitBreaker.State.HALF_OPEN) {
+            if (cbData.getState() == CircuitBreakerState.BreakerState.HALF_OPEN) {
                 // Check if trial has been sent
                 if (cbData.getTrialThread() != null) {
                     double trialStartTime = cbData.getTrialThread().getCreationTime();
@@ -339,7 +339,7 @@ public class CPU extends Event<Thread> {
     private void openCircuit(CircuitBreakerData cbData) {
         String operationName = cbData.getOperation().getName();
 
-        cbData.setState(CircuitBreaker.State.OPEN);
+        cbData.setState(CircuitBreakerState.BreakerState.OPEN);
         cbData.setCbOpenTime(this.model.presentTime().getTimeAsDouble());
 
         if (!openCircuits.contains(operationName)) {
@@ -350,7 +350,7 @@ public class CPU extends Event<Thread> {
     private void closeCircuit(CircuitBreakerData cbData) {
         String operationName = cbData.getOperation().getName();
 
-        cbData.setState(CircuitBreaker.State.CLOSED);
+        cbData.setState(CircuitBreakerState.BreakerState.CLOSED);
         cbData.setTrialSent(false);
         cbData.setTrialThread(null);
 
@@ -362,7 +362,7 @@ public class CPU extends Event<Thread> {
     private void halfOpenCircuit(CircuitBreakerData cbData) {
         String operationName = cbData.getOperation().getName();
 
-        cbData.setState(CircuitBreaker.State.HALF_OPEN);
+        cbData.setState(CircuitBreakerState.BreakerState.HALF_OPEN);
         if (openCircuits.contains(operationName)) {
             openCircuits.remove(operationName);
         }
@@ -404,7 +404,7 @@ public class CPU extends Event<Thread> {
         if (operation.hasCircuitBreaker()) {
             CircuitBreakerData cbData = getCircuitBreakerData(operation.getName());
 
-            if (!(cbData.isTrialSent()) && (cbData.getState() == CircuitBreaker.State.HALF_OPEN)) {
+            if (!(cbData.isTrialSent()) && (cbData.getState() == CircuitBreakerState.BreakerState.HALF_OPEN)) {
                 cbData.setTrialThread(thread);
                 cbData.setTrialSent(true);
                 existingThreads.insert(thread);
@@ -413,7 +413,7 @@ public class CPU extends Event<Thread> {
                     openCircuits.add(operationName);
                 }
 
-            } else if (cbData.getState() == CircuitBreaker.State.OPEN) {
+            } else if (cbData.getState() == CircuitBreakerState.BreakerState.OPEN) {
                 // Circuit is open -> fallback/fail fast
                 double last = 0;
                 List<Double> values = MainModel.circuitBreakerStatistics.get(id).get(sid).getDataValues();
@@ -423,7 +423,7 @@ public class CPU extends Event<Thread> {
 
                 // Kill Thread
                 thread.scheduleEndEvent();
-            } else if (cbData.getState() == CircuitBreaker.State.CLOSED) {
+            } else if (cbData.getState() == CircuitBreakerState.BreakerState.CLOSED) {
                 cbData.increaseRequestVolume();
                 existingThreads.insert(thread);
             }

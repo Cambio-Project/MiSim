@@ -1,6 +1,7 @@
 package de.rss.fachstudie.MiSim.events;
 
 import co.paralleluniverse.fibers.SuspendExecution;
+import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
 import de.rss.fachstudie.MiSim.models.MainModel;
 import desmoj.core.simulator.ExternalEvent;
 import desmoj.core.simulator.Model;
@@ -20,7 +21,7 @@ public class FinishEvent extends ExternalEvent {
     @Override
     public void eventRoutine() throws SuspendExecution {
 
-        MainModel.microservices.forEach(microservice -> microservice.finalizeStatistics());
+        MainModel.microservices.forEach(Microservice::finalizeStatistics);
 
     }
 }

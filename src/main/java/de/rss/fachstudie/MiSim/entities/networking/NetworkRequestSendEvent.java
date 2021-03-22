@@ -21,6 +21,7 @@ public class NetworkRequestSendEvent extends NetworkRequestEvent {
     private final NumericalDist<Double> rng;
     private final Microservice targetService;
     private final MicroserviceInstance targetInstance;
+    private boolean isCanceled = false;
 
     public NetworkRequestSendEvent(Model model, String name, boolean showInTrace, Request request, MicroserviceInstance target) {
         this(model, name, showInTrace, request, null, target);
@@ -64,6 +65,7 @@ public class NetworkRequestSendEvent extends NetworkRequestEvent {
 
         //Apply custom latency and/or add delay of latency injection
         updateListener.onRequestSend(traveling_request, presentTime());
+        if(isCanceled) return; //this event might get canceled by the sending listeners
 
         MicroserviceInstance targetInstance = retrieveTargetInstance();
         if (targetInstance == null) {
@@ -82,10 +84,12 @@ public class NetworkRequestSendEvent extends NetworkRequestEvent {
     }
 
     private double customizeLatency(double nextDelay) {
+        if (this.traveling_request instanceof UserRequest) return 0;
+
         double modifiedDelay = nextDelay;
         if (traveling_request.hasParent()) {
             NetworkDependency dep = traveling_request.getParent().getRelatedDependency(traveling_request);
-            if(traveling_request instanceof RequestAnswer){
+            if (traveling_request instanceof RequestAnswer) {
                 Request parent = ((RequestAnswer) traveling_request).unpack();
                 dep = parent.getParent().getRelatedDependency(parent);
             }
@@ -124,4 +128,7 @@ public class NetworkRequestSendEvent extends NetworkRequestEvent {
         }
     }
 
+    public void setCanceled() {
+        this.isCanceled = true;
+    }
 }

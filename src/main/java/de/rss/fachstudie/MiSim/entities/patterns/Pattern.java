@@ -47,8 +47,7 @@ public abstract class Pattern extends Entity {
                     }
                     field.set(this, argumentValue);
                 }
-            } catch (IllegalAccessException ignored) {
-
+            } catch (IllegalAccessException e) {
             }
         }
 

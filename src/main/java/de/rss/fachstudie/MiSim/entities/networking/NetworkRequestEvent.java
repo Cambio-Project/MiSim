@@ -32,23 +32,27 @@ public abstract class NetworkRequestEvent extends ExternalEvent {
         //adapter, so each inheriting object only sees one anonymous updateListener
         updateListener = new IRequestUpdateListener() {
             @Override
-            public void onRequestFailed(final Request request, final TimeInstant when, final RequestFailedReason reason) {
+            public boolean onRequestFailed(final Request request, final TimeInstant when, final RequestFailedReason reason) {
                 updateListeners.forEach(listener -> listener.onRequestFailed(request, when, reason));
+                return true;
             }
 
             @Override
-            public void onRequestArrivalAtTarget(Request request, TimeInstant when) {
+            public boolean onRequestArrivalAtTarget(Request request, TimeInstant when) {
                 updateListeners.forEach(listener -> listener.onRequestArrivalAtTarget(request, when));
+                return true;
             }
 
             @Override
-            public void onRequestSend(Request request, TimeInstant when) {
+            public boolean onRequestSend(Request request, TimeInstant when) {
                 updateListeners.forEach(listener -> listener.onRequestSend(request, when));
+                return true;
             }
 
             @Override
-            public void onRequestResultArrivedAtRequester(Request request, TimeInstant when) {
+            public boolean onRequestResultArrivedAtRequester(Request request, TimeInstant when) {
                 updateListeners.forEach(listener -> listener.onRequestResultArrivedAtRequester(request, when));
+                return true;
             }
         };
     }
