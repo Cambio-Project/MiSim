@@ -16,7 +16,7 @@ class UtilizationBalanceStrategy implements LoadBalancingStrategy {
     @Override
     public MicroserviceInstance getNextInstance(Collection<MicroserviceInstance> runningInstances) {
         return runningInstances.stream()
-                .min(Comparator.comparingDouble(MicroserviceInstance::getUsage))
+                .min(Comparator.comparingDouble(MicroserviceInstance::getRelativeWorkDemand))
                 .orElse(null);
     }
 }

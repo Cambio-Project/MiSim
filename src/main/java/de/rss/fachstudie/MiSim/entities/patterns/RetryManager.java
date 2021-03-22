@@ -95,7 +95,7 @@ public class RetryManager extends NetworkPattern implements IRequestUpdateListen
     }
 
     @Override
-    public void close() {
+    public void shutdown() {
         requestIndex.clear();
         traceOn();
         sendTraceNote(String.format("Clearing Retry %s", this.getQuotedName()));

@@ -69,7 +69,7 @@ public final class CircuitBreaker extends NetworkPattern implements IRequestUpda
 
 
     @Override
-    public void close() {
+    public void shutdown() {
         activeConnections.clear();
         breakerStates.clear();
         collectData(presentTime());

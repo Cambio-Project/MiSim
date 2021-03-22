@@ -2,8 +2,8 @@ package de.rss.fachstudie.MiSim.entities.microservice;
 
 import de.rss.fachstudie.MiSim.entities.networking.*;
 import de.rss.fachstudie.MiSim.entities.patterns.CircuitBreaker;
+import de.rss.fachstudie.MiSim.entities.patterns.InstanceOwnedPattern;
 import de.rss.fachstudie.MiSim.entities.patterns.NetworkPattern;
-import de.rss.fachstudie.MiSim.entities.patterns.Pattern;
 import de.rss.fachstudie.MiSim.entities.patterns.RetryManager;
 import de.rss.fachstudie.MiSim.export.MultiDataPointReporter;
 import de.rss.fachstudie.MiSim.parsing.PatternData;
@@ -34,7 +34,7 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
 
     private final MultiDataPointReporter reporter;
 
-    private Set<Pattern> patterns = new HashSet<>();
+    private Set<InstanceOwnedPattern> patterns = new HashSet<>();
 
     //debugging lists
     private List<NetworkDependency> closedDependencies = new ArrayList<>();
@@ -57,7 +57,8 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
 
     public void activatePatterns(PatternData[] patterns) {
         this.patterns = Arrays.stream(patterns)
-                .map(patternData -> patternData.getNewInstance(this))
+                .map(patternData -> patternData.tryGetOwnedInstanceOrNull(this))
+                .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
         this.patterns.stream()
                 .filter(pattern -> pattern instanceof NetworkPattern)
@@ -65,6 +66,10 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
     }
 
     public double getUsage() {
+        return this.cpu.getCurrentUsage();
+    }
+
+    public double getRelativeWorkDemand(){
         return this.cpu.getCurrentRelativeWorkDemand();
     }
 
@@ -184,8 +189,8 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
     }
 
     public final void startShutdown() {
-        if (!(this.state == InstanceState.CREATED || this.state == InstanceState.SHUTDOWN)) {
-            throw new IllegalStateException(String.format("Cannot start Instance %s: Was not recently created or Shutdown. (Current State [%s])", this.getQuotedName(), state.name()));
+        if (!(this.state == InstanceState.CREATED || this.state == InstanceState.RUNNING)) {
+            throw new IllegalStateException(String.format("Cannot shutdown Instance %s: Was not recently created or is  not running. (Current State [%s])", this.getQuotedName(), state.name()));
         }
         changeState(InstanceState.SHUTTING_DOWN);
     }
@@ -204,7 +209,7 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
         changeState(InstanceState.KILLED);
 
 
-        patterns.forEach(Pattern::close);
+        patterns.forEach(InstanceOwnedPattern::shutdown);
 
         //clears all currently running calculations
         cpu.clear();

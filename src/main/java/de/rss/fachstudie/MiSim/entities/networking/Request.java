@@ -288,7 +288,7 @@ public abstract class Request extends Entity {
 //            request = ((RequestAnswer) request).unpack();
 
 
-        // (may be fixed) TODO: minor: Completed UserRequests sometimes appear here if a MicroserviceInstance#close call has priority over the IRequestUpdateListener#onRequestArrivalAtTarget
+        // (may be fixed) TODO: minor: Completed UserRequests sometimes appear here if a MicroserviceInstance#shutdown call has priority over the IRequestUpdateListener#onRequestArrivalAtTarget
 //        if (request instanceof UserRequest && request.isCompleted()) {
 //            return;
 //        }

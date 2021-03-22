@@ -2,7 +2,6 @@ package de.rss.fachstudie.MiSim.parsing;
 
 import de.rss.fachstudie.MiSim.entities.Operation;
 import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
-import de.rss.fachstudie.MiSim.entities.patterns.Pattern;
 import desmoj.core.simulator.Model;
 
 import java.util.Arrays;
@@ -17,7 +16,7 @@ public class MicroservicePOJO {
     public int instances = 0;
     public int capacity = 0;
     public String loadbalancer_strategy = null;
-    public PatternData[] patterns = null;
+    public PatternData[] patterns = new PatternData[0];
     public OperationParser[] operations;
 
     public Microservice convertToMicroservice(Model model, boolean showInTrace) {

@@ -2,9 +2,10 @@ package de.rss.fachstudie.MiSim.entities.microservice;
 
 import de.rss.fachstudie.MiSim.entities.Operation;
 import de.rss.fachstudie.MiSim.entities.networking.NoInstanceAvailableException;
+import de.rss.fachstudie.MiSim.entities.patterns.InstanceOwnedPattern;
 import de.rss.fachstudie.MiSim.entities.patterns.LoadBalancer;
 import de.rss.fachstudie.MiSim.entities.patterns.LoadBalancingStrategy;
-import de.rss.fachstudie.MiSim.entities.patterns.Pattern;
+import de.rss.fachstudie.MiSim.entities.patterns.ServiceOwnedPattern;
 import de.rss.fachstudie.MiSim.export.ContinuousMultiDataPointReporter;
 import de.rss.fachstudie.MiSim.export.MultiDataPointReporter;
 import de.rss.fachstudie.MiSim.parsing.PatternData;
@@ -13,10 +14,8 @@ import desmoj.core.simulator.Entity;
 import desmoj.core.simulator.Event;
 import desmoj.core.simulator.Model;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * A Microservice represents a collection of services. Each instance is able to call operations to another service
@@ -37,16 +36,18 @@ public class Microservice extends Entity {
     private final Set<MicroserviceInstance> instancesSet = new HashSet<>();
     private int targetInstanceCount = 0;
     private final LoadBalancer loadBalancer;
-    private Pattern[] spatterns = null;
+    private InstanceOwnedPattern[] spatterns = null;
     private Operation[] operations;
     private int instanceSpawnCounter = 0;
     private final MultiDataPointReporter reporter;
     private PatternData[] patterns;
 
+    private ServiceOwnedPattern[] ownedPatterns;
+
     public Microservice(Model model, String name, boolean showInTrace) {
         super(model, name, showInTrace);
         setName(name);
-        spatterns = new Pattern[]{};
+        spatterns = new InstanceOwnedPattern[]{};
         loadBalancer = new LoadBalancer(model, "Loadbalancer of " + this.getQuotedName(), traceIsOn(), instancesSet);
         setLoadBalancingStrategy("random");//defaulting to random lb
         reporter = new ContinuousMultiDataPointReporter(String.format("S[%s]_", name));
@@ -55,6 +56,10 @@ public class Microservice extends Entity {
     public synchronized void start() {
         started = true;
         scaleToInstancesCount(targetInstanceCount);
+        ownedPatterns = Arrays.stream(patterns)
+                .map(patternData -> patternData.tryGetServiceOwnedInstanceOrNull(this))
+                .filter(Objects::nonNull)
+                .toArray(ServiceOwnedPattern[]::new);
     }
 
     public boolean isKilled() {
@@ -89,16 +94,16 @@ public class Microservice extends Entity {
         this.name = name;
     }
 
-    public Pattern[] getPatterns() {
+    public InstanceOwnedPattern[] getPatterns() {
         if (spatterns == null) {
-            spatterns = new Pattern[]{};
+            spatterns = new InstanceOwnedPattern[]{};
         }
         return spatterns;
     }
 
-    public synchronized void setPatterns(Pattern[] patterns) {
+    public synchronized void setPatterns(InstanceOwnedPattern[] patterns) {
         if (spatterns == null) {
-            spatterns = new Pattern[]{};
+            spatterns = new InstanceOwnedPattern[]{};
         }
         this.spatterns = patterns;
     }
@@ -113,7 +118,7 @@ public class Microservice extends Entity {
         return false;
     }
 
-    public Pattern getPattern(String name) {
+    public InstanceOwnedPattern getPattern(String name) {
 
         return null;
     }
@@ -252,5 +257,17 @@ public class Microservice extends Entity {
 
     public void setPatternData(PatternData[] patterns) {
         this.patterns = patterns;
+    }
+
+    public double getAverageRelativeUtilization() {
+        return instancesSet.stream().mapToDouble(MicroserviceInstance::getUsage).average().orElse(0);
+    }
+
+    public List<Double> getUtilizations() {
+        return instancesSet.stream().map(MicroserviceInstance::getUsage).collect(Collectors.toList());
+    }
+
+    public double getAverageUtilization() {
+        return getUtilizations().stream().mapToDouble(value -> value).average().orElse(0);
     }
 }
