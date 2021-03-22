@@ -2,7 +2,6 @@ package de.rss.fachstudie.MiSim.resources;
 
 import co.paralleluniverse.fibers.SuspendExecution;
 import de.rss.fachstudie.MiSim.entities.microservice.MicroserviceInstance;
-import de.rss.fachstudie.MiSim.entities.networking.Request;
 import de.rss.fachstudie.MiSim.export.MultiDataPointReporter;
 import desmoj.core.simulator.ExternalEvent;
 import desmoj.core.simulator.Model;
@@ -67,7 +66,7 @@ public class CPUImpl extends ExternalEvent {
         super(model, name, showInTrace);
         String[] names = name.split("_");
         this.scheduler = scheduler;
-        this.capacity_per_thread = capacity;
+        this.capacity_per_thread = capacity / threadPoolSize;
         this.threadPoolSize = threadPoolSize;
         activeProcesses = new HashSet<>(threadPoolSize);
         reporter = new MultiDataPointReporter(String.format("C%s_[%s]_", names[0], names[1]));
@@ -131,7 +130,7 @@ public class CPUImpl extends ExternalEvent {
 
         reporter.addDatapoint("ActiveProcesses", presentTime(), activeProcesses.size());
         reporter.addDatapoint("TotalProcesses", presentTime(), getProcessesCount());
-        reporter.addDatapoint("Usage", presentTime(), activeProcesses.size() / (double) threadPoolSize);
+        reporter.addDatapoint("Usage", presentTime(), (double) activeProcesses.size() / threadPoolSize);
 
     }
 
@@ -147,12 +146,18 @@ public class CPUImpl extends ExternalEvent {
         return scheduler.size() + activeProcesses.size();
     }
 
-
+    /**
+     * @return the remaining amount of cycles to complete the current workload
+     */
     public double getCurrentRelativeWorkDemand() {
         int totalQueuedWorkRemainder = scheduler.getTotalWorkDemand();
         double activeWorkRemainder = activeProcesses.stream().mapToDouble(value -> value.getDemandRemainder(presentTime(), capacity_per_thread)).sum();
         double workTotal = totalQueuedWorkRemainder + activeWorkRemainder;
         return workTotal / (threadPoolSize * capacity_per_thread);
+    }
+
+    public double getCurrentUsage() {
+        return (double) activeProcesses.size() / threadPoolSize;
     }
 
     /**
