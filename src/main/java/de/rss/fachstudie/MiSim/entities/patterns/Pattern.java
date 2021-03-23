@@ -8,7 +8,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -22,9 +21,12 @@ public abstract class Pattern extends Entity {
     }
 
     /**
-     * Reflectively initializes all fields based on name and arguments Fields marked as {@code final} will not be set
-     * properly. (In IntelliJ debugging they appear correctly, but they are not!) However, they can be set to {@code
-     * private}.
+     * Reflectively initializes all fields based on name and arguments.
+     * <br>
+     * Fields marked as {@code final} will not be set properly. (In IntelliJ debugging they appear to be correct, but
+     * they are not!)
+     * <br>
+     * However, they can be set to {@code private}.
      * <p>
      * Mark fields that should be injected from with the {@code FromJson} annotation.
      *
