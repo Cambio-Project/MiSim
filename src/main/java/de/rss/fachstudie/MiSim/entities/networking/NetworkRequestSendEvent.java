@@ -3,6 +3,7 @@ package de.rss.fachstudie.MiSim.entities.networking;
 import co.paralleluniverse.fibers.SuspendExecution;
 import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
 import de.rss.fachstudie.MiSim.entities.microservice.MicroserviceInstance;
+import de.rss.fachstudie.MiSim.entities.microservice.NoInstanceAvailableException;
 import desmoj.core.dist.ContDistNormal;
 import desmoj.core.dist.NumericalDist;
 import desmoj.core.simulator.Model;
@@ -12,32 +13,30 @@ import desmoj.core.simulator.TimeSpan;
  * Event that represents the sending of a request.
  * <p>
  * Can introduce network delay.
+ * <p>
+ * May be canceled during (and before) the travelling time of the request.
  *
  * @author Lion Wagner
  */
 public class NetworkRequestSendEvent extends NetworkRequestEvent {
 
     private NetworkRequestReceiveEvent receiverEvent;
-    private final NumericalDist<Double> rng;
     private final Microservice targetService;
     private final MicroserviceInstance targetInstance;
     private boolean isCanceled = false;
 
     public NetworkRequestSendEvent(Model model, String name, boolean showInTrace, Request request, MicroserviceInstance target) {
         this(model, name, showInTrace, request, null, target);
-//        Objects.requireNonNull(target);
     }
 
     public NetworkRequestSendEvent(Model model, String name, boolean showInTrace, Request request, Microservice target) {
         this(model, name, showInTrace, request, target, null);
-//        Objects.requireNonNull(target);
     }
 
     private NetworkRequestSendEvent(Model model, String name, boolean showInTrace, Request request, Microservice targetService, MicroserviceInstance targetInstance) {
         super(model, name, showInTrace, request);
         this.targetService = targetService;
         this.targetInstance = targetInstance;
-        rng = new ContDistNormal(model, name + "_RNG", 20, 10, true, false);
         request.setSendEvent(this);
     }
 
@@ -55,6 +54,7 @@ public class NetworkRequestSendEvent extends NetworkRequestEvent {
             return;
         }
 
+        NumericalDist<Double> rng = new ContDistNormal(getModel(), getName() + "_RNG", 20, 10, true, false);
         //calculate next delay
         double nextDelay;
         do {
@@ -65,7 +65,7 @@ public class NetworkRequestSendEvent extends NetworkRequestEvent {
 
         //Apply custom latency and/or add delay of latency injection
         updateListener.onRequestSend(traveling_request, presentTime());
-        if(isCanceled) return; //this event might get canceled by the sending listeners
+        if (isCanceled) return; //this event might get canceled by the sending listeners
 
         MicroserviceInstance targetInstance = retrieveTargetInstance();
         if (targetInstance == null) {
@@ -105,6 +105,8 @@ public class NetworkRequestSendEvent extends NetworkRequestEvent {
 
     public void cancel() {
         super.cancel();
+
+        setCanceled();
 
         // An answer to a UserRequest cannot be canceled, since they are not send back to the user.
         // Rather they are considered completed once the answer is send by the handling instance.
