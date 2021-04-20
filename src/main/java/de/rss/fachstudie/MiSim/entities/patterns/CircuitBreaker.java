@@ -14,21 +14,36 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-
 /**
  * Manager class of all CircuitBreakers of one Microservice Instance.
+ * <p>
+ * Creates a {@code CircuitBreakerState} for each connection to another {@code Microservice} of the owning {@code
+ * MicroserviceInstance}
+ * <p>
+ * This class is a {@code NetworkPattern} and therefore monitors all requests send by its owning {@code
+ * MicroserviceInstance}.
+ *
+ * @author Lion Wagner
+ * @see CircuitBreakerState
+ * @see Microservice
+ * @see MicroserviceInstance
  */
 public final class CircuitBreaker extends NetworkPattern implements IRequestUpdateListener {
 
     @FromJson
+    @SuppressWarnings("FieldMayBeFinal")
     private int requestVolumeThreshold = Integer.MAX_VALUE;
     @FromJson
+    @SuppressWarnings("FieldMayBeFinal")
     private double errorThresholdPercentage = Double.POSITIVE_INFINITY;
     @FromJson
+    @SuppressWarnings("FieldMayBeFinal")
     private double sleepWindow = 0.500;
     @FromJson
+    @SuppressWarnings("FieldMayBeFinal")
     private int timeout = Integer.MAX_VALUE;
     @FromJson
+    @SuppressWarnings("FieldMayBeFinal")
     private int rollingWindow = 20; //window over which error rates are collected
 
     private final Set<NetworkDependency> activeConnections = new HashSet<>();
@@ -46,27 +61,6 @@ public final class CircuitBreaker extends NetworkPattern implements IRequestUpda
     public int getListeningPriority() {
         return Priority.HIGH;
     }
-
-    public int getRollingWindow() {
-        return rollingWindow;
-    }
-
-    public int getRequestVolumeThreshold() {
-        return requestVolumeThreshold;
-    }
-
-    public double getErrorThresholdPercentage() {
-        return errorThresholdPercentage;
-    }
-
-    public double getSleepWindow() {
-        return sleepWindow;
-    }
-
-    public int getTimeout() {
-        return timeout;
-    }
-
 
     @Override
     public void shutdown() {
@@ -91,7 +85,7 @@ public final class CircuitBreaker extends NetworkPattern implements IRequestUpda
         if (state.isOpen()) {
 //            owner.updateListenerProxy.onRequestFailed(request, when, RequestFailedReason.CIRCUIT_IS_OPEN);
             request.cancelSending();
-            NetworkRequestEvent cancelEvent = new NetworkRequestCanceledEvent(getModel(), String.format("Canceling of %s", request.getQuotedName()),true,request,RequestFailedReason.CIRCUIT_IS_OPEN);
+            NetworkRequestEvent cancelEvent = new NetworkRequestCanceledEvent(getModel(), String.format("Canceling of %s", request.getQuotedName()), true, request, RequestFailedReason.CIRCUIT_IS_OPEN);
             cancelEvent.schedule();
             consumed = true;
         } else {

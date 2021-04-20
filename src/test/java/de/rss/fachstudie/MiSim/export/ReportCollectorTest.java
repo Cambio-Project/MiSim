@@ -42,21 +42,21 @@ class ReportCollectorTest {
     void collects_output_correctly() {
         new TestReporter(1);
         new TestReporter(2);
-        HashMap<String, TreeMap<TimeInstant, Object>> out = ReportCollector.getInstance().collect_data();
-        Map<TimeInstant, Object> dataset1 = out.get("dataset1");
-        Map<TimeInstant, Object> dataset2 = out.get("dataset2");
-        assertTrue(dataset1.containsKey(new TimeInstant(0)));
-        assertTrue(dataset1.containsKey(new TimeInstant(1)));
-        assertTrue(dataset2.containsKey(new TimeInstant(0)));
-        assertTrue(dataset2.containsKey(new TimeInstant(1)));
+        HashMap<String, TreeMap<Double, Object>> out = ReportCollector.getInstance().collect_data();
+        TreeMap<Double, Object> dataset1 = out.get("dataset1");
+        TreeMap<Double, Object> dataset2 = out.get("dataset2");
+        assertTrue(dataset1.containsKey(0));
+        assertTrue(dataset1.containsKey(1));
+        assertTrue(dataset2.containsKey(0));
+        assertTrue(dataset2.containsKey(1));
     }
 
     @Test
     void combines_correctly() {
         new TestReporter(1).addDatapoint("dataset2", new TimeInstant(3), 22); //adds 1 datapoint to dataset2
         new TestReporter(2); //adds 2 datapoints to dataset2
-        HashMap<String, TreeMap<TimeInstant, Object>> out = ReportCollector.getInstance().collect_data();
-        Map<TimeInstant, Object> dataset2 = out.get("dataset2");
+        HashMap<String, TreeMap<Double, Object>> out = ReportCollector.getInstance().collect_data();
+        Map<Double, Object> dataset2 = out.get("dataset2");
         assertEquals(3, dataset2.size());
     }
 }

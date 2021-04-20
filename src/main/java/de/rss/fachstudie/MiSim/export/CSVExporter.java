@@ -2,7 +2,6 @@ package de.rss.fachstudie.MiSim.export;
 
 import desmoj.core.report.AbstractTableFormatter;
 import desmoj.core.report.FileOutput;
-import desmoj.core.simulator.TimeInstant;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -12,35 +11,35 @@ import java.util.Map;
  * @author Lion Wagner
  */
 class CSVExporter extends AbstractTableFormatter {
-
-    private static final Path REPORT_FOLDER = Paths.get("Report", "raw");
     private static final String FILE_EXTENSION = ".csv";
 
     private final FileOutput out;
 
-    private CSVExporter(String datasetName) {
-        this(datasetName, ";");
+    private CSVExporter(String datasetName, Path reportFolder) {
+        this(datasetName, ";", reportFolder);
     }
 
-    private CSVExporter(String datasetName, String seperator) {
-        REPORT_FOLDER.toFile().mkdirs();
-        Path targetFilePath = Paths.get(String.valueOf(REPORT_FOLDER), datasetName + FILE_EXTENSION);
+    private CSVExporter(String datasetName, String seperator, Path reportFolder) {
+        Path targetFolder = Paths.get(String.valueOf(reportFolder), "raw");
+        targetFolder.toFile().mkdirs();
+        Path targetFilePath = Paths.get(String.valueOf(targetFolder), datasetName + FILE_EXTENSION);
         FileOutput.setSeparator(seperator);
         out = new FileOutput();
         out.open(targetFilePath.toAbsolutePath().toString());
     }
 
-    public static void writeDataset(String datasetName, Map<TimeInstant, Object> dataset) {
-        writeDataset(datasetName, "Value", dataset);
+    public static void writeDataset(String datasetName, Map<Double, Object> dataset, Path reportFolder) {
+        writeDataset(datasetName, "Value", dataset, reportFolder);
     }
 
-    public static void writeDataset(String datasetName, String name_value_column, Map<TimeInstant, Object> dataset) {
+    public static void writeDataset(String datasetName, String name_value_column, Map<Double, Object> dataset, Path reportFolder) {
+
         final String separator = ";";
-        AbstractTableFormatter exporter = new CSVExporter(datasetName, separator);
+        AbstractTableFormatter exporter = new CSVExporter(datasetName, separator, reportFolder);
 
         exporter.openTable("Time" + separator + name_value_column + separator);
 
-        for (Map.Entry<TimeInstant, Object> entry : dataset.entrySet()) {
+        for (Map.Entry<Double, Object> entry : dataset.entrySet()) {
             exporter.openRow();
             exporter.writeCell(entry.getKey().toString(), 1);
             exporter.writeCell(String.valueOf(entry.getValue()), 1);

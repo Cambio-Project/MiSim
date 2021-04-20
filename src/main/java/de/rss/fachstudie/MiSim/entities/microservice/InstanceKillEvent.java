@@ -7,6 +7,8 @@ import desmoj.core.simulator.Event;
 import desmoj.core.simulator.Model;
 
 /**
+ * For now this is an unused event that represents the killing of an instance.
+ *
  * @author Lion Wagner
  */
 public class InstanceKillEvent extends Event<MicroserviceInstance> {

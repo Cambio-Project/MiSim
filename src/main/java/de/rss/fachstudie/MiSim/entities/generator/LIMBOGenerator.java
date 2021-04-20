@@ -1,6 +1,6 @@
 package de.rss.fachstudie.MiSim.entities.generator;
 
-import de.rss.fachstudie.MiSim.entities.Operation;
+import de.rss.fachstudie.MiSim.entities.microservice.Operation;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 import org.javatuples.Pair;

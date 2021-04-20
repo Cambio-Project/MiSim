@@ -1,6 +1,6 @@
 package de.rss.fachstudie.MiSim.parsing;
 
-import de.rss.fachstudie.MiSim.entities.Operation;
+import de.rss.fachstudie.MiSim.entities.microservice.Operation;
 import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
 import desmoj.core.simulator.Model;
 
@@ -29,9 +29,8 @@ public class MicroservicePOJO {
         Operation[] operations_obj = Arrays.stream(operations)
                 .map(operationParser -> operationParser.convertToOperation(model, showInTrace, service))
                 .toArray(value -> new Operation[operations.length]);
-        service.setOperations(operations_obj);
-
         service.setPatternData(patterns);
+        service.setOperations(operations_obj);
 
 
         return service;

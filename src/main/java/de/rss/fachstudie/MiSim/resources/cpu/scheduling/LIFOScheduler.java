@@ -1,23 +1,24 @@
-package de.rss.fachstudie.MiSim.resources;
+package de.rss.fachstudie.MiSim.resources.cpu.scheduling;
 
+import de.rss.fachstudie.MiSim.resources.cpu.CPUProcess;
 import org.javatuples.Pair;
 
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 /**
- * <b>F</b>irst <b>i</b>n <b>f</b>irst <b>o</b>ut scheduler.
+ * <b>L</b>ast <b>i</b>n <b>f</b>irst <b>o</b>ut scheduler.
  * <p>
- * Schedules all entered processes in the same order that they arrived in. Always assigns the full work demand needed
- * for a processes.
+ * Schedules all entered processes in the reversed order that they arrived in. The processes that entered last, will be
+ * retrieved first. Always assigns the full work demand needed for a processes.
  *
  * @author Lion Wagner
  */
-public class FIFOScheduler extends CPUProcessScheduler {
+public class LIFOScheduler extends CPUProcessScheduler {
 
-    private final Queue<CPUProcess> processes = new LinkedList<>();
+    private final Deque<CPUProcess> processes = new ArrayDeque<>();
 
-    public FIFOScheduler(String name) {
+    public LIFOScheduler(String name) {
         super(name);
     }
 
@@ -30,7 +31,7 @@ public class FIFOScheduler extends CPUProcessScheduler {
     @Override
     public synchronized void enterProcess(CPUProcess process) {
         if (!processes.contains(process))
-            processes.add(process);
+            processes.push(process);
     }
 
     /**
@@ -45,7 +46,7 @@ public class FIFOScheduler extends CPUProcessScheduler {
         }
 
         int demand = processes.peek().getDemandTotal();
-        return new Pair<>(processes.poll(), demand);
+        return new Pair<>(processes.pop(), demand);
     }
 
     /**

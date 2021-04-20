@@ -1,6 +1,8 @@
 package de.rss.fachstudie.MiSim.resources;
 
 
+import de.rss.fachstudie.MiSim.resources.cpu.CPUProcess;
+import de.rss.fachstudie.MiSim.resources.cpu.scheduling.CPUProcessScheduler;
 import org.javatuples.Pair;
 import org.junit.jupiter.api.*;
 import testutils.TestExperiment;

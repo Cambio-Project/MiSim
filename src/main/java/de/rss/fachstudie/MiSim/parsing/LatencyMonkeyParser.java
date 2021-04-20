@@ -1,14 +1,13 @@
 package de.rss.fachstudie.MiSim.parsing;
 
-import de.rss.fachstudie.MiSim.entities.Dependency;
-import de.rss.fachstudie.MiSim.entities.Operation;
 import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
+import de.rss.fachstudie.MiSim.entities.microservice.Operation;
+import de.rss.fachstudie.MiSim.entities.networking.Dependency;
 import de.rss.fachstudie.MiSim.events.LatencyMonkeyEvent;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 
 import java.util.Arrays;
-import java.util.Set;
 
 /**
  * @author Lion Wagner
@@ -26,16 +25,21 @@ public final class LatencyMonkeyParser extends Parser<LatencyMonkeyEvent> {
 
 
     @Override
-    public LatencyMonkeyEvent convertToObject(Model model, Set<Microservice> microservices) {
+    public LatencyMonkeyEvent convertToObject(Model model) {
         try {
-            return parse(model, microservices);
+            return parse(model);
         } catch (IllegalArgumentException e) {
             throw new ParsingException("Could not parse latency injector.", e);
         }
     }
 
-    private LatencyMonkeyEvent parse(Model model, Set<Microservice> microservices) throws IllegalArgumentException {
-        Microservice service = getMircoserviceFromName(microservice, microservices);
+    @Override
+    public String getDescriptionKey() {
+        return "latencymonkeys";
+    }
+
+    private LatencyMonkeyEvent parse(Model model) throws IllegalArgumentException {
+        Microservice service = getMircoserviceFromName(microservice);
 
 
         if (time == null) {
@@ -43,7 +47,7 @@ public final class LatencyMonkeyParser extends Parser<LatencyMonkeyEvent> {
         }
 
 
-        Operation src_op = service.getOperation(operation_src);
+        Operation src_op = service.getOperationByName(operation_src);
         Operation trg_op =
                 src_op == null ?
                         null :

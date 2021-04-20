@@ -11,8 +11,8 @@ import java.util.*;
  */
 public class Table {
 
-    private TreeMap<String, List<Double>> values;
-    private String header;
+    private final TreeMap<String, List<Double>> values;
+    private final String header;
     private boolean empty = true;
 
     /**

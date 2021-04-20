@@ -1,5 +1,6 @@
-package de.rss.fachstudie.MiSim.resources;
+package de.rss.fachstudie.MiSim.resources.cpu.scheduling;
 
+import de.rss.fachstudie.MiSim.resources.cpu.CPUProcess;
 import org.javatuples.Pair;
 
 import java.util.ArrayList;
@@ -32,11 +33,11 @@ public class MLFQScheduler extends CPUProcessScheduler {
         this(name, 3);
     }
 
-    public MLFQScheduler(String name, int levels) {
+    public MLFQScheduler(String name, int layer_count) {
         super(name);
-        if (levels <= 0) throw new IllegalArgumentException("Level count has to be positive.");
+        if (layer_count <= 0) throw new IllegalArgumentException("Level count has to be positive.");
 
-        for (int i = 0; i < levels; i++) {
+        for (int i = 0; i < layer_count; i++) {
             queues.add(new RoundRobinScheduler(name + "_Queue" + i));
         }
     }

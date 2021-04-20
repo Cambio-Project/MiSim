@@ -1,7 +1,5 @@
 package de.rss.fachstudie.MiSim.entities.microservice;
 
-import de.rss.fachstudie.MiSim.entities.Operation;
-import de.rss.fachstudie.MiSim.entities.networking.NoInstanceAvailableException;
 import de.rss.fachstudie.MiSim.entities.patterns.InstanceOwnedPattern;
 import de.rss.fachstudie.MiSim.entities.patterns.LoadBalancer;
 import de.rss.fachstudie.MiSim.entities.patterns.LoadBalancingStrategy;
@@ -15,39 +13,50 @@ import desmoj.core.simulator.Event;
 import desmoj.core.simulator.Model;
 
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
- * A Microservice represents a collection of services. Each instance is able to call operations to another service
- * instance.
+ * A Microservice is one of the core Entities of the simulation. It represents the meta layer of a microservice that is
+ * usually present in its managing platform, e.g. CloudFoundry.
  * <p>
- * model:       reference to the experiment model id:          internal unique number to identify a service sid: service
- * id (maps to the number of existing instances) name:        the given name of the service, defined by the input CPU:
- * the computing power a microservice has available instances:   number of instances a service can create operations: an
- * array of dependent operations
+ * Specifically, it can take care of starting, killing and shutting down {@code MicroserviceInstance}s (in the following
+ * just called instances) and provides meta data to each instance. For example, a {@code Microservice} object knows
+ * which resilience patterns should be implemented by each instance and how many resources each instances is assigned.
+ * Naturally it also knows the status of all existing (including killed ones) instances of this service.
+ * <p>
+ * Further it has the ability to apply resilience patterns such as autoscaling and different types of load balancing to
+ * itself.
+ * <p>
+ * The interface of a {@code Microservice} is defined via its operations.
+ *
+ * @author Lion Wagner
+ * @see MicroserviceInstance
+ * @see LoadBalancingStrategy
+ * @see ServiceOwnedPattern
+ * @see InstanceOwnedPattern
  */
 public class Microservice extends Entity {
-    private boolean killed = false;
     private boolean started = false;
-    private int id;
-    private int sid;
     private String name = "";
     private int capacity = 0;
-    private final Set<MicroserviceInstance> instancesSet = new HashSet<>();
     private int targetInstanceCount = 0;
-    private final LoadBalancer loadBalancer;
-    private InstanceOwnedPattern[] spatterns = null;
-    private Operation[] operations;
-    private int instanceSpawnCounter = 0;
-    private final MultiDataPointReporter reporter;
-    private PatternData[] patterns;
+    private int instanceSpawnCounter = 0; // running counter to create instance ID's
 
-    private ServiceOwnedPattern[] ownedPatterns;
+    private final Set<MicroserviceInstance> instancesSet = new HashSet<>();
+
+    private Operation[] operations;
+
+    private PatternData[] patternsData;
+    private ServiceOwnedPattern[] serviceOwnedPatterns;
+
+    private final LoadBalancer loadBalancer;
+
+    private final MultiDataPointReporter reporter;
 
     public Microservice(Model model, String name, boolean showInTrace) {
         super(model, name, showInTrace);
         setName(name);
-        spatterns = new InstanceOwnedPattern[]{};
         loadBalancer = new LoadBalancer(model, "Loadbalancer of " + this.getQuotedName(), traceIsOn(), instancesSet);
         setLoadBalancingStrategy("random");//defaulting to random lb
         reporter = new ContinuousMultiDataPointReporter(String.format("S[%s]_", name));
@@ -56,34 +65,10 @@ public class Microservice extends Entity {
     public synchronized void start() {
         started = true;
         scaleToInstancesCount(targetInstanceCount);
-        ownedPatterns = Arrays.stream(patterns)
-                .map(patternData -> patternData.tryGetServiceOwnedInstanceOrNull(this))
+        serviceOwnedPatterns = Arrays.stream(patternsData)
+                .map(patternData -> patternData.tryGetServiceOwnedPatternOrNull(this))
                 .filter(Objects::nonNull)
                 .toArray(ServiceOwnedPattern[]::new);
-    }
-
-    public boolean isKilled() {
-        return killed;
-    }
-
-    public void setKilled(boolean killed) {
-        this.killed = killed;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public int getSid() {
-        return sid;
-    }
-
-    public void setSid(int sid) {
-        this.sid = sid;
     }
 
     public String getName() {
@@ -94,41 +79,16 @@ public class Microservice extends Entity {
         this.name = name;
     }
 
-    public InstanceOwnedPattern[] getPatterns() {
-        if (spatterns == null) {
-            spatterns = new InstanceOwnedPattern[]{};
-        }
-        return spatterns;
-    }
-
-    public synchronized void setPatterns(InstanceOwnedPattern[] patterns) {
-        if (spatterns == null) {
-            spatterns = new InstanceOwnedPattern[]{};
-        }
-        this.spatterns = patterns;
-    }
-
-    /**
-     * Check if the <code>Microservice</code> implements the passed pattern.
-     *
-     * @param type String: The type of the pattern
-     * @return boolean: True if the pattern is implemented False if the pattern isn't implemented
-     */
-    public boolean hasPattern(String type) {
-        return false;
-    }
-
-    public InstanceOwnedPattern getPattern(String name) {
-
-        return null;
-    }
-
     public int getCapacity() {
         return capacity;
     }
 
-    public synchronized void setCapacity(int capacity) {
+    public void setCapacity(int capacity) {
         this.capacity = capacity;
+    }
+
+    public void setPatternData(PatternData[] patterns) {
+        this.patternsData = patterns;
     }
 
     public int getInstancesCount() {
@@ -141,7 +101,6 @@ public class Microservice extends Entity {
             scaleToInstancesCount(numberOfInstances);
     }
 
-
     public synchronized void scaleToInstancesCount(final int numberOfInstances) {
         if (!started)
             throw new IllegalStateException("Microservice was not started. Use start() first or setInstanceCount()");
@@ -153,7 +112,7 @@ public class Microservice extends Entity {
 
             if (getInstancesCount() < numberOfInstances) {
                 changedInstance = new MicroserviceInstance(getModel(), String.format("[%s]_I%d", getName(), instanceSpawnCounter), this.traceIsOn(), this, instanceSpawnCounter);
-                changedInstance.activatePatterns(patterns);
+                changedInstance.activatePatterns(patternsData);
                 instanceSpawnCounter++;
                 changeEvent = new InstanceStartupEvent(getModel(), "Instance Startup of " + changedInstance.getQuotedName(), traceIsOn());
                 instancesSet.add(changedInstance);
@@ -188,30 +147,27 @@ public class Microservice extends Entity {
      */
     public synchronized void killInstance() {
         //TODO: use UniformDistribution form desmoj
-        MicroserviceInstance instanceToKill = instancesSet.stream().findFirst().orElse(null);
+        MicroserviceInstance instanceToKill = instancesSet.stream().findAny().orElse(null);
         if (instanceToKill == null) return;
         instanceToKill.die();
         instancesSet.remove(instanceToKill);
         reporter.addDatapoint("InstanceCount", presentTime(), instancesSet.size());
     }
 
-
     public Operation[] getOperations() {
         return operations;
     }
 
-    public Operation getOperation(String name) {
+    public Operation getOperationByName(String name) {
+        Pattern searchPattern = Pattern.compile(String.format("^(\\Q%s\\E_)?\\(?\\Q%s\\E\\)?(#[0-9]*)?$", this.getName(), name));
         return Arrays.stream(operations)
-                .filter(operation -> operation.getName().matches(String.format("^(%s_)?\\(?%s\\)?(#[0-9]*)?$", this.getName(), name)))
+                .filter(operation -> searchPattern.matcher(operation.getName()).matches())
                 .findAny()
                 .orElse(null);
     }
 
     public void setOperations(Operation[] operations) {
         this.operations = operations;
-        for (Operation operation : operations) {
-            operation.setOwner(this);
-        }
     }
 
     /**
@@ -238,36 +194,35 @@ public class Microservice extends Entity {
     }
 
 
-    public void finalizeStatistics() {
-        reporter.addDatapoint("InstanceCount", presentTime(), instancesSet.size());
-    }
-
     public void applyDelay(NumericalDist<Double> dist, Operation operation_src, Operation operation_trg) {
         if (operation_trg == null) {
             if (operation_src == null) {
                 //delay all operations
                 for (Operation operation : operations) {
-                    operation.applyDelay(dist);
+                    operation.applyExtraDelay(dist);
                 }
                 return;
             }
         }
-        operation_src.applyDelay(dist, operation_trg);
+        operation_src.applyExtraDelay(dist, operation_trg);
     }
 
-    public void setPatternData(PatternData[] patterns) {
-        this.patterns = patterns;
+    public void finalizeStatistics() {
+        reporter.addDatapoint("InstanceCount", presentTime(), instancesSet.size());
     }
+
 
     public double getAverageRelativeUtilization() {
         return instancesSet.stream().mapToDouble(MicroserviceInstance::getUsage).average().orElse(0);
     }
 
-    public List<Double> getUtilizations() {
+    public List<Double> getUtilizationOfInstances() {
         return instancesSet.stream().map(MicroserviceInstance::getUsage).collect(Collectors.toList());
     }
 
     public double getAverageUtilization() {
-        return getUtilizations().stream().mapToDouble(value -> value).average().orElse(0);
+        return getUtilizationOfInstances().stream().mapToDouble(value -> value).average().orElse(0);
     }
+
+
 }

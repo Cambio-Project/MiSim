@@ -17,7 +17,7 @@ import java.util.HashMap;
  */
 public class ContinuousMultiDataPointReporter extends MultiDataPointReporter {
 
-    private HashMap<String, Object> previous_entries = new HashMap<>();
+    private final HashMap<String, Object> previous_entries = new HashMap<>();
 
     public ContinuousMultiDataPointReporter() {
     }

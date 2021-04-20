@@ -2,7 +2,7 @@ package de.rss.fachstudie.MiSim.entities.patterns;
 
 import de.rss.fachstudie.MiSim.entities.microservice.InstanceState;
 import de.rss.fachstudie.MiSim.entities.microservice.MicroserviceInstance;
-import de.rss.fachstudie.MiSim.entities.networking.NoInstanceAvailableException;
+import de.rss.fachstudie.MiSim.entities.microservice.NoInstanceAvailableException;
 import desmoj.core.simulator.Entity;
 import desmoj.core.simulator.Model;
 

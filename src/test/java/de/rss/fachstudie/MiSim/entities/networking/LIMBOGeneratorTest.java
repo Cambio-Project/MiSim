@@ -1,6 +1,6 @@
 package de.rss.fachstudie.MiSim.entities.networking;
 
-import de.rss.fachstudie.MiSim.entities.Operation;
+import de.rss.fachstudie.MiSim.entities.microservice.Operation;
 import de.rss.fachstudie.MiSim.entities.generator.GeneratorStopException;
 import de.rss.fachstudie.MiSim.entities.generator.LIMBOGenerator;
 import desmoj.core.simulator.Model;

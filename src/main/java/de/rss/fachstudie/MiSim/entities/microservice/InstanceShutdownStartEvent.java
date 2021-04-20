@@ -4,9 +4,13 @@ import co.paralleluniverse.fibers.SuspendExecution;
 import de.rss.fachstudie.MiSim.misc.Priority;
 import desmoj.core.simulator.Event;
 import desmoj.core.simulator.Model;
-import desmoj.core.simulator.TimeInstant;
 
 /**
+ * Triggers the instance to stats its shutdown process.
+ * <p>
+ * During the shutdown processes a {@code MicroserviceInstance} does not accept new requests but finishes the ones its
+ * currently handling.
+ *
  * @author Lion Wagner
  */
 public class InstanceShutdownStartEvent extends Event<MicroserviceInstance> {
@@ -19,6 +23,6 @@ public class InstanceShutdownStartEvent extends Event<MicroserviceInstance> {
 
     @Override
     public void eventRoutine(MicroserviceInstance microserviceInstance) throws SuspendExecution {
-       microserviceInstance.startShutdown();
+        microserviceInstance.startShutdown();
     }
 }

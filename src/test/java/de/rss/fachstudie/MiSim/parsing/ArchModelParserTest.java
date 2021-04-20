@@ -1,7 +1,7 @@
 package de.rss.fachstudie.MiSim.parsing;
 
 import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
-import de.rss.fachstudie.MiSim.entities.Operation;
+import de.rss.fachstudie.MiSim.entities.microservice.Operation;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -13,7 +13,7 @@ class ArchModelParserTest {
     @BeforeAll
     static void beforeAll() {
         File f = new File("./Examples/loon_mock_architecture_model.json");
-        ArchModelParser.parseArchModelFile(Paths.get(f.getAbsolutePath()),null);
+        ArchModelParser.parseMicroservicesArchModelFile(Paths.get(f.getAbsolutePath()));
     }
 
     @Test

@@ -1,19 +1,29 @@
 package de.rss.fachstudie.MiSim.entities.generator;
 
 import co.paralleluniverse.fibers.SuspendExecution;
-import de.rss.fachstudie.MiSim.entities.Operation;
+import de.rss.fachstudie.MiSim.entities.microservice.NoInstanceAvailableException;
+import de.rss.fachstudie.MiSim.entities.microservice.Operation;
 import de.rss.fachstudie.MiSim.entities.networking.*;
+import de.rss.fachstudie.MiSim.events.IParsableSelfScheduled;
 import de.rss.fachstudie.MiSim.export.AccumulativeDataPointReporter;
 import de.rss.fachstudie.MiSim.export.MultiDataPointReporter;
+import de.rss.fachstudie.MiSim.parsing.Parser;
 import desmoj.core.simulator.ExternalEvent;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 import desmoj.core.simulator.TimeSpan;
+import org.apache.commons.lang3.NotImplementedException;
 
 /**
+ * Superclass for all generators. Automatically takes care of the (re-)scheduling of the generation events, sending of
+ * the {@code UserRequest}s and observation of send requests.
+ *
  * @author Lion Wagner
+ * @see UserRequest
+ * @see IntervalGenerator
+ * @see LIMBOGenerator
  */
-public abstract class Generator extends RequestSender implements IRequestUpdateListener {
+public abstract class Generator extends RequestSender implements IRequestUpdateListener, IParsableSelfScheduled {
 
     protected final Model model;
 
@@ -32,12 +42,18 @@ public abstract class Generator extends RequestSender implements IRequestUpdateL
      */
     private TimeInstant nextTargetTime;
 
+    /*
+     * Reporters
+     */
     protected final MultiDataPointReporter reporter;
     protected final AccumulativeDataPointReporter accReporter;
 
     private final GeneratorTriggerEvent trigger;
 
-    private class GeneratorTriggerEvent extends ExternalEvent {
+    /**
+     * Event that represents the triggering of the generation of a new request.
+     */
+    private static class GeneratorTriggerEvent extends ExternalEvent {
 
         private final Generator generator;
 
@@ -52,10 +68,14 @@ public abstract class Generator extends RequestSender implements IRequestUpdateL
         }
     }
 
+    @Override
+    public Class<? extends Parser<?>> getParserClass() {
+        throw new NotImplementedException();
+    }
 
     /**
-     * Superclass for all generators. Automatically takes care of output reporting and pulling/scheduling and basic
-     * monitoring or Requests.
+     * Superclass for all generators. Automatically takes care of the (re-)scheduling of the generation events, sending
+     * of the {@code * UserRequest}s and observation of send requests.
      *
      * @param model       Default desmoj parameter
      * @param name        Default desmoj parameter
@@ -68,7 +88,7 @@ public abstract class Generator extends RequestSender implements IRequestUpdateL
         this.operation = operation;
         super.sendTraceNote("starting Generator " + this.getQuotedName());
 
-        String reportName = String.format("G[%s]_[%s(%s)]_", this.getClass().getSimpleName(), operation.getOwner().getName(), operation.getName());
+        String reportName = String.format("G[%s]_[%s(%s)]_", this.getClass().getSimpleName(), operation.getOwnerMS().getName(), operation.getName());
         reporter = new MultiDataPointReporter(reportName);
         accReporter = new AccumulativeDataPointReporter(reportName);
 
@@ -76,21 +96,6 @@ public abstract class Generator extends RequestSender implements IRequestUpdateL
 
         addUpdateListener(this);
     }
-
-    private void doInitialSchedule() {
-        try {
-            TimeInstant next = getNextExecutionTimeInstance();
-            if (next == null) throw new GeneratorStopException();
-
-            if (trigger.isScheduled()) trigger.reSchedule(next);
-            else trigger.schedule(next);
-
-        } catch (GeneratorStopException e) {
-            sendWarning(String.format("Generator %s did not start.", this.getName()), this.getClass().getCanonicalName(), e.getMessage(),
-                    "Check your request generators definition and input for errors.");
-        }
-    }
-
 
     /**
      * Method to compute the next target time. Called by the superclass upon need for a new target TimeInstance.
@@ -124,24 +129,37 @@ public abstract class Generator extends RequestSender implements IRequestUpdateL
         return nextTargetTime;
     }
 
+    /**
+     * Does the initial scheduling of this generator.
+     */
+    @Override
+    public void doInitialSelfSchedule() {
+        try {
+            TimeInstant next = getNextExecutionTimeInstance();
+            if (next == null) throw new GeneratorStopException();
+
+            if (trigger.isScheduled()) trigger.reSchedule(next);
+            else trigger.schedule(next);
+
+        } catch (GeneratorStopException e) {
+            sendWarning(String.format("Generator %s did not start.", this.getName()), this.getClass().getCanonicalName(), e.getMessage(),
+                    "Check your request generators definition and input for errors.");
+        }
+    }
+
 
     /**
-     * This method is automatically called by the Generator itself. (by rescheduling itself)
+     * This method is automatically called by the Generator itself. (by rescheduling via its {@code
+     * GeneratorTriggerEvent})
      * <p>
-     * If absolutely needed it can be manually called to send the schedule the next Request immediately.
+     * If absolutely needed it can be manually called to send the next request immediately.
      */
     public void eventRoutine() {
-        if (lastTargetTime == null) {
-            doInitialSchedule();
-            return;
-        }
-
-        UserRequest request = new UserRequest(model, String.format("User_Request@([%s] %s)", operation.getOwner().getName(), operation.getName()), true, operation);
+        UserRequest request = new UserRequest(model, String.format("User_Request@([%s] %s)", operation.getOwnerMS().getName(), operation.getName()), true, operation);
 
         try {
-
             sendRequest(String.format("User_Request@(%s) ",
-                    operation.getQuotedName()), request, operation.getOwner().getNextAvailableInstance(), new TimeSpan(0));
+                    operation.getQuotedName()), request, operation.getOwnerMS().getNextAvailableInstance(), new TimeSpan(0));
 
             TimeInstant nextExecutionTimeInstance;
             try {

@@ -1,5 +1,6 @@
 package de.rss.fachstudie.MiSim.export;
 
+import de.rss.fachstudie.MiSim.models.ExperimentMetaData;
 import de.rss.fachstudie.MiSim.models.MainModel;
 
 import java.util.TreeMap;
@@ -23,7 +24,7 @@ public class DataChart {
         StringBuilder buffer = new StringBuilder();
         this.chartId = chartId;
         this.options = "chart:{type:'" + chartType + "'},title:{text:'" + chartId + "'}"
-                + ",legend:{enabled:true},xAxis:{min:0,max:" + model.getSimulationTime()
+                + ",legend:{enabled:true},xAxis:{min:0,max:" + ExperimentMetaData.get().getDuration()
                 + "},colors:colors(" + series.keySet().size() + "),series:[ ";
         int index = 0;
 
@@ -36,11 +37,11 @@ public class DataChart {
             TreeMap<Double, Double> map = series.get(mapkey);
 
             if (map.keySet().size() == 0)
-                map.put(model.getSimulationTime(), 0.0);
+                map.put(ExperimentMetaData.get().getDuration(), 0.0);
 
             for(double x : map.keySet()) {
-                double key = Math.round(x * model.getPrecision()) / model.getPrecision();
-                String value = "[" + key + "," + Math.round(map.get(x) * model.getPrecision()) / model.getPrecision() + "],";
+                double key = Math.round(x * 1000000) / 1000000.0;
+                String value = "[" + key + "," + Math.round(map.get(x) * 1000000) / 1000000 + "],";
                 buffer.append(value);
             }
             buffer = buffer.delete(buffer.length() - 1, buffer.length()).append("]},");

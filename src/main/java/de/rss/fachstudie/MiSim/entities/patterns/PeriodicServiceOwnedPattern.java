@@ -15,10 +15,13 @@ import desmoj.core.simulator.TimeSpan;
 public abstract class PeriodicServiceOwnedPattern extends ServiceOwnedPattern {
 
     @FromJson
+    @SuppressWarnings({"FieldMayBeFinal", "FieldCanBeLocal"})
     private double period = 1;
     @FromJson
+    @SuppressWarnings({"FieldMayBeFinal", "FieldCanBeLocal"})
     private double start = 0;
     @FromJson
+    @SuppressWarnings({"FieldMayBeFinal", "FieldCanBeLocal"})
     private double stop = Double.MAX_VALUE;
 
     private TimeSpan periodSpan;

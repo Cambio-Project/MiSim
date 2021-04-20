@@ -1,4 +1,4 @@
-package de.rss.fachstudie.MiSim.resources;
+package de.rss.fachstudie.MiSim.resources.cpu;
 
 import co.paralleluniverse.fibers.SuspendExecution;
 import de.rss.fachstudie.MiSim.entities.networking.Request;
@@ -6,7 +6,14 @@ import desmoj.core.simulator.Event;
 import desmoj.core.simulator.Model;
 
 /**
+ * Marks the end of the last computation burst of a thread.
+ * <p>
+ * On execution, it resubmits the computed request at its handler.
+ *
  * @author Lion Wagner
+ * @see ComputationBurstCompletedEvent
+ * @see CPU
+ * @see CPUProcess
  */
 public class ComputationCompletedEvent extends Event<Request> {
 

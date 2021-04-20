@@ -19,21 +19,26 @@ public class ChaosMonkeyParser extends Parser<ChaosMonkeyEvent> {
     public String microservice;
 
     @Override
-    public ChaosMonkeyEvent convertToObject(Model model, Set<Microservice> microservices) {
+    public ChaosMonkeyEvent convertToObject(Model model) {
         try {
-            return parse(model, microservices);
+            return parse(model);
         } catch (Exception e) {
             throw new ParsingException("Could not parse a chaos monkey.", e);
         }
     }
 
-    private ChaosMonkeyEvent parse(Model model, Set<Microservice> microservices) {
+    @Override
+    public String getDescriptionKey() {
+        return "chaosmonkeys";
+    }
+
+    private ChaosMonkeyEvent parse(Model model) {
         if (time == null) {
             throw new ParsingException("Target time was not set.");
         }
         Util.requireNonNegative(instances, "Number of given instances cannot be smaller than 0.");
 
-        Microservice target = getMircoserviceFromName(microservice, microservices);
+        Microservice target = getMircoserviceFromName(microservice);
 
         ChaosMonkeyEvent monkeyEvent = new ChaosMonkeyEvent(model, String.format("ChaosMonkey_(%s)", microservice), model.traceIsOn(), target, instances);
         monkeyEvent.setTargetTime(new TimeInstant(time, model.getExperiment().getReferenceUnit()));

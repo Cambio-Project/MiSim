@@ -2,7 +2,7 @@ package de.rss.fachstudie.MiSim.export;
 
 import desmoj.core.simulator.TimeInstant;
 import desmoj.core.simulator.TimeOperations;
-import javafx.util.Pair;
+import org.javatuples.Pair;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,7 +28,7 @@ class MultiDataPointReporterTest {
     void sorts_dataset_correctly() {
         reporter.addDatapoint("Test", new TimeInstant(1), "World");
         reporter.addDatapoint("Test", new TimeInstant(0), "Hello");
-        TreeMap<TimeInstant, ?> dataset = reporter.getDataSets().get("Test");
+        TreeMap<Double, ?> dataset = reporter.getDataSets().get("Test");
         Assertions.assertEquals(dataset.pollFirstEntry().getKey(), new TimeInstant(0));
         Assertions.assertEquals(dataset.pollFirstEntry().getKey(), new TimeInstant(1));
     }

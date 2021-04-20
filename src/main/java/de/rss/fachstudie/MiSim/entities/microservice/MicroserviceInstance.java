@@ -7,8 +7,8 @@ import de.rss.fachstudie.MiSim.entities.patterns.NetworkPattern;
 import de.rss.fachstudie.MiSim.entities.patterns.RetryManager;
 import de.rss.fachstudie.MiSim.export.MultiDataPointReporter;
 import de.rss.fachstudie.MiSim.parsing.PatternData;
-import de.rss.fachstudie.MiSim.resources.CPUImpl;
-import de.rss.fachstudie.MiSim.resources.CPUProcess;
+import de.rss.fachstudie.MiSim.resources.cpu.CPU;
+import de.rss.fachstudie.MiSim.resources.cpu.CPUProcess;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 
@@ -17,35 +17,50 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
+ * A {@code MicroserviceInstance} (in the following just called instance) represents an actual, running instance of a
+ * {@code Microservice}.
+ * <p>
+ * An instance has responsibility to handle incoming requests. This is done by either:<br> 1. Sending an answer back to
+ * the requester, if the request is completed <br> 2. Creating child requests for satisfying the dependencies of a
+ * request<br> 3. Submitting the request to its {@code CPUImpl} for handling of its computational demand
+ * <p>
+ * During its lifetime an instances is aware of all requests it currently handels and of all dependencies it is
+ * currently waiting for.
+ * <p>
+ * An instance can have different states, which are defined and described by the enum {@code InstanceState}.
+ * <p>
+ *
  * @author Lion Wagner
+ * @see Microservice
+ * @see InstanceState
  */
 public class MicroserviceInstance extends RequestSender implements IRequestUpdateListener {
 
-    private final CPUImpl cpu;
     private final Microservice owner;
+    private final CPU cpu;
     private final int instanceID;
 
     private InstanceState state;
-    private LinkedHashSet<Request> currentRequestsToHandle = new LinkedHashSet<>(); //Queue with only unique entries
-    private LinkedHashSet<NetworkDependency> currentlyOpenDependencies = new LinkedHashSet<>(); //Queue with only unique entries
+    private final LinkedHashSet<Request> currentRequestsToHandle = new LinkedHashSet<>(); //Queue with only unique entries
+    private final LinkedHashSet<NetworkDependency> currentlyOpenDependencies = new LinkedHashSet<>(); //Queue with only unique entries
 
-    private LinkedHashSet<RequestAnswer> currentAnswers = new LinkedHashSet<>(); //Contains all current outgoing answers
-    private LinkedHashSet<InternalRequest> currentInternalSends = new LinkedHashSet<>(); //contains all current outgoing dependency requests
+    private final LinkedHashSet<RequestAnswer> currentAnswers = new LinkedHashSet<>(); //Contains all current outgoing answers
+    private final LinkedHashSet<InternalRequest> currentInternalSends = new LinkedHashSet<>(); //contains all current outgoing dependency requests
 
     private final MultiDataPointReporter reporter;
 
     private Set<InstanceOwnedPattern> patterns = new HashSet<>();
 
-    //debugging lists
-    private List<NetworkDependency> closedDependencies = new ArrayList<>();
-    private List<NetworkDependency> abortedDependencies = new ArrayList<>();
+    //lists for debugging information
+    private final List<NetworkDependency> closedDependencies = new ArrayList<>();
+    private final List<NetworkDependency> abortedDependencies = new ArrayList<>();
 
 
     public MicroserviceInstance(Model model, String name, boolean showInTrace, Microservice microservice, int instanceID) {
         super(model, name, showInTrace);
         this.owner = microservice;
         this.instanceID = instanceID;
-        this.cpu = new CPUImpl.OwnedCPU(model, String.format("%s_CPU", name), showInTrace, microservice.getCapacity(), this);
+        this.cpu = new CPU(model, String.format("%s_CPU", name), showInTrace, microservice.getCapacity(), this);
 
         String[] names = name.split("_");
         reporter = new MultiDataPointReporter(String.format("I%s_[%s]_", names[0], names[1]));
@@ -57,7 +72,7 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
 
     public void activatePatterns(PatternData[] patterns) {
         this.patterns = Arrays.stream(patterns)
-                .map(patternData -> patternData.tryGetOwnedInstanceOrNull(this))
+                .map(patternData -> patternData.tryGetInstanceOwnedPatternOrNull(this))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
         this.patterns.stream()
@@ -69,7 +84,7 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
         return this.cpu.getCurrentUsage();
     }
 
-    public double getRelativeWorkDemand(){
+    public double getRelativeWorkDemand() {
         return this.cpu.getCurrentRelativeWorkDemand();
     }
 
@@ -177,6 +192,11 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
 
     }
 
+    /**
+     * Starts this instance, reading it to receive requests.
+     * <p>
+     * Currently the startup process completes immediately.
+     */
     public void start() {
         if (!(this.state == InstanceState.CREATED || this.state == InstanceState.SHUTDOWN)) {
             throw new IllegalStateException(String.format("Cannot start Instance %s: Was not recently created or Shutdown. (Current State [%s])", this.getQuotedName(), state.name()));
@@ -195,7 +215,7 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
         changeState(InstanceState.SHUTTING_DOWN);
     }
 
-    public final void shutdown() {
+    public final void endShutdown() {
         if (this.state != InstanceState.SHUTTING_DOWN) {
             throw new IllegalStateException(String.format("Cannot shutdown Instance %s: This instance has not started its shutdown. (Current State [%s])", this.getQuotedName(), state.name()));
         }

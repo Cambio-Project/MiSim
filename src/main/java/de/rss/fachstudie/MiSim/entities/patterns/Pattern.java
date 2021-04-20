@@ -32,8 +32,7 @@ public abstract class Pattern extends Entity {
      *
      * @param arguments Map of arguments of name and value key-value pairs.
      * @see FromJson
-     * @see RetryManager
-     */
+     * */
     public final void initFields(Map<String, Object> arguments) {
         List<String> missingProperties = new ArrayList<>();
 

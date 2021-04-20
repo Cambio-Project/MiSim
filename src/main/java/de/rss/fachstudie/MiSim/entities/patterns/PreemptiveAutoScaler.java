@@ -12,14 +12,16 @@ import desmoj.core.simulator.TimeInstant;
 public final class PreemptiveAutoScaler extends PeriodicServiceOwnedPattern {
 
     @FromJson
+    @SuppressWarnings("FieldMayBeFinal")
     private double lowerBound = 0.2;
     @FromJson
+    @SuppressWarnings("FieldMayBeFinal")
     private double upperBound = 0.8;
-
     @FromJson
-    private double holdTime = 30; //Time that an instance atleast has to run
+    @SuppressWarnings("FieldMayBeFinal")
+    private double holdTime = 30; //Time that an instance at least has to run
 
-    private TimeInstant lastScaleup = new TimeInstant(0);
+    private TimeInstant lastScaleUp = new TimeInstant(0);
 
     public PreemptiveAutoScaler(Model model, String name, boolean showInTrace, Microservice owner) {
         super(model, name, showInTrace, owner);
@@ -29,13 +31,13 @@ public final class PreemptiveAutoScaler extends PeriodicServiceOwnedPattern {
     protected void onTriggered() {
 
         int currentInstanceCount = owner.getInstancesCount();
-        double max = owner.getUtilizations().stream().mapToDouble(value -> value).average().orElse(0.0);
+        double avg = owner.getUtilizationOfInstances().stream().mapToDouble(value -> value).average().orElse(0.0);
         if (currentInstanceCount <= 0) { //starts a instances if there are none
             owner.setInstancesCount(1);
-        } else if (max >= upperBound) {
+        } else if (avg >= upperBound) {
             owner.scaleToInstancesCount(currentInstanceCount + 1);
-            lastScaleup = presentTime();
-        } else if (max <= lowerBound && currentInstanceCount > 2 && presentTime().getTimeAsDouble() - lastScaleup.getTimeAsDouble() > holdTime) {
+            lastScaleUp = presentTime();
+        } else if (avg <= lowerBound && currentInstanceCount > 2 && presentTime().getTimeAsDouble() - lastScaleUp.getTimeAsDouble() > holdTime) {
             owner.scaleToInstancesCount(currentInstanceCount - 1);
         }
         if (owner.getInstancesCount() != currentInstanceCount) {

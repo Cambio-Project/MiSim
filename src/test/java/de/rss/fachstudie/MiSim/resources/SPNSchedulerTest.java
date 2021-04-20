@@ -1,12 +1,12 @@
 package de.rss.fachstudie.MiSim.resources;
 
+import de.rss.fachstudie.MiSim.resources.cpu.CPUProcess;
+import de.rss.fachstudie.MiSim.resources.cpu.scheduling.SPNScheduler;
 import org.javatuples.Pair;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

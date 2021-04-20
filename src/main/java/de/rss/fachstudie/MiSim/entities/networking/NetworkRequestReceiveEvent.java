@@ -15,8 +15,8 @@ public class NetworkRequestReceiveEvent extends NetworkRequestEvent {
 
     private final MicroserviceInstance receivingInstance;
 
-    public NetworkRequestReceiveEvent(Model model, String name, boolean showInTrace, Request request, MicroserviceInstance receiver) {
-        super(model, name, showInTrace, request);
+    public NetworkRequestReceiveEvent(Model model, String name, boolean showInTrace, Request traveling_request, MicroserviceInstance receiver) {
+        super(model, name, showInTrace, traveling_request);
         receivingInstance = receiver;
     }
 

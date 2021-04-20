@@ -5,7 +5,10 @@ import desmoj.core.simulator.ExternalEvent;
 import desmoj.core.simulator.Model;
 
 /**
+ * For now this is an unused event to represent the scaling of a microservice.
+ *
  * @author Lion Wagner
+ * TODO: consider using this event
  */
 public class MicroserviceScaleEvent extends ExternalEvent {
 

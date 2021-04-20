@@ -1,7 +1,6 @@
 package de.rss.fachstudie.MiSim.entities.generator;
 
-import de.rss.fachstudie.MiSim.entities.Operation;
-import de.rss.fachstudie.MiSim.models.MainModel;
+import de.rss.fachstudie.MiSim.entities.microservice.Operation;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 
@@ -22,6 +21,7 @@ import desmoj.core.simulator.TimeInstant;
  * </table>
  *
  * @author Lion Wagner
+ * @TODO distribution
  */
 public final class IntervalGenerator extends Generator {
 
@@ -46,7 +46,7 @@ public final class IntervalGenerator extends Generator {
 
     @Override
     protected TimeInstant getFirstTargetTime() {
-        if(interval ==0){
+        if (interval == 0) {
             throw new GeneratorStopException("Interval was not above 0.");
         }
         return new TimeInstant(start);

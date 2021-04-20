@@ -13,7 +13,7 @@ import java.util.TreeMap;
  */
 public class MultiDataPointReporter extends Reporter {
 
-    protected final HashMap<String, TreeMap<TimeInstant, ?>> dataSets = new HashMap<>();
+    protected final HashMap<String, TreeMap<Double, ?>> dataSets = new HashMap<>();
     protected final String datasets_prefix;
 
     public MultiDataPointReporter() {
@@ -29,7 +29,7 @@ public class MultiDataPointReporter extends Reporter {
         ReportCollector.getInstance().register(this);
     }
 
-    public final HashMap<String, TreeMap<TimeInstant, ?>> getDataSets() {
+    public final HashMap<String, TreeMap<Double, ?>> getDataSets() {
         return dataSets;
     }
 
@@ -38,8 +38,8 @@ public class MultiDataPointReporter extends Reporter {
         Objects.requireNonNull(when);
         Objects.requireNonNull(data);
 
-        Map<TimeInstant, T> dataSet = (TreeMap<TimeInstant, T>) dataSets.computeIfAbsent(datasets_prefix + dataSetName, s -> new TreeMap<TimeInstant, T>());
-        dataSet.put(when, data);
+        Map<Double, T> dataSet = (TreeMap<Double, T>) dataSets.computeIfAbsent(datasets_prefix + dataSetName, s -> new TreeMap<Double, T>());
+        dataSet.put(when.getTimeAsDouble(), data);
     }
 
     //implemented to keep compatibility to desmoj default reporter framework
@@ -48,7 +48,7 @@ public class MultiDataPointReporter extends Reporter {
         StringBuilder builder = new StringBuilder("Multidatapointcollector\n");
 
         //very inefficient (combining, splitting, combining, splitting), but works...
-        for (Map.Entry<String, TreeMap<TimeInstant, ?>> dataSet : dataSets.entrySet()) {
+        for (Map.Entry<String, TreeMap<Double, ?>> dataSet : dataSets.entrySet()) {
             builder.append(dataSet.getKey()).append("\n");
             builder.append(String.join("\n", getEntries(dataSet.getKey())));
         }
@@ -58,13 +58,17 @@ public class MultiDataPointReporter extends Reporter {
 
     public String[] getEntries(String datasetkey) {
         StringBuilder builder = new StringBuilder("Time;Value\n");
-        for (Map.Entry<TimeInstant, ?> dataPoint : dataSets.get(datasetkey).entrySet()) {
+        for (Map.Entry<Double, ?> dataPoint : dataSets.get(datasetkey).entrySet()) {
             builder.append(dataPoint.getKey())
                     .append(";")
                     .append(dataPoint.getValue())
                     .append("\n");
         }
         return builder.toString().split("\n");
+    }
+
+    public void reset() {
+        dataSets.clear();
     }
 
 }

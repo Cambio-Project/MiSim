@@ -1,8 +1,6 @@
 package de.rss.fachstudie.MiSim.entities.networking;
 
-import de.rss.fachstudie.MiSim.entities.Dependency;
-import de.rss.fachstudie.MiSim.entities.DependencyGraph;
-import de.rss.fachstudie.MiSim.entities.Operation;
+import de.rss.fachstudie.MiSim.entities.microservice.Operation;
 import de.rss.fachstudie.MiSim.entities.microservice.MicroserviceInstance;
 import desmoj.core.dist.ContDistUniform;
 import desmoj.core.simulator.Entity;
@@ -19,8 +17,6 @@ import java.util.Set;
  * @author Lion Wagner
  */
 public abstract class Request extends Entity {
-    protected static final DependencyGraph dependencyGraph = new DependencyGraph();
-
     public final Operation operation;
     private final Set<NetworkDependency> dependencies = new HashSet<>();
 
@@ -34,7 +30,7 @@ public abstract class Request extends Entity {
     private NetworkRequestSendEvent sendEvent;
     private NetworkRequestReceiveEvent receiveEvent;
     private NetworkRequestCanceledEvent canceledEvent;
-    private PriorityQueue<IRequestUpdateListener> updateListeners = new PriorityQueue<>(); //TODO: minor: allow list of listeners so e.g. a tracing tool can be injected by each creation.
+    private final PriorityQueue<IRequestUpdateListener> updateListeners = new PriorityQueue<>(); //TODO: minor: allow list of listeners so e.g. a tracing tool can be injected by each creation.
 
     private TimeInstant timestamp_send;
     private TimeInstant timestamp_received;
@@ -47,9 +43,9 @@ public abstract class Request extends Entity {
         super(model, name, showInTrace);
         this.operation = operation;
         this.requester = requester;
+        this.parent = parent;
         createDependencies();
         if (dependencies.isEmpty()) notifyDependencyHasFinished(null);
-        this.parent = parent;
     }
 
 
@@ -60,15 +56,14 @@ public abstract class Request extends Entity {
             // Roll probability
             ContDistUniform prob = new ContDistUniform(getModel(), "", 0.0, 1.0, false, false);
             double probability = dependency.getProbability();
-            if (prob.sample() <= probability) {
+            double sample = prob.sample();
+            if (sample <= probability) {
 
                 Operation nextOperationEntity = dependency.getTargetOperation();
 
                 NetworkDependency dep = new NetworkDependency(getModel(), this, nextOperationEntity, dependency);
 
                 dependencies.add(dep);
-                if (parent != null)
-                    dependencyGraph.insertDependency(parent.getHandler().getOwner(), parent.operation, nextOperationEntity.getOwner(), nextOperationEntity, null);
             }
         }
     }

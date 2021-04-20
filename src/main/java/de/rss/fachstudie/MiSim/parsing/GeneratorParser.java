@@ -1,16 +1,15 @@
 package de.rss.fachstudie.MiSim.parsing;
 
-import de.rss.fachstudie.MiSim.entities.Operation;
 import de.rss.fachstudie.MiSim.entities.generator.Generator;
 import de.rss.fachstudie.MiSim.entities.generator.IntervalGenerator;
 import de.rss.fachstudie.MiSim.entities.generator.LIMBOGenerator;
 import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
+import de.rss.fachstudie.MiSim.entities.microservice.Operation;
 import de.rss.fachstudie.MiSim.misc.Util;
 import desmoj.core.dist.ContDistUniform;
 import desmoj.core.simulator.Model;
 
 import java.io.File;
-import java.util.Set;
 
 /**
  * @author Lion Wagner
@@ -34,10 +33,10 @@ class GeneratorParser extends Parser<Generator> {
 
 
     @Override
-    public Generator convertToObject(Model model, Set<Microservice> microservices) {
+    public Generator convertToObject(Model model) {
 
-        Microservice service = super.getMircoserviceFromName(microservice, microservices);
-        Operation targetOperation = service.getOperation(operation);
+        Microservice service = super.getMircoserviceFromName(microservice);
+        Operation targetOperation = service.getOperationByName(operation);
 
 
         if (limbo_model != null) {
@@ -48,5 +47,10 @@ class GeneratorParser extends Parser<Generator> {
         }
         throw new ParsingException(String.format("Could not create a generator for %s. Could not figure out the generator type.", targetOperation.getQuotedName()));
 
+    }
+
+    @Override
+    public String getDescriptionKey() {
+        return "request_generators";
     }
 }

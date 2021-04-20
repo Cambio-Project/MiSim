@@ -1,5 +1,6 @@
-package de.rss.fachstudie.MiSim.resources;
+package de.rss.fachstudie.MiSim.resources.cpu.scheduling;
 
+import de.rss.fachstudie.MiSim.resources.cpu.CPUProcess;
 import org.javatuples.Pair;
 
 import java.util.Collections;

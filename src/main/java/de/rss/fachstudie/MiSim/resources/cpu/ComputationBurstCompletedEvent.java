@@ -1,4 +1,4 @@
-package de.rss.fachstudie.MiSim.resources;
+package de.rss.fachstudie.MiSim.resources.cpu;
 
 import co.paralleluniverse.fibers.SuspendExecution;
 import de.rss.fachstudie.MiSim.entities.networking.Request;
@@ -17,10 +17,10 @@ import desmoj.core.simulator.Model;
  */
 public class ComputationBurstCompletedEvent extends ExternalEvent {
     private final CPUProcess ending_process;
-    private final CPUImpl owner;
+    private final CPU owner;
     private final int work_done;
 
-    public ComputationBurstCompletedEvent(Model model, String name, boolean showInTrace, CPUProcess ending_process, CPUImpl owner, int work_done) {
+    public ComputationBurstCompletedEvent(Model model, String name, boolean showInTrace, CPUProcess ending_process, CPU owner, int work_done) {
         super(model, name, showInTrace);
         this.ending_process = ending_process;
         this.owner = owner;

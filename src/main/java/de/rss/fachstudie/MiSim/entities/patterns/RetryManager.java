@@ -21,16 +21,28 @@ import java.util.Random;
 public class RetryManager extends NetworkPattern implements IRequestUpdateListener {
 
     @FromJson
+    @SuppressWarnings({"FieldMayBeFinal", "FieldCanBeLocal"})
     private int maxTries = 5;
+
     @FromJson
+    @SuppressWarnings({"FieldMayBeFinal", "FieldCanBeLocal"})
     private double baseBackoff = 0.010;
+
     @FromJson
+    @SuppressWarnings({"FieldMayBeFinal", "FieldCanBeLocal"})
     private double maxBackoff = 1;
+
     @FromJson
+    @SuppressWarnings({"FieldMayBeFinal", "FieldCanBeLocal"})
     private int base = 3;
+
     @FromJson
+    @SuppressWarnings({"FieldMayBeFinal", "FieldCanBeLocal"})
     private boolean jittering = false;
 
+    /**
+     * Dictonary that tracks how many retries were currently done for each active dependencie
+     */
     private final Map<NetworkDependency, Integer> requestIndex = new HashMap<>();
 
     public RetryManager(Model model, String name, boolean showInTrace, MicroserviceInstance listener) {
@@ -44,7 +56,7 @@ public class RetryManager extends NetworkPattern implements IRequestUpdateListen
 
     @Override
     public boolean onRequestFailed(Request request, TimeInstant when, RequestFailedReason reason) {
-        if (reason == RequestFailedReason.MAX_RETRIES_REACHED) return false;
+        if (reason == RequestFailedReason.MAX_RETRIES_REACHED) return false; // if max retries reached, the Retry does not know how to handle the fail
 
         NetworkDependency dep = request.getParent().getRelatedDependency(request);
         if (!requestIndex.containsKey(dep)) return false;

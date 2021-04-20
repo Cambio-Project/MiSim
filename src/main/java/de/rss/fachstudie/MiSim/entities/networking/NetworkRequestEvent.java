@@ -8,13 +8,12 @@ import desmoj.core.simulator.TimeInstant;
 import java.util.Collection;
 
 /**
- * Superclass for network events that take care of exactly one Request. Provides its subclasses with references to the
- * traveling request and the sending Listener.
+ * Superclass for network events that take care of exactly one traveling {@code Request}. It provides its subclasses
+ * with references to the traveling request and the {@code IRequestUpdateListener}.
  *
  * @author Lion Wagner
  * @see NetworkRequestSendEvent
  * @see NetworkRequestReceiveEvent
- * @see UserRequestArrivalEvent
  * @see NetworkRequestCanceledEvent
  */
 public abstract class NetworkRequestEvent extends ExternalEvent {
@@ -29,7 +28,7 @@ public abstract class NetworkRequestEvent extends ExternalEvent {
         this.traveling_request = request;
         updateListeners = request.getUpdateListeners();
 
-        //adapter, so each inheriting object only sees one anonymous updateListener
+        //adapter/proxy, so each inheriting object only sees one single anonymous updateListener
         updateListener = new IRequestUpdateListener() {
             @Override
             public boolean onRequestFailed(final Request request, final TimeInstant when, final RequestFailedReason reason) {

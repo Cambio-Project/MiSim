@@ -22,15 +22,15 @@ public class AccumulativeDataPointReporter extends MultiDataPointReporter {
     public void addDatapoint(String dataSetName, TimeInstant when, Number data) {
         checkArgumentsAreNotNull(dataSetName, when, data);
 
-        Map<TimeInstant, Number> dataSet = (TreeMap<TimeInstant, Number>) dataSets.computeIfAbsent(datasets_prefix + dataSetName, s -> new TreeMap<TimeInstant, Number>());
-        dataSet.merge(when, data, (number, number2) -> number.doubleValue() + number2.doubleValue());
+        Map<Double, Number> dataSet = (TreeMap<Double, Number>) dataSets.computeIfAbsent(datasets_prefix + dataSetName, s -> new TreeMap<Double, Number>());
+        dataSet.merge(when.getTimeAsDouble(), data, (number, number2) -> number.doubleValue() + number2.doubleValue());
     }
 
     public <T> void addDatapoint(String dataSetName, TimeInstant when, List<T> data) {
         checkArgumentsAreNotNull(dataSetName, when, data);
 
-        Map<TimeInstant, List<T>> dataSet = (TreeMap<TimeInstant, List<T>>) dataSets.computeIfAbsent(datasets_prefix + dataSetName, s -> new TreeMap<TimeInstant, List<T>>());
-        dataSet.merge(when, data, (list1, list2) -> {
+        Map<Double, List<T>> dataSet = (TreeMap<Double, List<T>>) dataSets.computeIfAbsent(datasets_prefix + dataSetName, s -> new TreeMap<Double, List<T>>());
+        dataSet.merge(when.getTimeAsDouble(), data, (list1, list2) -> {
             list1.addAll(list2);
             return list1;
         });

@@ -1,13 +1,18 @@
 package de.rss.fachstudie.MiSim.entities.networking;
 
-import de.rss.fachstudie.MiSim.entities.Dependency;
-import de.rss.fachstudie.MiSim.entities.Operation;
+import de.rss.fachstudie.MiSim.entities.microservice.Operation;
 import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
 import desmoj.core.simulator.Entity;
 import desmoj.core.simulator.Model;
 
 /**
+ * This is an instance of a {@link Dependency}. It describes an actual existing dependency of a {@code Request}, that
+ * arrived at a {@code MicroserviceInstance}.
+ *
  * @author Lion Wagner
+ * @see Dependency
+ * @see Request
+ * @see de.rss.fachstudie.MiSim.entities.microservice.MicroserviceInstance
  */
 public class NetworkDependency extends Entity {
 
@@ -22,7 +27,7 @@ public class NetworkDependency extends Entity {
         super(model, String.format("Dependency(%s)of[%s]", target_op.getName(), parent_request.getName()), false);
         this.parent_request = parent_request;
         this.target_op = target_op;
-        this.target_ms = target_op.getOwner();
+        this.target_ms = target_op.getOwnerMS();
         this.dependency_data = dependency_data;
     }
 
@@ -51,9 +56,14 @@ public class NetworkDependency extends Entity {
         return child_request;
     }
 
+    /**
+     * This method is used to overwrite the child request that was used to try to complete this dependency. For example,
+     * if a retry creates a new request because the previous one timed out, it has to notify (update) the {@code
+     * NetworkDependency} that a new child request for this dependency was created.
+     */
     public void updateChild_request(Request child_request) {
         this.child_request = child_request;
-        //TODO: log and check for child updates (e.g previous child request failed)
+        //TODO: log
     }
 
     public double getNextExtraDelay() {

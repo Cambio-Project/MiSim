@@ -17,7 +17,7 @@ public class NetworkRequestCanceledEvent extends NetworkRequestEvent {
     private final RequestFailedReason reason;
     private final String details;
 
-    private static List<NetworkDependency> canceledDependencies = new ArrayList<>();
+    private static final List<NetworkDependency> canceledDependencies = new ArrayList<>();
 
     public NetworkRequestCanceledEvent(Model model, String name, boolean showInTrace, Request request, RequestFailedReason reason) {
         this(model, name, showInTrace, request, reason, null);

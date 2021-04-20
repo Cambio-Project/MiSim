@@ -3,30 +3,27 @@ package de.rss.fachstudie.MiSim.events;
 import co.paralleluniverse.fibers.SuspendExecution;
 import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
 import de.rss.fachstudie.MiSim.misc.Priority;
-import desmoj.core.simulator.ExternalEvent;
+import de.rss.fachstudie.MiSim.parsing.Parser;
+import de.rss.fachstudie.MiSim.parsing.SummonerMonkeyParser;
 import desmoj.core.simulator.Model;
-import desmoj.core.simulator.TimeInstant;
-
-import java.util.Objects;
 
 /**
- * A <code>ChaosMonkeyEvent</code> is an <code>ExternalEvent</code> that gets scheduled at the begin of the experiment.
- * It terminates a specified number of Microservice instances from a specified <code>Microservice</code> in its
- * <code>eventRoutine</code> method.
+ * A <code>SummonerMonkeyEvent</code> is an <code>ExternalEvent</code> that gets scheduled at the begin of the
+ * experiment. It starts a specified number of {@code MicroserviceInstance}s of a specified <code>Microservice</code> in
+ * its <code>eventRoutine</code> method.
  */
-public class SummonerMonkeyEvent extends ExternalEvent {
+public class SummonerMonkeyEvent extends SelfScheduledEvent {
     private final int instances;
     private final Microservice microservice;
-    private TimeInstant targetTime;
 
     /**
-     * Instantiate a <code>ChaosMonkeyEvent</code>.
+     * Instantiate a <code>SummonerMonkeyEvent</code>.
      *
      * @param owner        Model: The model that owns this event
      * @param name         String: The name of this event
      * @param showInTrace  boolean: Declaration if this event should be shown in the trace
-     * @param microservice int: The ID of the microservice whose instances should be terminated
-     * @param instances    int: The number of instances of the specified microservice you want to shut down
+     * @param microservice int: The ID of the microservice whose instances should be started
+     * @param instances    int: The number of instances of the specified microservice should be started
      */
     public SummonerMonkeyEvent(Model owner, String name, boolean showInTrace, Microservice microservice, int instances) {
         super(owner, name, showInTrace);
@@ -37,7 +34,7 @@ public class SummonerMonkeyEvent extends ExternalEvent {
     }
 
     /**
-     * The eventRoutine of the <code>ChaosMonkeyEvent</code>. Terminates a specified number of instances of a specified
+     * The eventRoutine of the <code>SummonerMonkeyEvent</code>. Starts a specified number of instances of a specified
      * <code>Microservice</code>.
      *
      * @throws SuspendExecution
@@ -53,16 +50,6 @@ public class SummonerMonkeyEvent extends ExternalEvent {
 
     @Override
     public String toString() {
-        return "ChaosMonkeyEvent";
-    }
-
-
-    public TimeInstant getTargetTime() {
-        return targetTime;
-    }
-
-    public void setTargetTime(TimeInstant targetTime) {
-        Objects.requireNonNull(targetTime);
-        this.targetTime = targetTime;
+        return getName();
     }
 }

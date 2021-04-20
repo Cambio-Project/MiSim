@@ -1,5 +1,6 @@
 package de.rss.fachstudie.MiSim.resources;
 
+import de.rss.fachstudie.MiSim.resources.cpu.CPUProcess;
 import desmoj.core.simulator.TimeInstant;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -9,7 +9,10 @@ import org.javatuples.Tuple;
 import java.util.LinkedList;
 
 /**
+ * This class represents an actual CircuitBreaker with the behavior defined by Hystrix.
+ *
  * @author Lion Wagner
+ * @see CircuitBreaker
  */
 public class CircuitBreakerState {
 
@@ -22,7 +25,7 @@ public class CircuitBreakerState {
     private int totalSuccessCounter = 0;
     private int totalFailureCounter = 0;
 
-    //contains the results of the last 20 requests (1 for success, 0 for failure)
+    //contains the results of the last {rollingWindow size} requests (values, 1 for success and 0 for failure)
     private final LinkedList<Integer> currentWindow = new LinkedList<>();
 
     private BreakerState state = BreakerState.CLOSED;
@@ -33,7 +36,7 @@ public class CircuitBreakerState {
     }
 
     public enum BreakerState {
-        CLOSED, HALF_OPEN, OPEN;
+        CLOSED, HALF_OPEN, OPEN
     }
 
     CircuitBreakerState(Microservice monitoredService, double errorThresholdPercentage, int rollingWindow, double sleepWindow) {

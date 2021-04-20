@@ -1,38 +1,47 @@
 package de.rss.fachstudie.MiSim.events;
 
-import de.rss.fachstudie.MiSim.entities.Operation;
 import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
+import de.rss.fachstudie.MiSim.entities.microservice.Operation;
 import de.rss.fachstudie.MiSim.misc.Util;
+import de.rss.fachstudie.MiSim.parsing.LatencyMonkeyParser;
+import de.rss.fachstudie.MiSim.parsing.Parser;
 import desmoj.core.dist.ContDistNormal;
 import desmoj.core.dist.NumericalDist;
-import desmoj.core.simulator.ExternalEvent;
 import desmoj.core.simulator.Model;
-import desmoj.core.simulator.TimeInstant;
 
 import java.util.Arrays;
 import java.util.Objects;
 
 /**
+ * Event that triggers a latency injection.
+ * <p>
+ * The injection can be applied on different levels:
+ * <p>
+ * Either all outgoing requests of a {@code Microservice} are delayed.<p>
+ * <p>
+ * Or all outgoing dependency requests of a single {@code Operation} can be delayed.<p>
+ * <p>
+ * Or the connection between two specific  {@code Operation}s can also be delayed.
+ *
  * @author Lion Wagner
  */
-public class LatencyMonkeyEvent extends ExternalEvent {
+public class LatencyMonkeyEvent extends SelfScheduledEvent {
     private final double delay;
     private final double std_deviation;
     private final Microservice microservice;
     private final Operation operation_src;
     private final Operation operation_trg;
-    private TimeInstant targetTime;
 
     public LatencyMonkeyEvent(Model model, String name, boolean showInTrace, double delay, Microservice microservice) {
         this(model, name, showInTrace, delay, 0, microservice, null, null);
     }
 
     public LatencyMonkeyEvent(Model model, String name, boolean showInTrace, double delay, Operation operation_src) {
-        this(model, name, showInTrace, delay, 0, operation_src.getOwner(), operation_src, null);
+        this(model, name, showInTrace, delay, 0, operation_src.getOwnerMS(), operation_src, null);
     }
 
     public LatencyMonkeyEvent(Model model, String name, boolean showInTrace, double delay, Operation operation_src, Operation operation_trg) {
-        this(model, name, showInTrace, delay, 0, operation_src.getOwner(), operation_src, operation_trg);
+        this(model, name, showInTrace, delay, 0, operation_src.getOwnerMS(), operation_src, operation_trg);
     }
 
     public LatencyMonkeyEvent(Model model, String name, boolean showInTrace, double delay, double std_deviation, Microservice microservice) {
@@ -40,7 +49,7 @@ public class LatencyMonkeyEvent extends ExternalEvent {
     }
 
     public LatencyMonkeyEvent(Model model, String name, boolean showInTrace, double delay, double std_deviation, Operation operation_src) {
-        this(model, name, showInTrace, delay, std_deviation, operation_src.getOwner(), operation_src, null);
+        this(model, name, showInTrace, delay, std_deviation, operation_src.getOwnerMS(), operation_src, null);
     }
 
     public LatencyMonkeyEvent(Model model, String name, boolean showInTrace, double delay, double std_deviation, Microservice microservice, Operation operation_src, Operation operation_trg) {
@@ -73,19 +82,9 @@ public class LatencyMonkeyEvent extends ExternalEvent {
         }
     }
 
-
     @Override
     public void eventRoutine() {
         NumericalDist<Double> dist = new ContDistNormal(getModel(), String.format("DelayDistribution_of_%s", this.getName()), delay, std_deviation, false, false);
         microservice.applyDelay(dist, operation_src, operation_trg);
-    }
-
-    public TimeInstant getTargetTime() {
-        return targetTime;
-    }
-
-    public void setTargetTime(TimeInstant targetTime) {
-        Objects.requireNonNull(targetTime);
-        this.targetTime = targetTime;
     }
 }

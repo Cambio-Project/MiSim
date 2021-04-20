@@ -2,76 +2,75 @@ package de.rss.fachstudie.MiSim.parsing;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
-import de.rss.fachstudie.MiSim.entities.generator.Generator;
-import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
-import de.rss.fachstudie.MiSim.events.ChaosMonkeyEvent;
-import de.rss.fachstudie.MiSim.events.LatencyMonkeyEvent;
-import de.rss.fachstudie.MiSim.events.SummonerMonkeyEvent;
 import de.rss.fachstudie.MiSim.models.MainModel;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.lang.reflect.Array;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * The ExpModelParser class reads a json file that contains the experiment model.
  */
 public class ExpModelParser {
-    public static HashMap<String, String> simulation_meta_data = new HashMap<>();
-    public static Generator[] generators = new Generator[0];
-    public static ChaosMonkeyEvent[] chaosmonkeys = new ChaosMonkeyEvent[0];
-    public static LatencyMonkeyEvent[] latencymonkeys = new LatencyMonkeyEvent[0];
-    public static SummonerMonkeyEvent[] summoners = new SummonerMonkeyEvent[0];
+    public static Set<Object> parsedExperimentObjects = Collections.unmodifiableSet(new HashSet<>());
 
 
-    public static void loadMetadata(Path path) {
-        try {
-            Gson gson = new Gson();
-            JsonObject root = gson.fromJson(new JsonReader(new FileReader(path.toFile())), JsonObject.class);
-            simulation_meta_data = gson.fromJson(root.get("simulation_meta_data"), new TypeToken<HashMap<String, String>>() {
-            }.getType());
+    public static final List<Class<? extends Parser<?>>> parserClasses;
 
-        } catch (FileNotFoundException e) {
-            throw new ParsingException(String.format("Could not find architecture file '%s'", path.toAbsolutePath()), e);
-        }
+    /*
+     * Classes of objects that should be loaded by the {@code ExpModelParser} can be registered here.
+     * TODO: this may be automatable via a compile-level injection.
+     * TODO: Maybe move to separate class for cleanup
+     */
+    static {
+        List<Class<? extends Parser<?>>> temp = Arrays.asList(
+                ChaosMonkeyParser.class,
+                SummonerMonkeyParser.class,
+                LatencyMonkeyParser.class,
+                GeneratorParser.class);
+        parserClasses = Collections.unmodifiableList(temp);
     }
 
-    public static void parseExperimentData(Path path, MainModel model, Set<Microservice> microservices) {
+    public static Set<Object> parseExperimentData(Path path) {
         try {
             Gson gson = new Gson();
             JsonObject root = gson.fromJson(new JsonReader(new FileReader(path.toFile())), JsonObject.class);
-            simulation_meta_data = gson.fromJson(root.get("simulation_meta_data"), new TypeToken<HashMap<String, String>>() {
-            }.getType());
-            GeneratorParser[] generatorData = gson.fromJson(root.get("request_generators"), GeneratorParser[].class);
-            ChaosMonkeyParser[] chaosmonkeyData = gson.fromJson(root.get("chaosmonkeys"), ChaosMonkeyParser[].class);
-            LatencyMonkeyParser[] latencymonkeyData = gson.fromJson(root.get("latencymonkeys"), LatencyMonkeyParser[].class);
-            SummonerMonkeyParser[] summonerMonkeyData = gson.fromJson(root.get("summonermonkeys"), SummonerMonkeyParser[].class);
 
-            if (generatorData != null && generatorData.length > 0)
-                generators = Arrays.stream(generatorData)
-                        .map(generatorParser -> generatorParser.convertToObject(model, microservices))
-                        .toArray(value -> new Generator[generatorData.length]);
-            if (chaosmonkeyData != null && chaosmonkeyData.length > 0)
-                chaosmonkeys = Arrays.stream(chaosmonkeyData)
-                        .map(chaosMonkeyParser -> chaosMonkeyParser.convertToObject(model, microservices))
-                        .toArray(value -> new ChaosMonkeyEvent[chaosmonkeyData.length]);
-            if (latencymonkeyData != null && latencymonkeyData.length > 0)
-                latencymonkeys = Arrays.stream(latencymonkeyData)
-                        .map(latencyMonkeyParser -> latencyMonkeyParser.convertToObject(model, microservices))
-                        .toArray(value -> new LatencyMonkeyEvent[latencymonkeyData.length]);
-            if (summonerMonkeyData != null && summonerMonkeyData.length > 0)
-                summoners = Arrays.stream(summonerMonkeyData)
-                        .map(latencyMonkeyParser -> latencyMonkeyParser.convertToObject(model, microservices))
-                        .toArray(value -> new SummonerMonkeyEvent[summonerMonkeyData.length]);
+            Set<? extends Parser<?>> parserInstances = parserClasses.stream().map(aClass -> {
+                try {
+                    return aClass.newInstance();
+                } catch (InstantiationException | IllegalAccessException e) {
+                    e.printStackTrace();
+                    throw new ParsingException(String.format("Parser %s could not be instantiated.", aClass.getTypeName()));
+                }
+            }).collect(Collectors.toSet());
+
+            Set<Parser<?>> parsedObjects = new HashSet<>();
+
+            for (Parser<?> parserInstance : parserInstances) {
+                Class<?> clazz = Array.newInstance(parserInstance.getClass(), 0).getClass();
+                Object result = gson.fromJson(root.get(parserInstance.getDescriptionKey()), clazz);
+
+                if (result == null) continue;
+
+                int count = Array.getLength(result);
+                for (int i = 0; i < count; i++) {
+                    parsedObjects.add((Parser<?>) Array.get(result, i));
+                }
+            }
+
+            parsedExperimentObjects = parsedObjects.stream().map(o -> o.convertToObject(MainModel.get())).collect(Collectors.toSet());
+
+            return parsedExperimentObjects;
 
 
         } catch (FileNotFoundException ex) {
-            System.out.println("File " + " not found");
+            throw new ParsingException(String.format("Experiment file '%s' not found", path.toUri()));
         }
     }
 }
+

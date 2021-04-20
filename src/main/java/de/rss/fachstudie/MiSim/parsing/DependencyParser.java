@@ -1,7 +1,7 @@
 package de.rss.fachstudie.MiSim.parsing;
 
-import de.rss.fachstudie.MiSim.entities.Dependency;
-import de.rss.fachstudie.MiSim.entities.Operation;
+import de.rss.fachstudie.MiSim.entities.networking.Dependency;
+import de.rss.fachstudie.MiSim.entities.microservice.Operation;
 import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
 import desmoj.core.simulator.Model;
 
@@ -23,9 +23,14 @@ public class DependencyParser extends Parser<Dependency> {
     }
 
     @Override
-    public Dependency convertToObject(Model model, Set<Microservice> microservices) {
-        Microservice targetMS = getMircoserviceFromName(service, microservices);
+    public Dependency convertToObject(Model model) {
+        Microservice targetMS = getMircoserviceFromName(service);
         Operation targetOp = getOperationFromName(operation, targetMS);
         return new Dependency(owner, targetOp, probability, delay);
+    }
+
+    @Override
+    public String getDescriptionKey() {
+        return null; //TODO: Not needed, extract seperate Parser subclass for experiment description
     }
 }

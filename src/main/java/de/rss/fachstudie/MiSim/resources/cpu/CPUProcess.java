@@ -1,4 +1,4 @@
-package de.rss.fachstudie.MiSim.resources;
+package de.rss.fachstudie.MiSim.resources.cpu;
 
 import de.rss.fachstudie.MiSim.entities.networking.Request;
 import desmoj.core.simulator.TimeInstant;
@@ -70,26 +70,27 @@ public final class CPUProcess implements Comparable<CPUProcess> {
     }
 
     /**
-     * Natural sorting should by base don left over demand.
+     * Natural sorting is based on left over demand.
      */
     @Override
     public int compareTo(CPUProcess o) {
         if (o == null) return -1;
-        int difference = this.demandRemainder - o.demandRemainder;
-        return difference;
+        return this.demandRemainder - o.demandRemainder;
     }
 
+    /**
+     * @param amount value by which the demand remainder should be reduced
+     * @throws IllegalArgumentException if the given amount is larger than the demand remainder.
+     */
     public void reduceDemandRemainder(int amount) {
         if (this.demandRemainder < amount)
             throw new IllegalArgumentException(String.format("Cannot reduce left over demand (which is %d) by %d", demandRemainder, amount));
         this.demandRemainder -= amount;
     }
 
-
-    void stampCurrentBurstStarted(TimeInstant start) {
+    public void stampCurrentBurstStarted(TimeInstant start) {
         startOfCurrentBurst = start;
     }
-
 
     /**
      * Cancels the current Burst of the this process and reset its progress.
