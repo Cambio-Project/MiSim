@@ -17,6 +17,9 @@ public interface IRequestUpdateListener extends Comparable<IRequestUpdateListene
      * Listener for the failure of the sending process. This could for example be due to the receiving service not being
      * available, the request being canceled or timed out. Provides a reference to the failed request.
      *
+     * @param when time of this event
+     * @param request request that triggered this event
+     * @param reason reason why the request failed
      * @return true if the request was terminally handled (consumed) by this instance
      */
     default boolean onRequestFailed(final Request request, final TimeInstant when, final RequestFailedReason reason) {
@@ -28,6 +31,8 @@ public interface IRequestUpdateListener extends Comparable<IRequestUpdateListene
      * Listener for the successful completion of the sending process. Provides a reference to the successfully arrived
      * request.
      *
+     * @param when time of this event
+     * @param request request that triggered this event
      * @return true if the request was terminally handled (consumed) by this instance
      */
     default boolean onRequestArrivalAtTarget(final Request request, final TimeInstant when) {
@@ -37,6 +42,8 @@ public interface IRequestUpdateListener extends Comparable<IRequestUpdateListene
     /**
      * Listener for the send-off of a request. Provides the send request.
      *
+     * @param when time of this event
+     * @param request request that triggered this event
      * @return true if the request was terminally handled (consumed) by this instance
      */
     default boolean onRequestSend(final Request request, final TimeInstant when) {
@@ -46,6 +53,8 @@ public interface IRequestUpdateListener extends Comparable<IRequestUpdateListene
     /**
      * Listener for the successful receiving of the answer of a request.
      *
+     * @param when time of this event
+     * @param request request that triggered this event
      * @return true if the request was terminally handled (consumed) by this instance
      */
     default boolean onRequestResultArrivedAtRequester(final Request request, final TimeInstant when) {

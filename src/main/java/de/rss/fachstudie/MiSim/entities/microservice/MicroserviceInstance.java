@@ -112,6 +112,8 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
     /**
      * Checks whether this Instance can handle the Request.
      *
+     *
+     * @param request request that may should be handled by this instance.
      * @return true if this request will be handled, false otherwise
      */
     public boolean checkIfCanHandle(Request request) {

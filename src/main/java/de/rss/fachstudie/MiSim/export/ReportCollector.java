@@ -28,6 +28,7 @@ public class ReportCollector extends ReportManager {
 
     /**
      * Collects (and potentially combines) all results of all registered {@link MultiDataPointReporter}.
+     * @return returns the values of all MultiDataPointReporters
      */
     public HashMap<String, TreeMap<Double, Object>> collect_data() {
         //collect_datasets

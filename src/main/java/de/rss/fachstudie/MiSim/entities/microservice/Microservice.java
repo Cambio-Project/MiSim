@@ -134,7 +134,7 @@ public class Microservice extends Entity {
      * Kills the given number of services many random instances. Accepts numbers larger than the current amount of
      * instances.
      *
-     * @param numberOfInstances
+     * @param numberOfInstances number of instances that should be instantly killed
      */
     public synchronized void killInstances(final int numberOfInstances) {
         for (int i = 0; i < numberOfInstances; i++) {
@@ -172,6 +172,8 @@ public class Microservice extends Entity {
 
     /**
      * Injector for load balancing strategy for easier json parsing.
+     *
+     * @param loadBalancingStrategy name of the strategy that is to be applied
      */
     public void setLoadBalancingStrategy(String loadBalancingStrategy) {
         loadBalancer.setLoadBalancingStrategy(LoadBalancingStrategy.fromName(getModel(), loadBalancingStrategy));

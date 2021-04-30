@@ -9,6 +9,8 @@ import desmoj.core.dist.NumericalDist;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeSpan;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 /**
  * Event that represents the sending of a request.
  * <p>
@@ -19,6 +21,18 @@ import desmoj.core.simulator.TimeSpan;
  * @author Lion Wagner
  */
 public class NetworkRequestSendEvent extends NetworkRequestEvent {
+
+    private static final AtomicLong counterSendEvents = new AtomicLong(0);
+
+    public static long getCounterSendEvents() {
+        return counterSendEvents.get();
+    }
+
+    public static void resetCounterSendEvents() {
+        counterSendEvents.set(0);
+    }
+
+    private static NumericalDist<Double> rng;
 
     private NetworkRequestReceiveEvent receiverEvent;
     private final Microservice targetService;
@@ -38,12 +52,16 @@ public class NetworkRequestSendEvent extends NetworkRequestEvent {
         this.targetService = targetService;
         this.targetInstance = targetInstance;
         request.setSendEvent(this);
+
+        if(rng == null) //a dirty fix to avoid memory leakage
+            rng = new ContDistNormal(getModel(),  "DefaultNetworkDelay_RNG", 20, 10, true, false);
     }
 
     @Override
     public void eventRoutine() throws SuspendExecution {
         traveling_request.stampSendoff(presentTime());
 
+        counterSendEvents.getAndIncrement();
 
         if (traveling_request instanceof RequestAnswer && traveling_request.getParent() instanceof UserRequest) {
             // if an answer to a UserRequest is send, it will be considered done (since there is no receiver)
@@ -54,7 +72,8 @@ public class NetworkRequestSendEvent extends NetworkRequestEvent {
             return;
         }
 
-        NumericalDist<Double> rng = new ContDistNormal(getModel(), getName() + "_RNG", 20, 10, true, false);
+
+
         //calculate next delay
         double nextDelay;
         do {

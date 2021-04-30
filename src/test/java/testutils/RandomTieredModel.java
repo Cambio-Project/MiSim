@@ -15,25 +15,24 @@ import java.util.stream.IntStream;
 
 import static testutils.TestUtils.nextNonNegative;
 
-public class RandomTestModel extends Model {
-
-    public final static int duration = 1200;
+public class RandomTieredModel extends Model {
 
     private final ArrayList<Microservice> all_microservices = new ArrayList<>();
     private final ArrayList<Operation> all_operations = new ArrayList<>();
+    private final ArrayList<Generator> all_generators = new ArrayList<>();
 
-
-    private final int current_service_count;
-    private final int current_tier_count;
+    private final int maxServicesPerTier;
+    private final int tierCount;
     private final Map<Integer, List<Microservice>> tiers = new HashMap<>();
 
+    private int generator_count = 5;
+    private double generator_interval = 1;
 
-    public RandomTestModel(Model model, String s, int current_service_count, int current_tier_count) {
-        super(model, s, false, false);
-        this.current_service_count = current_service_count;
-        this.current_tier_count = current_tier_count;
+    public RandomTieredModel(String name, int maxServicesPerTier, int tierCount) {
+        super(null, name, false, false);
+        this.maxServicesPerTier = maxServicesPerTier;
+        this.tierCount = tierCount;
     }
-
 
     @Override
     public String description() {
@@ -45,17 +44,17 @@ public class RandomTestModel extends Model {
         for (Microservice microservice : all_microservices) {
             microservice.start();
         }
-        createGenerators().forEach(Generator::doInitialSelfSchedule);
-
+        createGenerators(generator_count, generator_interval);
+        all_generators.forEach(Generator::doInitialSelfSchedule);
     }
 
     @Override
     public void init() {
-        IntStream.range(1, current_tier_count + 1).forEach(value -> tiers.put(value, new ArrayList<>()));
+        IntStream.range(1, tierCount + 1).forEach(value -> tiers.put(value, new ArrayList<>()));
         for (List<Microservice> tier : tiers.values()) {
-            for (int i = 0; i < Math.max(1, nextNonNegative(current_service_count)); i++) {
+            for (int i = 0; i < Math.max(1, nextNonNegative(maxServicesPerTier)); i++) {
                 Microservice current_ms = new Microservice(this, "MS" + all_microservices.size(), false);
-                current_ms.setInstancesCount(1);
+                current_ms.setInstancesCount(2);
                 current_ms.setCapacity(nextNonNegative());
                 current_ms.setPatternData(new PatternData[]{TestUtils.getRetryPatternMock(this), TestUtils.getCircuitBreaker(this), TestUtils.getAutoscaler(this)});
                 ArrayList<Operation> current_ops = new ArrayList<>();
@@ -73,7 +72,7 @@ public class RandomTestModel extends Model {
 
         for (Microservice microservice : all_microservices) {
             int current_tier = getTier(microservice);
-            if (current_tier == current_tier_count) continue;
+            if (current_tier == tierCount) continue;
 
             List<Microservice> nextTier = tiers.get(current_tier + 1);
             List<Operation> nextTierOps = new ArrayList<>();
@@ -82,26 +81,13 @@ public class RandomTestModel extends Model {
             for (Operation operation : microservice.getOperations()) {
                 Set<Dependency> dependencies = new HashSet<>();
                 int depTargetCount = nextNonNegative(10);
-//                Predicate<Operation> testForCircular = op -> op == null || op.getOwnerMS() == operation.getOwnerMS() ||
-//                        dependencies.stream().anyMatch(dependency -> dependency.getTargetOperation().equals(op));
-
-//                for (int i = 0; i < depTargetCount && all_operations.stream().anyMatch(testForCircular.negate()); i++) {
-//                    Operation targetOP = null;
-//                    while (testForCircular.test(targetOP)) {
-//                        targetOP = all_operations.get(nextNonNegative(all_operations.size()));
-//                    }
-//                    dependencies.add(new Dependency(operation, targetOP, rng.nextDouble()));
-//                }
                 Predicate<Operation> alreadyTargeted = op -> dependencies.stream().anyMatch(dependency -> dependency.getTargetOperation() == op);
                 for (int i = 0; i < Math.min(depTargetCount, nextTierOps.size()); i++) {
                     Operation targetOP = null;
                     while (targetOP == null || alreadyTargeted.test(targetOP)) {
                         targetOP = all_operations.get(nextNonNegative(all_operations.size()));
                     }
-
                 }
-
-
                 operation.setDependencies(dependencies.toArray(new Dependency[0]));
             }
         }
@@ -113,15 +99,30 @@ public class RandomTestModel extends Model {
                 return entry.getKey();
         }
         return -1;
-
     }
 
-    private List<Generator> createGenerators() {
+    public void setGenerator_count(int generator_count) {
+        this.generator_count = generator_count;
+    }
+
+    public void setGenerator_interval(double generator_interval) {
+        this.generator_interval = generator_interval;
+    }
+
+    private void createGenerators(int generator_count, double interval) {
         List<Operation> tier1Operations = new ArrayList<>();
         tiers.get(1).forEach(microservice -> tier1Operations.addAll(Arrays.asList(microservice.getOperations())));
-        return IntStream.range(0, 5)
-                .mapToObj(operand -> (Generator) new IntervalGenerator(this, "intervalgen", false, tier1Operations.get(nextNonNegative(tier1Operations.size())), 1, nextNonNegative(duration / 2)))
-                .collect(Collectors.toList());
+        all_generators.addAll(IntStream.range(0, generator_count)
+                .mapToObj(operand -> (Generator)
+                        new IntervalGenerator(this,
+                                "intervalgen",
+                                false,
+                                tier1Operations.get(nextNonNegative(tier1Operations.size())), interval, 0))
+                .collect(Collectors.toList()));
+    }
+
+    public ArrayList<Microservice> getAll_microservices() {
+        return all_microservices;
     }
 }
 

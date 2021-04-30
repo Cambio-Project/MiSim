@@ -1,11 +1,9 @@
 package de.rss.fachstudie.MiSim.parsing;
 
-import de.rss.fachstudie.MiSim.entities.networking.Dependency;
-import de.rss.fachstudie.MiSim.entities.microservice.Operation;
 import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
+import de.rss.fachstudie.MiSim.entities.microservice.Operation;
+import de.rss.fachstudie.MiSim.entities.networking.Dependency;
 import desmoj.core.simulator.Model;
-
-import java.util.Set;
 
 /**
  * @author Lion Wagner

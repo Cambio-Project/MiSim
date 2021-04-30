@@ -21,7 +21,10 @@ public class PatternData {
     private Map<String, Object> config = new HashMap<>();
 
     /**
-     * Tries to parse the pattern into an {@code InstanceOwnedPattern}. Returns null otherwise.
+     * Tries to parse the pattern into an {@code InstanceOwnedPattern}. Returns {@code null} otherwise.
+     *
+     * @param owner_instance microservice instance that owns this pattern
+     * @return this pattern as {@code InstanceOwnedPattern} or {@code null} if it is not instance owned
      */
     public InstanceOwnedPattern tryGetInstanceOwnedPatternOrNull(MicroserviceInstance owner_instance) {
         try {
@@ -32,7 +35,10 @@ public class PatternData {
     }
 
     /**
-     * Tries to parse the pattern into an {@code ServiceOwnedPattern}. Returns null otherwise.
+     * Tries to parse the pattern into an {@code ServiceOwnedPattern}. Returns {@code null} otherwise.
+     *
+     * @param owner_service microservice that owns this pattern
+     * @return this pattern as {@code ServiceOwnedPattern} or {@code null} if it is not service owned
      */
     public ServiceOwnedPattern tryGetServiceOwnedPatternOrNull(Microservice owner_service) {
         try {
@@ -52,9 +58,12 @@ public class PatternData {
      * @throws ParsingException if the string encoded type is unknown.
      */
     private Pattern tryGetPattern(Entity owner) {
+        //TODO: find pattern type from name (look through classloader and find classes that extend Pattern and match name)
+        //see  Thread.currentThread().getContextClassLoader().loadClass("java.lang.String"); or https://github.com/ronmamo/reflections
+
         String typename = type.toLowerCase().trim();
         Pattern output;
-        switch (typename) {//TODO: this can be further automized with reflection
+        switch (typename) {
             case "retry":
                 output = new RetryManager(owner.getModel(), String.format("RetryManager_of_%s", owner.getName()), true, (MicroserviceInstance) owner);
                 break;

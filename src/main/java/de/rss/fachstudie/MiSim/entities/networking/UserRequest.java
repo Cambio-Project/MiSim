@@ -1,7 +1,7 @@
 package de.rss.fachstudie.MiSim.entities.networking;
 
-import de.rss.fachstudie.MiSim.entities.microservice.Operation;
 import de.rss.fachstudie.MiSim.entities.generator.Generator;
+import de.rss.fachstudie.MiSim.entities.microservice.Operation;
 import de.rss.fachstudie.MiSim.export.MultiDataPointReporter;
 import desmoj.core.simulator.Model;
 

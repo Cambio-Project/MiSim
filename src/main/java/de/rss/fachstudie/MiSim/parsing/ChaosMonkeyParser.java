@@ -6,8 +6,6 @@ import de.rss.fachstudie.MiSim.misc.Util;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 
-import java.util.Set;
-
 /**
  * @author Lion Wagner
  */

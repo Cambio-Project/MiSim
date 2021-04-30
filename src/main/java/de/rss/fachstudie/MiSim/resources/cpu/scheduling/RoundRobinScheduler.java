@@ -21,7 +21,7 @@ import java.util.*;
  * Keeps processes in order (first come first serve). And ensures fairness.
  *
  * @author Lion Wagner
- * @see https://www.researchgate.net/publication/40832774_Self-Adjustment_Time_Quantum_in_Round_Robin_Algorithm_Depending_on_Burst_Time_of_the_Now_Running_Processes
+ * @see <a href=https://www.researchgate.net/publication/40832774_Self-Adjustment_Time_Quantum_in_Round_Robin_Algorithm_Depending_on_Burst_Time_of_the_Now_Running_Processes>SARR algorithm</a>
  */
 public final class RoundRobinScheduler extends CPUProcessScheduler {
 

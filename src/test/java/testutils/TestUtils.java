@@ -2,18 +2,29 @@ package testutils;
 
 import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
 import de.rss.fachstudie.MiSim.entities.microservice.MicroserviceInstance;
+import de.rss.fachstudie.MiSim.entities.networking.NetworkRequestSendEvent;
 import de.rss.fachstudie.MiSim.entities.patterns.CircuitBreaker;
 import de.rss.fachstudie.MiSim.entities.patterns.PreemptiveAutoScaler;
 import de.rss.fachstudie.MiSim.entities.patterns.RetryManager;
+import de.rss.fachstudie.MiSim.export.CSVData;
+import de.rss.fachstudie.MiSim.export.ReportCollector;
 import de.rss.fachstudie.MiSim.parsing.PatternData;
 import desmoj.core.simulator.Experiment;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 import org.apache.commons.math3.stat.descriptive.rank.Percentile;
-import org.javatuples.Pair;
 import org.mockito.Mockito;
 
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -26,22 +37,23 @@ import static org.mockito.Mockito.mock;
 public class TestUtils {
     private static final Random rng = new Random();
 
-    public static Pair<Model, Experiment> getExampleExperiment(int max_service_count_per_tier, int tier_count) {
 
-        RandomTestModel currentModel = new RandomTestModel(null, "TestModel" + nextNonNegative(), max_service_count_per_tier, tier_count);
+    public static Experiment getExampleExperiment(final Model currentModel, final double duration) {
+
+        //RandomTestModel currentModel= new RandomTestModel(null, "TestModel" + nextNonNegative(), max_service_count_per_tier, tier_count);
+        currentModel.traceOff();
+        currentModel.debugOff();
         TestExperiment currentExperiment = new TestExperiment();
         currentModel.connectToExperiment(currentExperiment);
 
 
-        currentExperiment.stop(new TimeInstant(RandomTestModel.duration, TimeUnit.SECONDS));
-//        currentExperiment.tracePeriod(new TimeInstant(0, TimeUnit.SECONDS), new TimeInstant(RandomTestModel.duration, TimeUnit.SECONDS));
-//        currentExperiment.debugPeriod(new TimeInstant(0, TimeUnit.SECONDS), new TimeInstant(RandomTestModel.duration, TimeUnit.SECONDS));
+        currentExperiment.stop(new TimeInstant(duration, TimeUnit.SECONDS));
         currentExperiment.setShowProgressBar(false);
         currentExperiment.traceOff(new TimeInstant(0));
         currentExperiment.debugOff(new TimeInstant(0));
         currentExperiment.setSilent(true);
 
-        return new Pair<>(currentModel, currentExperiment);
+        return currentExperiment;
     }
 
     public static PatternData getRetryPatternMock(Model model) {
@@ -65,6 +77,25 @@ public class TestUtils {
         return data;
     }
 
+    public static void resetModel(RandomTieredModel model) {
+        ReportCollector.getInstance().reset(); //resetting static data point collection framework
+        NetworkRequestSendEvent.resetCounterSendEvents();
+        model.reset();
+
+        //reset mocks to prevent Mockito from leaking
+        try {
+            Field f = Microservice.class.getDeclaredField("patternsData");
+            f.setAccessible(true);
+            for (Microservice microservice : model.getAll_microservices()) {
+                PatternData[] mocks = (PatternData[]) f.get(microservice);
+                Mockito.reset(mocks);
+
+            }
+        } catch (NoSuchFieldException | IllegalAccessException exception) {
+            exception.printStackTrace();
+        }
+        System.gc();
+    }
 
     public static int nextNonNegative() {
         return nextNonNegative(Integer.MAX_VALUE);
@@ -96,4 +127,29 @@ public class TestUtils {
         return number_collection.stream().mapToDouble(Number::doubleValue).average().orElse(-1);
     }
 
+    public static double median(Number... number_collection) {
+        return percentile(.5, Arrays.asList(number_collection));
+    }
+
+    public static double mean(Number... number_collection) {
+        return Arrays.stream(number_collection).mapToDouble(Number::doubleValue).average().orElse(-1);
+    }
+
+    public static void writeOutput(List<? extends CSVData> testResults, String fileName) {
+        Path filePath = Paths.get(fileName);
+
+        StringBuilder builder = new StringBuilder(testResults.get(0).toCSVHeader()).append('\n');
+        for (CSVData csvData : testResults) {
+            builder.append(csvData.toCSVData()).append('\n');
+        }
+
+        try {
+            if (Files.exists(filePath)) {
+                Files.delete(filePath);
+            }
+            Files.write(filePath, builder.toString().getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

@@ -1,7 +1,7 @@
 package de.rss.fachstudie.MiSim.parsing;
 
-import de.rss.fachstudie.MiSim.entities.microservice.Operation;
 import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
+import de.rss.fachstudie.MiSim.entities.microservice.Operation;
 import desmoj.core.simulator.Model;
 
 import java.util.Arrays;

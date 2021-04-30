@@ -3,8 +3,6 @@ package de.rss.fachstudie.MiSim.events;
 import co.paralleluniverse.fibers.SuspendExecution;
 import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
 import de.rss.fachstudie.MiSim.misc.Priority;
-import de.rss.fachstudie.MiSim.parsing.ChaosMonkeyParser;
-import de.rss.fachstudie.MiSim.parsing.Parser;
 import desmoj.core.simulator.Model;
 
 /**

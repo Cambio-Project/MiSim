@@ -1,7 +1,6 @@
 package de.rss.fachstudie.MiSim.entities.microservice;
 
 import co.paralleluniverse.fibers.SuspendExecution;
-import de.rss.fachstudie.MiSim.entities.microservice.MicroserviceInstance;
 import de.rss.fachstudie.MiSim.misc.Priority;
 import desmoj.core.simulator.Event;
 import desmoj.core.simulator.Model;

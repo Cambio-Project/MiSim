@@ -1,7 +1,5 @@
 package de.rss.fachstudie.MiSim.export;
 
-import desmoj.core.simulator.TimeInstant;
-
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.TreeMap;

@@ -7,7 +7,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 
 /**
- * <b>S</b>hortest <b>P</b>roces <b>n</b>ext scheduler.
+ * <b>S</b>hortest <b>P</b>rocess <b>N</b>ext Scheduler
  * <p>
  * Schedules all entered processes by their left over work unit demand. Always retrieves the process that hast he least
  * work left first. Always assigns the full work demand needed for a processes.

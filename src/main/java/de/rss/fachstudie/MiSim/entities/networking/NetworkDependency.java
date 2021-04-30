@@ -1,7 +1,7 @@
 package de.rss.fachstudie.MiSim.entities.networking;
 
-import de.rss.fachstudie.MiSim.entities.microservice.Operation;
 import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
+import de.rss.fachstudie.MiSim.entities.microservice.Operation;
 import desmoj.core.simulator.Entity;
 import desmoj.core.simulator.Model;
 
@@ -60,6 +60,8 @@ public class NetworkDependency extends Entity {
      * This method is used to overwrite the child request that was used to try to complete this dependency. For example,
      * if a retry creates a new request because the previous one timed out, it has to notify (update) the {@code
      * NetworkDependency} that a new child request for this dependency was created.
+     *
+     * @param child_request new child request that overwrites the current one
      */
     public void updateChild_request(Request child_request) {
         this.child_request = child_request;

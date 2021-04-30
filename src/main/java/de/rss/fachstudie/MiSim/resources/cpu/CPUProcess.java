@@ -54,9 +54,9 @@ public final class CPUProcess implements Comparable<CPUProcess> {
      * <p>
      * Specifically returns: Remainder at start of Burst - (peekTime - startTime) * computingCapacityPerTimeUnit
      *
-     * @param peekTime
-     * @param computingCapacityPerTimeUnit
-     * @return
+     * @param peekTime time for which the current remainder should be calculated
+     * @param computingCapacityPerTimeUnit computing capacity of a thread per time unit
+     * @return the remaining demand of the currently handled process
      */
     public double getDemandRemainder(TimeInstant peekTime, int computingCapacityPerTimeUnit) {
         int remainder = getDemandRemainder();

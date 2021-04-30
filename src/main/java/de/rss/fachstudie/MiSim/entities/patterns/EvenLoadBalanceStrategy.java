@@ -2,7 +2,10 @@ package de.rss.fachstudie.MiSim.entities.patterns;
 
 import de.rss.fachstudie.MiSim.entities.microservice.MicroserviceInstance;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Strategy that balances the amount of requests evenly between instances. Does not care about internal demand of the

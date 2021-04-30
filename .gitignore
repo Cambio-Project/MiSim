@@ -107,3 +107,7 @@ fabric.properties
 *.html
 
 .idea/
+
+Report_*/
+
+docs/

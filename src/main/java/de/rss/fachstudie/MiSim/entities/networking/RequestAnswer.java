@@ -29,6 +29,7 @@ public final class RequestAnswer extends Request {
 
     /**
      * Unpack the original Request that is answered by this Request
+     * @return the request, that is wrapped by this answer
      */
     public Request unpack() {
         return getParent();

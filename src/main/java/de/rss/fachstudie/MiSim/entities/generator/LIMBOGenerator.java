@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
  *   <tr>
  *     <td> repetition_skip </td> <td>1</td> <td>Time in s to wait between repetitions (usually the default interval of the load model)</td>
  *   </tr>
+ *   <caption>Json properties of this generator.</caption>
  * </table>
  *
  * @author Lion Wagner

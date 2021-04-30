@@ -14,9 +14,10 @@ import java.util.Random;
 
 /**
  * Retry implementation that employs a full jitter based exponential backoff.
+ * Jittering can be turned off.
  *
  * @author Lion Wagner
- * @see https://aws.amazon.com/de/blogs/architecture/exponential-backoff-and-jitter/
+ * @see <a href=https://aws.amazon.com/de/blogs/architecture/exponential-backoff-and-jitter/>Articel on Backoff and Jitter Algorithms </a>
  */
 public class RetryManager extends NetworkPattern implements IRequestUpdateListener {
 

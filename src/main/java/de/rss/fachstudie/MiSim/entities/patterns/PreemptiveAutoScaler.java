@@ -6,8 +6,13 @@ import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 
 /**
+ * Autoscaler that periodically checks all instances of a service. If the average CPU utilization is above the target
+ * threshold a new instance will be created. If the utilization is below a threshold the service will be downscaled. The
+ * instance with the lowest utilization will be shutdown. After an upscale the service is locked from downscaling during
+ * the {@code holdTime} to prevent a too early downscaling during a workload ramp up.
+ *
  * @author Lion Wagner
- * @see https://doi.org/10.1109/MASCOTS.2014.32
+ * @see <a href=https://doi.org/10.1109/MASCOTS.2014.32>Auto-scaling Strategies for Cloud Computing Environments</a>
  */
 public final class PreemptiveAutoScaler extends PeriodicServiceOwnedPattern {
 

@@ -7,12 +7,10 @@ import de.rss.fachstudie.MiSim.entities.networking.*;
 import de.rss.fachstudie.MiSim.events.IParsableSelfScheduled;
 import de.rss.fachstudie.MiSim.export.AccumulativeDataPointReporter;
 import de.rss.fachstudie.MiSim.export.MultiDataPointReporter;
-import de.rss.fachstudie.MiSim.parsing.Parser;
 import desmoj.core.simulator.ExternalEvent;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 import desmoj.core.simulator.TimeSpan;
-import org.apache.commons.lang3.NotImplementedException;
 
 /**
  * Superclass for all generators. Automatically takes care of the (re-)scheduling of the generation events, sending of
@@ -52,7 +50,9 @@ public abstract class Generator extends RequestSender implements IRequestUpdateL
 
     /**
      * Event that represents the triggering of the generation of a new request.
+     *
      */
+    //TODO: change this to a desmoj.core.simulator.SimProcess to reduce the model clogging up with objects
     private static class GeneratorTriggerEvent extends ExternalEvent {
 
         private final Generator generator;
@@ -66,11 +66,6 @@ public abstract class Generator extends RequestSender implements IRequestUpdateL
         public void eventRoutine() throws SuspendExecution {
             generator.eventRoutine();
         }
-    }
-
-    @Override
-    public Class<? extends Parser<?>> getParserClass() {
-        throw new NotImplementedException();
     }
 
     /**
@@ -103,17 +98,20 @@ public abstract class Generator extends RequestSender implements IRequestUpdateL
      * <p>
      * Can return {@code null} or throw a {@link GeneratorStopException} to stop the generator.
      *
+     * @param lastTargetTime last target time
      * @throws GeneratorStopException when the Generator is stops.
+     * @return the next target time
      */
     protected abstract TimeInstant getNextTargetTime(final TimeInstant lastTargetTime);
 
     /**
-     * Method to compute used get the first target time. Called by the superclass upon need for the first TimeInstance.
+     * Method to compute the first or initial target time. Called by the superclass upon need for the first TimeInstance.
      * Should return a constant value.
      * <p>
      * Can return {@code null} or throw a {@link GeneratorStopException} to stop the generator.
      *
      * @throws GeneratorStopException when the Generator is stops.
+     * @return the point in simulation time when the first request should be sent by this generator
      */
     protected abstract TimeInstant getFirstTargetTime();
 

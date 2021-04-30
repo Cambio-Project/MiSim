@@ -1,7 +1,7 @@
 package de.rss.fachstudie.MiSim.entities.networking;
 
-import de.rss.fachstudie.MiSim.entities.microservice.Operation;
 import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
+import de.rss.fachstudie.MiSim.entities.microservice.Operation;
 import de.rss.fachstudie.MiSim.misc.Util;
 import desmoj.core.dist.ContDistNormal;
 import desmoj.core.dist.NumericalDist;
@@ -66,7 +66,7 @@ public class Dependency {
         this.targetOperation = targetOperation;
         this.probability = probability;
         this.custom_delay = custom_delay == null ? null : new ContDistNormal(parent.getModel(), null, custom_delay, 0, false, false);
-        this.extra_delay = new ContDistNormal(parent.getModel(), null, 0, 0, false, false);
+        this.extra_delay = null;
     }
 
     public double getProbability() {
@@ -86,6 +86,8 @@ public class Dependency {
     }
 
     public synchronized double getNextExtraDelay() {
+        if (extra_delay == null)
+            return 0;
         double nextlatency;
         do {
             nextlatency = extra_delay.sample();

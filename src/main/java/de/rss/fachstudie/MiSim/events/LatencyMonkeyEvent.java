@@ -3,8 +3,6 @@ package de.rss.fachstudie.MiSim.events;
 import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
 import de.rss.fachstudie.MiSim.entities.microservice.Operation;
 import de.rss.fachstudie.MiSim.misc.Util;
-import de.rss.fachstudie.MiSim.parsing.LatencyMonkeyParser;
-import de.rss.fachstudie.MiSim.parsing.Parser;
 import desmoj.core.dist.ContDistNormal;
 import desmoj.core.dist.NumericalDist;
 import desmoj.core.simulator.Model;
@@ -13,15 +11,10 @@ import java.util.Arrays;
 import java.util.Objects;
 
 /**
- * Event that triggers a latency injection.
- * <p>
- * The injection can be applied on different levels:
- * <p>
- * Either all outgoing requests of a {@code Microservice} are delayed.<p>
- * <p>
- * Or all outgoing dependency requests of a single {@code Operation} can be delayed.<p>
- * <p>
- * Or the connection between two specific  {@code Operation}s can also be delayed.
+ * Event that triggers a latency injection. The injection can be applied on different levels:<br>
+ * Either all outgoing requests of a {@code Microservice} are delayed.<br>
+ * Or all outgoing dependency requests of a single {@code Operation} can be delayed.<br>
+ * Or the connection between two specific {@code Operation}s can also be delayed.
  *
  * @author Lion Wagner
  */

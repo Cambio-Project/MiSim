@@ -24,12 +24,11 @@ public class ArchModelParser {
     public static Microservice[] microservices;
 
     /**
-     * Step one of parsing. Translate the textural information into Microservices. does not initialize dependencies
+     * Step one of parsing. Translate the textural information into Microservices. Does not initialize dependencies
      * yet.
      *
-     * @param path
-     * @param model
-     * @return
+     * @param path File path to the architecture file
+     * @return all parsed microservices, dependencies are not initialized yet.
      * @see ArchModelParser#initializeOperations()
      */
     public static Set<Microservice> parseMicroservicesArchModelFile(Path path) {

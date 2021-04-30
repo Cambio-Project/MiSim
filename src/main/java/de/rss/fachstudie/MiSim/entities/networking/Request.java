@@ -1,17 +1,14 @@
 package de.rss.fachstudie.MiSim.entities.networking;
 
-import de.rss.fachstudie.MiSim.entities.microservice.Operation;
 import de.rss.fachstudie.MiSim.entities.microservice.MicroserviceInstance;
-import desmoj.core.dist.ContDistUniform;
+import de.rss.fachstudie.MiSim.entities.microservice.Operation;
+import de.rss.fachstudie.MiSim.models.ExperimentMetaData;
 import desmoj.core.simulator.Entity;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 import org.apache.commons.math3.util.Precision;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.PriorityQueue;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Lion Wagner
@@ -54,9 +51,9 @@ public abstract class Request extends Entity {
         for (Dependency dependency : operation.getDependencies()) {
 
             // Roll probability
-            ContDistUniform prob = new ContDistUniform(getModel(), "", 0.0, 1.0, false, false);
+            Random prob = new Random(ExperimentMetaData.get().getSeed());
             double probability = dependency.getProbability();
-            double sample = prob.sample();
+            double sample = prob.nextDouble();
             if (sample <= probability) {
 
                 Operation nextOperationEntity = dependency.getTargetOperation();

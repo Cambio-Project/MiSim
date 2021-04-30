@@ -62,6 +62,7 @@ public class CPU extends ExternalEvent {
     /**
      * Constructs a new CPU with a default thread pool size of {@code CPUImpl.DEFAULT_THREADPOOLSIZE}.
      *
+     * {@inheritDoc}
      * @see CPU#CPU
      */
     public CPU(Model model, String name, boolean showInTrace, int capacity, CPUProcessScheduler scheduler, MicroserviceInstance owner) {
@@ -74,7 +75,7 @@ public class CPU extends ExternalEvent {
      * @param model          parent and simulation model
      * @param name           CPU name, should be formatted {}_{}
      * @param showInTrace    whether the computation events should be shown in the trace
-     * @param owner
+     * @param owner          instance that owns this cpu
      * @param capacity       total capacity of the cpu resource. Each thread will be assigned a capacity of {@code
      *                       Math.floor(capacity/threadPoolSize)}.
      * @param scheduler      implementation of a scheduling strategy that should be used by the CPU

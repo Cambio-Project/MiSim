@@ -18,10 +18,11 @@ import desmoj.core.simulator.TimeInstant;
  *   <tr>
  *      <td> start </td>    <td>0</td>               <td>Starting time in ms of the generator.</td>
  *   </tr>
+ *   <caption>Json properties of this generator.</caption>
  * </table>
  *
  * @author Lion Wagner
- * @TODO distribution
+ * TODO: even or randomized distribution within a simulation time unit
  */
 public final class IntervalGenerator extends Generator {
 
