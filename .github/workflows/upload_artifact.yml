@@ -32,7 +32,7 @@ jobs:
       run: |
           mvn -B package --file pom.xml
           mkdir staging
-          cp target/*.jar stating
+          cp target/*.jar staging
       
       
     - name: upload artifacts
