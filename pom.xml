@@ -6,7 +6,7 @@
 
     <groupId>de.orcas</groupId>
     <artifactId>misim</artifactId>
-    <version>3.0-SNAPSHOT</version>
+    <version>3.0</version>
 
     <properties>
         <mockito.version>3.9.0</mockito.version>
