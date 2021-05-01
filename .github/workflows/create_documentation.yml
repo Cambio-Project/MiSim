@@ -17,7 +17,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
       with:
-        fetch-deph: 0
+        fetch-depth: 0
         persist-credentials: 'false'
         
     - name: Set up JDK 11
@@ -35,10 +35,10 @@ jobs:
     - name: Move website to docs
       run: | 
         rm -rf ./docs && mkdir -p ./docs && cp -r ./target/site/apidocs/. ./docs/
-        git status > ./docs/git.txt
       
-    - name: upload artifacts
-      uses: actions/upload-artifact@v2.2.3
+    - name: push updated doc
+      uses: EndBug/add-and-commit@v7
       with:
-        name: docs
-        path: ./docs/
+        add: './docs/'
+        author_name: 'Documentation_Bot'
+        message: 'Updated Documentation Beep Boop'
