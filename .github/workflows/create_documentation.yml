@@ -34,7 +34,7 @@ jobs:
       
     - name: Move website to docs
       run: | 
-        mkdir -p ./docs && cp -r ./target/site/apidocs/ ./docs/
+        rm -rf ./docs && mkdir -p ./docs && cp -r ./target/site/apidocs/. ./docs/
         git status > ./docs/git.txt
       
     - name: upload artifacts
