@@ -30,10 +30,10 @@ jobs:
       run: mvn install:install-file -Dfile=./libraries/DesmoJ/desmoj-2.5.1e-bin.jar -Dversion=2.5.1e -DgeneratePom=true -DgroupId=desmoj -DartifactId=desmoj -Dpackaging=jar
     
     - name: Build JavaDoc with Maven
-      run:  mkdir -p ./docs && mvn javadoc:javadoc -DdestDir="/../../../docs"
+      run:  mvn javadoc:javadoc
       
     - name: upload artifacts
       uses: actions/upload-artifact@v2.2.3
       with:
         name: docs
-        path: ./docs/
+        path: ./target/
