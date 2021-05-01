@@ -26,7 +26,7 @@ jobs:
       run: mvn install:install-file -Dfile=./libraries/DesmoJ/desmoj-2.5.1e-bin.jar -Dversion=2.5.1e -DgeneratePom=true -DgroupId=desmoj -DartifactId=desmoj -Dpackaging=jar
     
     - name: Build JavaDoc with Maven
-      run:  mvn javadoc:javadoc
+      run:  mvn javadoc:javadoc -Dnotimestamp=true
       
     - name: Move website to docs
       run: | 
