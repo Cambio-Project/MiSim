@@ -33,7 +33,9 @@ jobs:
       run:  mvn javadoc:javadoc
       
     - name: Move website to docs
-      run: mkdir -p ./docs && cp -r ./target/site/apidocs/ ./docs/
+      run: | 
+        mkdir -p ./docs && cp -r ./target/site/apidocs/ ./docs/
+        git status > ./docs/git.txt
       
     - name: upload artifacts
       uses: actions/upload-artifact@v2.2.3
