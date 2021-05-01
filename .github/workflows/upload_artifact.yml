@@ -31,12 +31,13 @@ jobs:
     - name: Build with Maven
       run: |
           mvn -B package --file pom.xml
-          mkdir staging
-          cp target/*.jar staging
+          
+    - name: Copy Data
+      run: mkdir staging && cp target/*.jar staging
       
       
     - name: upload artifacts
       uses: actions/upload-artifact@v2.2.3
       with:
         name: miSim 3.0
-        path: ./stating/
+        path: ./staging/
