@@ -25,7 +25,10 @@ jobs:
       with:
         java-version: '11'
         distribution: 'adopt'
-        
+    
+    - name: register desmoj to maven 
+      run: mvn install:install-file -Dfile=./libraries/DesmoJ/desmoj-2.5.1e-bin.jar -Dversion=2.5.1e -DgeneratePom=true -DgroupId=desmoj -DartifactId=desmoj -Dpackaging=jar
+    
     - name: Build JavaDoc with Maven
       run:  mvn javadoc:javadoc -DdestDir="/../../../docs"
       
