@@ -7,6 +7,7 @@ import de.rss.fachstudie.MiSim.entities.networking.*;
 import de.rss.fachstudie.MiSim.events.IParsableSelfScheduled;
 import de.rss.fachstudie.MiSim.export.AccumulativeDataPointReporter;
 import de.rss.fachstudie.MiSim.export.MultiDataPointReporter;
+import de.rss.fachstudie.MiSim.parsing.Parser;
 import desmoj.core.simulator.ExternalEvent;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
@@ -221,5 +222,13 @@ public abstract class Generator extends RequestSender implements IRequestUpdateL
         //also creates a datapoint for failed requests so they can be directly compared
         accReporter.addDatapoint("FailedRequests", currentTime, 0);
         return true;
+    }
+
+    /**
+     * Dummy to allow extension of {@code IParsableSelfScheduled}
+     */
+    @Override
+    public Class<? extends Parser<?>> getParserClass() {
+        return null;
     }
 }
