@@ -30,7 +30,7 @@ jobs:
     
     - name: Build with Maven
       run: |
-          mvn -B package --file pom.xml -DskipTests=true
+          mvn -B package --file pom.xml -DskipTests=true -Dmaven.javadoc.skip=true
           
     - name: Copy Data
       run: mkdir staging && cp target/*.jar staging
