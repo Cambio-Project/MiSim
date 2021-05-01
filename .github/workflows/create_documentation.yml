@@ -32,8 +32,11 @@ jobs:
     - name: Build JavaDoc with Maven
       run:  mvn javadoc:javadoc
       
+    - name: Move website to docs
+      run: mkdir -p ./docs && cp -r ./target/site/apidocs/ ./docs/
+      
     - name: upload artifacts
       uses: actions/upload-artifact@v2.2.3
       with:
         name: docs
-        path: ./target/
+        path: ./docs/
