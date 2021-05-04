@@ -279,7 +279,9 @@ extends desmoj.core.simulator.Entity</pre>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code><a href="Operation.html" title="class in de.rss.fachstudie.MiSim.entities.microservice">Operation</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getOperationByName(java.lang.String)">getOperationByName</a></span>&#8203;(<a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;name)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block">Searches an <code>Operation</code> that has the name that is given as an argument.</div>
+</td>
 </tr>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code><a href="Operation.html" title="class in de.rss.fachstudie.MiSim.entities.microservice">Operation</a>[]</code></td>
@@ -549,6 +551,15 @@ extends desmoj.core.simulator.Entity</pre>
 <li class="blockList">
 <h4>getOperationByName</h4>
 <pre class="methodSignature">public&nbsp;<a href="Operation.html" title="class in de.rss.fachstudie.MiSim.entities.microservice">Operation</a>&nbsp;getOperationByName&#8203;(<a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;name)</pre>
+<div class="block">Searches an <code>Operation</code> that has the name that is given as an argument.
+ The real name of the operation may differ. It may starts with the name of this
+ mircoservice instance or ands with a '#' and a number.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>name</code> - name of the operation that should be found</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>an operation that has exactly that name, <code>null</code> if not found</dd>
+</dl>
 </li>
 </ul>
 <a id="setOperations(de.rss.fachstudie.MiSim.entities.microservice.Operation[])">
