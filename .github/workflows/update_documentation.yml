@@ -10,7 +10,7 @@ on:
     branches: [ master, Version3 ]
 
 jobs:
-  build:
+  build_documentation:
     runs-on: ubuntu-latest
 
     steps:
@@ -26,9 +26,9 @@ jobs:
       run: mvn install:install-file -Dfile=./libraries/DesmoJ/desmoj-2.5.1e-bin.jar -Dversion=2.5.1e -DgeneratePom=true -DgroupId=desmoj -DartifactId=desmoj -Dpackaging=jar
     
     - name: Build JavaDoc with Maven
-      run:  mvn javadoc:javadoc -Dnotimestamp=true -Dnoindex=false
+      run:  mvn javadoc:javadoc -Dnotimestamp=true
       
-    - name: Move website to docs
+    - name: Move Website to /docs
       run: | 
         rm -rf ./docs && mkdir -p ./docs && cp -rpv ./target/site/apidocs/. ./docs/
       
