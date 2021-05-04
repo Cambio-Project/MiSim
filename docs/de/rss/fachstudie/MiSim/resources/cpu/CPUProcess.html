@@ -90,10 +90,10 @@ extends <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/Object.html
 implements <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/Comparable.html" title="class or interface in java.lang" class="external-link">Comparable</a>&lt;<a href="CPUProcess.html" title="class in de.rss.fachstudie.MiSim.resources.cpu">CPUProcess</a>&gt;</pre>
 <div class="block">Data-class that contains information about a currently running (or potentially finished) process.
  <p>
- More specifically, it concentrates on holding information about the total work units needed and left to complete the
- processes. Further, there are methods to manipulate the later.
+ More specifically, it concentrates on holding information about the total work units totally needed and left to
+ complete the process. Further, there are methods to manipulate the later.
  <p>
- For the purpose of compatibility (e.g. non impacting operations) a demand of 0 is allowed.</div>
+ For the purpose of compatibility (e.g. non impacting operations) a demand of <code>0</code> is allowed.</div>
 <dl class="notes">
 <dt>Author:</dt>
 <dd>Lion Wagner</dd>
@@ -123,7 +123,9 @@ implements <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/Comparab
 </tr>
 <tr class="row-color">
 <th class="col-constructor-name" scope="row"><code><span class="member-name-link"><a href="#%3Cinit%3E(de.rss.fachstudie.MiSim.entities.networking.Request)">CPUProcess</a></span>&#8203;(<a href="../../entities/networking/Request.html" title="class in de.rss.fachstudie.MiSim.entities.networking">Request</a>&nbsp;request)</code></th>
-<td class="col-last">&nbsp;</td>
+<td class="col-last">
+<div class="block">Creates a <a href="CPUProcess.html" title="class in de.rss.fachstudie.MiSim.resources.cpu"><code>CPUProcess</code></a> for the given <a href="../../entities/networking/Request.html" title="class in de.rss.fachstudie.MiSim.entities.networking"><code>Request</code></a>.</div>
+</td>
 </tr>
 </tbody>
 </table>
@@ -191,12 +193,16 @@ int&nbsp;computingCapacityPerTimeUnit)</code></th>
 <tr class="row-color" id="i7">
 <td class="col-first"><code>void</code></td>
 <th class="col-second" scope="row"><code><span class="member-name-link"><a href="#setCurrentBurstCompletionEvent(de.rss.fachstudie.MiSim.resources.cpu.ComputationBurstCompletedEvent)">setCurrentBurstCompletionEvent</a></span>&#8203;(<a href="ComputationBurstCompletedEvent.html" title="class in de.rss.fachstudie.MiSim.resources.cpu">ComputationBurstCompletedEvent</a>&nbsp;currentBurstCompletionEvent)</code></th>
-<td class="col-last">&nbsp;</td>
+<td class="col-last">
+<div class="block">Sets the event, that should be executed upon the next completion of a burst of this process.</div>
+</td>
 </tr>
 <tr class="alt-color" id="i8">
 <td class="col-first"><code>void</code></td>
 <th class="col-second" scope="row"><code><span class="member-name-link"><a href="#stampCurrentBurstStarted(desmoj.core.simulator.TimeInstant)">stampCurrentBurstStarted</a></span>&#8203;(desmoj.core.simulator.TimeInstant&nbsp;start)</code></th>
-<td class="col-last">&nbsp;</td>
+<td class="col-last">
+<div class="block">Stamps the start of the next cpu burst.</div>
+</td>
 </tr>
 </tbody>
 </table>
@@ -231,6 +237,11 @@ int&nbsp;computingCapacityPerTimeUnit)</code></th>
 <section class="detail" id="&lt;init&gt;(de.rss.fachstudie.MiSim.entities.networking.Request)">
 <h3>CPUProcess</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="member-name">CPUProcess</span>&#8203;(<span class="parameters"><a href="../../entities/networking/Request.html" title="class in de.rss.fachstudie.MiSim.entities.networking">Request</a>&nbsp;request)</span></div>
+<div class="block">Creates a <a href="CPUProcess.html" title="class in de.rss.fachstudie.MiSim.resources.cpu"><code>CPUProcess</code></a> for the given <a href="../../entities/networking/Request.html" title="class in de.rss.fachstudie.MiSim.entities.networking"><code>Request</code></a>.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>request</code> - <a href="../../entities/networking/Request.html" title="class in de.rss.fachstudie.MiSim.entities.networking"><code>Request</code></a> that should be represent by this process.</dd>
+</dl>
 </section>
 </li>
 </ul>
@@ -251,6 +262,10 @@ int&nbsp;computingCapacityPerTimeUnit)</code></th>
 <section class="detail" id="getDemandRemainder()">
 <h3>getDemandRemainder</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="member-name">getDemandRemainder</span>()</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>the remaining demand units before the start of the latest burst.</dd>
+</dl>
 </section>
 </li>
 <li>
@@ -303,6 +318,11 @@ int&nbsp;computingCapacityPerTimeUnit)</span></div>
 <section class="detail" id="stampCurrentBurstStarted(desmoj.core.simulator.TimeInstant)">
 <h3>stampCurrentBurstStarted</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="member-name">stampCurrentBurstStarted</span>&#8203;(<span class="parameters">desmoj.core.simulator.TimeInstant&nbsp;start)</span></div>
+<div class="block">Stamps the start of the next cpu burst.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>start</code> - time when the burst started.</dd>
+</dl>
 </section>
 </li>
 <li>
@@ -316,6 +336,12 @@ int&nbsp;computingCapacityPerTimeUnit)</span></div>
 <section class="detail" id="setCurrentBurstCompletionEvent(de.rss.fachstudie.MiSim.resources.cpu.ComputationBurstCompletedEvent)">
 <h3>setCurrentBurstCompletionEvent</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="member-name">setCurrentBurstCompletionEvent</span>&#8203;(<span class="parameters"><a href="ComputationBurstCompletedEvent.html" title="class in de.rss.fachstudie.MiSim.resources.cpu">ComputationBurstCompletedEvent</a>&nbsp;currentBurstCompletionEvent)</span></div>
+<div class="block">Sets the event, that should be executed upon the next completion of a burst of this process.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>currentBurstCompletionEvent</code> - event, that should be executed upon the next completion of a burst of this
+                                    process.</dd>
+</dl>
 </section>
 </li>
 </ul>
