@@ -26,11 +26,11 @@ jobs:
       run: mvn install:install-file -Dfile=./libraries/DesmoJ/desmoj-2.5.1e-bin.jar -Dversion=2.5.1e -DgeneratePom=true -DgroupId=desmoj -DartifactId=desmoj -Dpackaging=jar
     
     - name: Build JavaDoc with Maven
-      run:  mvn javadoc:javadoc -Dnotimestamp=true
+      run:  mvn javadoc:javadoc -Dnotimestamp=true -Dnoindex=false
       
     - name: Move website to docs
       run: | 
-        rm -rf ./docs && mkdir -p ./docs && cp -r ./target/site/apidocs/. ./docs/
+        rm -rf ./docs && mkdir -p ./docs && cp -rpv ./target/site/apidocs/. ./docs/
       
     - name: push updated doc
       uses: EndBug/add-and-commit@v7
