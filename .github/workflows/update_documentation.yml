@@ -37,5 +37,6 @@ jobs:
       with:
         add: './docs/'
         author_name: Documentation_Bot
+        author_email: st148345@stud.uni-stuttgart.de
         default_author: user_info
         message: '[Bot] Updated Documentation Beep Boop'
