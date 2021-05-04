@@ -97,7 +97,7 @@ public class CPU extends ExternalEvent {
     /**
      * Schedules the given process to be executed.
      * <p>
-     * Depending on the choice of scheduler (fair/unfair) the execution is not guaranteed.     *
+     * Depending on the choice of scheduler (fair/unfair) the execution is not guaranteed.
      *
      * @param process {@code CPUProcess} object to be submitted for scheduling
      * @see CPUProcess

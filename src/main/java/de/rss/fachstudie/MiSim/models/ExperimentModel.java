@@ -42,6 +42,6 @@ public class ExperimentModel {
     }
 
     public <T> Set<T> getAllObjectsOfType(Class<T> clazz) {
-        return experimentObjects.stream().filter(o -> o.getClass().isAssignableFrom(clazz)).map(clazz::cast).collect(Collectors.toSet());
+        return experimentObjects.stream().filter(o -> clazz.isAssignableFrom(o.getClass())).map(clazz::cast).collect(Collectors.toSet());
     }
 }

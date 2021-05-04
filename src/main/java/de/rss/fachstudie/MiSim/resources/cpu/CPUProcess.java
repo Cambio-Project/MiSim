@@ -6,10 +6,10 @@ import desmoj.core.simulator.TimeInstant;
 /**
  * Data-class that contains information about a currently running (or potentially finished) process.
  * <p>
- * More specifically, it concentrates on holding information about the total work units needed and left to complete the
- * processes. Further, there are methods to manipulate the later.
+ * More specifically, it concentrates on holding information about the total work units totally needed and left to
+ * complete the process. Further, there are methods to manipulate the later.
  * <p>
- * For the purpose of compatibility (e.g. non impacting operations) a demand of 0 is allowed.
+ * For the purpose of compatibility (e.g. non impacting operations) a demand of {@code 0} is allowed.
  *
  * @author Lion Wagner
  */
@@ -29,6 +29,11 @@ public final class CPUProcess implements Comparable<CPUProcess> {
         this(demandTotal, null);
     }
 
+    /**
+     * Creates a {@link CPUProcess} for the given {@link Request}.
+     *
+     * @param request {@link Request} that should be represent by this process.
+     */
     public CPUProcess(Request request) {
         this(request.operation.getDemand(), request);
     }
@@ -45,6 +50,9 @@ public final class CPUProcess implements Comparable<CPUProcess> {
         return demandTotal;
     }
 
+    /**
+     * @return the remaining demand units before the start of the latest burst.
+     */
     public int getDemandRemainder() {
         return demandRemainder;
     }
@@ -54,7 +62,7 @@ public final class CPUProcess implements Comparable<CPUProcess> {
      * <p>
      * Specifically returns: Remainder at start of Burst - (peekTime - startTime) * computingCapacityPerTimeUnit
      *
-     * @param peekTime time for which the current remainder should be calculated
+     * @param peekTime                     time for which the current remainder should be calculated
      * @param computingCapacityPerTimeUnit computing capacity of a thread per time unit
      * @return the remaining demand of the currently handled process
      */
@@ -88,6 +96,11 @@ public final class CPUProcess implements Comparable<CPUProcess> {
         this.demandRemainder -= amount;
     }
 
+    /**
+     * Stamps the start of the next cpu burst.
+     *
+     * @param start time when the burst started.
+     */
     public void stampCurrentBurstStarted(TimeInstant start) {
         startOfCurrentBurst = start;
     }
@@ -100,6 +113,12 @@ public final class CPUProcess implements Comparable<CPUProcess> {
             currentBurstCompletionEvent.cancel();
     }
 
+    /**
+     * Sets the event, that should be executed upon the next completion of a burst of this process.
+     *
+     * @param currentBurstCompletionEvent event, that should be executed upon the next completion of a burst of this
+     *                                    process.
+     */
     public void setCurrentBurstCompletionEvent(ComputationBurstCompletedEvent currentBurstCompletionEvent) {
         this.currentBurstCompletionEvent = currentBurstCompletionEvent;
     }

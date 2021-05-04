@@ -25,6 +25,10 @@ import java.util.*;
  */
 public final class RoundRobinScheduler extends CPUProcessScheduler {
 
+    //TODO: 25 is the default value given by the paper its there to prevent too many context switches
+    //However, this might vary from CPU to CPU, depending on total thread capacity. Therefore, this should actually made dynamic at some point.
+    private static final int MINIMUM_QUANTUM = 25;
+
     private final Queue<CPUProcess> processes = new LinkedList<>();
     private final HashSet<CPUProcess> executedWithCurrentQuantum = new HashSet<>();
     private int current_quantum;
@@ -96,7 +100,7 @@ public final class RoundRobinScheduler extends CPUProcessScheduler {
         executedWithCurrentQuantum.clear();
 
         if (processes.isEmpty()) {
-            current_quantum = 25;
+            current_quantum = MINIMUM_QUANTUM;
             return;
         }
 
@@ -108,9 +112,11 @@ public final class RoundRobinScheduler extends CPUProcessScheduler {
             int remainder1 = list.get((list.size() - 1) / 2).getDemandRemainder();
             int remainder2 = list.get((list.size() - 1) / 2 + 1).getDemandRemainder();
             median = (int) (Math.ceil(remainder1 + remainder2) / 2.0);
-        } else median = list.get(list.size() / 2).getDemandRemainder();
+        } else {
+            median = list.get(list.size() / 2).getDemandRemainder();
+        }
 
-        current_quantum = Math.max(median, 25);
+        current_quantum = Math.max(median, MINIMUM_QUANTUM);
         update_quantum = false;
     }
 

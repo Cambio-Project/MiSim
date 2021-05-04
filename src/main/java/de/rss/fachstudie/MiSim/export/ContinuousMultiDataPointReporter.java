@@ -33,7 +33,7 @@ public class ContinuousMultiDataPointReporter extends MultiDataPointReporter {
         if (previous_entries.containsKey(dataSetName)) {
             Object previousData = previous_entries.get(dataSetName);
             TimeInstant timeBeforeWhen = new TimeInstant((when.getTimeInEpsilon() - 1) / (Math.pow(10, 6)));
-            if (!super.getDataSets().get(datasets_prefix + dataSetName).containsKey(timeBeforeWhen)) {
+            if (!super.getDataSets().get(datasets_prefix + dataSetName).containsKey(timeBeforeWhen.getTimeAsDouble())) {
                 super.addDatapoint(dataSetName, timeBeforeWhen, previousData);
             }
         }
