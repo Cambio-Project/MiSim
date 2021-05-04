@@ -97,14 +97,15 @@ public class Microservice extends Entity {
 
     public synchronized void setInstancesCount(final int numberOfInstances) {
         targetInstanceCount = numberOfInstances;
-        if (started)
+        if (started) {
             scaleToInstancesCount(numberOfInstances);
+        }
     }
 
     public synchronized void scaleToInstancesCount(final int numberOfInstances) {
-        if (!started)
+        if (!started) {
             throw new IllegalStateException("Microservice was not started. Use start() first or setInstanceCount()");
-
+        }
 
         while (getInstancesCount() != numberOfInstances) {
             Event<MicroserviceInstance> changeEvent;
@@ -147,7 +148,7 @@ public class Microservice extends Entity {
      */
     public synchronized void killInstance() {
         //TODO: use UniformDistribution form desmoj
-        MicroserviceInstance instanceToKill = instancesSet.stream().findAny().orElse(null);
+        MicroserviceInstance instanceToKill = instancesSet.stream().findAny().orElse(null); //selects an element of the stream, not
         if (instanceToKill == null) return;
         instanceToKill.die();
         instancesSet.remove(instanceToKill);
@@ -158,8 +159,19 @@ public class Microservice extends Entity {
         return operations;
     }
 
+    /**
+     * Searches an {@code Operation} that has the name that is given as an argument.
+     * The real name of the operation may differ. It may starts with the name of this
+     * mircoservice instance or ands with a '#' and a number.
+     *
+     * @param name name of the operation that should be found
+     * @return an operation that has exactly that name, {@code null} if not found
+     */
     public Operation getOperationByName(String name) {
-        Pattern searchPattern = Pattern.compile(String.format("^(\\Q%s\\E_)?\\(?\\Q%s\\E\\)?(#[0-9]*)?$", this.getName(), name));
+
+        //format of the name: (this.getName()_)name(#[0-9]+), (..) being 'optional' and [..] 'pick one from'
+        Pattern searchPattern = Pattern.compile(String.format("^(\\Q%s\\E_)?\\(?\\Q%s\\E\\)?(#[0-9]+)?$", this.getName(), name));
+
         return Arrays.stream(operations)
                 .filter(operation -> searchPattern.matcher(operation.getName()).matches())
                 .findAny()
