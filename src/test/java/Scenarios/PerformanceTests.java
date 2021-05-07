@@ -20,7 +20,7 @@ public class PerformanceTests {
         public long execution_duration_ms;
         public int simulated_duration_ms;
         public int number_of_services;
-        public int number_of_interconnections;
+        public int number_of_dependencies;
         public long number_of_sendEvents;
     }
 
@@ -33,7 +33,7 @@ public class PerformanceTests {
             System.out.printf("Run #%s%n", i + 1);
 
             RandomTieredModel model = new RandomTieredModel("TestModel", max_service_count, tier_count);
-            int simulatedDuration = TestUtils.nextNonNegative(10801); //10800 are 3h of realtime with the default unit SECONDS
+            int simulatedDuration = TestUtils.nextNonNegative(3601); //3600 is 1h of realtime with the default unit SECONDS
             Experiment e = TestUtils.getExampleExperiment(model, simulatedDuration);
             long start = System.currentTimeMillis();
             e.start();
@@ -43,8 +43,8 @@ public class PerformanceTests {
             TestResult result = new TestResult();
             result.simulated_duration_ms = simulatedDuration * 1000;
             result.execution_duration_ms = duration;
-            result.number_of_services = model.getAll_microservices().size();
-            result.number_of_interconnections = model.getAll_microservices().stream().mapToInt(ms -> ms.getOperations().length).sum();
+            result.number_of_services = model.getAllMicroservices().size();
+            result.number_of_dependencies = model.getAllOperations().size();
             result.number_of_sendEvents = NetworkRequestSendEvent.getCounterSendEvents();
             NetworkRequestSendEvent.resetCounterSendEvents();
 
@@ -57,15 +57,15 @@ public class PerformanceTests {
 
     @Test
     void SystemScalingPerformanceTest() {
-        List<TestResult> data = new LinkedList<>();
 
+        List<TestResult> data = new LinkedList<>();
         //warmup
         System.out.println("Warmup");
-        performanceTest(15, 15, 3);
+        performanceTest(3, 4, 3);
         System.out.println("Warmup Done");
 
         for (int tierCount = 1; tierCount <= 10; tierCount++) {
-            for (int max_service_per_tier = 1; max_service_per_tier <= 50; max_service_per_tier++) {
+            for (int max_service_per_tier = 1; max_service_per_tier <= 20; max_service_per_tier++) {
                 List<TestResult> result = performanceTest(max_service_per_tier, tierCount, 10);
                 data.addAll(result);
             }
@@ -105,8 +105,8 @@ public class PerformanceTests {
             TestResult result = new TestResult();
             result.simulated_duration_ms = simulatedDuration * 1000;
             result.execution_duration_ms = duration;
-            result.number_of_services = model.getAll_microservices().size();
-            result.number_of_interconnections = model.getAll_microservices().stream().mapToInt(ms -> ms.getOperations().length).sum();
+            result.number_of_services = model.getAllMicroservices().size();
+            result.number_of_dependencies = model.getAllMicroservices().stream().mapToInt(ms -> ms.getOperations().length).sum();
             result.number_of_sendEvents = NetworkRequestSendEvent.getCounterSendEvents();
 
             testResults.add(result);

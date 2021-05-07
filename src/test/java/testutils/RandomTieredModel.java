@@ -7,6 +7,7 @@ import de.rss.fachstudie.MiSim.entities.microservice.Operation;
 import de.rss.fachstudie.MiSim.entities.networking.Dependency;
 import de.rss.fachstudie.MiSim.parsing.PatternData;
 import desmoj.core.simulator.Model;
+import org.junit.jupiter.api.Assertions;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -51,15 +52,20 @@ public class RandomTieredModel extends Model {
     @Override
     public void init() {
         IntStream.range(1, tierCount + 1).forEach(value -> tiers.put(value, new ArrayList<>()));
+
+        int tiernb = 0;
         for (List<Microservice> tier : tiers.values()) {
             for (int i = 0; i < Math.max(1, nextNonNegative(maxServicesPerTier)); i++) {
-                Microservice current_ms = new Microservice(this, "MS" + all_microservices.size(), false);
+                Microservice current_ms = new Microservice(this, "MS_" + tiernb + "_" + i, false);
                 current_ms.setInstancesCount(2);
                 current_ms.setCapacity(nextNonNegative());
-                current_ms.setPatternData(new PatternData[]{TestUtils.getRetryPatternMock(this), TestUtils.getCircuitBreaker(this), TestUtils.getAutoscaler(this)});
+                current_ms.setPatternData(new PatternData[]{TestUtils.getRetryPatternMock(this)
+                        //TestUtils.getCircuitBreaker(this),
+                        //TestUtils.getAutoscaler(this)
+                });
                 ArrayList<Operation> current_ops = new ArrayList<>();
                 for (int j = 0; j < new Random().nextInt(5) + 1; j++) {
-                    Operation currentOP = new Operation(this, String.format("MS%d_OP%d", i, j), false, current_ms, nextNonNegative(current_ms.getCapacity() / 2));
+                    Operation currentOP = new Operation(this, String.format("%s_OP%d", current_ms.getName(), j), false, current_ms, nextNonNegative(current_ms.getCapacity() / 5));
                     current_ops.add(currentOP);
                 }
                 current_ms.setOperations(current_ops.toArray(new Operation[0]));
@@ -67,6 +73,7 @@ public class RandomTieredModel extends Model {
                 all_microservices.add(current_ms);
                 tier.add(current_ms);
             }
+            tiernb++;
         }
 
 
@@ -75,22 +82,33 @@ public class RandomTieredModel extends Model {
             if (current_tier == tierCount) continue;
 
             List<Microservice> nextTier = tiers.get(current_tier + 1);
+            int operationsInNextTier = nextTier.stream().mapToInt(microservice1 -> microservice1.getOperations().length).sum();
             List<Operation> nextTierOps = new ArrayList<>();
             nextTier.forEach(microservice1 -> nextTierOps.addAll(Arrays.asList(microservice1.getOperations())));
 
             for (Operation operation : microservice.getOperations()) {
                 Set<Dependency> dependencies = new HashSet<>();
-                int depTargetCount = nextNonNegative(10);
+                int depTargetCount = nextNonNegative(operationsInNextTier);
                 Predicate<Operation> alreadyTargeted = op -> dependencies.stream().anyMatch(dependency -> dependency.getTargetOperation() == op);
-                for (int i = 0; i < Math.min(depTargetCount, nextTierOps.size()); i++) {
+                for (int i = 0; i < depTargetCount; i++) {
                     Operation targetOP = null;
                     while (targetOP == null || alreadyTargeted.test(targetOP)) {
-                        targetOP = all_operations.get(nextNonNegative(all_operations.size()));
+                        targetOP = nextTierOps.get(nextNonNegative(nextTierOps.size()));
                     }
+                    dependencies.add(new Dependency(operation, targetOP));
                 }
                 operation.setDependencies(dependencies.toArray(new Dependency[0]));
             }
         }
+
+        //asserting model correctness
+        for (Operation operation : all_operations) {
+            for (Dependency dependency : operation.getDependencies()) {
+                Assertions.assertEquals(1, getTier(dependency.getTargetMicroservice()) - getTier(operation.getOwnerMS()));
+            }
+        }
+
+
     }
 
     private int getTier(Microservice microservice) {
@@ -121,8 +139,12 @@ public class RandomTieredModel extends Model {
                 .collect(Collectors.toList()));
     }
 
-    public ArrayList<Microservice> getAll_microservices() {
+    public ArrayList<Microservice> getAllMicroservices() {
         return all_microservices;
+    }
+
+    public ArrayList<Operation> getAllOperations() {
+        return all_operations;
     }
 }
 
