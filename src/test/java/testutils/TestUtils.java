@@ -86,7 +86,7 @@ public class TestUtils {
         try {
             Field f = Microservice.class.getDeclaredField("patternsData");
             f.setAccessible(true);
-            for (Microservice microservice : model.getAll_microservices()) {
+            for (Microservice microservice : model.getAllMicroservices()) {
                 PatternData[] mocks = (PatternData[]) f.get(microservice);
                 Mockito.reset(mocks);
 

@@ -1,5 +1,9 @@
 package de.rss.fachstudie.MiSim.misc;
 
+import de.rss.fachstudie.MiSim.models.ExperimentMetaData;
+
+import java.util.Random;
+
 /**
  * Class that holds static utility methods.
  * <p>
@@ -60,4 +64,13 @@ public class Util {
         return String.format("%dms", ms);
     }
 
+    public static Random tryGetRandomFromExperimentSeed() {
+        Random prob;
+        try {
+            prob = new Random(ExperimentMetaData.get().getSeed());
+        } catch (Exception e) {
+            prob = new Random();
+        }
+        return prob;
+    }
 }

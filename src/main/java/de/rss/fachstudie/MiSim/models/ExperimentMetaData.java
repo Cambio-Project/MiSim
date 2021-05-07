@@ -21,7 +21,7 @@ public class ExperimentMetaData {
 
     public static ExperimentMetaData get() {
         if (instance == null) {
-            throw new IllegalStateException("Architecture Model was not initialized yet.");
+            throw new IllegalStateException("Experiment Model was not initialized yet.");
         }
         return instance;
     }

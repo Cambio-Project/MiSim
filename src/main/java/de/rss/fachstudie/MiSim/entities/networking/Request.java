@@ -2,7 +2,7 @@ package de.rss.fachstudie.MiSim.entities.networking;
 
 import de.rss.fachstudie.MiSim.entities.microservice.MicroserviceInstance;
 import de.rss.fachstudie.MiSim.entities.microservice.Operation;
-import de.rss.fachstudie.MiSim.models.ExperimentMetaData;
+import de.rss.fachstudie.MiSim.misc.Util;
 import desmoj.core.simulator.Entity;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
@@ -51,7 +51,9 @@ public abstract class Request extends Entity {
         for (Dependency dependency : operation.getDependencies()) {
 
             // Roll probability
-            Random prob = new Random(ExperimentMetaData.get().getSeed());
+            Random prob;
+            prob = Util.tryGetRandomFromExperimentSeed();
+
             double probability = dependency.getProbability();
             double sample = prob.nextDouble();
             if (sample <= probability) {
