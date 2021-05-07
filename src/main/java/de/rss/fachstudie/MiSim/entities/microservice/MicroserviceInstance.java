@@ -11,6 +11,7 @@ import de.rss.fachstudie.MiSim.resources.cpu.CPU;
 import de.rss.fachstudie.MiSim.resources.cpu.CPUProcess;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
+import desmoj.core.simulator.TimeSpan;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -52,8 +53,8 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
     private Set<InstanceOwnedPattern> patterns = new HashSet<>();
 
     //lists for debugging information
-    private final List<NetworkDependency> closedDependencies = new ArrayList<>();
-    private final List<NetworkDependency> abortedDependencies = new ArrayList<>();
+    private final List<NetworkDependency> closedDependencies = new LinkedList<>();
+    private final List<NetworkDependency> abortedDependencies = new LinkedList<>();
 
 
     public MicroserviceInstance(Model model, String name, boolean showInTrace, Microservice microservice, int instanceID) {
@@ -112,7 +113,6 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
     /**
      * Checks whether this Instance can handle the Request.
      *
-     *
      * @param request request that may should be handled by this instance.
      * @return true if this request will be handled, false otherwise
      */
@@ -137,7 +137,7 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
         if (!currentlyOpenDependencies.remove(dep) || !currentRequestsToHandle.contains(dep.getParent_request())) {
             throw new IllegalStateException("This Request is not handled by this Instance");
         } else
-            closedDependencies.add(dep);
+            if(getModel().debugIsOn()) closedDependencies.add(dep);
 
         Request parent = dep.getParent_request();
         if (parent.notifyDependencyHasFinished(dep)) {
@@ -367,7 +367,7 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
                 internalSend.cancelSending();
             }
         }
-        abortedDependencies.addAll(parentToCancel.getDependencies());
+        if(getModel().debugIsOn()) abortedDependencies.addAll(parentToCancel.getDependencies());
         currentlyOpenDependencies.removeAll(parentToCancel.getDependencies());
         currentRequestsToHandle.remove(parentToCancel);
     }
