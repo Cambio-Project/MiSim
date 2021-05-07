@@ -214,6 +214,12 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
         if (!(this.state == InstanceState.CREATED || this.state == InstanceState.RUNNING)) {
             throw new IllegalStateException(String.format("Cannot shutdown Instance %s: Was not recently created or is  not running. (Current State [%s])", this.getQuotedName(), state.name()));
         }
+
+        if (currentRequestsToHandle.isEmpty()) { //schedule immediate shutdown if currently there is nothing to do
+            InstanceShutdownEndEvent shutDownEvent = new InstanceShutdownEndEvent(getModel(), String.format("Instance %s Shutdown End", this.getQuotedName()), traceIsOn());
+            shutDownEvent.schedule(this, new TimeSpan(0));
+        }
+
         changeState(InstanceState.SHUTTING_DOWN);
     }
 
