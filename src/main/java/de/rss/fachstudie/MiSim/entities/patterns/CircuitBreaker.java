@@ -109,10 +109,14 @@ public final class CircuitBreaker extends NetworkPattern implements IRequestUpda
     @Override
     public boolean onRequestResultArrivedAtRequester(Request request, TimeInstant when) {
         if (!(request instanceof InternalRequest))
-            return false; //ignore everything except InternalRequests (i.e. RequestAnswers)
+            return false; //ignore everything except InternalRequests (e.g. RequestAnswers)
 
         NetworkDependency dep = request.getParent().getRelatedDependency(request);
         Microservice target = dep.getTarget_Service();
+
+        if(target == this.owner.getOwner()) { //prevents the circuit breaker from reacting to unpacked RequestAnswers
+            return false;
+        }
 
         activeConnections.remove(dep);
 
@@ -125,7 +129,7 @@ public final class CircuitBreaker extends NetworkPattern implements IRequestUpda
     @Override
     public boolean onRequestFailed(Request request, TimeInstant when, RequestFailedReason reason) {
         if (!(request instanceof InternalRequest))
-            return false; //ignore everything except InternalRequests (i.e. RequestAnswers)
+            return false; //ignore everything except InternalRequests (e.g. RequestAnswers)
 
         InternalRequest internal_request = (InternalRequest) request;
 

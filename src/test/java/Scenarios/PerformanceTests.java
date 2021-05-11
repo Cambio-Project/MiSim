@@ -1,15 +1,19 @@
 package Scenarios;
 
+import co.paralleluniverse.fibers.SuspendExecution;
 import de.rss.fachstudie.MiSim.entities.networking.NetworkRequestSendEvent;
 import de.rss.fachstudie.MiSim.export.CSVData;
-import desmoj.core.simulator.Experiment;
+import desmoj.core.simulator.*;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import testutils.RandomTieredModel;
 import testutils.TestUtils;
 
+import java.lang.reflect.Field;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Lion Wagner
@@ -33,11 +37,46 @@ public class PerformanceTests {
             System.out.printf("Run #%s%n", i + 1);
 
             RandomTieredModel model = new RandomTieredModel("TestModel", max_service_count, tier_count);
-            int simulatedDuration = TestUtils.nextNonNegative(3601); //3600 is 1h of realtime with the default unit SECONDS
-            Experiment e = TestUtils.getExampleExperiment(model, simulatedDuration);
+            int simulatedDuration = TestUtils.nextNonNegative(3401) + 200; //3600 is 1h of realtime with the default unit SECONDS
+            Experiment exp = TestUtils.getExampleExperiment(model, simulatedDuration);
+
+            SimProcess memoryFree = new SimProcess(model, "memoryFreeEvent", false, false) {
+                @Override
+                public void lifeCycle() throws SuspendExecution {
+                    long totalMem = Runtime.getRuntime().totalMemory();
+                    long freeMem = Runtime.getRuntime().freeMemory();
+                    double free = (double) freeMem / totalMem;
+                    if (free < 0.2) {
+                        try {
+                            Field f = Experiment.class.getDeclaredField("_nameCatalog");
+                            f.setAccessible(true);
+                            NameCatalog nameCatalog = (NameCatalog) f.get(this.getModel().getExperiment());
+                            Field f2 = NameCatalog.class.getDeclaredField("_catalog");
+                            f2.setAccessible(true);
+                            f2.set(nameCatalog, new HashMap<String, Integer>());
+//                            HashMap<String, Integer> catalog = (HashMap<String, Integer>) f2.get(nameCatalog);
+//                            List<String> toRemove = new LinkedList<>();
+//                            for (Map.Entry<String, Integer> entry : catalog.entrySet()) {
+//                                if (entry.getValue() == 1) {
+//                                    toRemove.add(entry.getKey());
+//                                }
+//                            }
+//                            toRemove.forEach(catalog::remove);
+//                            System.out.println(catalog.size());
+
+                        } catch (NoSuchFieldException | IllegalAccessException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    this.hold(new TimeSpan(1, TimeUnit.SECONDS));
+                }
+            };
+
+            memoryFree.activate(new TimeInstant(0));
+
             long start = System.currentTimeMillis();
-            e.start();
-            e.finish();
+            exp.start();
+            exp.finish();
             long duration = System.currentTimeMillis() - start;
 
             TestResult result = new TestResult();
@@ -61,12 +100,12 @@ public class PerformanceTests {
         List<TestResult> data = new LinkedList<>();
         //warmup
         System.out.println("Warmup");
-        performanceTest(3, 4, 3);
+        performanceTest(10, 3, 5);
         System.out.println("Warmup Done");
 
-        for (int tierCount = 1; tierCount <= 10; tierCount++) {
-            for (int max_service_per_tier = 1; max_service_per_tier <= 20; max_service_per_tier++) {
-                List<TestResult> result = performanceTest(max_service_per_tier, tierCount, 10);
+        for (int tierCount = 1; tierCount <= 6; tierCount++) {
+            for (int max_service_per_tier = 3; max_service_per_tier <= 10; max_service_per_tier++) {
+                List<TestResult> result = performanceTest(max_service_per_tier, tierCount, 5);
                 data.addAll(result);
             }
         }

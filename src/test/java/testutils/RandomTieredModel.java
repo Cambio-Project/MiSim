@@ -59,13 +59,14 @@ public class RandomTieredModel extends Model {
                 Microservice current_ms = new Microservice(this, "MS_" + tiernb + "_" + i, false);
                 current_ms.setInstancesCount(2);
                 current_ms.setCapacity(nextNonNegative());
-                current_ms.setPatternData(new PatternData[]{TestUtils.getRetryPatternMock(this)
-                        //TestUtils.getCircuitBreaker(this),
-                        //TestUtils.getAutoscaler(this)
+                current_ms.setPatternData(new PatternData[]{
+                        TestUtils.getRetryPatternMock(this),
+                        TestUtils.getCircuitBreaker(this),
+                        TestUtils.getAutoscaler(this)
                 });
                 ArrayList<Operation> current_ops = new ArrayList<>();
                 for (int j = 0; j < new Random().nextInt(5) + 1; j++) {
-                    Operation currentOP = new Operation(this, String.format("%s_OP%d", current_ms.getName(), j), false, current_ms, nextNonNegative(current_ms.getCapacity() / 5));
+                    Operation currentOP = new Operation(this, String.format("%s_OP%d", current_ms.getName(), j), false, current_ms, nextNonNegative(Math.max(current_ms.getCapacity() / (int) Math.pow(5, tiernb + 1), 1)));//
                     current_ops.add(currentOP);
                 }
                 current_ms.setOperations(current_ops.toArray(new Operation[0]));
@@ -79,7 +80,9 @@ public class RandomTieredModel extends Model {
 
         for (Microservice microservice : all_microservices) {
             int current_tier = getTier(microservice);
-            if (current_tier == tierCount) continue;
+            if (current_tier == tierCount) {
+                continue;
+            }
 
             List<Microservice> nextTier = tiers.get(current_tier + 1);
             int operationsInNextTier = nextTier.stream().mapToInt(microservice1 -> microservice1.getOperations().length).sum();
@@ -88,7 +91,7 @@ public class RandomTieredModel extends Model {
 
             for (Operation operation : microservice.getOperations()) {
                 Set<Dependency> dependencies = new HashSet<>();
-                int depTargetCount = nextNonNegative(operationsInNextTier);
+                int depTargetCount = operationsInNextTier/2 + nextNonNegative(operationsInNextTier)/2;
                 Predicate<Operation> alreadyTargeted = op -> dependencies.stream().anyMatch(dependency -> dependency.getTargetOperation() == op);
                 for (int i = 0; i < depTargetCount; i++) {
                     Operation targetOP = null;
@@ -107,7 +110,6 @@ public class RandomTieredModel extends Model {
                 Assertions.assertEquals(1, getTier(dependency.getTargetMicroservice()) - getTier(operation.getOwnerMS()));
             }
         }
-
 
     }
 
