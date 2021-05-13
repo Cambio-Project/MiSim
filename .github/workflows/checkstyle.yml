@@ -4,7 +4,8 @@
 name: Run Checkstyle
 
 on:
-  pull_request: [ master, Version3 ]
+  pull_request:
+    branches: [master, Version3 ]
   
 jobs:
   build:
