@@ -4,13 +4,8 @@
 name: Publish Artifact
 
 on:
-  push:
-    branches: [ master, Version3, Checkstyle ]
-  pull_request:
-    branches: [ master, Version3, Checkstyle ]
-  workflow_dispatch:
-    
-
+  pull_request: [ master, Version3 ]
+  
 jobs:
   build:
 
