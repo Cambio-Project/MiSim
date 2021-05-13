@@ -5,9 +5,9 @@ name: Publish Artifact
 
 on:
   push:
-    branches: [ master, Version3 ]
+    branches: [ master, Version3, Checkstyle ]
   pull_request:
-    branches: [ master, Version3 ]
+    branches: [ master, Version3, Checkstyle ]
   workflow_dispatch:
     
 
@@ -28,16 +28,19 @@ jobs:
     - name: register desmoj to maven 
       run: mvn install:install-file -Dfile=./libraries/DesmoJ/desmoj-2.5.1e-bin.jar -Dversion=2.5.1e -DgeneratePom=true -DgroupId=desmoj -DartifactId=desmoj -Dpackaging=jar
     
-    - name: Build with Maven
-      run: |
-          mvn -B package --file pom.xml "-DskipTests=true" "-Dmaven.javadoc.skip=true" "-Dcheckstyle.skipExec=true"
-          
-    - name: Copy Data
-      run: mkdir staging && cp target/*.jar staging
-      
-      
-    - name: upload artifacts
+    - name: Cache Maven Dependencies
+      uses: actions/cache@v2
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
+
+    - name: Run Checkstyle
+      run: mvn checkstyle:check
+
+    - name: report 
+      if: ${{ always() }}
       uses: actions/upload-artifact@v2.2.3
       with:
-        name: miSim 3.0
-        path: ./staging/
+        name: checkstyle-result
+        path: ./target/checkstyle-result.xml
