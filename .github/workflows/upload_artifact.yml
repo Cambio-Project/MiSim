@@ -6,14 +6,10 @@ name: Publish Artifact
 on:
   push:
     branches: [ master, Version3 ]
-  pull_request:
-    branches: [ master, Version3 ]
   workflow_dispatch:
     
-
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:

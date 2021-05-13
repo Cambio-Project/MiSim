@@ -4,10 +4,8 @@
 name: Update Documentation
 
 on:
-  push:
-    branches: [ master, Version3 ]
-  pull_request:
-    branches: [ master, Version3 ]
+  push: [master]
+  workflow_dispatch:
 
 jobs:
   build_documentation:
@@ -33,7 +31,7 @@ jobs:
         restore-keys: ${{ runner.os }}-m2
 
     - name: Build JavaDoc with Maven
-      run:  mvn javadoc:javadoc -Dnotimestamp=true
+      run:  mvn javadoc:javadoc "-Dnotimestamp=true" "-Dcheckstyle.skipExec=true"
       
     - name: Move Website to /docs
       run: | 
@@ -46,4 +44,4 @@ jobs:
         author_name: Documentation_Bot
         author_email: st148345@stud.uni-stuttgart.de
         default_author: user_info
-        message: '[Bot] Updated Documentation Beep Boop'
+        message: '[Bot] :robot: Updated Documentation '
