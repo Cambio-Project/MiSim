@@ -4,7 +4,8 @@
 name: Update Documentation
 
 on:
-  push: [master]
+  push: 
+    branches: [master]
   workflow_dispatch:
 
 jobs:
