@@ -1,15 +1,16 @@
 # This workflow will build a Java project with Maven
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
 
-name: Publish Artifact
+name: Run Checkstyle
 
 on:
-  push:
-    branches: [ master, Version3 ]
+  pull_request:
+    branches: [master, Version3 ]
   workflow_dispatch:
-    
+  
 jobs:
   build:
+
     runs-on: ubuntu-latest
 
     steps:
@@ -31,16 +32,12 @@ jobs:
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2
 
-    - name: Build with Maven
-      run: |
-          mvn -B package --file pom.xml "-DskipTests=true" "-Dmaven.javadoc.skip=true" "-Dcheckstyle.skipExec=true"
-          
-    - name: Copy Data
-      run: mkdir staging && cp target/*.jar staging
-      
-      
-    - name: upload artifacts
+    - name: Run Checkstyle
+      run: mvn checkstyle:check
+
+    - name: report 
+      if: ${{ always() }}
       uses: actions/upload-artifact@v2.2.3
       with:
-        name: miSim 3.0
-        path: ./staging/
+        name: checkstyle-result
+        path: ./target/checkstyle-result.xml
