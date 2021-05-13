@@ -6,6 +6,7 @@ name: Run Checkstyle
 on:
   pull_request:
     branches: [master, Version3 ]
+  workflow_dispatch:
   
 jobs:
   build:
