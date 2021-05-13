@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
   
 jobs:
-  build:
+  run_checkstyle:
 
     runs-on: ubuntu-latest
 

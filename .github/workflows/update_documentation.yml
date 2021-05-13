@@ -9,7 +9,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  build_documentation:
+  update_documentation:
+
     runs-on: ubuntu-latest
 
     steps:
