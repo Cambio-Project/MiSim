@@ -10,6 +10,7 @@ import de.rss.fachstudie.MiSim.export.ReportCollector;
 import de.rss.fachstudie.MiSim.export.ReportWriter;
 import de.rss.fachstudie.MiSim.misc.Priority;
 import de.rss.fachstudie.MiSim.misc.Util;
+import de.rss.fachstudie.MiSim.parsing.GsonParser;
 import desmoj.core.simulator.Experiment;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
@@ -102,7 +103,7 @@ public class MainModel extends Model {
         } else {
             File f = new File(arch_model);
             if (!f.exists() || f.isDirectory()) {
-                System.out.println("No valid architecture file was given");
+                System.out.printf("Did not find architecture file at %s%n", f.getAbsolutePath());
                 System.exit(1);
                 return;
             }
@@ -115,7 +116,7 @@ public class MainModel extends Model {
         } else {
             File f = new File(exp_model);
             if (!f.exists() || f.isDirectory()) {
-                System.out.println("No valid experiment file was given");
+                System.out.printf("Did not find experiment file at %s%n", f.getAbsolutePath());
                 System.exit(1);
                 return;
             }
@@ -177,7 +178,7 @@ public class MainModel extends Model {
     private static void generate_report(MainModel model) {
         ExperimentMetaData metaData = ExperimentMetaData.get();
         Path reportLocation = Paths.get(".", "Report_" + metaData.getExperimentName());
-        Gson gson = new Gson();
+        Gson gson = new GsonParser().getGson();
         try {
             FileUtils.deleteDirectory(reportLocation.toFile());
             reportLocation.toFile().mkdirs();

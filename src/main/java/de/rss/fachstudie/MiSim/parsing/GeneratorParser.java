@@ -20,7 +20,7 @@ class GeneratorParser extends Parser<Generator> {
     public String operation;
 
     //TODO: Randomized Generator
-    public ContDistUniform distributionWithin1s;
+    public transient ContDistUniform distributionWithin1s;
 
     //Interval Generator
     public Double interval;

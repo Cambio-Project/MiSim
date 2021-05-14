@@ -37,7 +37,7 @@ public class ExpModelParser {
 
     public static Set<Object> parseExperimentData(Path path) {
         try {
-            Gson gson = new Gson();
+            Gson gson = new GsonParser().getGson();
             JsonObject root = gson.fromJson(new JsonReader(new FileReader(path.toFile())), JsonObject.class);
 
             Set<? extends Parser<?>> parserInstances = parserClasses.stream().map(aClass -> {

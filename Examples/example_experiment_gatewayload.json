@@ -11,7 +11,7 @@
     {
       "microservice": "gateway",
       "operation": "gateway.PING",
-      "limbo_model": "./Examples/example_mock_arrival_rates.csv",
+      "limbo_model": "./Examples/example_arrival_rates.csv",
       "repeating": true,
       "repetition_skip": 5
     },

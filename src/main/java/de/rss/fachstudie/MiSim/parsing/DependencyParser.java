@@ -14,7 +14,7 @@ public class DependencyParser extends Parser<Dependency> {
     public Double delay = null;
     public Double probability = 1.0;
 
-    private Operation owner;
+    private transient Operation owner;
 
     public void setOwningOperation(Operation owner) {
         this.owner = owner;

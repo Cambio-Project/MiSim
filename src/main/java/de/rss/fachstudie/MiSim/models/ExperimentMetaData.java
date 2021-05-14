@@ -3,6 +3,7 @@ package de.rss.fachstudie.MiSim.models;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonReader;
+import de.rss.fachstudie.MiSim.parsing.GsonParser;
 import de.rss.fachstudie.MiSim.parsing.ParsingException;
 
 import java.io.File;
@@ -31,7 +32,7 @@ public class ExperimentMetaData {
             throw new IllegalStateException("Architecture Model was already initialized.");
         }
         try {
-            Gson gson = new Gson();
+            Gson gson = new GsonParser().getGson();
             JsonObject root = gson.fromJson(new JsonReader(new FileReader(expFileLocation.toFile())), JsonObject.class);
             instance = gson.fromJson(root.get("simulation_meta_data"), ExperimentMetaData.class);
             instance.setExpFileLocation(expFileLocation.toFile());
