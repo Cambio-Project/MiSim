@@ -16,8 +16,8 @@
           "demand": 2,
           "dependencies": [
             {
-              "service": "loon-service",
-              "operation": "call_loon-service2",
+              "service": "example-service",
+              "operation": "call_example-service2",
               "probability": 0.8
             }
           ]
@@ -27,7 +27,7 @@
           "demand": 2,
           "dependencies": [
             {
-              "service": "loon-service",
+              "service": "example-service",
               "operation": "call_external_service"
             }
           ]
@@ -37,8 +37,8 @@
           "demand": 2,
           "dependencies": [
             {
-              "service": "loon-service",
-              "operation": "loon-service.DB_READ"
+              "service": "example-service",
+              "operation": "example-service.DB_READ"
             }
           ]
         },
@@ -47,8 +47,8 @@
           "demand": 2,
           "dependencies": [
             {
-              "service": "loon-service",
-              "operation": "loon-service.DB_WRITE"
+              "service": "example-service",
+              "operation": "example-service.DB_WRITE"
             }
           ]
         },
@@ -57,8 +57,8 @@
           "demand": 2,
           "dependencies": [
             {
-              "service": "loon-service2",
-              "operation": "loon-service2.get"
+              "service": "example-service2",
+              "operation": "example-service2.get"
             }
           ]
         }
@@ -83,28 +83,28 @@
       ]
     },
     {
-      "name": "loon-service",
+      "name": "example-service",
       "instances": 1,
       "patterns": [],
       "capacity": 15,
       "operations": [
         {
-          "name": "loon-service.DB_WRITE",
+          "name": "example-service.DB_WRITE",
           "demand": 5,
           "dependencies": []
         },
         {
-          "name": "loon-service.DB_READ",
+          "name": "example-service.DB_READ",
           "demand": 3,
           "dependencies": []
         },
         {
-          "name": "call_loon-service2",
+          "name": "call_example-service2",
           "demand": 4,
           "dependencies": [
             {
-              "service": "loon-service2",
-              "operation": "loon-service2.get"
+              "service": "example-service2",
+              "operation": "example-service2.get"
             }
           ]
         },
@@ -116,13 +116,13 @@
       ]
     },
     {
-      "name": "loon-service2",
+      "name": "example-service2",
       "instances": 1,
       "patterns": [],
       "capacity": 10,
       "operations": [
         {
-          "name": "loon-service2.get",
+          "name": "example-service2.get",
           "demand": 5,
           "dependencies": []
         }

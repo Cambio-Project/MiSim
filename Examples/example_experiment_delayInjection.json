@@ -1,38 +1,46 @@
 {
   "simulation_meta_data": {
-    "experiment_name": "Loon-Mock-Autoscale-Test",
-    "model_name": "Scenario Autoscale",
+    "experiment_name": "Example-Delay-Injection",
+    "model_name": "Delay-Injection",
     "duration": 200,
     "report": "",
-    "datapoints": 200,
+    "datapoints": 180,
     "seed": 1337
   },
   "request_generators": [
     {
       "microservice": "gateway",
       "operation": "gateway.PING",
-      "start": 42,
-      "stop": 50,
-      "interval": 2
+      "interval": 1
     },
     {
       "microservice": "gateway",
       "operation": "INTERNAL_DEP",
-      "limbo_model": "./Examples/loon_mock_arrival_rates.csv",
-      "repeating": true,
-      "repetition_skip": 0
+      "interval": 1
     },
     {
       "microservice": "gateway",
       "operation": "gateway.DB_READ",
-      "limbo_model": "./Examples/loon_mock_arrival_rates.csv",
-      "repeating": true,
-      "repetition_skip": 0
+      "interval": 1
     },
     {
       "microservice": "gateway",
       "operation": "UNAFFECTED_SERVICE",
-      "interval": 0
+      "interval": 1
+    }
+  ],
+  "latencymonkeys": [
+    {
+      "microservice": "example-service",
+      "delay": 0.3,
+      "std_deviation": 0.1,
+      "time": 120,
+      "duration": 30
+    },
+    {
+      "microservice": "gateway",
+      "delay": 0.3,
+      "time": 50
     }
   ]
 }

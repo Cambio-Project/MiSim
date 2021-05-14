@@ -1,6 +1,6 @@
 {
   "simulation_meta_data": {
-    "experiment_name": "Loon-Mock-ChaosMonkey-Test",
+    "experiment_name": "Example-ChaosMonkey-Test",
     "model_name": "Scenario ChaosMonkey",
     "duration": 200,
     "report": "",
@@ -16,7 +16,7 @@
     {
       "microservice": "gateway",
       "operation": "INTERNAL_DEP",
-      "limbo_model": "./Examples/loon_mock_arrival_rates.csv",
+      "limbo_model": "./Examples/example_mock_arrival_rates.csv",
       "repeating": true,
       "repetition_skip": 5
 
@@ -34,12 +34,12 @@
   ],
   "chaosmonkeys": [
     {
-      "microservice": "loon-service",
+      "microservice": "example-service",
       "instances": 0,
       "time": 30
     },
     {
-      "microservice": "loon-service2",
+      "microservice": "example-service2",
       "instances": 2,
       "time": 60
     },
@@ -51,7 +51,7 @@
   ],
   "summonermonkeys": [
     {
-      "microservice": "loon-service2",
+      "microservice": "example-service2",
       "instances": 2,
       "time": 100
     }

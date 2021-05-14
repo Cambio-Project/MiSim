@@ -27,7 +27,7 @@ public abstract class Request extends Entity {
     private NetworkRequestSendEvent sendEvent;
     private NetworkRequestReceiveEvent receiveEvent;
     private NetworkRequestCanceledEvent canceledEvent;
-    private final PriorityQueue<IRequestUpdateListener> updateListeners = new PriorityQueue<>(); //TODO: minor: allow list of listeners so e.g. a tracing tool can be injected by each creation.
+    private final PriorityQueue<IRequestUpdateListener> updateListeners = new PriorityQueue<>();
 
     private TimeInstant timestamp_send;
     private TimeInstant timestamp_received;

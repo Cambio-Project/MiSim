@@ -29,8 +29,8 @@ class MultiDataPointReporterTest {
         reporter.addDatapoint("Test", new TimeInstant(1), "World");
         reporter.addDatapoint("Test", new TimeInstant(0), "Hello");
         TreeMap<Double, ?> dataset = reporter.getDataSets().get("Test");
-        Assertions.assertEquals(dataset.pollFirstEntry().getKey(), new TimeInstant(0));
-        Assertions.assertEquals(dataset.pollFirstEntry().getKey(), new TimeInstant(1));
+        Assertions.assertEquals(dataset.pollFirstEntry().getKey(), 0.0, 0.0000001);
+        Assertions.assertEquals(dataset.pollFirstEntry().getKey(), 1.0, 0.0000001);
     }
 
     @Test

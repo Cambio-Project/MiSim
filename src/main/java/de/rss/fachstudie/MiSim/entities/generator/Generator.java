@@ -13,6 +13,8 @@ import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 import desmoj.core.simulator.TimeSpan;
 
+import java.util.Objects;
+
 /**
  * Superclass for all generators. Automatically takes care of the (re-)scheduling of the generation events, sending of
  * the {@code UserRequest}s and observation of send requests.
@@ -58,8 +60,8 @@ public abstract class Generator extends RequestSender implements IRequestUpdateL
 
         private final Generator generator;
 
-        public GeneratorTriggerEvent(Model model, String s, boolean b, Generator generator) {
-            super(model, s, b);
+        public GeneratorTriggerEvent(Model model, String name, boolean showInTrace, Generator generator) {
+            super(model, name, showInTrace);
             this.generator = generator;
         }
 
@@ -80,6 +82,8 @@ public abstract class Generator extends RequestSender implements IRequestUpdateL
      */
     public Generator(Model model, String name, boolean showInTrace, Operation operation) {
         super(model, name, showInTrace);
+        Objects.requireNonNull(operation);
+
         this.model = model;
         this.operation = operation;
         super.sendTraceNote("starting Generator " + this.getQuotedName());

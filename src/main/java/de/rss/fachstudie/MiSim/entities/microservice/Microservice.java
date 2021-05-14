@@ -102,16 +102,17 @@ public class Microservice extends Entity {
         }
     }
 
-    public synchronized void scaleToInstancesCount(final int numberOfInstances) {
+    public synchronized void scaleToInstancesCount(final int targetInstanceCount) {
         if (!started) {
             throw new IllegalStateException("Microservice was not started. Use start() first or setInstanceCount()");
         }
 
-        while (getInstancesCount() != numberOfInstances) {
+        while (getInstancesCount() != targetInstanceCount) {
             Event<MicroserviceInstance> changeEvent;
             MicroserviceInstance changedInstance;
 
-            if (getInstancesCount() < numberOfInstances) {
+            if (getInstancesCount() < targetInstanceCount) {
+                //TODO: restart shutdown instances instead of creating new ones
                 changedInstance = new MicroserviceInstance(getModel(), String.format("[%s]_I%d", getName(), instanceSpawnCounter), this.traceIsOn(), this, instanceSpawnCounter);
                 changedInstance.activatePatterns(patternsData);
                 instanceSpawnCounter++;
@@ -160,9 +161,8 @@ public class Microservice extends Entity {
     }
 
     /**
-     * Searches an {@code Operation} that has the name that is given as an argument.
-     * The real name of the operation may differ. It may starts with the name of this
-     * mircoservice instance or ands with a '#' and a number.
+     * Searches an {@code Operation} that has the name that is given as an argument. The real name of the operation may
+     * differ. It may starts with the name of this mircoservice instance or ands with a '#' and a number.
      *
      * @param name name of the operation that should be found
      * @return an operation that has exactly that name, {@code null} if not found
@@ -237,6 +237,5 @@ public class Microservice extends Entity {
     public double getAverageUtilization() {
         return getUtilizationOfInstances().stream().mapToDouble(value -> value).average().orElse(0);
     }
-
 
 }

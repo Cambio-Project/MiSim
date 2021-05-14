@@ -57,8 +57,8 @@ class LIMBOGeneratorTest {
     private static TestExperiment testExperiment;
     private static TestModel mod;
 
-    private static final File testFile = new File("src/test/resources/test_loon_mock_arrival_rates.csv");
-    private static final File testFile2 = new File("Examples/loon_mock_arrival_rates_simple.csv");
+    private static final File testFile = new File("src/test/resources/example_arrival_rates.csv");
+    private static final File testFile2 = new File("Examples/example_arrival_rates_simple.csv");
 
 
     @BeforeAll

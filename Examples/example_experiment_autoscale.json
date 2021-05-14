@@ -1,7 +1,7 @@
 {
   "simulation_meta_data": {
-    "experiment_name": "Loon-Mock-Gateway_Load-Experiment",
-    "model_name": "Gateway Load",
+    "experiment_name": "Example-Autoscale-Test",
+    "model_name": "Scenario Autoscale",
     "duration": 200,
     "report": "",
     "datapoints": 200,
@@ -11,24 +11,28 @@
     {
       "microservice": "gateway",
       "operation": "gateway.PING",
-      "limbo_model": "./Examples/loon_mock_arrival_rates.csv",
-      "repeating": true,
-      "repetition_skip": 5
+      "start": 42,
+      "stop": 50,
+      "interval": 2
     },
     {
       "microservice": "gateway",
       "operation": "INTERNAL_DEP",
-      "interval": 0.25
+      "limbo_model": "./Examples/example_mock_arrival_rates.csv",
+      "repeating": true,
+      "repetition_skip": 0
     },
     {
       "microservice": "gateway",
       "operation": "gateway.DB_READ",
-      "interval": 0.25
+      "limbo_model": "./Examples/example_mock_arrival_rates.csv",
+      "repeating": true,
+      "repetition_skip": 0
     },
     {
       "microservice": "gateway",
       "operation": "UNAFFECTED_SERVICE",
-      "interval": 0.25
+      "interval": 0
     }
   ]
 }

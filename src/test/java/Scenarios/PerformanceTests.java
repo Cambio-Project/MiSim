@@ -107,6 +107,7 @@ public class PerformanceTests {
             for (int max_service_per_tier = 3; max_service_per_tier <= 10; max_service_per_tier++) {
                 List<TestResult> result = performanceTest(max_service_per_tier, tierCount, 5);
                 data.addAll(result);
+                TestUtils.writeOutput(data, "./performance_test_result_partial.csv");
             }
         }
 

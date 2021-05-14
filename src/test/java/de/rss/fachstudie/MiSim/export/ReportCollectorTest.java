@@ -45,10 +45,10 @@ class ReportCollectorTest {
         HashMap<String, TreeMap<Double, Object>> out = ReportCollector.getInstance().collect_data();
         TreeMap<Double, Object> dataset1 = out.get("dataset1");
         TreeMap<Double, Object> dataset2 = out.get("dataset2");
-        assertTrue(dataset1.containsKey(0));
-        assertTrue(dataset1.containsKey(1));
-        assertTrue(dataset2.containsKey(0));
-        assertTrue(dataset2.containsKey(1));
+        assertTrue(dataset1.containsKey(0.0));
+        assertTrue(dataset1.containsKey(1.0));
+        assertTrue(dataset2.containsKey(0.0));
+        assertTrue(dataset2.containsKey(1.0));
     }
 
     @Test

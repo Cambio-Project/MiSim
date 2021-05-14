@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
  * </table>
  *
  * @author Lion Wagner
- * @see <a>https://github.com/joakimkistowski/LIMBO</a>
+ * @see <a href="https://github.com/joakimkistowski/LIMBO">https://github.com/joakimkistowski/LIMBO</a>
  */
 public class LIMBOGenerator extends Generator {
 
@@ -63,7 +63,6 @@ public class LIMBOGenerator extends Generator {
     public LIMBOGenerator(Model model, String name, boolean showInTrace, Operation operation, File limboModel, boolean repeating) {
         this(model, name, showInTrace, operation, limboModel, repeating, DEFAULT_REPETITION_SKIP);
     }
-
 
     public LIMBOGenerator(Model model, String name, boolean showInTrace, Operation operation, File LimboProfile, boolean repeating, double repetition_skip) {
         super(model, name, showInTrace, operation);
