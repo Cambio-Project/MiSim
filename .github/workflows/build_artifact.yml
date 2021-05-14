@@ -30,7 +30,7 @@ jobs:
         restore-keys: ${{ runner.os }}-m2
     
     - name: Run JUnit Tests
-      run: mvn -B test --file pom.xml 
+      run: mvn -B test --file pom.xml "-Dcheckstyle.skipExec=true"
 
     - name: Build with Maven
       run: mvn -B package --file pom.xml "-DskipTests=true" "-Dmaven.javadoc.skip=true" "-Dcheckstyle.skipExec=true"
