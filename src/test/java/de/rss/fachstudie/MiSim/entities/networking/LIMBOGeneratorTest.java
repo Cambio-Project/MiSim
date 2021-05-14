@@ -1,12 +1,13 @@
 package de.rss.fachstudie.MiSim.entities.networking;
 
-import de.rss.fachstudie.MiSim.entities.microservice.Operation;
 import de.rss.fachstudie.MiSim.entities.generator.GeneratorStopException;
 import de.rss.fachstudie.MiSim.entities.generator.LIMBOGenerator;
+import de.rss.fachstudie.MiSim.entities.microservice.Operation;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import testutils.TestExperiment;
 import testutils.TestModel;
 
@@ -100,7 +101,7 @@ class LIMBOGeneratorTest {
     void loadsFirstTargetTimeCorrectly() {
         File testLoadmodel = createTestLoadModel(integer -> (integer <= 2) ? (double) integer :
                 0 / 0); //throwing an exception on purpose to stop generation
-        ExposingLIMBOGenerator gen = new ExposingLIMBOGenerator(mod, "TestGenerator", false, null, testLoadmodel);
+        ExposingLIMBOGenerator gen = new ExposingLIMBOGenerator(mod, "TestGenerator", false, getMockOperation(), testLoadmodel);
         TimeInstant nextTargetTime = gen.getFirstTargetTime();
         assertEquals(1, nextTargetTime.getTimeAsDouble(), 0.000001);
     }
@@ -113,7 +114,7 @@ class LIMBOGeneratorTest {
             return integer.doubleValue();
         };
         File testLoadmodel = createTestLoadModel(func);
-        ExposingLIMBOGenerator gen = new ExposingLIMBOGenerator(mod, "TestGenerator", false, null, testLoadmodel, false);
+        ExposingLIMBOGenerator gen = new ExposingLIMBOGenerator(mod, "TestGenerator", false, getMockOperation(), testLoadmodel, false);
 
         int maxTime = 200;
         Map<TimeInstant, Integer> targetTimes = getGeneratorResults(gen, new TimeInstant(maxTime));
@@ -128,7 +129,7 @@ class LIMBOGeneratorTest {
         Function<Integer, Double> func = integer -> (integer <= maxTime) ? (double) (integer * integer) :
                 0 / 0;
         File testLoadmodel = createTestLoadModel(func); //throwing an exception on purpose to stop generation
-        ExposingLIMBOGenerator gen = new ExposingLIMBOGenerator(mod, "TestGenerator", false, null, testLoadmodel, false);
+        ExposingLIMBOGenerator gen = new ExposingLIMBOGenerator(mod, "TestGenerator", false, getMockOperation(), testLoadmodel, false);
 
         Map<TimeInstant, Integer> targetTimes = getGeneratorResults(gen, new TimeInstant(10));
         assertEquals(maxTime, targetTimes.size());
@@ -153,5 +154,13 @@ class LIMBOGeneratorTest {
         } catch (GeneratorStopException ignored) {
         }
         return targetTimes;
+    }
+
+
+    private Operation getMockOperation() {
+        Operation op = Mockito.mock(Operation.class, Mockito.RETURNS_DEEP_STUBS);
+        Mockito.when(op.getOwnerMS().getName()).thenReturn("TestMS");
+        Mockito.when(op.getName()).thenReturn("TestOP");
+        return op;
     }
 }

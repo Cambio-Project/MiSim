@@ -1,7 +1,6 @@
 package de.rss.fachstudie.MiSim.export;
 
 import desmoj.core.simulator.TimeInstant;
-import desmoj.core.simulator.TimeOperations;
 import org.javatuples.Pair;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,8 +38,8 @@ class MultiDataPointReporterTest {
         reporter.addDatapoint("Test", new TimeInstant(0), "Hello");
         String[] result = reporter.getEntries("Test");
         Assertions.assertEquals("Time;Value", result[0]);
-        Assertions.assertEquals(TimeOperations.getTimeFormatter().buildTimeString(new TimeInstant(0)) + ";Hello", result[1]);
-        Assertions.assertEquals(TimeOperations.getTimeFormatter().buildTimeString(new TimeInstant(1)) + ";World", result[2]);
+        Assertions.assertTrue(result[1].matches("0\\.(0*);Hello"));
+        Assertions.assertTrue(result[2].matches("1\\.(0*);World"));
     }
 
     @Test
