@@ -7,12 +7,11 @@ on:
   push:
     branches: [ master, Version3 ]
   workflow_dispatch:
-    
-jobs:
-  build_artifact:
   
+jobs:
+  setup_environment:  
     runs-on: ubuntu-latest
-
+    
     steps:
     - uses: actions/checkout@v2
     
@@ -32,14 +31,32 @@ jobs:
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2
 
+
+  run_tests:  
+    runs-on: ubuntu-latest    
+    needs: [setup_environment]
+    steps:
     - name: Build with Maven
       run: |
-          mvn -B package --file pom.xml "-Dmaven.javadoc.skip=true" "-Dcheckstyle.skipExec=true"
+          mvn -B test --file pom.xml "-Dcheckstyle.skipExec=true"
+
+  build_artifact:  
+    runs-on: ubuntu-latest
+    needs: [setup_environment]
+    steps:
+    - name: Build with Maven
+      run: |
+          mvn -B package --file pom.xml "-DskipTests=true" -Dmaven.javadoc.skip=true" "-Dcheckstyle.skipExec=true"
           
+  
+  upload_artifact:  
+    runs-on: ubuntu-latest    
+    needs: [build_artifact]
+    steps:
     - name: Copy Data
       run: mkdir staging && cp target/*.jar staging
       
-      
+  
     - name: upload artifacts
       uses: actions/upload-artifact@v2.2.3
       with:
