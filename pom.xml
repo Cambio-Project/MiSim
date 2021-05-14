@@ -12,6 +12,14 @@
         <mockito.version>3.9.0</mockito.version>
     </properties>
 
+    <!--Project local maven repository, containing external jars-->
+    <repositories>
+        <repository>
+            <id>LocalLibs</id>
+            <url>file://${project.basedir}/libraries/</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <!-- util -->
         <dependency>
@@ -24,12 +32,6 @@
             <groupId>org.javatuples</groupId>
             <artifactId>javatuples</artifactId>
             <version>1.2</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-checkstyle-plugin</artifactId>
-            <version>3.1.0</version>
         </dependency>
 
         <!-- apache commons -->
@@ -60,7 +62,14 @@
             <version>2.5.1e</version>
         </dependency>
 
-        <!-- Testing -->
+        <!-- Testing / Verification -->
+
+        <dependency>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-checkstyle-plugin</artifactId>
+            <version>3.1.0</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
@@ -91,6 +100,7 @@
     <build>
         <finalName>misim</finalName>
 
+        <!--execute checkstyle:check on validate-->
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -116,13 +126,11 @@
                         <id>checkstyle</id>
                         <phase>validate</phase>
                         <goals>
-                            <goal>check</goal>
+                            <goal>checkstyle</goal>
                         </goals>
                     </execution>
                 </executions>
             </plugin>
-
-
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
