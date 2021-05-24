@@ -225,9 +225,12 @@ public class Microservice extends Entity {
         reporter.addDatapoint("InstanceCount", presentTime(), instancesSet.size());
     }
 
+    public List<Double> getRelativeUtilizationOfInstances() {
+        return instancesSet.stream().map(MicroserviceInstance::getRelativeWorkDemand).collect(Collectors.toList());
+    }
 
     public double getAverageRelativeUtilization() {
-        return instancesSet.stream().mapToDouble(MicroserviceInstance::getUsage).average().orElse(0);
+        return instancesSet.stream().mapToDouble(MicroserviceInstance::getRelativeWorkDemand).average().orElse(0);
     }
 
     public List<Double> getUtilizationOfInstances() {

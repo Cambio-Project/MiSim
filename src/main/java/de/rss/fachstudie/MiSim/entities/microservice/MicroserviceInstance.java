@@ -247,8 +247,6 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
 
         //notify sender of currently handled requests, that the requests failed (TCP/behavior)
         currentRequestsToHandle.forEach(Request::cancelExecutionAtHandler);
-
-
     }
 
     public final Microservice getOwner() {
@@ -295,7 +293,13 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
             }
         }
 
-        letRequestFail(request);
+        try {
+            letRequestFail(request);
+        }
+        catch (IllegalArgumentException e){
+            sendTraceNote("Could not cancel request " + request.getName() + ". Was this request cancled before?");
+        }
+
 
         collectQueueStatistics(); //collecting Statistics
         return false;
@@ -347,7 +351,7 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
 
 
         if (!currentlyOpenDependencies.contains(failedDependency) || !currentRequestsToHandle.contains(request.getParent())) {
-            throw new IllegalArgumentException("The given request was not request by this Instance.");
+            throw new IllegalArgumentException("The given request was not requested by this Instance.");
         }
 
         Request parentToCancel = request.getParent();

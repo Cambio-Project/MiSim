@@ -75,7 +75,8 @@ public class RetryManager extends NetworkPattern implements IRequestUpdateListen
             owner.sendRequest(String.format("Collecting dependency %s", dep.getQuotedName()), newRequest, dep.getTarget_Service(), new TimeSpan(delay));
             sendTraceNote(String.format("Try %d, send Request: %s", tries + 1, newRequest.getQuotedName()));
         } else {
-            owner.updateListenerProxy.onRequestFailed(request, when, RequestFailedReason.MAX_RETRIES_REACHED); //notify everyone that a request failed
+            request.getUpdateListeners().forEach(iRequestUpdateListener -> iRequestUpdateListener.onRequestFailed(request, when, RequestFailedReason.MAX_RETRIES_REACHED));
+            //owner.updateListenerProxy.onRequestFailed(request, when, RequestFailedReason.MAX_RETRIES_REACHED); //notify everyone that a request failed
             sendTraceNote(String.format("Max Retries Reached for Dependency %s", dep));
             return true;
         }

@@ -3,7 +3,7 @@
     {
       "name": "gateway",
       "instances": 1,
-      "capacity": 1336,
+      "capacity": 2000,
       "loadbalancer_strategy": "even",
       "operations": [
         {
@@ -67,39 +67,33 @@
           "type": "retry",
           "config": {
             "maxTries": 5,
-            "baseBackoff": 0.02,
+            "baseBackoff": 0.05,
             "maxBackoff": 1,
             "base": 2,
-            "jittering": true
-          }
-        },
-        {
-          "type": "circuitbreaker",
-          "config": {
-            "errorThresholdPercentage": 0.7
+            "jittering": false
           }
         }
       ]
     },
     {
       "name": "example-service",
-      "instances": 1,
+      "instances": 2,
       "patterns": [],
-      "capacity": 15,
+      "capacity": 400,
       "operations": [
         {
           "name": "example-service.DB_WRITE",
-          "demand": 220,
+          "demand": 1,
           "dependencies": []
         },
         {
           "name": "example-service.DB_READ",
-          "demand": 220,
+          "demand": 1,
           "dependencies": []
         },
         {
           "name": "call_example-service2",
-          "demand": 220,
+          "demand": 1,
           "dependencies": [
             {
               "service": "example-service2",
@@ -109,14 +103,14 @@
         },
         {
           "name": "call_external_service",
-          "demand": 220,
+          "demand": 1,
           "dependencies": []
         }
       ]
     },
     {
       "name": "example-service2",
-      "instances": 1,
+      "instances": 2,
       "patterns": [],
       "capacity": 32000,
       "operations": [

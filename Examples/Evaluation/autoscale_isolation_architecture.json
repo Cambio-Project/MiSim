@@ -1,0 +1,77 @@
+{
+  "microservices": [
+    {
+      "name": "gateway",
+      "instances": 1,
+      "capacity": 2000000,
+      "loadbalancer_strategy": "util",
+      "operations": [
+        {
+          "name": "INTERNAL_DEP",
+          "demand": 1,
+          "dependencies": [
+            {
+              "service": "example-service",
+              "operation": "call_example-service2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "example-service",
+      "instances": 1,
+      "capacity": 100,
+      "operations": [
+        {
+          "name": "example-service.DB_WRITE",
+          "demand": 1,
+          "dependencies": []
+        },
+        {
+          "name": "example-service.DB_READ",
+          "demand": 1,
+          "dependencies": []
+        },
+        {
+          "name": "call_example-service2",
+          "demand": 1,
+          "dependencies": [
+            {
+              "service": "example-service2",
+              "operation": "example-service2.get"
+            }
+          ]
+        },
+        {
+          "name": "call_external_service",
+          "demand": 1,
+          "dependencies": []
+        }
+      ],
+      "patterns": [
+        {
+          "type": "autoscale",
+          "config": {
+            "lowerBound": 0.1,
+            "upperBound": 0.7,
+            "holdTime": 20
+          }
+        }
+      ]
+    },
+    {
+      "name": "example-service2",
+      "instances": 1,
+      "patterns": [],
+      "capacity": 32000,
+      "operations": [
+        {
+          "name": "example-service2.get",
+          "demand": 1,
+          "dependencies": []
+        }
+      ]
+    }
+  ]
+}

@@ -9,6 +9,7 @@ import desmoj.core.dist.NumericalDist;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeSpan;
 
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -35,6 +36,7 @@ public class NetworkRequestSendEvent extends NetworkRequestEvent {
     private static NumericalDist<Double> rng;
 
     private NetworkRequestReceiveEvent receiverEvent;
+    private NetworkRequestTimeoutEvent timeoutEvent;
     private final Microservice targetService;
     private final MicroserviceInstance targetInstance;
     private boolean isCanceled = false;
@@ -53,8 +55,8 @@ public class NetworkRequestSendEvent extends NetworkRequestEvent {
         this.targetInstance = targetInstance;
         request.setSendEvent(this);
 
-        if(rng == null) //a dirty fix to avoid memory leakage
-            rng = new ContDistNormal(getModel(),  "DefaultNetworkDelay_RNG", 20, 10, true, false);
+        if (rng == null) //a dirty fix to avoid memory leakage
+            rng = new ContDistNormal(getModel(), "DefaultNetworkDelay_RNG", 6, 1, true, false);
     }
 
     @Override
@@ -71,7 +73,6 @@ public class NetworkRequestSendEvent extends NetworkRequestEvent {
             updateListener.onRequestResultArrivedAtRequester(traveling_request.getParent(), presentTime());
             return;
         }
-
 
 
         //calculate next delay
@@ -96,7 +97,8 @@ public class NetworkRequestSendEvent extends NetworkRequestEvent {
             receiverEvent = new NetworkRequestReceiveEvent(getModel(), String.format("Receiving of %s", traveling_request.getQuotedName()), traceIsOn(), traveling_request, targetInstance);
             receiverEvent.schedule(new TimeSpan(nextDelay));
 
-            //TODO: schedule NetworkRequestTimeOutCheckEvent, to check the request after a timeout duration
+            timeoutEvent = new NetworkRequestTimeoutEvent(getModel(), "Timeout Checker for " + traveling_request.getName(), getModel().traceIsOn(), traveling_request);
+            traveling_request.addUpdateListener(timeoutEvent);
 
             traveling_request.setReceiveEvent(receiverEvent);
         }
@@ -112,6 +114,8 @@ public class NetworkRequestSendEvent extends NetworkRequestEvent {
                 Request parent = ((RequestAnswer) traveling_request).unpack();
                 dep = parent.getParent().getRelatedDependency(parent);
             }
+
+            if (dep == null) return modifiedDelay;
 
             if (dep.hasCustomDelay()) {
                 modifiedDelay = dep.getNextCustomDelay();
@@ -133,6 +137,8 @@ public class NetworkRequestSendEvent extends NetworkRequestEvent {
 
         if (receiverEvent != null && receiverEvent.isScheduled())
             receiverEvent.cancel();
+        if (timeoutEvent != null && timeoutEvent.isScheduled())
+            timeoutEvent.cancel();
         new NetworkRequestCanceledEvent(getModel(), "RequestCanceledEvent", traceIsOn(), traveling_request, RequestFailedReason.REQUESTING_INSTANCE_DIED, "Sending was forcibly aborted!");
     }
 

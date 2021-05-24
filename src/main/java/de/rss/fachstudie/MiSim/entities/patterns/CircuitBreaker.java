@@ -48,7 +48,7 @@ public final class CircuitBreaker extends NetworkPattern implements IRequestUpda
 
     private final Set<NetworkDependency> activeConnections = new HashSet<>();
     private final Map<Microservice, CircuitBreakerState> breakerStates = new HashMap<>();
-
+    private final Map<Microservice, Integer> activeConnectionCount = new HashMap<>();
     private final MultiDataPointReporter reporter;
 
 
@@ -65,6 +65,7 @@ public final class CircuitBreaker extends NetworkPattern implements IRequestUpda
     @Override
     public void shutdown() {
         activeConnections.clear();
+        activeConnectionCount.clear();
         breakerStates.clear();
         collectData(presentTime());
     }
@@ -77,6 +78,7 @@ public final class CircuitBreaker extends NetworkPattern implements IRequestUpda
         NetworkDependency dep = request.getParent().getRelatedDependency(request);
         Microservice target = dep.getTarget_Service();
         activeConnections.add(dep);
+        activeConnectionCount.merge(target, 1, Integer::sum);
         CircuitBreakerState state = breakerStates.computeIfAbsent(target,
                 monitoredService -> new CircuitBreakerState(monitoredService, this.errorThresholdPercentage, rollingWindow, sleepWindow));
 
@@ -89,7 +91,7 @@ public final class CircuitBreaker extends NetworkPattern implements IRequestUpda
             cancelEvent.schedule();
             consumed = true;
         } else {
-            int currentActiveConnections = (int) (activeConnections.stream().filter(dependency -> dependency.getTarget_Service() == target).count());
+            int currentActiveConnections = activeConnectionCount.get(target);
             if (currentActiveConnections > requestVolumeThreshold) {
                 state.notifyArrivalFailure();
                 owner.updateListenerProxy.onRequestFailed(request, when, RequestFailedReason.CONNECTION_VOLUME_LIMIT_REACHED);
@@ -114,11 +116,12 @@ public final class CircuitBreaker extends NetworkPattern implements IRequestUpda
         NetworkDependency dep = request.getParent().getRelatedDependency(request);
         Microservice target = dep.getTarget_Service();
 
-        if(target == this.owner.getOwner()) { //prevents the circuit breaker from reacting to unpacked RequestAnswers
+        if (target == this.owner.getOwner()) { //prevents the circuit breaker from reacting to unpacked RequestAnswers
             return false;
         }
 
         activeConnections.remove(dep);
+        activeConnectionCount.merge(target,-1, Integer::sum);
 
         breakerStates.get(target).notifySuccessfulCompletion();
 

@@ -5,6 +5,8 @@ import de.rss.fachstudie.MiSim.entities.microservice.Operation;
 import desmoj.core.simulator.Entity;
 import desmoj.core.simulator.Model;
 
+import java.util.Objects;
+
 /**
  * This is an instance of a {@link Dependency}. It describes an actual existing dependency of a {@code Request}, that
  * arrived at a {@code MicroserviceInstance}.
@@ -78,5 +80,18 @@ public class NetworkDependency extends Entity {
 
     public double getNextCustomDelay() {
         return dependency_data.getNextCustomDelay();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        NetworkDependency that = (NetworkDependency) o;
+        return parent_request.equals(that.parent_request) && target_op.equals(that.target_op);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(parent_request, target_op);
     }
 }

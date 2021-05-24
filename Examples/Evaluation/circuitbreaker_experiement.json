@@ -1,0 +1,29 @@
+{
+  "simulation_meta_data": {
+    "experiment_name": "Example-Circuitbreaker",
+    "model_name": "Scenario Circuitbreaker",
+    "duration": 120,
+    "seed": 404
+  },
+  "request_generators": [
+    {
+      "microservice": "gateway",
+      "operation": "INTERNAL_DEP",
+      "limbo_model": "./Examples/Evaluation/const20ArrivalRates.csv"
+    }
+  ],
+  "chaosmonkeys": [
+    {
+      "microservice": "example-service",
+      "instances": 10,
+      "time": 30
+    }
+  ],
+  "summonermonkeys": [
+    {
+      "microservice": "example-service",
+      "instances": 1,
+      "time": 60
+    }
+  ]
+}

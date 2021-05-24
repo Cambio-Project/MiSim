@@ -22,7 +22,7 @@ import desmoj.core.simulator.TimeInstant;
  * </table>
  *
  * @author Lion Wagner
- * TODO: even or randomized distribution within a simulation time unit
+ * TODO: even, exponential or randomized distribution within a simulation time unit
  */
 public final class IntervalGenerator extends Generator {
 

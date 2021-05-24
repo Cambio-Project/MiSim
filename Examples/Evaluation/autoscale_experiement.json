@@ -1,0 +1,15 @@
+{
+  "simulation_meta_data": {
+    "experiment_name": "Example-Autoscale",
+    "model_name": "Scenario Autoscale",
+    "duration": 250,
+    "seed": 404
+  },
+  "request_generators": [
+    {
+      "microservice": "gateway",
+      "operation": "INTERNAL_DEP",
+      "limbo_model": "./Examples/Evaluation/load_profile_linear_rising.csv"
+    }
+  ]
+}

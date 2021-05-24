@@ -20,10 +20,8 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
 import java.util.TreeMap;
 
@@ -186,6 +184,24 @@ public class MainModel extends Model {
             Files.write(Paths.get(String.valueOf(reportLocation), "meta.json"), json.getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE);
             Files.copy(metaData.getArchFileLocation().toPath(), Paths.get(String.valueOf(reportLocation), "arch.json"));
             Files.copy(metaData.getExpFileLocation().toPath(), Paths.get(String.valueOf(reportLocation), "exp.json"));
+
+            final PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher("glob:**/*.py");
+
+            Files.walkFileTree(Paths.get("./Report"), new SimpleFileVisitor<Path>() {
+                @Override
+                public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
+                    if (pathMatcher.matches(path)) {
+                        Files.copy(path,Paths.get(String.valueOf(reportLocation),path.toFile().getName()));
+                    }
+                    return FileVisitResult.CONTINUE;
+                }
+
+//                @Override
+//                public FileVisitResult visitFileFailed(Path file, IOException exc)
+//                        throws IOException {
+//                    return FileVisitResult.CONTINUE;
+//                }
+            });
 
             //export legacy graph
             new ExportReport(model);
