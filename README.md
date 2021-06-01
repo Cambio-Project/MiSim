@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/200825938.svg)](https://zenodo.org/badge/latestdoi/200825938)
+
 # MiSim Microservice Resilience Simulator
 
 This simulator was created as part of the Fachstudie __Simulation-based Resilience Prediction of Microservice Architectures__ at the Reliable Software Systems Research Group of the Institute of Software Technology at the University of Stuttgart.
