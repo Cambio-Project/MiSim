@@ -1,0 +1,38 @@
+{
+  "simulation_meta_data": {
+    "experiment_name": "Example-Autoscale-Test",
+    "model_name": "Scenario Autoscale",
+    "duration": 200,
+    "report": "",
+    "datapoints": 200,
+    "seed": 1337
+  },
+  "request_generators": [
+    {
+      "microservice": "gateway",
+      "operation": "gateway.PING",
+      "start": 42,
+      "stop": 50,
+      "interval": 2
+    },
+    {
+      "microservice": "gateway",
+      "operation": "INTERNAL_DEP",
+      "limbo_model": "./Examples/example_arrival_rates.csv",
+      "repeating": true,
+      "repetition_skip": 0
+    },
+    {
+      "microservice": "gateway",
+      "operation": "gateway.DB_READ",
+      "limbo_model": "./Examples/example_arrival_rates.csv",
+      "repeating": true,
+      "repetition_skip": 0
+    },
+    {
+      "microservice": "gateway",
+      "operation": "UNAFFECTED_SERVICE",
+      "interval": 0
+    }
+  ]
+}

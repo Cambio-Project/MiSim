@@ -22,9 +22,6 @@ jobs:
         java-version: '15'
         distribution: 'adopt'
     
-    - name: register desmoj to maven 
-      run: mvn install:install-file -Dfile=./libraries/DesmoJ/desmoj-2.5.1e-bin.jar -Dversion=2.5.1e -DgeneratePom=true -DgroupId=desmoj -DartifactId=desmoj -Dpackaging=jar
-    
     - name: Cache Maven Dependencies
       uses: actions/cache@v2
       with:

@@ -1,0 +1,38 @@
+{
+  "simulation_meta_data": {
+    "experiment_name": "Example-Evaluation1",
+    "model_name": "Scenario Autoscale",
+    "duration": 180,
+    "seed": 404
+  },
+  "request_generators": [
+    {
+      "microservice": "gateway",
+      "operation": "INTERNAL_DEP",
+      "limbo_model": "./Examples/Evaluation/load_profile_linear_rising.csv",
+      "repeating": true,
+      "repetition_skip": 0
+    },
+    {
+      "microservice": "gateway",
+      "operation": "EXTERNAL_DEP",
+      "limbo_model": "./Examples/Evaluation/load_profile_linear_rising.csv",
+      "repeating": true,
+      "repetition_skip": 0
+    },
+    {
+      "microservice": "gateway",
+      "operation": "gateway.DB_READ",
+      "limbo_model": "./Examples/Evaluation/load_profile_linear_rising.csv",
+      "repeating": true,
+      "repetition_skip": 0
+    },
+    {
+      "microservice": "gateway",
+      "operation": "gateway.DB_WRITE",
+      "limbo_model": "./Examples/Evaluation/load_profile_linear_rising.csv",
+      "repeating": true,
+      "repetition_skip": 0
+    }
+  ]
+}

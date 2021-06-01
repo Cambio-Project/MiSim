@@ -1,72 +1,61 @@
 package de.rss.fachstudie.MiSim.models;
 
-import de.rss.fachstudie.MiSim.entities.MessageObject;
-import de.rss.fachstudie.MiSim.entities.Microservice;
+import com.google.gson.Gson;
+import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
 import de.rss.fachstudie.MiSim.events.FinishEvent;
-import de.rss.fachstudie.MiSim.events.InitialChaosMonkeyEvent;
-import de.rss.fachstudie.MiSim.events.InitialEvent;
-import de.rss.fachstudie.MiSim.events.StatisticEvent;
+import de.rss.fachstudie.MiSim.events.ISelfScheduled;
 import de.rss.fachstudie.MiSim.export.ExportReport;
-import de.rss.fachstudie.MiSim.resources.CPU;
-import de.rss.fachstudie.MiSim.utils.ArchModelParser;
-import de.rss.fachstudie.MiSim.utils.ArchModelValidator;
-import de.rss.fachstudie.MiSim.utils.ExpModelParser;
-import desmoj.core.simulator.*;
-import desmoj.core.simulator.Queue;
-import desmoj.core.statistic.TimeSeries;
+import de.rss.fachstudie.MiSim.export.MultiDataPointReporter;
+import de.rss.fachstudie.MiSim.export.ReportCollector;
+import de.rss.fachstudie.MiSim.export.ReportWriter;
+import de.rss.fachstudie.MiSim.misc.Priority;
+import de.rss.fachstudie.MiSim.misc.Util;
+import de.rss.fachstudie.MiSim.parsing.GsonParser;
+import desmoj.core.simulator.Experiment;
+import desmoj.core.simulator.Model;
+import desmoj.core.simulator.TimeInstant;
 import org.apache.commons.cli.*;
+import org.apache.commons.io.FileUtils;
 
-import java.awt.*;
 import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
-import java.util.concurrent.TimeUnit;
+import java.util.TreeMap;
 
 /**
  * Main class to start the experiment. This class will load the input file and create a model out of it.
- * doInitialSchedules Starts the inital event.
- * init Gets called at the start of the experiment and loads all relevant experiment resources.
+ * doInitialSchedules Starts the inital event. initFields Gets called at the start of the experiment and loads all
+ * relevant experiment resources.
  */
 public class MainModel extends Model {
-    private TimeUnit timeUnit       = TimeUnit.SECONDS;
-    private double simulationTime   = 0;
-    private String report           = "";
-    private int datapoints          = -1;
-    private double precision        = 100000;
-    private double statisticChunks = 10;
-    private int seed                = 0;
-    private String resourcePath = "./Report/resources/";
-    private boolean showInitEvent   = true;
-    private boolean showStartEvent  = true;
-    private boolean showStopEvent   = true;
-    private boolean showMonkeyEvent = true;
 
-    // Queues
-    public HashMap<Integer, Queue<Microservice>>    services;
-    public HashMap<Integer, Queue<MessageObject>>   taskQueues;
-    public HashMap<Integer, Microservice>           allMicroservices;
+    /**
+     * general reporter, can be used if objects/classes do not want to create their own reporter or use a common reporter.
+     */
+    public static MultiDataPointReporter generalReporter = new MultiDataPointReporter();
+    private static MainModel instance = null;
 
-    // Resources
-    public HashMap<Integer, HashMap<Integer, CPU>> serviceCPU;
+    public static MainModel get() {
+        if (instance == null) {
+            throw new IllegalStateException("MainModel was not initialized yet.");
+        }
+        return instance;
+    }
 
-    // Statistics
-    public HashMap<Integer, HashMap<Integer, TimeSeries>> activeThreadStatistics;
-    public HashMap<Integer, HashMap<Integer, TimeSeries>> existingThreadStatistics;
-    public HashMap<Integer, HashMap<Integer, TimeSeries>> cpuStatistics;
-    public HashMap<Integer, HashMap<Integer, TimeSeries>> responseStatisitcs;
-    public HashMap<Integer, HashMap<Integer, TimeSeries>> circuitBreakerStatistics;
-    public HashMap<Integer, HashMap<Integer, TimeSeries>> threadPoolStatistics;
-    public HashMap<Integer, HashMap<Integer, TimeSeries>> threadQueueStatistics;
-    public HashMap<Integer, HashMap<Integer, TimeSeries>> resourceLimiterStatistics;
-    public HashMap<Integer, TimeSeries> taskQueueStatistics;
+    public static MainModel initialize(String modelName) {
+        if (instance != null) {
+            throw new IllegalStateException("Architecture Model was already initialized.");
+        }
+        instance = new MainModel(null, modelName, true, true);
+        return get();
+    }
 
-    public void  setSimulationTime(double simTime) {
-        if(simTime > 0)
-            simulationTime = simTime;
-        else
-            simulationTime = 1000;
-    };
 
     public static void main(String[] args) {
+        //Option parsing
         String arch_model;
         String exp_model;
 
@@ -84,6 +73,11 @@ public class MainModel extends Model {
         progressbar.setRequired(false);
         options.addOption(progressbar);
 
+        Option debugOutput = new Option("d", "debug", false, "activate debugoutput");
+        debugOutput.setRequired(false);
+        options.addOption(debugOutput);
+
+
         CommandLineParser cmdparser = new DefaultParser();
         HelpFormatter formatter = new HelpFormatter();
         CommandLine cmd;
@@ -97,8 +91,8 @@ public class MainModel extends Model {
             return;
         }
 
-        arch_model = cmd.getOptionValue("a");
-        exp_model = cmd.getOptionValue("e");
+        arch_model = cmd.getOptionValue(arch_model_opt.getOpt());
+        exp_model = cmd.getOptionValue(exp_model_opt.getOpt());
 
         if (arch_model.equals("")) {
             System.out.println("No architecture was specified");
@@ -106,8 +100,8 @@ public class MainModel extends Model {
             return;
         } else {
             File f = new File(arch_model);
-            if(!f.exists() || f.isDirectory()) {
-                System.out.println("No valid architecture file was given");
+            if (!f.exists() || f.isDirectory()) {
+                System.out.printf("Did not find architecture file at %s%n", f.getAbsolutePath());
                 System.exit(1);
                 return;
             }
@@ -120,142 +114,105 @@ public class MainModel extends Model {
         } else {
             File f = new File(exp_model);
             if (!f.exists() || f.isDirectory()) {
-                System.out.println("No valid experiment file was given");
+                System.out.printf("Did not find experiment file at %s%n", f.getAbsolutePath());
                 System.exit(1);
                 return;
             }
         }
 
-        ArchModelParser archParser = new ArchModelParser(arch_model);
-        ArchModelValidator validator = new ArchModelValidator();
 
-        ExpModelParser expParser = new ExpModelParser(exp_model);
+        //data/modeling parsing | setup
+        long startTime = System.nanoTime();
 
-//        if (validator.valideArchModel(archParser)) {
-            long startTime = System.nanoTime();
+        ExperimentMetaData metaData = ExperimentMetaData.initialize(Paths.get(exp_model), Paths.get(arch_model));
 
-            MainModel model = new MainModel(null, ExpModelParser.simulation_meta_data.get("model_name"), true, true);
-            model.setSimulationTime(Double.parseDouble(ExpModelParser.simulation_meta_data.get("duration")));
-            model.setChunkSize((int) (model.getSimulationTime() * 0.05));
-            model.setReport(ExpModelParser.simulation_meta_data.get("report"));
-            model.setDatapoints(Integer.parseInt(ExpModelParser.simulation_meta_data.get("datapoints")));
-            model.setSeed(Integer.parseInt(ExpModelParser.simulation_meta_data.get("seed")));
+        MainModel model = MainModel.initialize(metaData.getModelName());
+        if (cmd.hasOption(debugOutput.getOpt())) model.debugOn();
 
-            Experiment exp = new Experiment(ExpModelParser.simulation_meta_data.get("experiment_name"));
-            model.connectToExperiment(exp);
-            exp.setSeedGenerator(model.getSeed());
-            exp.setShowProgressBarAutoclose(true);
-            exp.setShowProgressBar(cmd.hasOption("p"));
-            exp.stop(new TimeInstant(model.getSimulationTime(), model.getTimeUnit()));
-            exp.tracePeriod(new TimeInstant(0, model.getTimeUnit()), new TimeInstant(50, model.getTimeUnit()));
-            exp.debugPeriod(new TimeInstant(0, model.getTimeUnit()), new TimeInstant(50, model.getTimeUnit()));
+        Experiment exp = new Experiment(metaData.getExperimentName());
+        model.connectToExperiment(exp);
+        exp.setSeedGenerator(metaData.getSeed());
+        exp.setShowProgressBarAutoclose(true);
+        exp.setShowProgressBar(cmd.hasOption("p"));
+        exp.stop(new TimeInstant(metaData.getDuration(), metaData.getTimeUnit()));
+        exp.tracePeriod(new TimeInstant(0, metaData.getTimeUnit()), new TimeInstant(metaData.getDuration(), metaData.getTimeUnit()));
+        exp.debugPeriod(new TimeInstant(0, metaData.getTimeUnit()), new TimeInstant(metaData.getDuration(), metaData.getTimeUnit()));
+        if (cmd.hasOption(debugOutput.getOpt()))
+            exp.debugOn(new TimeInstant(0, metaData.getTimeUnit()));
 
 
-            long setupTime = System.nanoTime() - startTime;
-            long tempTime = System.nanoTime();
+        ArchitectureModel.initialize(Paths.get(arch_model));
+        ExperimentModel.initialize(Paths.get(exp_model));
 
-            exp.start();
+        long setupTime = System.nanoTime() - startTime;
+        long tempTime = System.nanoTime();
 
-            long experimentTime = System.nanoTime() - tempTime;
-            tempTime = System.nanoTime();
+        //run experiment
+        exp.start();
 
-            //exp.report();
-            exp.finish();
+        long experimentTime = System.nanoTime() - tempTime;
+        tempTime = System.nanoTime();
 
-            if (!ExpModelParser.simulation_meta_data.get("report").equals("none")) {
-                ExportReport exportReport = new ExportReport(model);
-                System.out.println("\nCreated Report successfully.");
-            }
+        //exp.report();
+        exp.finish();
 
-            long reportTime = System.nanoTime() - tempTime;
-            long executionTime = System.nanoTime() - startTime;
-
-            System.out.println("\n*** Simulator ***");
-            System.out.println("Simulation of Architecture: " + arch_model);
-            System.out.println("Executed Experiment:        " + ExpModelParser.simulation_meta_data.get("experiment_name"));
-            System.out.println("Setup took:                 " + model.timeFormat(setupTime));
-            System.out.println("Experiment took:            " + model.timeFormat(experimentTime));
-            System.out.println("Report took:                " + model.timeFormat(reportTime));
-            System.out.println("Execution took:             " + model.timeFormat(executionTime));
-            Toolkit.getDefaultToolkit().beep();
-//        } else {
-//            System.out.println("Your inserted input was not valide. Please check correctness of you JSON file.");
-//        }
-    }
-
-    public double getSimulationTime() {
-        return simulationTime;
-    }
-
-    public String getReport() {
-        return report;
-    }
-
-    public void setReport(String report) {
-        this.report = report;
-    }
-
-    public void setDatapoints(int points) {
-        if(points > 0)
-            this.datapoints = points;
-        if(points > simulationTime || points == -1) {
-            points = (int)simulationTime;
+        //create report if wanted
+        if (!metaData.getReportType().equals("none")) {
+            generate_report(model);
         }
+
+        long reportTime = System.nanoTime() - tempTime;
+        long executionTime = System.nanoTime() - startTime;
+
+        System.out.println("\n*** Simulator ***");
+        System.out.println("Simulation of Architecture: " + arch_model);
+        System.out.println("Executed Experiment:        " + metaData.getExperimentName());
+        System.out.println("Setup took:                 " + Util.timeFormat(setupTime));
+        System.out.println("Experiment took:            " + Util.timeFormat(experimentTime));
+        System.out.println("Report took:                " + Util.timeFormat(reportTime));
+        System.out.println("Execution took:             " + Util.timeFormat(executionTime));
     }
 
-    public int getDatapoints() {
-        return this.datapoints;
-    }
+    private static void generate_report(MainModel model) {
+        ExperimentMetaData metaData = ExperimentMetaData.get();
+        Path reportLocation = Paths.get(".", "Report_" + metaData.getExperimentName());
+        Gson gson = new GsonParser().getGson();
+        try {
+            FileUtils.deleteDirectory(reportLocation.toFile());
+            reportLocation.toFile().mkdirs();
+            String json = gson.toJson(metaData);
+            Files.write(Paths.get(String.valueOf(reportLocation), "meta.json"), json.getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE);
+            Files.copy(metaData.getArchFileLocation().toPath(), Paths.get(String.valueOf(reportLocation), "arch.json"));
+            Files.copy(metaData.getExpFileLocation().toPath(), Paths.get(String.valueOf(reportLocation), "exp.json"));
 
-    public double getPrecision() {
-        return precision;
-    }
+            final PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher("glob:**/*.py");
 
-    public double getStatisticChunks() {
-        return this.statisticChunks;
-    }
+            Files.walkFileTree(Paths.get("./Report"), new SimpleFileVisitor<Path>() {
+                @Override
+                public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
+                    if (pathMatcher.matches(path)) {
+                        Files.copy(path,Paths.get(String.valueOf(reportLocation),path.toFile().getName()));
+                    }
+                    return FileVisitResult.CONTINUE;
+                }
 
-    public int getSeed() {
-        return seed;
-    }
+//                @Override
+//                public FileVisitResult visitFileFailed(Path file, IOException exc)
+//                        throws IOException {
+//                    return FileVisitResult.CONTINUE;
+//                }
+            });
 
-    public void setSeed(int seed) {
-        this.seed = seed;
-    }
-
-    public TimeUnit getTimeUnit() {
-        return timeUnit;
-    }
-
-    public boolean getShowInitEvent() {
-        return showInitEvent;
-    }
-
-    public boolean getShowStartEvent() {
-        return showStartEvent;
-    }
-
-    public boolean getShowStopEvent() {
-        return showStopEvent;
-    }
-
-    public boolean getShowMonkeyEvent() {
-        return showMonkeyEvent;
-    }
-
-    /**
-     * Helper Function to get the id of a microservice instance by the name.
-     * @param name the name of the service to get the name from
-     * @return id of the corresponding microservice if successful, otherwise -1
-     */
-    public int getIdByName(String name){
-
-        for(int i = 0; i < allMicroservices.size() ; i ++){
-            if(name.equals(allMicroservices.get(i).getName())){
-                return allMicroservices.get(i).getId();
-            }
+            //export legacy graph
+            new ExportReport(model);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        return -1;
+
+        HashMap<String, TreeMap<Double, Object>> data = ReportCollector.getInstance().collect_data();
+        TreeMap<String, TreeMap<Double, Object>> sortedData = new TreeMap<>(data);
+        ReportWriter.writeReporterCollectorOutput(sortedData, reportLocation);
+
     }
 
     public MainModel(Model owner, String modelName, boolean showInReport, boolean showInTrace) {
@@ -264,11 +221,12 @@ public class MainModel extends Model {
 
     /**
      * Required method which returns a description for the model.
+     *
      * @return the description of the model
      */
     @Override
     public String description() {
-        return "This model is a test of Desmoj to investigate the suitability of Desmoj for the simulation of microservice architectures.";
+        return "This is the central model of the simulation of microservice architectures.";
     }
 
     /**
@@ -276,166 +234,13 @@ public class MainModel extends Model {
      */
     @Override
     public void init() {
-        // Resources
-        serviceCPU          = new HashMap<>();
-
-        // Queues
-        allMicroservices    = new HashMap<>();
-        taskQueues          = new HashMap<>();
-        services            = new HashMap<>();
-
-        // Resources
-        serviceCPU          = new HashMap<>();
-
-        // Statistics
-        activeThreadStatistics = new HashMap<>();
-        existingThreadStatistics = new HashMap<>();
-        cpuStatistics               = new HashMap<>();
-        responseStatisitcs          = new HashMap<>();
-        circuitBreakerStatistics    = new HashMap<>();
-        threadPoolStatistics        = new HashMap<>();
-        threadQueueStatistics       = new HashMap<>();
-        resourceLimiterStatistics = new HashMap<>();
-        taskQueueStatistics         = new HashMap<>();
-
-        // Create folder for statistics file
-        File resPath = new File(resourcePath);
-        if(!resPath.exists()) {
-            resPath.mkdir();
-        }
-
-        // Load Microservices
-        Microservice[] microservices = ArchModelParser.microservices;
-        for(int id = 0; id < microservices.length; id++){
-
-            String serviceName = microservices[id].getName();
-
-            // Queues
-            Queue<Microservice> idleQueue = new Queue<Microservice>(this, "Idle Queue: " + serviceName, true, true);
-            Queue<MessageObject> taskQueue = new Queue<MessageObject>(this, "Task Queue: " + serviceName, true , true) ;
-
-            // Resources
-            HashMap<Integer, CPU> cpu = new HashMap<>();
-
-            // Statistics
-            HashMap<Integer, TimeSeries> activeThreadStats = new HashMap<>();
-            HashMap<Integer, TimeSeries> existingThreadStats = new HashMap<>();
-            HashMap<Integer, TimeSeries> cpuStats = new HashMap<>();
-            HashMap<Integer, TimeSeries> responseStats = new HashMap<>();
-            HashMap<Integer, TimeSeries> threadPoolStats = new HashMap<>();
-            HashMap<Integer, TimeSeries> threadQueueStats = new HashMap<>();
-            HashMap<Integer, TimeSeries> resourceLimiterStats = new HashMap<>();
-            HashMap<Integer, TimeSeries> circuitBreakerStats = new HashMap<>();
-            TimeSeries taskQueueWork = new TimeSeries(this, "Task Queue: " + serviceName,
-                    resourcePath + "TaskQueue_" + serviceName + ".txt",
-                    new TimeInstant(0.0, timeUnit), new TimeInstant(simulationTime, timeUnit), false, false);
 
 
-            for(int instance = 0; instance < microservices[id].getInstances(); instance++){
-                Microservice msEntity = new Microservice(this , microservices[id].getName(), true );
-                msEntity.setId(id);
-                msEntity.setSid(instance);
-                msEntity.setName(microservices[id].getName());
-                msEntity.setPatterns(microservices[id].getPatterns());
-                msEntity.setCapacity(microservices[id].getCapacity());
-                msEntity.setInstances(microservices[id].getInstances());
-                msEntity.setOperations(microservices[id].getOperations());
-                idleQueue.insert(msEntity);
-                allMicroservices.put(id, msEntity);
-
-                // Resources
-                CPU msCPU = new CPU(this, "", false, id, instance, msEntity.getCapacity());
-                cpu.put(instance, msCPU);
-                String postfix = serviceName + " #" + instance;
-                String file = serviceName + "_" + instance + ".txt";
-
-                // Statistics
-                TimeSeries activeInstances = new TimeSeries(this, "Active Threads: " + postfix,
-                        resourcePath + "ActiveThreads_" + file,
-                        new TimeInstant(0.0, timeUnit), new TimeInstant(simulationTime, timeUnit), false, false);
-
-                TimeSeries existingInstances = new TimeSeries(this, "Existing Threads: " + postfix,
-                        resourcePath + "ExistingThreads_" + file,
-                        new TimeInstant(0.0, timeUnit), new TimeInstant(simulationTime, timeUnit), false, false);
-
-                TimeSeries activeCPU = new TimeSeries(this, "Used CPU: " + postfix,
-                        resourcePath + "CPU_" + file,
-                        new TimeInstant(0.0, timeUnit), new TimeInstant(simulationTime, timeUnit), false, false);
-
-                TimeSeries responseTime = new TimeSeries(this, "Response Time: " + postfix,
-                        resourcePath + "ResponseTime_" + file,
-                        new TimeInstant(0.0, timeUnit), new TimeInstant(simulationTime, timeUnit), false, false);
-
-                TimeSeries threadPool = new TimeSeries(this, "Tasks refused by Thread Pool: " + postfix,
-                        resourcePath + "ThreadPool_" + file,
-                        new TimeInstant(0.0, timeUnit), new TimeInstant(simulationTime, timeUnit), false, false);
-
-                TimeSeries threadQueue = new TimeSeries(this, "Tasks refused by Thread Queue: " + postfix,
-                        resourcePath + "ThreadQueue_" + file,
-                        new TimeInstant(0.0, timeUnit), new TimeInstant(simulationTime, timeUnit), false, false);
-
-                TimeSeries resourceLimiter = new TimeSeries(this, "Tasks refused by Resource Limiter: " + postfix,
-                        resourcePath + "ResourceLimiter_" + file,
-                        new TimeInstant(0.0, timeUnit), new TimeInstant(simulationTime, timeUnit), false, false);
-
-                TimeSeries circuitBreaker = new TimeSeries(this, "Tasks refused by Circuit Breaker: " + postfix,
-                        resourcePath + "CircuitBreaker_" + file,
-                        new TimeInstant(0.0, timeUnit), new TimeInstant(simulationTime, timeUnit), false, false);
-
-                activeThreadStats.put(instance, activeInstances);
-                existingThreadStats.put(instance, existingInstances);
-                cpuStats.put(instance, activeCPU);
-                responseStats.put(instance, responseTime);
-                threadPoolStats.put(instance, threadPool);
-                threadQueueStats.put(instance, threadQueue);
-                resourceLimiterStats.put(instance, resourceLimiter);
-                circuitBreakerStats.put(instance, circuitBreaker);
-            }
-            // Queues
-            taskQueues.put(id, taskQueue);
-            services.put(id, idleQueue);
-
-            // Resources
-            serviceCPU.put(id, cpu);
-
-            // Statistics
-            activeThreadStatistics.put(id, activeThreadStats);
-            existingThreadStatistics.put(id, existingThreadStats);
-            cpuStatistics.put(id, cpuStats);
-            responseStatisitcs.put(id, responseStats);
-            circuitBreakerStatistics.put(id, circuitBreakerStats);
-            threadPoolStatistics.put(id, threadPoolStats);
-            threadQueueStatistics.put(id, threadQueueStats);
-            resourceLimiterStatistics.put(id, resourceLimiterStats);
-            taskQueueStatistics.put(id, taskQueueWork);
-        }
     }
 
-    private String timeFormat(long nanosecs) {
-        long tempSec = nanosecs / (1000*1000*1000);
-        long ms = (nanosecs / (1000*1000)) % 1000;
-        long sec = tempSec % 60;
-        long min = (tempSec / 60) % 60;
-        long hour = (tempSec / (60*60)) % 24;
-        long day = (tempSec / (24*60*60)) % 24;
-
-        if(day > 0)
-            return String.format("%dd %dh %dm %ds %dms", day, hour, min, sec, ms);
-        else if(hour > 0)
-            return String.format("%dh %dm %ds %dms", hour, min, sec, ms);
-        else if(min > 0)
-            return String.format("%dm %ds %dms", min, sec, ms);
-        else if(sec > 0)
-            return String.format("%ds %dms", sec, ms);
-        return String.format("%dms", ms);
-    }
 
     public void log(String message) {
         System.out.println(this.presentTime() + ": \t" + message);
-    }
-
-    public void setChunkSize(int chunks) {
-        statisticChunks = chunks;
     }
 
     /**
@@ -444,33 +249,15 @@ public class MainModel extends Model {
     @Override
     public void doInitialSchedules() {
 
-        // Fire off all generators for scheduling
-        InitialEvent generators[] = ExpModelParser.request_generators;
-        for (InitialEvent generator : generators) {
-            InitialEvent initEvent = new InitialEvent(this, "", showInitEvent, generator.getInterval(),
-                    getIdByName(generator.getMicroservice()), generator.getOperation());
-            initEvent.schedule(new TimeSpan(0, timeUnit));
-        }
+        ArchitectureModel.get().getMicroservices().forEach(Microservice::start); //initalizes spawning of instances
 
-        // Fire off all monkeys for scheduling
-        InitialChaosMonkeyEvent monkeys[] = ExpModelParser.chaosmonkeys;
-        for (InitialChaosMonkeyEvent monkey : monkeys) {
-            InitialChaosMonkeyEvent initMonkey = new InitialChaosMonkeyEvent(this, "", showMonkeyEvent,
-                    monkey.getTime(), getIdByName(monkey.getMicroservice()), monkey.getInstances());
-            initMonkey.schedule(new TimeSpan(0, timeUnit));
+        for (ISelfScheduled event : ExperimentModel.get().getAllSelfSchedulesEvents()) {
+            event.doInitialSelfSchedule();
         }
-
-        // Trigger Event every second to collect data
-        StatisticEvent statisticEvent = new StatisticEvent(this, "", false, simulationTime / datapoints);
-        //StatisticEvent statisticEvent = new StatisticEvent(this, "", false, 0.1);
-        statisticEvent.schedule(new TimeSpan(0, timeUnit));
 
         //Fire off the finish event which is called during at the end of the simulation
-        FinishEvent event = new FinishEvent(this, "", false);
-        event.schedule(new TimeSpan(simulationTime - 1, timeUnit));
-    }
-
-    public void log(Integer message) {
-        System.out.println(this.presentTime() + ": \t" + message);
+        FinishEvent event = new FinishEvent(this, "Finishing Event", false);
+        event.setSchedulingPriority(Priority.HIGH);
+        event.schedule(new TimeInstant(ExperimentMetaData.get().getDuration()));
     }
 }
