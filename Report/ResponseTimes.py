@@ -6,6 +6,9 @@ import math
 import numpy as np
 import json
 
+from pandas.core.base import DataError
+from pandas.core.frame import DataFrame
+
 
 def pull_data() -> None:
     datasets = []
@@ -15,18 +18,27 @@ def pull_data() -> None:
     for file in os.listdir("./raw/"):
         if (file.endswith("_ResponseTimes.csv")):
             data = pd.read_csv("./raw/" + file, sep=";", usecols=[0, 1])
-            datasets.append((file.strip(), data))
+
+            data["Simulation Time"] = np.int32(data["Simulation Time"]-0.5)
+            groups = data.groupby("Simulation Time")
+            mean = groups.mean().reset_index()
+            std_mean = groups.sem().reset_index()
+            datasets.append((file.strip(), mean, std_mean))
+
+            mean["Error"] = std_mean["Value"]
+            mean["Avg. Simulated Response Time"] = mean["Value"]
+
+            mean.to_csv("./raw/" + file.replace("Times.csv", "Times_mean.csv"))
 
             loadfile = file.replace("_ResponseTimes.csv", "")
             loadfile = loadfile[2:loadfile.rindex("]"):]
             loadfile = glob.glob("./raw/*" + loadfile+"*Load.csv")[0]
             load_data = pd.read_csv(loadfile, sep=";", usecols=[0, 1])
 
-            
-
             # binning to seconds because pandas refuses to do it itself
-            load_data["Time"] = np.int32(load_data["Time"])
-            grouped = load_data.groupby("Time")
+            load_data["Simulation Time"] = np.int32(
+                load_data["Simulation Time"])
+            grouped = load_data.groupby("Simulation Time")
             grouped = grouped.apply(lambda x: x["Value"].sum())
             grouped = grouped.reset_index()
             grouped["Value"] = grouped[0]
@@ -48,7 +60,7 @@ def pull_data() -> None:
     loc = 0
     for dataset in datasets:
         ax = axs[loc][0] if len(datasets) > 1 else axs[0]
-        ax.scatter(x=dataset[1]["Time"], y=dataset[1]["Value"])
+        ax.scatter(x=dataset[1]["Simulation Time"], y=dataset[1]["Value"])
         ax.set_title(dataset[0])
         ax.set_ylim(ymin=0)
         ax.set_xticks(xtickz)
@@ -57,8 +69,8 @@ def pull_data() -> None:
     loc = 0
     for dataset in loadsets:
         ax = axs[loc][1] if len(datasets) > 1 else axs[1]
-        ax.scatter(x=dataset[1]["Time"], y=dataset[1]["Value"])
-        ax.plot(dataset[1]["Time"], dataset[1]["Value"])
+        ax.scatter(x=dataset[1]["Simulation Time"], y=dataset[1]["Value"])
+        ax.plot(dataset[1]["Simulation Time"], dataset[1]["Value"])
         ax.set_title(dataset[0])
         ax.set_ylim(ymin=0)
         ax.set_xticks(xtickz)

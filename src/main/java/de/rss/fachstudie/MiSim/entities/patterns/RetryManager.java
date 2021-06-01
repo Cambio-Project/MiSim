@@ -2,22 +2,21 @@ package de.rss.fachstudie.MiSim.entities.patterns;
 
 import de.rss.fachstudie.MiSim.entities.microservice.MicroserviceInstance;
 import de.rss.fachstudie.MiSim.entities.networking.*;
+import de.rss.fachstudie.MiSim.export.MultiDataPointReporter;
 import de.rss.fachstudie.MiSim.misc.Priority;
 import de.rss.fachstudie.MiSim.parsing.FromJson;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 import desmoj.core.simulator.TimeSpan;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 /**
- * Retry implementation that employs a full jitter based exponential backoff.
- * Jittering can be turned off.
+ * Retry implementation that employs a full jitter based exponential backoff. Jittering can be turned off.
  *
  * @author Lion Wagner
- * @see <a href=https://aws.amazon.com/de/blogs/architecture/exponential-backoff-and-jitter/>Articel on Backoff and Jitter Algorithms </a>
+ * @see <a href=https://aws.amazon.com/de/blogs/architecture/exponential-backoff-and-jitter/>Articel on Backoff and
+ * Jitter Algorithms </a>
  */
 public class RetryManager extends NetworkPattern implements IRequestUpdateListener {
 
@@ -46,6 +45,8 @@ public class RetryManager extends NetworkPattern implements IRequestUpdateListen
      */
     private final Map<NetworkDependency, Integer> requestIndex = new HashMap<>();
 
+    private final static MultiDataPointReporter reporter = new MultiDataPointReporter("RM");
+
     public RetryManager(Model model, String name, boolean showInTrace, MicroserviceInstance listener) {
         super(model, name, showInTrace, listener);
     }
@@ -55,9 +56,12 @@ public class RetryManager extends NetworkPattern implements IRequestUpdateListen
         return Priority.VERY_HIGH;
     }
 
+    private static List<Double> all = new LinkedList<>();
+
     @Override
     public boolean onRequestFailed(Request request, TimeInstant when, RequestFailedReason reason) {
-        if (reason == RequestFailedReason.MAX_RETRIES_REACHED) return false; // if max retries reached, the Retry does not know how to handle the fail
+        if (reason == RequestFailedReason.MAX_RETRIES_REACHED)
+            return false; // if max retries reached, the Retry does not know how to handle the fail
 
         NetworkDependency dep = request.getParent().getRelatedDependency(request);
         if (!requestIndex.containsKey(dep)) return false;
@@ -65,14 +69,36 @@ public class RetryManager extends NetworkPattern implements IRequestUpdateListen
         int tries = requestIndex.get(dep);
 
         if (tries < maxTries) {
-            double delay = Math.min(baseBackoff * Math.pow(base, tries), maxBackoff);
+            double delay = Math.min(baseBackoff * Math.pow(base, tries - 1), maxBackoff);
 
             if (jittering) {
                 delay = new Random().nextDouble() * delay;
             }
 
+            reporter.addDatapoint("RetryTimings", presentTime(), delay);
+            all.add(delay);
+//            if (all.stream().filter(aDouble -> aDouble == 0.1).count() < all.stream().filter(aDouble -> aDouble == 0.2).count()) {
+//                System.out.println("something is wrong...");
+//            }
+
+//            try {
+//                Files.createFile(Paths.get("RMOut.csv"));
+//            } catch (IOException e) {
+//            }
+//            try {
+//                Files.write(Paths.get("RMOut.csv"), String.valueOf(delay + ";\n").getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+
+            MicroserviceInstance handler = request.getHandler();
+
             Request newRequest = new InternalRequest(getModel(), this.traceIsOn(), dep, request.getRequester()); //updates the dependency that had the original request as child
-            owner.sendRequest(String.format("Collecting dependency %s", dep.getQuotedName()), newRequest, dep.getTarget_Service(), new TimeSpan(delay));
+            if (handler == null || tries == maxTries - 1) {
+                owner.sendRequest(String.format("Collecting dependency %s", dep.getQuotedName()), newRequest, dep.getTarget_Service(), new TimeSpan(delay));
+            } else {
+                owner.sendRequest(String.format("Collecting dependency %s", dep.getQuotedName()), newRequest, handler, new TimeSpan(delay));
+            }
             sendTraceNote(String.format("Try %d, send Request: %s", tries + 1, newRequest.getQuotedName()));
         } else {
             request.getUpdateListeners().forEach(iRequestUpdateListener -> iRequestUpdateListener.onRequestFailed(request, when, RequestFailedReason.MAX_RETRIES_REACHED));

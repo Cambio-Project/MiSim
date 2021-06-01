@@ -1,20 +1,22 @@
 package de.rss.fachstudie.MiSim.events;
 
+import co.paralleluniverse.fibers.SuspendExecution;
 import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
 import de.rss.fachstudie.MiSim.entities.microservice.Operation;
 import de.rss.fachstudie.MiSim.misc.Util;
 import desmoj.core.dist.ContDistNormal;
 import desmoj.core.dist.NumericalDist;
+import desmoj.core.simulator.ExternalEvent;
 import desmoj.core.simulator.Model;
+import desmoj.core.simulator.TimeSpan;
 
 import java.util.Arrays;
 import java.util.Objects;
 
 /**
- * Event that triggers a latency injection. The injection can be applied on different levels:<br>
- * Either all outgoing requests of a {@code Microservice} are delayed.<br>
- * Or all outgoing dependency requests of a single {@code Operation} can be delayed.<br>
- * Or the connection between two specific {@code Operation}s can also be delayed.
+ * Event that triggers a latency injection. The injection can be applied on different levels:<br> Either all outgoing
+ * requests of a {@code Microservice} are delayed.<br> Or all outgoing dependency requests of a single {@code Operation}
+ * can be delayed.<br> Or the connection between two specific {@code Operation}s can also be delayed.
  *
  * @author Lion Wagner
  */
@@ -24,6 +26,8 @@ public class LatencyMonkeyEvent extends SelfScheduledEvent {
     private final Microservice microservice;
     private final Operation operation_src;
     private final Operation operation_trg;
+
+    private double duration;
 
     public LatencyMonkeyEvent(Model model, String name, boolean showInTrace, double delay, Microservice microservice) {
         this(model, name, showInTrace, delay, 0, microservice, null, null);
@@ -75,9 +79,20 @@ public class LatencyMonkeyEvent extends SelfScheduledEvent {
         }
     }
 
+    public void setDuration(double duration) {
+        this.duration = duration;
+    }
+
     @Override
     public void eventRoutine() {
         NumericalDist<Double> dist = new ContDistNormal(getModel(), String.format("DelayDistribution_of_%s", this.getName()), delay, std_deviation, false, false);
         microservice.applyDelay(dist, operation_src, operation_trg);
+        new ExternalEvent(getModel(), "LatencyMonkeyDeactivator", this.traceIsOn()) {
+            @Override
+            public void eventRoutine() throws SuspendExecution {
+                microservice.applyDelay(null, operation_src, operation_trg);
+            }
+        }.schedule(new TimeSpan(duration));
+
     }
 }

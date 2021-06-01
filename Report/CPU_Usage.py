@@ -20,9 +20,9 @@ def pull_data() -> None:
         dataTotal = pd.read_csv(
             "./raw/" + name + "_TotalProcesses.csv", sep=";", usecols=[0, 1])
 
-        timepoints.update(dataLoad["Time"])
-        timepoints.update(dataActive["Time"])
-        timepoints.update(dataTotal["Time"])
+        timepoints.update(dataLoad["Simulation Time"])
+        timepoints.update(dataActive["Simulation Time"])
+        timepoints.update(dataTotal["Simulation Time"])
 
         datasets.append(
             (name, dataLoad, dataActive, dataTotal))
@@ -42,17 +42,17 @@ def pull_data() -> None:
     loc = 0
     for dataset in datasets:
         ax = axs[loc]
-        # ax.scatter(x=dataset[1]["Time"],y=dataset[1]["Value"], color="blue", label="Load")
-        # ax.scatter(x=dataset[2]["Time"], y=dataset[2]
+        # ax.scatter(x=dataset[1]["Simulation Time"],y=dataset[1]["Value"], color="blue", label="Load")
+        # ax.scatter(x=dataset[2]["Simulation Time"], y=dataset[2]
         #            ["Value"], color="green", label="Successful")
-        # ax.scatter(x=dataset[3]["Time"], y=dataset[3]
+        # ax.scatter(x=dataset[3]["Simulation Time"], y=dataset[3]
         #            ["Value"], color="red", label="Failed")
-        # ax.fill_between(dataset[1]["Time"], 0,
+        # ax.fill_between(dataset[1]["Simulation Time"], 0,
         #                 dataset[1]["Value"], facecolor="blue",
         #                 label="Load")
-        ax.fill_between(dataset[3]["Time"], 0, dataset[3]
+        ax.fill_between(dataset[3]["Simulation Time"], 0, dataset[3]
                         ["Value"], facecolor="red", label="Total Processes")
-        ax.fill_between(dataset[2]["Time"], 0,
+        ax.fill_between(dataset[2]["Simulation Time"], 0,
                         dataset[2]["Value"], facecolor="green",
                         label="ActiveProcesses")
         ax.set_title(dataset[0])

@@ -20,16 +20,16 @@ def pull_data() -> None:
         dataFailed = pd.read_csv(
             "./raw/" + name + "_FailedRequests.csv", sep=";", usecols=[0, 1])
 
-        timepoints.update(dataLoad["Time"])
-        timepoints.update(dataSuccessful["Time"])
-        timepoints.update(dataSuccessful["Time"])
+        timepoints.update(dataLoad["Simulation Time"])
+        timepoints.update(dataSuccessful["Simulation Time"])
+        timepoints.update(dataSuccessful["Simulation Time"])
 
         # combined = dataSuccessful["Value"].add(
         #     dataFailed["Value"], fill_value=0)
 
         # dataFailed["Value"] = combined
         sucessrate = pd.DataFrame()
-        sucessrate["Time"] = dataSuccessful["Time"]
+        sucessrate["Simulation Time"] = dataSuccessful["Simulation Time"]
         sucessrate["Value"] = dataSuccessful["Value"].div(
             dataSuccessful["Value"]+dataFailed["Value"])
 
@@ -51,20 +51,20 @@ def pull_data() -> None:
     loc = 0
     for dataset in datasets:
         ax = axs[loc] if len(datasets) > 1 else axs
-        # ax.scatter(x=dataset[1]["Time"],y=dataset[1]["Value"], color="blue", label="Load")
-        ax.scatter(x=dataset[2]["Time"], y=dataset[2]["Value"],
+        # ax.scatter(x=dataset[1]["Simulation Time"],y=dataset[1]["Value"], color="blue", label="Load")
+        ax.scatter(x=dataset[2]["Simulation Time"], y=dataset[2]["Value"],
                    color="green", label="Successful")
-        ax.scatter(x=dataset[3]["Time"], y=dataset[3]
+        ax.scatter(x=dataset[3]["Simulation Time"], y=dataset[3]
                    ["Value"], color="blue", label="Failed")
-        ax.plot(dataset[1]["Time"], dataset[1]
+        ax.plot(dataset[1]["Simulation Time"], dataset[1]
                    ["Value"], color="yellow", label="SucessRate")
 
-        # ax.fill_between(dataset[1]["Time"], 0,
+        # ax.fill_between(dataset[1]["Simulation Time"], 0,
         #                 dataset[1]["Value"], facecolor="blue",
         #                 label="Load")
-        # ax.fill_between(dataset[3]["Time"], 0, dataset[3]
+        # ax.fill_between(dataset[3]["Simulation Time"], 0, dataset[3]
         #                 ["Value"], facecolor="red", label="Failed")
-        # ax.fill_between(dataset[2]["Time"], 0,
+        # ax.fill_between(dataset[2]["Simulation Time"], 0,
         #                 dataset[2]["Value"], facecolor="green",
         #                 label="Successful")
 

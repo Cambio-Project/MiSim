@@ -34,7 +34,7 @@ public class CPU extends ExternalEvent {
 
     private final MicroserviceInstance owner;
     private final CPUProcessScheduler scheduler;
-    private final int capacity_per_thread; //computation capacity of one thread in one (1.0) simulation time unit
+    private final double capacity_per_thread; //computation capacity of one thread in one (1.0) simulation time unit
     private final int threadPoolSize; //counts the current size of the thread pool, just in case its atomic
     private final Set<CPUProcess> activeProcesses;
 
@@ -89,6 +89,7 @@ public class CPU extends ExternalEvent {
         String[] names = name.split("_");
         this.scheduler = scheduler;
         this.capacity_per_thread = (int) Math.floor((double) capacity / threadPoolSize);
+        this.capacity_per_thread = (double) capacity / threadPoolSize;
         this.threadPoolSize = threadPoolSize;
         activeProcesses = new HashSet<>(threadPoolSize);
         reporter = new MultiDataPointReporter(String.format("C%s_[%s]_", names[0], names[1]));
@@ -152,7 +153,7 @@ public class CPU extends ExternalEvent {
         return scheduler.hasThreadsToSchedule() && this.hasThreadsAvailable();
     }
 
-    private int getPerThreadCapacity() {
+    private double getPerThreadCapacity() {
         return capacity_per_thread;
     }
 

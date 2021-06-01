@@ -54,6 +54,7 @@ public final class LatencyMonkeyParser extends Parser<LatencyMonkeyEvent> {
                         Arrays.stream(src_op.getDependencies()).map(Dependency::getTargetOperation).filter(targetOperation -> targetOperation.getName().equals(operation_trg)).findAny().orElse(null);
 
         LatencyMonkeyEvent event = new LatencyMonkeyEvent(model, generateName(), model.traceIsOn(), delay, std_deviation, service, src_op, trg_op);
+        event.setDuration(duration);
         event.setTargetTime(new TimeInstant(time, model.getExperiment().getReferenceUnit()));
 
         return event;

@@ -66,7 +66,7 @@ public final class CPUProcess implements Comparable<CPUProcess> {
      * @param computingCapacityPerTimeUnit computing capacity of a thread per time unit
      * @return the remaining demand of the currently handled process
      */
-    public double getDemandRemainder(TimeInstant peekTime, int computingCapacityPerTimeUnit) {
+    public double getDemandRemainder(TimeInstant peekTime, double computingCapacityPerTimeUnit) {
         int remainder = getDemandRemainder();
         double runningTime = peekTime.getTimeAsDouble() - startOfCurrentBurst.getTimeAsDouble();
 

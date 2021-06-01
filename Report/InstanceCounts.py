@@ -23,14 +23,14 @@ def pull_data() -> None:
     loc = 0
     for dataset in datasets:
         ax = axs[loc]
-        ax.plot(dataset[1]["Time"], dataset[1]["Value"])
+        ax.plot(dataset[1]["Simulation Time"], dataset[1]["Value"])
         ax.set_title(dataset[0])
         loc = loc+1
 
     loc = 0
     for dataset in loadsets:
         ax = axs[loc]
-        ax.scatter(x=dataset[1]["Time"], y=dataset[1]["Value"])
+        ax.scatter(x=dataset[1]["Simulation Time"], y=dataset[1]["Value"])
         ax.set_title(dataset[0])
         loc = loc+1
 

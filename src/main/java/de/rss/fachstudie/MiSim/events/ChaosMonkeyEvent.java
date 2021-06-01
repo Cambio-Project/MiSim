@@ -30,7 +30,7 @@ public class ChaosMonkeyEvent extends SelfScheduledEvent {
 
         this.microservice = microservice;
         this.instances = instances;
-        setSchedulingPriority(Priority.HIGH);
+        setSchedulingPriority(Priority.LOW);
     }
 
     /**
