@@ -88,7 +88,7 @@ public class CPU extends ExternalEvent {
         this.owner = owner;
         String[] names = name.split("_");
         this.scheduler = scheduler;
-        this.capacity_per_thread = (int) Math.floor((double) capacity / threadPoolSize);
+
         this.capacity_per_thread = (double) capacity / threadPoolSize;
         this.threadPoolSize = threadPoolSize;
         activeProcesses = new HashSet<>(threadPoolSize);
