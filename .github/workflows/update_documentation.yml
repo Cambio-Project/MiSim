@@ -35,12 +35,17 @@ jobs:
     - name: Move Website to /docs
       run: | 
         rm -rf ./docs && mkdir -p ./docs && cp -rpv ./target/site/apidocs/. ./docs/
+        "" > ./docs/.gitkeep
       
-    - name: push updated doc
-      uses: EndBug/add-and-commit@v7
+    - name: Commit Files
+      run: |
+        git config --local user.email "st148345@stud.uni-stuttgart.de"
+        git config --local user.name "DocumentationBot[bot]"
+        git add ./docs/
+        git commit -m "Updated documentation"
+        
+    - name: Push changes
+      uses: ad-m/github-push-action@master
       with:
-        add: './docs/'
-#         author_name: Documentation_Bot
-#         author_email: st148345@stud.uni-stuttgart.de
-#         default_author: user_info
-        message: '[Bot] :robot: Updated Documentation '
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: gh-pages
