@@ -15,9 +15,9 @@ import java.util.stream.Collectors;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonReader;
+import de.unistuttgart.sqa.orcas.misim.entities.generator.Generator;
 import de.unistuttgart.sqa.orcas.misim.events.ChaosMonkeyEvent;
 import de.unistuttgart.sqa.orcas.misim.models.MainModel;
-import de.unistuttgart.sqa.orcas.misim.entities.generator.Generator;
 
 /**
  * The ExpModelParser class reads a json file that contains the experiment model.
@@ -44,8 +44,7 @@ public class ExpModelParser {
 
     /**
      * Read the given experiment file and parses it into a set of objects. These objects are usually self-scheduling
-     * Events like, {@link ChaosMonkeyEvent} or {@link
-     * Generator} objects.
+     * Events like, {@link ChaosMonkeyEvent} or {@link Generator} objects.
      *
      * @return a set of objects that represent the experiment.
      */

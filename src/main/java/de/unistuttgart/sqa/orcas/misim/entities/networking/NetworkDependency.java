@@ -3,8 +3,8 @@ package de.unistuttgart.sqa.orcas.misim.entities.networking;
 import java.util.Objects;
 
 import de.unistuttgart.sqa.orcas.misim.entities.microservice.Microservice;
-import de.unistuttgart.sqa.orcas.misim.entities.microservice.Operation;
 import de.unistuttgart.sqa.orcas.misim.entities.microservice.MicroserviceInstance;
+import de.unistuttgart.sqa.orcas.misim.entities.microservice.Operation;
 import desmoj.core.simulator.Entity;
 import desmoj.core.simulator.Model;
 
