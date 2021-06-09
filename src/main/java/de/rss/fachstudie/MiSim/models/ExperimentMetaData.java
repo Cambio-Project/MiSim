@@ -3,6 +3,7 @@ package de.rss.fachstudie.MiSim.models;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import com.google.gson.Gson;
@@ -78,7 +79,7 @@ public class ExperimentMetaData {
 
 
     @SuppressWarnings("FieldMayBeFinal")
-    private Integer seed = null;
+    private Integer seed = new Random().nextInt();
     @SuppressWarnings("FieldMayBeFinal")
     private String report = "default";
     @SuppressWarnings("FieldMayBeFinal")
