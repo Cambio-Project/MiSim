@@ -9,7 +9,7 @@
     {
       "microservice": "gateway",
       "operation": "INTERNAL_DEP",
-      "limbo_model": "./Examples/Evaluation/const20ArrivalRates.csv"
+      "limbo_model": "./Examples/Calibration/const20ArrivalRates.csv"
     }
   ],
   "chaosmonkeys": [

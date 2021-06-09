@@ -1,0 +1,60 @@
+{
+  "simulation_meta_data": {
+    "experiment_name": "Example-ResponseTime-Evaluation",
+    "model_name": "Scenario ResponseTimes",
+    "duration": 250,
+    "seed": 404
+  },
+  "request_generators": [
+    {
+      "microservice": "gateway",
+      "operation": "INTERNAL_DEP",
+      "limbo_model": "./Examples/Calibration/ResponseTimeEvaluationSimArrivalRates.csv",
+      "repeating": false,
+      "repetition_skip": 0
+    },
+    {
+      "microservice": "gateway",
+      "operation": "EXTERNAL_DEP",
+      "limbo_model": "./Examples/Calibration/ResponseTimeEvaluationSimArrivalRates.csv",
+      "repeating": false,
+      "repetition_skip": 0
+    },
+    {
+      "microservice": "gateway",
+      "operation": "gateway.DB_READ",
+      "limbo_model": "./Examples/Calibration/ResponseTimeEvaluationSimArrivalRates.csv",
+      "repeating": false,
+      "repetition_skip": 0
+    },
+    {
+      "microservice": "gateway",
+      "operation": "gateway.DB_WRITE",
+      "limbo_model": "./Examples/Calibration/ResponseTimeEvaluationSimArrivalRates.csv",
+      "repeating": false,
+      "repetition_skip": 0
+    },
+    {
+      "microservice": "gateway",
+      "operation": "UNAFFECTED_SERVICE",
+      "limbo_model": "./Examples/Calibration/ResponseTimeEvaluationSimArrivalRates.csv",
+      "repeating": false,
+      "repetition_skip": 0
+    }
+  ],
+  "chaosmonkeys": [
+    {
+      "microservice": "example-service",
+      "instances": 2,
+      "time": 90.5
+    }
+  ],
+  "summonermonkeys":
+  [
+    {
+      "microservice": "example-service",
+      "instances": 1,
+      "time": 108
+    }
+  ]
+}

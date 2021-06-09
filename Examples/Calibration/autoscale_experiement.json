@@ -9,7 +9,7 @@
     {
       "microservice": "gateway",
       "operation": "INTERNAL_DEP",
-      "limbo_model": "./Examples/Evaluation/load_profile_linear_rising.csv"
+      "limbo_model": "./Examples/Calibration/load_profile_linear_rising.csv"
     }
   ]
 }
