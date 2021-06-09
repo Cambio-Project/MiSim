@@ -35,8 +35,7 @@ jobs:
     - name: Move Website to /docs
       run: | 
         rm -rf ./docs && mkdir -p ./docs && cp -rpv ./target/site/apidocs/. ./docs/
-        "" > ./docs/.gitkeep
-      
+        
     - name: Commit Files
       run: |
         git config --local user.email "st148345@stud.uni-stuttgart.de"
