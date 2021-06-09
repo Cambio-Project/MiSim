@@ -1,0 +1,59 @@
+{
+  "simulation_meta_data": {
+    "experiment_name": "Scenario_3",
+    "model_name": "Scenario 3",
+    "duration": 190,
+    "seed": 404
+  },
+  "request_generators": [
+    {
+      "microservice": "gateway",
+      "operation": "INTERNAL_DEP",
+      "limbo_model": "./Examples/Evaluation/Scenario3ArrivalRates.csv",
+      "repeating": false,
+      "repetition_skip": 0
+    },
+    {
+      "microservice": "gateway",
+      "operation": "EXTERNAL_DEP",
+      "limbo_model": "./Examples/Evaluation/Scenario3ArrivalRates.csv",
+      "repeating": false,
+      "repetition_skip": 0
+    },
+    {
+      "microservice": "gateway",
+      "operation": "gateway.DB_READ",
+      "limbo_model": "./Examples/Evaluation/Scenario3ArrivalRates.csv",
+      "repeating": false,
+      "repetition_skip": 0
+    },
+    {
+      "microservice": "gateway",
+      "operation": "gateway.DB_WRITE",
+      "limbo_model": "./Examples/Evaluation/Scenario3ArrivalRates.csv",
+      "repeating": false,
+      "repetition_skip": 0
+    },
+    {
+      "microservice": "gateway",
+      "operation": "UNAFFECTED_SERVICE",
+      "limbo_model": "./Examples/Evaluation/Scenario3ArrivalRates.csv",
+      "repeating": false,
+      "repetition_skip": 0
+    }
+  ],
+  "chaosmonkeys": [
+    {
+      "microservice": "example-service",
+      "instances": 2,
+      "time": 60
+    }
+  ],
+  "summonermonkeys": [
+    {
+      "microservice": "example-service",
+      "instances": 2,
+      "time": 125
+    }
+  ]
+}

@@ -3,7 +3,7 @@
     {
       "name": "gateway",
       "instances": 1,
-      "capacity": 20,
+      "capacity": 20000000,
       "loadbalancer_strategy": "even",
       "operations": [
         {
@@ -32,7 +32,7 @@
       "name": "example-service",
       "instances": 2,
       "patterns": [],
-      "capacity": 400,
+      "capacity": 40000000,
       "operations": [
         {
           "name": "example-service.DB_WRITE",
@@ -47,28 +47,10 @@
         {
           "name": "call_example-service2",
           "demand": 1,
-          "dependencies": [
-            {
-              "service": "example-service2",
-              "operation": "example-service2.get"
-            }
-          ]
+          "dependencies": []
         },
         {
           "name": "call_external_service",
-          "demand": 1,
-          "dependencies": []
-        }
-      ]
-    },
-    {
-      "name": "example-service2",
-      "instances": 2,
-      "patterns": [],
-      "capacity": 32000,
-      "operations": [
-        {
-          "name": "example-service2.get",
           "demand": 1,
           "dependencies": []
         }

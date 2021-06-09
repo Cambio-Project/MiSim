@@ -1,6 +1,24 @@
 package de.rss.fachstudie.MiSim.models;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystems;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.PathMatcher;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardOpenOption;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.HashMap;
+import java.util.TreeMap;
+
 import com.google.gson.Gson;
+import com.google.gson.stream.JsonReader;
 import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
 import de.rss.fachstudie.MiSim.events.FinishEvent;
 import de.rss.fachstudie.MiSim.events.ISelfScheduled;
@@ -11,19 +29,18 @@ import de.rss.fachstudie.MiSim.export.ReportWriter;
 import de.rss.fachstudie.MiSim.misc.Priority;
 import de.rss.fachstudie.MiSim.misc.Util;
 import de.rss.fachstudie.MiSim.parsing.GsonParser;
+import de.rss.fachstudie.MiSim.parsing.ScenarioDescription;
 import desmoj.core.simulator.Experiment;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
-import org.apache.commons.cli.*;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.FileUtils;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.HashMap;
-import java.util.TreeMap;
 
 /**
  * Main class to start the experiment. This class will load the input file and create a model out of it.
@@ -33,7 +50,8 @@ import java.util.TreeMap;
 public class MainModel extends Model {
 
     /**
-     * general reporter, can be used if objects/classes do not want to create their own reporter or use a common reporter.
+     * general reporter, can be used if objects/classes do not want to create their own reporter or use a common
+     * reporter.
      */
     public static MultiDataPointReporter generalReporter = new MultiDataPointReporter();
     private static MainModel instance = null;
@@ -56,18 +74,20 @@ public class MainModel extends Model {
 
     public static void main(String[] args) {
         //Option parsing
-        String arch_model;
-        String exp_model;
 
         Options options = new Options();
 
-        Option arch_model_opt = new Option("a", "arch_model", true, "arch_model file path");
-        arch_model_opt.setRequired(true);
-        options.addOption(arch_model_opt);
+        Option archModelOpt = new Option("a", "arch_model", true, "arch_model file path");
+        archModelOpt.setRequired(true);
+        options.addOption(archModelOpt);
 
-        Option exp_model_opt = new Option("e", "exp_model", true, "exp_model file path");
-        exp_model_opt.setRequired(true);
-        options.addOption(exp_model_opt);
+        Option expModelOpt = new Option("e", "exp_model", true, "exp_model file path");
+        expModelOpt.setRequired(false);
+        options.addOption(expModelOpt);
+
+        Option scenarioOpt = new Option("s", "scenario", true, "scenario file path");
+        scenarioOpt.setRequired(false);
+        options.addOption(scenarioOpt);
 
         Option progressbar = new Option("p", "progress_bar", false, "show progress bar during simulation");
         progressbar.setRequired(false);
@@ -91,15 +111,16 @@ public class MainModel extends Model {
             return;
         }
 
-        arch_model = cmd.getOptionValue(arch_model_opt.getOpt());
-        exp_model = cmd.getOptionValue(exp_model_opt.getOpt());
+        String archModel = cmd.getOptionValue(archModelOpt.getOpt(), null);
+        String expModel = cmd.getOptionValue(expModelOpt.getOpt(), null);
+        String scenarioLoc = cmd.getOptionValue(scenarioOpt.getOpt(), null);
 
-        if (arch_model.equals("")) {
+        if (archModel == null) {
             System.out.println("No architecture was specified");
             System.exit(1);
             return;
         } else {
-            File f = new File(arch_model);
+            File f = new File(archModel);
             if (!f.exists() || f.isDirectory()) {
                 System.out.printf("Did not find architecture file at %s%n", f.getAbsolutePath());
                 System.exit(1);
@@ -107,27 +128,38 @@ public class MainModel extends Model {
             }
         }
 
-        if (exp_model.equals("")) {
-            System.out.println("No experiment was specified");
-            System.exit(1);
-            return;
-        } else {
-            File f = new File(exp_model);
-            if (!f.exists() || f.isDirectory()) {
-                System.out.printf("Did not find experiment file at %s%n", f.getAbsolutePath());
+
+        File f;
+        if (expModel == null) {
+            System.out.println("No experiment was specified, checking for scenario description");
+            if (scenarioLoc == null) {
+                System.out.println("Scenario location was also not specified.");
+                System.out.println("Exiting...");
                 System.exit(1);
                 return;
+            } else {
+                f = new File(scenarioLoc);
             }
+        } else {
+            f = new File(expModel);
+        }
+        if (!f.exists() || f.isDirectory()) {
+            System.out.printf("Did not find file %s%n", f.getAbsolutePath());
+            System.exit(1);
+            return;
         }
 
-
         //data/modeling parsing | setup
-        long startTime = System.nanoTime();
+        final long startTime = System.nanoTime();
 
-        ExperimentMetaData metaData = ExperimentMetaData.initialize(Paths.get(exp_model), Paths.get(arch_model));
+        ExperimentMetaData metaData = ExperimentMetaData.initialize(new File(archModel),
+            expModel == null ? null : new File(expModel),
+            scenarioLoc == null ? null : new File(scenarioLoc));
 
         MainModel model = MainModel.initialize(metaData.getModelName());
-        if (cmd.hasOption(debugOutput.getOpt())) model.debugOn();
+        if (cmd.hasOption(debugOutput.getOpt())) {
+            model.debugOn();
+        }
 
         Experiment exp = new Experiment(metaData.getExperimentName());
         model.connectToExperiment(exp);
@@ -135,23 +167,37 @@ public class MainModel extends Model {
         exp.setShowProgressBarAutoclose(true);
         exp.setShowProgressBar(cmd.hasOption("p"));
         exp.stop(new TimeInstant(metaData.getDuration(), metaData.getTimeUnit()));
-        exp.tracePeriod(new TimeInstant(0, metaData.getTimeUnit()), new TimeInstant(metaData.getDuration(), metaData.getTimeUnit()));
-        exp.debugPeriod(new TimeInstant(0, metaData.getTimeUnit()), new TimeInstant(metaData.getDuration(), metaData.getTimeUnit()));
-        if (cmd.hasOption(debugOutput.getOpt()))
+        exp.tracePeriod(new TimeInstant(0, metaData.getTimeUnit()),
+            new TimeInstant(metaData.getDuration(), metaData.getTimeUnit()));
+        exp.debugPeriod(new TimeInstant(0, metaData.getTimeUnit()),
+            new TimeInstant(metaData.getDuration(), metaData.getTimeUnit()));
+        if (cmd.hasOption(debugOutput.getOpt())) {
             exp.debugOn(new TimeInstant(0, metaData.getTimeUnit()));
+        }
 
 
-        ArchitectureModel.initialize(Paths.get(arch_model));
-        ExperimentModel.initialize(Paths.get(exp_model));
+        ArchitectureModel.initialize(ExperimentMetaData.get().getArchFileLocation().toPath());
 
-        long setupTime = System.nanoTime() - startTime;
-        long tempTime = System.nanoTime();
+        if (expModel != null) {
+            ExperimentModel.initialize(Paths.get(expModel));
+        } else {
+            Gson gson = new Gson();
+            try {
+                ExperimentModel.initialize((ScenarioDescription) gson
+                    .fromJson(new JsonReader(new FileReader(scenarioLoc)), ScenarioDescription.class));
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+
+        final long setupTime = System.nanoTime() - startTime;
+        final long experimentStartTime = System.nanoTime();
 
         //run experiment
         exp.start();
 
-        long experimentTime = System.nanoTime() - tempTime;
-        tempTime = System.nanoTime();
+        final long experimentTime = System.nanoTime() - experimentStartTime;
+        final long reportStartTime = System.nanoTime();
 
         //exp.report();
         exp.finish();
@@ -161,11 +207,11 @@ public class MainModel extends Model {
             generate_report(model);
         }
 
-        long reportTime = System.nanoTime() - tempTime;
-        long executionTime = System.nanoTime() - startTime;
+        final long reportTime = System.nanoTime() - reportStartTime;
+        final long executionTime = System.nanoTime() - startTime;
 
         System.out.println("\n*** Simulator ***");
-        System.out.println("Simulation of Architecture: " + arch_model);
+        System.out.println("Simulation of Architecture: " + archModel);
         System.out.println("Executed Experiment:        " + metaData.getExperimentName());
         System.out.println("Setup took:                 " + Util.timeFormat(setupTime));
         System.out.println("Experiment took:            " + Util.timeFormat(experimentTime));
@@ -181,7 +227,8 @@ public class MainModel extends Model {
             FileUtils.deleteDirectory(reportLocation.toFile());
             reportLocation.toFile().mkdirs();
             String json = gson.toJson(metaData);
-            Files.write(Paths.get(String.valueOf(reportLocation), "meta.json"), json.getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE);
+            Files.write(Paths.get(String.valueOf(reportLocation), "meta.json"), json.getBytes(StandardCharsets.UTF_8),
+                StandardOpenOption.CREATE);
             Files.copy(metaData.getArchFileLocation().toPath(), Paths.get(String.valueOf(reportLocation), "arch.json"));
             Files.copy(metaData.getExpFileLocation().toPath(), Paths.get(String.valueOf(reportLocation), "exp.json"));
 
@@ -191,16 +238,10 @@ public class MainModel extends Model {
                 @Override
                 public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
                     if (pathMatcher.matches(path)) {
-                        Files.copy(path,Paths.get(String.valueOf(reportLocation),path.toFile().getName()));
+                        Files.copy(path, Paths.get(String.valueOf(reportLocation), path.toFile().getName()));
                     }
                     return FileVisitResult.CONTINUE;
                 }
-
-//                @Override
-//                public FileVisitResult visitFileFailed(Path file, IOException exc)
-//                        throws IOException {
-//                    return FileVisitResult.CONTINUE;
-//                }
             });
 
             //export legacy graph
