@@ -9,7 +9,27 @@
     {
       "microservice": "gateway",
       "operation": "INTERNAL_DEP",
-      "limbo_model": "./Examples/Evaluation/const20ArrivalRates.csv"
+      "interval": 0.1
+    },
+    {
+      "microservice": "gateway",
+      "operation": "INTERNAL_DEP",
+      "interval": 0.1
+    },
+    {
+      "microservice": "gateway",
+      "operation": "INTERNAL_DEP",
+      "interval": 0.1
+    },
+    {
+      "microservice": "gateway",
+      "operation": "INTERNAL_DEP",
+      "interval": 0.1
+    },
+    {
+      "microservice": "gateway",
+      "operation": "INTERNAL_DEP",
+      "interval": 0.1
     }
   ],
   "chaosmonkeys": [

@@ -3,13 +3,18 @@
     {
       "name": "gateway",
       "instances": 1,
-      "capacity": 2000,
+      "capacity": 40000,
       "loadbalancer_strategy": "even",
       "operations": [
         {
-          "name": "gateway.PING",
+          "name": "EXTERNAL_DEP",
           "demand": 1,
-          "dependencies": []
+          "dependencies": [
+            {
+              "service": "example-service",
+              "operation": "call_external_service"
+            }
+          ]
         },
         {
           "name": "INTERNAL_DEP",
@@ -22,22 +27,12 @@
           ]
         },
         {
-          "name": "EXTERNAL_DEP",
+          "name": "UNAFFECTED_SERVICE",
           "demand": 1,
           "dependencies": [
             {
-              "service": "example-service",
-              "operation": "call_external_service"
-            }
-          ]
-        },
-        {
-          "name": "gateway.DB_READ",
-          "demand": 1,
-          "dependencies": [
-            {
-              "service": "example-service",
-              "operation": "example-service.DB_READ"
+              "service": "example-service2",
+              "operation": "example-service2.get"
             }
           ]
         },
@@ -52,14 +47,19 @@
           ]
         },
         {
-          "name": "UNAFFECTED_SERVICE",
+          "name": "gateway.DB_READ",
           "demand": 1,
           "dependencies": [
             {
-              "service": "example-service2",
-              "operation": "example-service2.get"
+              "service": "example-service",
+              "operation": "example-service.DB_READ"
             }
           ]
+        },
+        {
+          "name": "gateway.PING",
+          "demand": 1,
+          "dependencies": []
         }
       ],
       "patterns": [
@@ -67,8 +67,8 @@
           "type": "retry",
           "config": {
             "maxTries": 5,
-            "baseBackoff": 0.05,
-            "maxBackoff": 1,
+            "baseBackoff": 0.2,
+            "maxBackoff": 2,
             "base": 2,
             "jittering": false
           }
@@ -79,11 +79,11 @@
       "name": "example-service",
       "instances": 2,
       "patterns": [],
-      "capacity": 400,
+      "capacity": 2147483647,
       "operations": [
         {
           "name": "example-service.DB_WRITE",
-          "demand": 1,
+          "demand": 2,
           "dependencies": []
         },
         {
@@ -112,7 +112,7 @@
       "name": "example-service2",
       "instances": 2,
       "patterns": [],
-      "capacity": 32000,
+      "capacity": 2147483647,
       "operations": [
         {
           "name": "example-service2.get",
