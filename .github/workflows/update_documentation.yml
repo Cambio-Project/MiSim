@@ -36,7 +36,7 @@ jobs:
       
     - name: Move Website to /docs
       run: | 
-        rm -rf ./docs && mkdir -p ./docs && cp -rpv ./target/site/apidocs/. ./docs/
+        cp -rpv ./target/site/apidocs/. ~/docs/
         
     - name: Commit Files
       run: |
@@ -44,7 +44,8 @@ jobs:
         git config --local user.name "DocumentationBot[bot]"
         git checkout gh-pages
         git pull
-        git add ./docs/
+        cp -rpv ~/docs/ .
+        git add .
         git commit -m "Updated documentation"
         
     - name: Push changes
