@@ -2,7 +2,7 @@ package Scenarios;
 
 import java.io.File;
 
-import de.rss.fachstudie.MiSim.models.MainModel;
+import de.unistuttgart.sqa.orcas.misim.models.MainModel;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 

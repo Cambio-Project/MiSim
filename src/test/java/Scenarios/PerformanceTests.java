@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import co.paralleluniverse.fibers.SuspendExecution;
-import de.rss.fachstudie.MiSim.entities.networking.NetworkRequestSendEvent;
-import de.rss.fachstudie.MiSim.export.CSVData;
+import de.unistuttgart.sqa.orcas.misim.entities.networking.NetworkRequestSendEvent;
+import de.unistuttgart.sqa.orcas.misim.export.CSVData;
 import desmoj.core.simulator.Experiment;
 import desmoj.core.simulator.NameCatalog;
 import desmoj.core.simulator.SimProcess;

@@ -160,6 +160,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
                 <configuration>
+                    <encoding>UTF-8</encoding>
                     <source>1.8</source>
                     <target>1.8</target>
                 </configuration>
@@ -171,7 +172,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>de.rss.fachstudie.MiSim.models.MainModel</mainClass>
+                            <mainClass>de.unistuttgart.sqa.orcas.misim.models.MainModel</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
