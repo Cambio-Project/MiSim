@@ -5,8 +5,10 @@ name: Run Checkstyle
 
 on:
   pull_request:
-    branches: [master, Version3 ]
+    branches: [master, Version3 ]    
   workflow_dispatch:
+  push:
+    
   
 jobs:
   run_checkstyle:
