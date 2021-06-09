@@ -3,6 +3,7 @@ package de.rss.fachstudie.MiSim.entities.microservice;
 import java.util.Arrays;
 
 import de.rss.fachstudie.MiSim.entities.networking.Dependency;
+import de.rss.fachstudie.MiSim.entities.networking.NetworkDependency;
 import de.rss.fachstudie.MiSim.parsing.DependencyParser;
 import desmoj.core.dist.NumericalDist;
 import desmoj.core.simulator.Entity;
@@ -19,6 +20,12 @@ public class Operation extends Entity {
     //POJOs that hold the (json) data of the dependencies, used for parsing
     private DependencyParser[] dependenciesData = new DependencyParser[0];
 
+    /**
+     * Constructs a new endpoint for a microservice.
+     *
+     * @param ownerMS {@link Microservice} that owns this operation.
+     * @param demand  CPU demand of this operation.
+     */
     public Operation(Model model, String name, boolean showInTrace, Microservice ownerMS, int demand) {
         super(model, name, showInTrace);
         this.demand = demand;
@@ -55,7 +62,10 @@ public class Operation extends Entity {
         return getName();
     }
 
-
+    /**
+     * A call of this method is needed for proper usage.<br> Parses the set {@link DependencyParser}s into {@link
+     * Dependency} objects.
+     */
     public void initializeDependencies() {
         dependencies = new Dependency[dependenciesData.length];
         for (int i = 0; i < dependenciesData.length; i++) {
@@ -64,6 +74,13 @@ public class Operation extends Entity {
         }
     }
 
+    /**
+     * Add additional delay to this operation.
+     *
+     * @param dist         {@link NumericalDist} of the delay.
+     * @param operationTrg target {@link Operation} of this that should be affected, can be set to {@code null} to
+     *                     affect all outgoing {@link NetworkDependency}s
+     */
     public void applyExtraDelay(NumericalDist<Double> dist, Operation operationTrg) {
         if (operationTrg == null) {
             for (Dependency dependency : dependencies) {
@@ -82,6 +99,10 @@ public class Operation extends Entity {
         }
     }
 
+    /**
+     * Add extra delay to every dependency of this operation.
+     * @param dist {@link NumericalDist} of the delay.
+     */
     public void applyExtraDelay(NumericalDist<Double> dist) {
         applyExtraDelay(dist, null);
     }

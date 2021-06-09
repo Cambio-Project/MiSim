@@ -19,6 +19,13 @@ public class NetworkRequestCanceledEvent extends NetworkRequestEvent {
         this(model, name, showInTrace, request, reason, null);
     }
 
+    /**
+     * Creates an event that notifies {@link IRequestUpdateListener}s of the failing of a request.
+     *
+     * @param request request
+     * @param reason  why the request canceled/failed
+     * @param details optional reasoning string that is used in the trace
+     */
     public NetworkRequestCanceledEvent(Model model, String name, boolean showInTrace, Request request,
                                        RequestFailedReason reason, String details) {
         super(model, name, showInTrace, request);

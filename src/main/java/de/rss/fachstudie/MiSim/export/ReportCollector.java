@@ -31,7 +31,7 @@ public class ReportCollector extends ReportManager {
      *
      * @return returns the values of all MultiDataPointReporters
      */
-    public HashMap<String, TreeMap<Double, Object>> collect_data() {
+    public HashMap<String, TreeMap<Double, Object>> collectData() {
         //collect_datasets
         HashMap<String, HashMap<Double, Object>> dataSets = new HashMap<>();
 

@@ -56,6 +56,10 @@ public class MainModel extends Model {
     public static MultiDataPointReporter generalReporter = new MultiDataPointReporter();
     private static MainModel instance = null;
 
+    /**
+     * Gets the main reference model.
+     * @return the main reference model.
+     */
     public static MainModel get() {
         if (instance == null) {
             throw new IllegalStateException("MainModel was not initialized yet.");
@@ -63,6 +67,11 @@ public class MainModel extends Model {
         return instance;
     }
 
+    /**
+     * Initializes the main reference model.
+     * @param modelName name of the model.
+     * @return the main reference model.
+     */
     public static MainModel initialize(String modelName) {
         if (instance != null) {
             throw new IllegalStateException("Architecture Model was already initialized.");
@@ -72,6 +81,10 @@ public class MainModel extends Model {
     }
 
 
+    /**
+     * Main entry point of the program.
+     * @param args program options
+     */
     public static void main(String[] args) {
         //Option parsing
 
@@ -204,7 +217,7 @@ public class MainModel extends Model {
 
         //create report if wanted
         if (!metaData.getReportType().equals("none")) {
-            generate_report(model);
+            generateReport(model);
         }
 
         final long reportTime = System.nanoTime() - reportStartTime;
@@ -219,7 +232,7 @@ public class MainModel extends Model {
         System.out.println("Execution took:             " + Util.timeFormat(executionTime));
     }
 
-    private static void generate_report(MainModel model) {
+    private static void generateReport(MainModel model) {
         ExperimentMetaData metaData = ExperimentMetaData.get();
         Path reportLocation = Paths.get(".", "Report_" + metaData.getExperimentName());
         Gson gson = new GsonParser().getGson();
@@ -250,7 +263,7 @@ public class MainModel extends Model {
             e.printStackTrace();
         }
 
-        HashMap<String, TreeMap<Double, Object>> data = ReportCollector.getInstance().collect_data();
+        HashMap<String, TreeMap<Double, Object>> data = ReportCollector.getInstance().collectData();
         TreeMap<String, TreeMap<Double, Object>> sortedData = new TreeMap<>(data);
         ReportWriter.writeReporterCollectorOutput(sortedData, reportLocation);
 

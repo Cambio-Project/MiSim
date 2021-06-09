@@ -34,6 +34,13 @@ public class MultiDataPointReporter extends Reporter {
         return dataSets;
     }
 
+    /**
+     * Adds a new datapoint to the given dataset.
+     * @param dataSetName name of the dataset to which the datapoint should be added
+     * @param when point in simulation time to which the datapoint is associated to
+     * @param data data that should be logged
+     * @param <T> type of the data that should be logged.
+     */
     public <T> void addDatapoint(final String dataSetName, final TimeInstant when, final T data) {
         Objects.requireNonNull(dataSetName);
         Objects.requireNonNull(when);
@@ -58,9 +65,15 @@ public class MultiDataPointReporter extends Reporter {
     }
 
 
-    public String[] getEntries(String datasetkey) {
-        StringBuilder builder = new StringBuilder("Time;Value\n");
-        for (Map.Entry<Double, ?> dataPoint : dataSets.get(datasetkey).entrySet()) {
+    /**
+     * Gets the entries from a specific dataset.
+     * @param datasetName name of the dataset
+     * @return an array of string containing the data in the format "Simulation Time;Value"
+     */
+    //TODO: switch from ';' to ',' delimiter
+    public String[] getEntries(String datasetName) {
+        StringBuilder builder = new StringBuilder("Simulation Time;Value\n");
+        for (Map.Entry<Double, ?> dataPoint : dataSets.get(datasetName).entrySet()) {
             builder.append(dataPoint.getKey())
                 .append(";")
                 .append(dataPoint.getValue())

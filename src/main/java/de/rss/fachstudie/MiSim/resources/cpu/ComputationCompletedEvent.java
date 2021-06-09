@@ -25,7 +25,7 @@ public class ComputationCompletedEvent extends Event<Request> {
     @Override
     public void eventRoutine(Request request) throws SuspendExecution {
         sendTraceNote(String.format("Request %s was computed.", request.getQuotedName()));
-        request.setComputation_completed();
+        request.setComputationCompleted();
         request.getHandler().handle(request); //resubmitting itself for further handling
     }
 

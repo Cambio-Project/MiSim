@@ -6,6 +6,7 @@ import java.util.Objects;
 import co.paralleluniverse.fibers.SuspendExecution;
 import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
 import de.rss.fachstudie.MiSim.entities.microservice.Operation;
+import de.rss.fachstudie.MiSim.entities.networking.InternalRequest;
 import de.rss.fachstudie.MiSim.misc.Util;
 import desmoj.core.dist.ContDistNormal;
 import desmoj.core.dist.NumericalDist;
@@ -52,6 +53,17 @@ public class LatencyMonkeyEvent extends SelfScheduledEvent {
         this(model, name, showInTrace, delay, stdDeviation, operationSrc.getOwnerMS(), operationSrc, null);
     }
 
+    /**
+     * Constructs a new {@link LatencyMonkeyEvent}.
+     *
+     * @param delay        mean delay that should be added to a connection
+     * @param stdDeviation standard deviation of this delay
+     * @param microservice target {@link Microservice}
+     * @param operationSrc {@link Operation} of the microservice that should be affected, can be set to {@code null} to
+     *                     affect all {@link Operation}s
+     * @param operationTrg target {@link Operation} of the operationSrc that should be affected, can be set to {@code
+     *                     null} to affect all outgoing {@link InternalRequest}s
+     */
     public LatencyMonkeyEvent(Model model, String name, boolean showInTrace, double delay, double stdDeviation,
                               Microservice microservice, Operation operationSrc, Operation operationTrg) {
         super(model, name, showInTrace);
@@ -94,7 +106,7 @@ public class LatencyMonkeyEvent extends SelfScheduledEvent {
     public void eventRoutine() {
         NumericalDist<Double> dist =
             new ContDistNormal(getModel(), String.format("DelayDistribution_of_%s", this.getName()), delay,
-                               stdDeviation, false, false);
+                stdDeviation, false, false);
         microservice.applyDelay(dist, operationSrc, operationTrg);
         new ExternalEvent(getModel(), "LatencyMonkeyDeactivator", this.traceIsOn()) {
             @Override

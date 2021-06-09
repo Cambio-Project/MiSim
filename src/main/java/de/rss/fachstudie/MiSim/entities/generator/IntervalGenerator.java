@@ -1,6 +1,7 @@
 package de.rss.fachstudie.MiSim.entities.generator;
 
 import de.rss.fachstudie.MiSim.entities.microservice.Operation;
+import de.rss.fachstudie.MiSim.entities.networking.UserRequest;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 
@@ -29,10 +30,30 @@ public final class IntervalGenerator extends Generator {
     private final double interval;
     private final double start;
 
+    //TODO: constructor for inter-arrival time
+
+    /**
+     * Constructs a new {@link IntervalGenerator} that starts immediately.
+     *
+     * @param model       handling DESMO-J model
+     * @param name        name of the generator
+     * @param showInTrace whether the sending of the {@link UserRequest} should be shown in the trace
+     * @param operation   which {@link Operation} is the target of all {@link UserRequest}s
+     * @param interval    With witch interval requests should be send.
+     */
     public IntervalGenerator(Model model, String name, boolean showInTrace, Operation operation, double interval) {
         this(model, name, showInTrace, operation, interval, 0);
     }
 
+    /**
+     * Constructs a new {@link IntervalGenerator} that starts at a specific point in time.
+     *
+     * @param model       handling DESMO-J model
+     * @param name        name of the generator
+     * @param showInTrace whether the sending of the {@link UserRequest} should be shown in the trace
+     * @param operation   which {@link Operation} is the target of all {@link UserRequest}s
+     * @param interval    With witch interval requests should be send.
+     */
     public IntervalGenerator(Model model, String name, boolean showInTrace, Operation operation, double interval,
                              double start) {
         super(model, name, showInTrace, operation);

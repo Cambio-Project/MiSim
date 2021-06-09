@@ -19,6 +19,13 @@ public class MicroserviceParserData {
     public PatternData[] patterns = new PatternData[0];
     public OperationParser[] operations;
 
+    /**
+     * Converts the given data into a {@link Microservice} object.
+     *
+     * @param model respective DESMO-J model
+     * @param showInTrace whether events of the service should be shown in the trace.
+     * @return the new constrcuted {@link Microservice} instance.
+     */
     public Microservice convertToMicroservice(Model model, boolean showInTrace) {
         final Microservice service = new Microservice(model, name, showInTrace);
         service.setLoadBalancingStrategy(loadbalancerStrategy);

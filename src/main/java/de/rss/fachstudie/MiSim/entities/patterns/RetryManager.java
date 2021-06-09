@@ -89,7 +89,7 @@ public class RetryManager extends NetworkPattern implements IRequestUpdateListen
                 request.getRequester()); //updates the dependency that had the original request as child
             if (handler == null || tries == maxTries - 1) {
                 owner.sendRequest(String.format("Collecting dependency %s", dep.getQuotedName()), newRequest,
-                    dep.getTarget_Service(), new TimeSpan(delay));
+                    dep.getTargetService(), new TimeSpan(delay));
             } else {
                 owner.sendRequest(String.format("Collecting dependency %s", dep.getQuotedName()), newRequest, handler,
                     new TimeSpan(delay));

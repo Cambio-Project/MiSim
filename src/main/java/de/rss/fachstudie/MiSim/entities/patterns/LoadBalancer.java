@@ -28,7 +28,12 @@ public final class LoadBalancer extends Entity {
         this.instances = instances;
     }
 
-
+    /**
+     * Retrieves the next candidate for receiving a request, consulting its {@link LoadBalancingStrategy}.
+     *
+     * @return a potentially reachable {@link MicroserviceInstance}
+     * @throws NoInstanceAvailableException if no {@link MicroserviceInstance} is available to send requests to.
+     */
     public MicroserviceInstance getNextInstance() throws NoInstanceAvailableException {
         //filter for all running Instances
         Collection<MicroserviceInstance> runningInstances = this.instances

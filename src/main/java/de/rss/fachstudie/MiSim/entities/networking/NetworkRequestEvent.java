@@ -23,10 +23,15 @@ public abstract class NetworkRequestEvent extends ExternalEvent {
 
     protected final IRequestUpdateListener updateListener;
 
-    public NetworkRequestEvent(Model model, String name, boolean showInTrace, Request request) {
+    /**
+     * Common constructor that enforces the association of a request with an External Event.
+     *
+     * @param travelingRequest the request that is associated with this request.
+     */
+    public NetworkRequestEvent(Model model, String name, boolean showInTrace, Request travelingRequest) {
         super(model, name, showInTrace);
-        this.travelingRequest = request;
-        updateListeners = request.getUpdateListeners();
+        this.travelingRequest = travelingRequest;
+        updateListeners = travelingRequest.getUpdateListeners();
 
         //adapter/proxy, so each inheriting object only sees one single anonymous updateListener
         updateListener = new IRequestUpdateListener() {

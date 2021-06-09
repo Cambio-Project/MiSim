@@ -18,8 +18,8 @@ import de.rss.fachstudie.MiSim.models.MainModel;
 import desmoj.core.simulator.TimeInstant;
 
 /**
- * Represents an scenario description input.
- * Can be parsed to an set, containing the experiment events such as {@link ChaosMonkeyEvent}s or {@link Generator}s.
+ * Represents an scenario description input. Can be parsed to an set, containing the experiment events such as {@link
+ * ChaosMonkeyEvent}s or {@link Generator}s.
  *
  * @author Lion Wagner
  */
@@ -34,6 +34,11 @@ public class ScenarioDescription {
     public String environment;
     public Integer duration;
 
+    /**
+     * Converst this scenario description into a set of event objects.
+     *
+     * @return a set of objects that describe the scneario.
+     */
     public Set<Object> parse() {
         Set<Object> scheduables = new HashSet<>();
 

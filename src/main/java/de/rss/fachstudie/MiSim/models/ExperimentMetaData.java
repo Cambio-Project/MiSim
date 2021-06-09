@@ -53,9 +53,9 @@ public class ExperimentMetaData {
                 ScenarioDescription description =
                     gson.fromJson(new JsonReader(new FileReader(scenarioPath)), ScenarioDescription.class);
                 instance = new ExperimentMetaData();
-                instance.experiment_name = description.name;
+                instance.experimentName = description.name;
                 instance.duration = description.duration;
-                instance.model_name = "UnnamedModel";
+                instance.modelName = "UnnamedModel";
                 instance.setExpFileLocation(scenarioPath);
             }
             instance.setArchFileLocation(archFileLocation);
@@ -63,10 +63,10 @@ public class ExperimentMetaData {
             if (instance.duration <= 0) {
                 throw new ParsingException("Experiment 'duration' should be greater than 0.");
             }
-            if (instance.experiment_name == null) {
+            if (instance.experimentName == null) {
                 throw new ParsingException("'experiment_name' has to be set.");
             }
-            if (instance.model_name == null) {
+            if (instance.modelName == null) {
                 throw new ParsingException("'model_name' has to be set.");
             }
 
@@ -87,11 +87,11 @@ public class ExperimentMetaData {
     @SuppressWarnings("FieldMayBeFinal")
     private double duration = -1;
     @SuppressWarnings("FieldMayBeFinal")
-    private String experiment_name;
+    private String experimentName;
     @SuppressWarnings("FieldMayBeFinal")
-    private String model_name;
+    private String modelName;
     @SuppressWarnings("FieldMayBeFinal")
-    private TimeUnit time_unit = TimeUnit.SECONDS;
+    private TimeUnit timeUnit = TimeUnit.SECONDS;
 
     /*
      * These are of type File, since java.nio.Path is not directly parsable by gson
@@ -104,11 +104,11 @@ public class ExperimentMetaData {
     }
 
     public String getExperimentName() {
-        return experiment_name;
+        return experimentName;
     }
 
     public String getModelName() {
-        return model_name;
+        return modelName;
     }
 
     public double getDuration() {
@@ -120,7 +120,7 @@ public class ExperimentMetaData {
     }
 
     public TimeUnit getTimeUnit() {
-        return time_unit;
+        return timeUnit;
     }
 
     public File getExpFileLocation() {

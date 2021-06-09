@@ -25,6 +25,14 @@ public class NetworkDependency extends Entity {
     private boolean completed;
     private Request childRequest;
 
+    /**
+     * Creates an actual instance of a {@link Dependency}.
+     *
+     * @param model          DESMO-J model
+     * @param parentRequest  {@link Request} that requires this dependency.
+     * @param targetOp       {@link Operation} that is targeted by this dependency.
+     * @param dependencyData generic data that describes this dependency.
+     */
     public NetworkDependency(Model model, Request parentRequest, Operation targetOp, Dependency dependencyData) {
         super(model, String.format("Dependency(%s)of[%s]", targetOp.getName(), parentRequest.getName()), false);
         this.parentRequest = parentRequest;
@@ -38,7 +46,7 @@ public class NetworkDependency extends Entity {
         return parentRequest;
     }
 
-    public Microservice getTarget_Service() {
+    public Microservice getTargetService() {
         return targetMicroservice;
     }
 
@@ -65,7 +73,7 @@ public class NetworkDependency extends Entity {
      *
      * @param childRequest new child request that overwrites the current one
      */
-    public void updateChild_request(Request childRequest) {
+    public void updateChildRequest(Request childRequest) {
         this.childRequest = childRequest;
         //TODO: log
     }

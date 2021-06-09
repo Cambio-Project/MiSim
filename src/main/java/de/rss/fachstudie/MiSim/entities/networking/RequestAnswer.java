@@ -13,6 +13,12 @@ import de.rss.fachstudie.MiSim.entities.microservice.Operation;
  */
 public final class RequestAnswer extends Request {
 
+    /**
+     * Constructs a new {@link RequestAnswer}.
+     *
+     * @param wrappedRequest {@link Request} to which this is an answer to
+     * @param answerSender   sender of the answer
+     */
     public RequestAnswer(Request wrappedRequest, MicroserviceInstance answerSender) {
         super(wrappedRequest.getModel(),
             "Request_Answer_" + wrappedRequest.getName(),

@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import de.rss.fachstudie.MiSim.entities.microservice.Operation;
+import de.rss.fachstudie.MiSim.entities.networking.UserRequest;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 import org.javatuples.Pair;
@@ -69,6 +70,18 @@ public class LIMBOGenerator extends Generator {
         this(model, name, showInTrace, operation, limboModel, repeating, DEFAULT_REPETITION_SKIP);
     }
 
+    /**
+     * Constructs a new {@link LIMBOGenerator}.
+     *
+     * @param model          handling DESMO-J model
+     * @param name           name of the generator
+     * @param showInTrace    whether the sending of the {@link UserRequest} should be shown in the trace
+     * @param operation      which {@link Operation} is the target of all {@link UserRequest}s
+     * @param limboModel     path to the corrisponding LIMBO model
+     * @param repeating      whether the given profile should be repeated after it was completed
+     * @param repetitionSkip wait duration in between repetitions, default is 1
+     * @see <a href="https://github.com/joakimkistowski/LIMBO">https://github.com/joakimkistowski/LIMBO</a>
+     */
     public LIMBOGenerator(Model model, String name, boolean showInTrace, Operation operation, File limboModel,
                           boolean repeating, double repetitionSkip) {
         super(model, name, showInTrace, operation);

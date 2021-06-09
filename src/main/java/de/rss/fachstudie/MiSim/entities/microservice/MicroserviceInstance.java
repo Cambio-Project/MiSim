@@ -78,13 +78,13 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
     private final List<NetworkDependency> abortedDependencies = new LinkedList<>();
 
 
-    public MicroserviceInstance(Model model, String name, boolean showInTrace, Microservice microservice,
-                                int instanceID) {
+    MicroserviceInstance(Model model, String name, boolean showInTrace, Microservice microservice,
+                         int instanceID) {
         super(model, name, showInTrace);
         this.owner = microservice;
         this.instanceID = instanceID;
         this.cpu = new CPU(model, String.format("%s_CPU", name), showInTrace, microservice.getCapacity(),
-                           new FIFOScheduler("Scheduler"), this);
+            new FIFOScheduler("Scheduler"), this);
 
         String[] names = name.split("_");
         reporter = new MultiDataPointReporter(String.format("I%s_[%s]_", names[0], names[1]));
@@ -94,7 +94,7 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
         this.addUpdateListener(this);
     }
 
-    public void activatePatterns(PatternData[] patterns) {
+    void activatePatterns(PatternData[] patterns) {
         this.patterns = Arrays.stream(patterns)
             .map(patternData -> patternData.tryGetInstanceOwnedPatternOrNull(this))
             .filter(Objects::nonNull)
@@ -104,19 +104,38 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
             .forEach(pattern -> addUpdateListener((NetworkPattern) pattern));
     }
 
+    /**
+     * Gets the current usage of the instance.
+     *
+     * @see CPU#getCurrentUsage()
+     */
     public double getUsage() {
         return this.cpu.getCurrentUsage();
     }
 
+    /**
+     * Gets the relative work demand.
+     *
+     * @return the relative work demand.
+     * @see CPU#getCurrentRelativeWorkDemand()
+     */
     public double getRelativeWorkDemand() {
         return this.cpu.getCurrentRelativeWorkDemand();
     }
 
+    /**
+     * Gets the state of the instance.
+     */
     public InstanceState getState() {
         return state;
     }
 
 
+    /**
+     * Submits a {@link Request} at this instance for handling.
+     *
+     * @param request {@link Request} that should be handled by this instance.
+     */
     public void handle(Request request) {
         Objects.requireNonNull(request);
 
@@ -137,7 +156,6 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
      * Checks whether this Instance can handle the Request.
      *
      * @param request request that may should be handled by this instance.
-     *
      * @return true if this request will be handled, false otherwise
      */
     public boolean checkIfCanHandle(Request request) {
@@ -197,13 +215,13 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
             //shutdown after the last answer was send. It doesn't care if the original sender does not live anymore
             if (currentRequestsToHandle.isEmpty() && getState() == InstanceState.SHUTTING_DOWN) {
                 InstanceShutdownEndEvent event = new InstanceShutdownEndEvent(getModel(),
-                                                                              String.format("Instance %s Shutdown End",
-                                                                                            this.getQuotedName()),
-                                                                              traceIsOn());
+                    String.format("Instance %s Shutdown End",
+                        this.getQuotedName()),
+                    traceIsOn());
                 event.schedule(this, presentTime());
             }
 
-        } else if (request.getDependencies().isEmpty() || request.areDependencies_completed()) {
+        } else if (request.getDependencies().isEmpty() || request.areDependenciesCompleted()) {
             CPUProcess newProcess = new CPUProcess(request);
             cpu.submitProcess(newProcess);
         } else {
@@ -212,7 +230,7 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
 
                 Request internalRequest = new InternalRequest(getModel(), this.traceIsOn(), dependency, this);
                 sendRequest(String.format("Collecting dependency %s", dependency.getQuotedName()), internalRequest,
-                            dependency.getTarget_Service());
+                    dependency.getTargetService());
                 sendTraceNote(String.format("Try 1, send Request: %s ", internalRequest.getQuotedName()));
             }
         }
@@ -249,6 +267,10 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
 
     }
 
+    /**
+     * Starts the shutdown sequence of this instance. The service will not accept new requests, but will complete open
+     * requests.
+     */
     public final void startShutdown() {
         if (!(this.state == InstanceState.CREATED || this.state == InstanceState.RUNNING)) {
             throw new IllegalStateException(String.format(
@@ -258,16 +280,20 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
 
         if (currentRequestsToHandle.isEmpty()) { //schedule immediate shutdown if currently there is nothing to do
             InstanceShutdownEndEvent shutDownEvent = new InstanceShutdownEndEvent(getModel(),
-                                                                                  String.format(
-                                                                                      "Instance %s Shutdown End",
-                                                                                      this.getQuotedName()),
-                                                                                  traceIsOn());
+                String.format(
+                    "Instance %s Shutdown End",
+                    this.getQuotedName()),
+                traceIsOn());
             shutDownEvent.schedule(this, new TimeSpan(0));
         }
 
         changeState(InstanceState.SHUTTING_DOWN);
     }
 
+    /**
+     * Completes the shutdown and transistions the instance into the {@link InstanceState#SHUTDOWN} state. The instance
+     * will not handle any requests in this state.
+     */
     public final void endShutdown() {
         if (this.state != InstanceState.SHUTTING_DOWN) {
             throw new IllegalStateException(String.format(
@@ -277,6 +303,9 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
         changeState(InstanceState.SHUTDOWN);
     }
 
+    /**
+     * Immediately kills this instance. All currently active requests (computed and cascading) will be canceled.
+     */
     public final void die() {
         if (this.state == InstanceState.KILLED) {
             throw new IllegalStateException(String.format(
@@ -423,11 +452,11 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
         //cancel parent
         NetworkRequestEvent cancelEvent
             = new NetworkRequestCanceledEvent(getModel(),
-                                              String.format("Canceling of request %s", parentToCancel.getQuotedName()),
-                                              traceIsOn(),
-                                              parentToCancel,
-                                              RequestFailedReason.DEPENDENCY_NOT_AVAILABLE,
-                                              String.format("Dependency %s", request.getQuotedName()));
+            String.format("Canceling of request %s", parentToCancel.getQuotedName()),
+            traceIsOn(),
+            parentToCancel,
+            RequestFailedReason.DEPENDENCY_NOT_AVAILABLE,
+            String.format("Dependency %s", request.getQuotedName()));
         cancelEvent.schedule(presentTime());
 
         //cancel all internal requests  of the parent that are underway

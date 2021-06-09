@@ -43,8 +43,8 @@ public abstract class Request extends Entity {
     private TimeInstant timestampDependenciesCompleted;
 
 
-    public Request(Model model, String name, boolean showInTrace, Request parent, Operation operation,
-                   MicroserviceInstance requester) {
+    protected Request(Model model, String name, boolean showInTrace, Request parent, Operation operation,
+                      MicroserviceInstance requester) {
         super(model, name, showInTrace);
         this.operation = operation;
         this.requester = requester;
@@ -129,7 +129,10 @@ public abstract class Request extends Entity {
         this.canceledEvent = canceledEvent;
     }
 
-    public final void setComputation_completed() {
+    /**
+     * Marks the request computation demand as fulfilled at the present time.
+     */
+    public final void setComputationCompleted() {
         if (this.computationCompleted) {
             throw new IllegalStateException("Computation was already completed!");
         }
@@ -141,30 +144,37 @@ public abstract class Request extends Entity {
         }
     }
 
-    private void setDependencies_completed() {
-        if (this.dependenciesCompleted) {
-            throw new IllegalStateException("Dependencies were already completed!");
-        }
-        this.dependenciesCompleted = true;
-        timestampDependenciesCompleted = presentTime();
-        onDependenciesComplete();
-        if (dependenciesCompleted && computationCompleted) {
-            onCompletion();
-        }
-        if (handlerInstance != null && handlerInstance.checkIfCanHandle(this)) {
-            handlerInstance.handle(this); //resubmitting itself for further handling
-        }
-    }
+
+    //    private void setDependenciesCompleted() {
+    //        if (this.dependenciesCompleted) {
+    //            throw new IllegalStateException("Dependencies were already completed!");
+    //        }
+    //        this.dependenciesCompleted = true;
+    //        timestampDependenciesCompleted = presentTime();
+    //        onDependenciesComplete();
+    //        if (dependenciesCompleted && computationCompleted) {
+    //            onCompletion();
+    //        }
+    //        if (handlerInstance != null && handlerInstance.checkIfCanHandle(this)) {
+    //            handlerInstance.handle(this); //resubmitting itself for further handling
+    //        }
+    //    }
 
     public final void stampReceived(TimeInstant stamp) {
         this.setTimestampReceived(stamp);
         onReceive();
     }
 
+    /**
+     * Marks the point in time this request was send.
+     */
     public final void stampSendoff(TimeInstant stamp) {
         this.setTimestampSend(stamp);
     }
 
+    /**
+     * Marks the point in time this request was received at a handler.
+     */
     public final void stampReceivedAtHandler(TimeInstant stamp) {
         if (this.timestampReceivedAtHandler != null) {
             throw new IllegalStateException("This Request was already received by its handler.");
@@ -172,6 +182,9 @@ public abstract class Request extends Entity {
         this.timestampReceivedAtHandler = stamp;
     }
 
+    /**
+     * Marks the point in time this request was received at the requester.
+     */
     private void setTimestampReceived(TimeInstant timestampReceived) {
         if (this.timestampReceived != null) {
             throw new IllegalStateException("Receive Stamp is already set!");
@@ -179,6 +192,9 @@ public abstract class Request extends Entity {
         this.timestampReceived = timestampReceived;
     }
 
+    /**
+     * Marks the point in time this request was send.
+     */
     private void setTimestampSend(TimeInstant timestampSend) {
         if (this.timestampSend != null) {
             throw new IllegalStateException("Send Stamp is already set!");
@@ -186,6 +202,11 @@ public abstract class Request extends Entity {
         this.timestampSend = timestampSend;
     }
 
+    /**
+     * Tells this request that one {@link NetworkDependency} has finished.
+     *
+     * @param dep dependency that was completed
+     */
     public boolean notifyDependencyHasFinished(NetworkDependency dep) {
         if (this.dependenciesCompleted) {
             throw new IllegalStateException("Dependencies were already completed!");
@@ -210,6 +231,12 @@ public abstract class Request extends Entity {
     }
 
 
+    /**
+     * Gets the {@link NetworkDependency} that should be completed by the given request.
+     *
+     * @param request child request of this request.
+     * @return the {@link NetworkDependency} that is related to the given request, {@code null} otherwise.
+     */
     public NetworkDependency getRelatedDependency(Request request) {
         for (NetworkDependency networkDependency : dependencies) {
             if (networkDependency.getChildRequest() == request) {
@@ -219,6 +246,11 @@ public abstract class Request extends Entity {
         return null;
     }
 
+    /**
+     * Calculates the response time of this request.
+     *
+     * @return a double, describing the response time with the reference unit.
+     */
     public final double getResponseTime() {
         if (timestampSend == null) {
             throw new IllegalStateException("Can't retrieve response time: Request was not send yet.");
@@ -239,7 +271,7 @@ public abstract class Request extends Entity {
         return timestampComputationCompleted.getTimeAsDouble() - timestampDependenciesCompleted.getTimeAsDouble();
     }
 
-    public final boolean areDependencies_completed() {
+    public final boolean areDependenciesCompleted() {
         return dependenciesCompleted;
     }
 
@@ -276,11 +308,19 @@ public abstract class Request extends Entity {
         return updateListeners;
     }
 
+    /**
+     * Adds a new {@link IRequestUpdateListener} to the request.
+     *
+     * @param updateListener listener to add.
+     */
     public void addUpdateListener(IRequestUpdateListener updateListener) {
         this.updateListeners.add(updateListener);
     }
 
 
+    /**
+     * Cancels the sending process of this request. Also prevents it from starting.
+     */
     public void cancelSending() {
         if (sendEvent.isScheduled()) {
             sendEvent.cancel();

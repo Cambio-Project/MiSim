@@ -137,7 +137,10 @@ public class NetworkRequestSendEvent extends NetworkRequestEvent {
         return modifiedDelay;
     }
 
-
+    /**
+     * Cancels the send event. Also cancels the relative {@link NetworkRequestReceiveEvent} and {@link
+     * NetworkRequestTimeoutEvent} events. Triggers a {@link NetworkRequestCanceledEvent}.
+     */
     public void cancel() {
         super.cancel();
 

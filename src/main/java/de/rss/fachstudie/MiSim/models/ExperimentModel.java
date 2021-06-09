@@ -17,6 +17,11 @@ import de.rss.fachstudie.MiSim.parsing.ScenarioDescription;
 public class ExperimentModel {
     private static ExperimentModel instance = null;
 
+    /**
+     * Gets the experiment model singleton.
+     *
+     * @return the experiment model singleton.
+     */
     public static ExperimentModel get() {
         if (instance == null) {
             throw new IllegalStateException("Experiment Model was not initialized yet.");
@@ -24,6 +29,12 @@ public class ExperimentModel {
         return instance;
     }
 
+    /**
+     * Initializes the experiment model singleton.
+     * @param expFileLocation path of the experiment file
+     * @return the experiment model singleton.
+     * @throws IllegalStateException if model was already initialized
+     */
     public static ExperimentModel initialize(Path expFileLocation) {
         if (instance != null) {
             throw new IllegalStateException("Experiment Model was already initialized.");
@@ -33,6 +44,12 @@ public class ExperimentModel {
         return get();
     }
 
+    /**
+     * Initializes the experiment model singleton.
+     * @param scenario description the scenario that should be executed
+     * @return the experiment model singleton.
+     * @throws IllegalStateException if model was already initialized
+     */
     public static ExperimentModel initialize(ScenarioDescription scenario) {
         if (instance != null) {
             throw new IllegalStateException("Experiment Model was already initialized.");

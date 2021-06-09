@@ -85,7 +85,7 @@ public final class CircuitBreaker extends NetworkPattern implements IRequestUpda
         }
 
         NetworkDependency dep = request.getParent().getRelatedDependency(request);
-        Microservice target = dep.getTarget_Service();
+        Microservice target = dep.getTargetService();
         activeConnections.add(dep);
         activeConnectionCount.merge(target, 1, Integer::sum);
         CircuitBreakerState state = breakerStates.computeIfAbsent(target,
@@ -128,7 +128,7 @@ public final class CircuitBreaker extends NetworkPattern implements IRequestUpda
         }
 
         NetworkDependency dep = request.getParent().getRelatedDependency(request);
-        Microservice target = dep.getTarget_Service();
+        Microservice target = dep.getTargetService();
 
         if (target == this.owner.getOwner()) { //prevents the circuit breaker from reacting to unpacked RequestAnswers
             return false;
@@ -157,7 +157,7 @@ public final class CircuitBreaker extends NetworkPattern implements IRequestUpda
             return false;
         }
 
-        Microservice target = dep.getTarget_Service();
+        Microservice target = dep.getTargetService();
         if (activeConnections.remove(dep)) {
             breakerStates.get(target).notifyArrivalFailure();
         }

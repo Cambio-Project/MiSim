@@ -11,6 +11,9 @@ import java.util.TreeMap;
  */
 public class ReportWriter {
 
+    /**
+     * writes data to a csv file.
+     */
     public static void writeReporterCollectorOutput(TreeMap<String, TreeMap<Double, Object>> data,
                                                     Path reportLocation) {
         for (Map.Entry<String, TreeMap<Double, Object>> dataset : data.entrySet()) {

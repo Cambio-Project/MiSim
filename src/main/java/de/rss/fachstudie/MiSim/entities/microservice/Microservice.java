@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import de.rss.fachstudie.MiSim.entities.networking.InternalRequest;
 import de.rss.fachstudie.MiSim.entities.patterns.InstanceOwnedPattern;
 import de.rss.fachstudie.MiSim.entities.patterns.LoadBalancer;
 import de.rss.fachstudie.MiSim.entities.patterns.LoadBalancingStrategy;
@@ -62,6 +63,9 @@ public class Microservice extends Entity {
 
     private final MultiDataPointReporter reporter;
 
+    /**
+     * Creates a new instance of a {@link Microservice}.
+     */
     public Microservice(Model model, String name, boolean showInTrace) {
         super(model, name, showInTrace);
         setName(name);
@@ -70,6 +74,10 @@ public class Microservice extends Entity {
         reporter = new ContinuousMultiDataPointReporter(String.format("S[%s]_", name));
     }
 
+    /**
+     * Starts this {@link Microservice}. This procedure includes the starting of the defined amount of instances and the
+     * initiation of the {@link ServiceOwnedPattern}s.
+     */
     public synchronized void start() {
         started = true;
         scaleToInstancesCount(targetInstanceCount);
@@ -103,6 +111,12 @@ public class Microservice extends Entity {
         return instancesSet.size();
     }
 
+    /**
+     * Similar to {@link Microservice#scaleToInstancesCount(int)} but also overwrites the general target instance count
+     * of this service.
+     *
+     * @param numberOfInstances amount of instance that this service should target.
+     */
     public synchronized void setInstancesCount(final int numberOfInstances) {
         targetInstanceCount = numberOfInstances;
         if (started) {
@@ -110,6 +124,15 @@ public class Microservice extends Entity {
         }
     }
 
+    /**
+     * Schedules the immeidate start or shutdown of {@link MicroserviceInstance}s until the amount of active instances
+     * reaches the target instance count.
+     *
+     * <p>
+     * TODO: restart instances that were shut down.
+     *
+     * @param targetInstanceCount amount of instance to which this service should scale.
+     */
     public synchronized void scaleToInstancesCount(final int targetInstanceCount) {
         if (!started) {
             throw new IllegalStateException("Microservice was not started. Use start() first or setInstanceCount()");
@@ -183,7 +206,6 @@ public class Microservice extends Entity {
      * differ. It may starts with the name of this mircoservice instance or ands with a '#' and a number.
      *
      * @param name name of the operation that should be found
-     *
      * @return an operation that has exactly that name, {@code null} if not found
      */
     public Operation getOperationByName(String name) {
@@ -208,7 +230,7 @@ public class Microservice extends Entity {
      * @param loadBalancingStrategy name of the strategy that is to be applied
      */
     public void setLoadBalancingStrategy(String loadBalancingStrategy) {
-        loadBalancer.setLoadBalancingStrategy(LoadBalancingStrategy.fromName(getModel(), loadBalancingStrategy));
+        loadBalancer.setLoadBalancingStrategy(LoadBalancingStrategy.fromName(this, loadBalancingStrategy));
     }
 
 
@@ -228,6 +250,15 @@ public class Microservice extends Entity {
     }
 
 
+    /**
+     * Applies the given delay distribution to the given operations.
+     *
+     * @param dist         {@link NumericalDist} of the delay.
+     * @param operationSrc {@link Operation} of this {@link Microservice} that should be affected, can be set to {@code
+     *                     null} to affect all {@link Operation}s
+     * @param operationTrg target {@link Operation} of the operationSrc that should be affected, can be set to {@code
+     *                     null} to affect all outgoing {@link InternalRequest}s
+     */
     public void applyDelay(NumericalDist<Double> dist, Operation operationSrc, Operation operationTrg) {
         if (operationTrg == null) {
             if (operationSrc == null) {

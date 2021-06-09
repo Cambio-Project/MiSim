@@ -13,6 +13,11 @@ public class InternalRequest extends Request {
 
     private final NetworkDependency dependency;
 
+    /**
+     * Constructs a new Internal Request. Construction is based on the respective dependency and requester.
+     * @param dependency {@link NetworkDependency} that should be competed by this request.
+     * @param requester {@link MicroserviceInstance} that requests the answer to this request.
+     */
     public InternalRequest(Model model, boolean showInTrace, NetworkDependency dependency,
                            MicroserviceInstance requester) {
         super(model,
@@ -21,7 +26,7 @@ public class InternalRequest extends Request {
             showInTrace,
             dependency.getParentRequest(),
             dependency.getTargetOp(), requester);
-        dependency.updateChild_request(this);
+        dependency.updateChildRequest(this);
         this.dependency = dependency;
     }
 
