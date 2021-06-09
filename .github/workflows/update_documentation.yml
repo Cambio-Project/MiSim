@@ -40,6 +40,8 @@ jobs:
       run: |
         git config --local user.email "st148345@stud.uni-stuttgart.de"
         git config --local user.name "DocumentationBot[bot]"
+        git checkout gh-pages
+        git pull
         git add ./docs/
         git commit -m "Updated documentation"
         
