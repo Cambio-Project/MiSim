@@ -1,14 +1,14 @@
 package de.rss.fachstudie.MiSim.entities.networking;
 
+import java.util.Objects;
+import java.util.TreeSet;
+
 import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
 import de.rss.fachstudie.MiSim.entities.microservice.MicroserviceInstance;
 import desmoj.core.simulator.Entity;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 import desmoj.core.simulator.TimeSpan;
-
-import java.util.Objects;
-import java.util.TreeSet;
 
 /**
  * Class that provides the ability to send requests and register listeners to this requests.
@@ -19,22 +19,27 @@ public class RequestSender extends Entity {
 
     private final TreeSet<IRequestUpdateListener> updateListeners = new TreeSet<>();
 
-    public RequestSender(Model model, String s, boolean b) {
-        super(model, s, b);
+    public RequestSender(Model model, String name, boolean showInTrace) {
+        super(model, name, showInTrace);
     }
 
     /**
      * Adds multiple listeners.
+     *
      * @param listeners listeners that are to be add.
-     * @see RequestSender#addUpdateListener(IRequestUpdateListener) 
+     *
+     * @see RequestSender#addUpdateListener(IRequestUpdateListener)
      */
     public final void addUpdateListeners(Iterable<IRequestUpdateListener> listeners) {
-        for (IRequestUpdateListener listener : listeners) addUpdateListener(listener);
+        for (IRequestUpdateListener listener : listeners) {
+            addUpdateListener(listener);
+        }
     }
 
     /**
-     * Adds a listener to this sender. This listener will be update about the status of all requests sent by this entity.
-     * This includes requests, that are already under way!
+     * Adds a listener to this sender. This listener will be update about the status of all requests sent by this
+     * entity. This includes requests, that are already under way!
+     *
      * @param listener listener that is to be added
      */
     public final void addUpdateListener(IRequestUpdateListener listener) {
@@ -43,10 +48,12 @@ public class RequestSender extends Entity {
     }
 
     /**
-     * Starts a RequestSendingProcess
+     * Starts a RequestSendingProcess.
+     *
      * @param eventName trace/debug name of the send event
-     * @param request request that should travel
-     * @param target {@code MicroserviceInstance} that should receive the request.
+     * @param request   request that should travel
+     * @param target    {@code MicroserviceInstance} that should receive the request.
+     *
      * @return the created send event
      */
     public final NetworkRequestSendEvent sendRequest(String eventName, Request request, MicroserviceInstance target) {
@@ -54,10 +61,12 @@ public class RequestSender extends Entity {
     }
 
     /**
-     * Starts a RequestSendingProcess
+     * Starts a RequestSendingProcess.
+     *
      * @param eventName trace/debug name of the send event
-     * @param request request that should travel
-     * @param target {@code Microservice }  that should receive the request.
+     * @param request   request that should travel
+     * @param target    {@code Microservice }  that should receive the request.
+     *
      * @return the created send event
      */
     public final NetworkRequestSendEvent sendRequest(String eventName, Request request, Microservice target) {
@@ -65,45 +74,56 @@ public class RequestSender extends Entity {
     }
 
     /**
-     * Starts a RequestSendingProcess
+     * Starts a RequestSendingProcess.
+     *
      * @param eventName trace/debug name of the send event
-     * @param request request that should travel
-     * @param target {@code MicroserviceInstance} that should receive the request.
-     * @param delay delays the send event by this amount
+     * @param request   request that should travel
+     * @param target    {@code MicroserviceInstance} that should receive the request.
+     * @param delay     delays the send event by this amount
+     *
      * @return the created send event
      */
-    public final NetworkRequestSendEvent sendRequest(String eventName, Request request, MicroserviceInstance target, TimeSpan delay) {
+    public final NetworkRequestSendEvent sendRequest(String eventName, Request request, MicroserviceInstance target,
+                                                     TimeSpan delay) {
         return sendRequestInternal(eventName, request, target, delay);
     }
 
     /**
-     * Starts a RequestSendingProcess
+     * Starts a RequestSendingProcess.
+     *
      * @param eventName trace/debug name of the send event
-     * @param request request that should travel
-     * @param target {@code Microservice } that should receive the request.
-     * @param delay delays the send event by this amount
+     * @param request   request that should travel
+     * @param target    {@code Microservice } that should receive the request.
+     * @param delay     delays the send event by this amount
+     *
      * @return the created send event
      */
-    public final NetworkRequestSendEvent sendRequest(String eventName, Request request, Microservice target, TimeSpan delay) {
+    public final NetworkRequestSendEvent sendRequest(String eventName, Request request, Microservice target,
+                                                     TimeSpan delay) {
         return sendRequestInternal(eventName, request, target, delay);
     }
 
     /**
-     * Starts a RequestSendingProcess
+     * Starts a RequestSendingProcess.
+     *
      * @param eventName trace/debug name of the send event
-     * @param request request that should travel
-     * @param target {@code Microservice } or {@code MicroserviceInstance} that should receive the request.
-     * @param delay delays the send event by this amount
+     * @param request   request that should travel
+     * @param target    {@code Microservice } or {@code MicroserviceInstance} that should receive the request.
+     * @param delay     delays the send event by this amount
+     *
      * @return the created send event
      */
-    private NetworkRequestSendEvent sendRequestInternal(String eventName, Request request, Object target, TimeSpan delay) {
+    private NetworkRequestSendEvent sendRequestInternal(String eventName, Request request, Object target,
+                                                        TimeSpan delay) {
         request.addUpdateListener(updateListenerProxy);
 
         NetworkRequestSendEvent sendEvent;
-        if (target == null || target.getClass() == Microservice.class)
+        if (target == null || target.getClass() == Microservice.class) {
             sendEvent = new NetworkRequestSendEvent(getModel(), eventName, traceIsOn(), request, (Microservice) target);
-        else
-            sendEvent = new NetworkRequestSendEvent(getModel(), eventName, traceIsOn(), request, (MicroserviceInstance) target);
+        } else {
+            sendEvent =
+                new NetworkRequestSendEvent(getModel(), eventName, traceIsOn(), request, (MicroserviceInstance) target);
+        }
         sendEvent.schedule(delay);
         return sendEvent;
     }
@@ -129,7 +149,8 @@ public class RequestSender extends Entity {
 
         @Override
         public boolean onRequestResultArrivedAtRequester(Request request, TimeInstant when) {
-            return updateListeners.stream().anyMatch(listener -> listener.onRequestResultArrivedAtRequester(request, when));
+            return updateListeners.stream()
+                .anyMatch(listener -> listener.onRequestResultArrivedAtRequester(request, when));
         }
     };
 

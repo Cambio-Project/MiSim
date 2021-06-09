@@ -1,19 +1,23 @@
 package Scenarios;
 
-import co.paralleluniverse.fibers.SuspendExecution;
-import de.rss.fachstudie.MiSim.entities.networking.NetworkRequestSendEvent;
-import de.rss.fachstudie.MiSim.export.CSVData;
-import desmoj.core.simulator.*;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-import testutils.RandomTieredModel;
-import testutils.TestUtils;
-
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import co.paralleluniverse.fibers.SuspendExecution;
+import de.rss.fachstudie.MiSim.entities.networking.NetworkRequestSendEvent;
+import de.rss.fachstudie.MiSim.export.CSVData;
+import desmoj.core.simulator.Experiment;
+import desmoj.core.simulator.NameCatalog;
+import desmoj.core.simulator.SimProcess;
+import desmoj.core.simulator.TimeInstant;
+import desmoj.core.simulator.TimeSpan;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import testutils.RandomTieredModel;
+import testutils.TestUtils;
 
 /**
  * @author Lion Wagner
@@ -37,7 +41,8 @@ public class PerformanceTests {
             System.out.printf("Run #%s%n", i + 1);
 
             RandomTieredModel model = new RandomTieredModel("TestModel", max_service_count, tier_count);
-            int simulatedDuration = TestUtils.nextNonNegative(3401) + 200; //3600 is 1h of realtime with the default unit SECONDS
+            int simulatedDuration =
+                TestUtils.nextNonNegative(3401) + 200; //3600 is 1h of realtime with the default unit SECONDS
             Experiment exp = TestUtils.getExampleExperiment(model, simulatedDuration);
 
             SimProcess memoryFree = new SimProcess(model, "memoryFreeEvent", false, false) {
@@ -133,7 +138,8 @@ public class PerformanceTests {
             double interval = msgPerSec == 1 ? (double) msgPerSec / genCount : 1;
             model.setGenerator_count(genCount);
             model.setGenerator_interval(interval);
-            int simulatedDuration = TestUtils.nextNonNegative(10801); //10800 are 3h of realtime with the default unit SECONDS
+            int simulatedDuration =
+                TestUtils.nextNonNegative(10801); //10800 are 3h of realtime with the default unit SECONDS
             Experiment exp = TestUtils.getExampleExperiment(model, simulatedDuration);
 
             long start = System.currentTimeMillis();
@@ -146,7 +152,8 @@ public class PerformanceTests {
             result.simulated_duration_ms = simulatedDuration * 1000;
             result.execution_duration_ms = duration;
             result.number_of_services = model.getAllMicroservices().size();
-            result.number_of_dependencies = model.getAllMicroservices().stream().mapToInt(ms -> ms.getOperations().length).sum();
+            result.number_of_dependencies =
+                model.getAllMicroservices().stream().mapToInt(ms -> ms.getOperations().length).sum();
             result.number_of_sendEvents = NetworkRequestSendEvent.getCounterSendEvents();
 
             testResults.add(result);

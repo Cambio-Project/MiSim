@@ -1,14 +1,14 @@
 package de.rss.fachstudie.MiSim.export;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.stream.Collectors;
+
 import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
 import de.rss.fachstudie.MiSim.entities.microservice.Operation;
 import de.rss.fachstudie.MiSim.entities.networking.Dependency;
 import de.rss.fachstudie.MiSim.models.ExperimentMetaData;
 import de.rss.fachstudie.MiSim.models.MainModel;
-
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.stream.Collectors;
 
 /**
  * The <code>DependencyGraph</code> class is used in order to create the graph that displays the dependencies between
@@ -40,17 +40,20 @@ public class DependencyGraph {
     public String printGraph() {
         String nodes = printNodes();
         String links = printLinks();
-        String html = "var graphMinimalistic = '" + ExperimentMetaData.get().getReportType() + "';\n" + "var graph = {nodes:[";
-        if (nodes.length() > 2)
+        String html =
+            "var graphMinimalistic = '" + ExperimentMetaData.get().getReportType() + "';\n" + "var graph = {nodes:[";
+        if (nodes.length() > 2) {
             html += nodes.substring(0, nodes.length() - 1) + "], ";
-        else
+        } else {
             html += "], ";
-        if (links.length() > 2)
+        }
+        if (links.length() > 2) {
             html += "links:[" + links.substring(0, links.length() - 1) + "]};";
-        else if (links.length() == 0)
+        } else if (links.length() == 0) {
             html += "};";
-        else
+        } else {
             html += "]}";
+        }
         return html;
     }
 
@@ -62,18 +65,21 @@ public class DependencyGraph {
     private String printNodes() {
         StringBuilder json = new StringBuilder();
         for (Microservice ms : microservices) {
-            String labels = String.join(",", Arrays.stream(ms.getOperations()).map(Operation::getQuotedName).collect(Collectors.toSet()));
-            int instanceLimit = !ExperimentMetaData.get().getReportType().equals("minimalistic") ? ms.getInstancesCount() : Math.min(ms.getInstancesCount(), 10);
+            String labels = String
+                .join(",", Arrays.stream(ms.getOperations()).map(Operation::getQuotedName).collect(Collectors.toSet()));
+            int instanceLimit =
+                !ExperimentMetaData.get().getReportType().equals("minimalistic") ? ms.getInstancesCount() :
+                    Math.min(ms.getInstancesCount(), 10);
 
             for (int i = 0; i < instanceLimit; ++i) {
-                long instanceID = ms.hashCode() * hashMultiplier + i;
+                long instanceIdentifier = ms.hashCode() * hashMultiplier + i;
                 json.append("{name:").append(ms.getQuotedName())
-                        .append(",id:")
-                        .append(instanceID)
-                        .append(",labels:[")
-                        .append(labels)
-                        .append("],group:")
-                        .append(ms.getIdentNumber()).append("},");
+                    .append(",id:")
+                    .append(instanceIdentifier)
+                    .append(",labels:[")
+                    .append(labels)
+                    .append("],group:")
+                    .append(ms.getIdentNumber()).append("},");
             }
 
         }
@@ -90,7 +96,9 @@ public class DependencyGraph {
 
         for (Microservice ms : microservices) {
 
-            int instanceLimit = !ExperimentMetaData.get().getReportType().equals("minimalistic") ? ms.getInstancesCount() : Math.min(ms.getInstancesCount(), 10);
+            int instanceLimit =
+                !ExperimentMetaData.get().getReportType().equals("minimalistic") ? ms.getInstancesCount() :
+                    Math.min(ms.getInstancesCount(), 10);
 
             StringBuilder labels = new StringBuilder();
             for (Operation op : ms.getOperations()) {
@@ -98,9 +106,9 @@ public class DependencyGraph {
                 for (Dependency depService : op.getDependencies()) {
                     long depId = depService.getTargetMicroservice().getIdentNumber();
                     json.append("{source:").append(ms.getIdentNumber())
-                            .append(",target:").append(depId)
-                            .append(",value:").append(instanceLimit)
-                            .append("},");
+                        .append(",target:").append(depId)
+                        .append(",value:").append(instanceLimit)
+                        .append("},");
                 }
             }
 

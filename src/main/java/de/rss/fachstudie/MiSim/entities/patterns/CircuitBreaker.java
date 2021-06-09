@@ -1,24 +1,32 @@
 package de.rss.fachstudie.MiSim.entities.patterns;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
 import de.rss.fachstudie.MiSim.entities.microservice.MicroserviceInstance;
-import de.rss.fachstudie.MiSim.entities.networking.*;
+import de.rss.fachstudie.MiSim.entities.networking.IRequestUpdateListener;
+import de.rss.fachstudie.MiSim.entities.networking.InternalRequest;
+import de.rss.fachstudie.MiSim.entities.networking.NetworkDependency;
+import de.rss.fachstudie.MiSim.entities.networking.NetworkRequestCanceledEvent;
+import de.rss.fachstudie.MiSim.entities.networking.NetworkRequestEvent;
+import de.rss.fachstudie.MiSim.entities.networking.Request;
+import de.rss.fachstudie.MiSim.entities.networking.RequestFailedReason;
 import de.rss.fachstudie.MiSim.export.MultiDataPointReporter;
 import de.rss.fachstudie.MiSim.misc.Priority;
 import de.rss.fachstudie.MiSim.parsing.FromJson;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
 /**
  * Manager class of all CircuitBreakers of one Microservice Instance.
+ *
  * <p>
  * Creates a {@code CircuitBreakerState} for each connection to another {@code Microservice} of the owning {@code
  * MicroserviceInstance}
+ *
  * <p>
  * This class is a {@code NetworkPattern} and therefore monitors all requests send by its owning {@code
  * MicroserviceInstance}.
@@ -72,29 +80,34 @@ public final class CircuitBreaker extends NetworkPattern implements IRequestUpda
 
     @Override
     public boolean onRequestSend(Request request, TimeInstant when) {
-        if (!(request instanceof InternalRequest))
+        if (!(request instanceof InternalRequest)) {
             return false; //ignore everything except InternalRequests (e.g. RequestAnswers)
+        }
 
         NetworkDependency dep = request.getParent().getRelatedDependency(request);
         Microservice target = dep.getTarget_Service();
         activeConnections.add(dep);
         activeConnectionCount.merge(target, 1, Integer::sum);
         CircuitBreakerState state = breakerStates.computeIfAbsent(target,
-                monitoredService -> new CircuitBreakerState(monitoredService, this.errorThresholdPercentage, rollingWindow, sleepWindow));
+            monitoredService -> new CircuitBreakerState(monitoredService, this.errorThresholdPercentage, rollingWindow,
+                sleepWindow));
 
 
         boolean consumed = false;
         if (state.isOpen()) {
-//            owner.updateListenerProxy.onRequestFailed(request, when, RequestFailedReason.CIRCUIT_IS_OPEN);
+            //owner.updateListenerProxy.onRequestFailed(request, when, RequestFailedReason.CIRCUIT_IS_OPEN);
             request.cancelSending();
-            NetworkRequestEvent cancelEvent = new NetworkRequestCanceledEvent(getModel(), String.format("Canceling of %s", request.getQuotedName()), true, request, RequestFailedReason.CIRCUIT_IS_OPEN);
+            NetworkRequestEvent cancelEvent =
+                new NetworkRequestCanceledEvent(getModel(), String.format("Canceling of %s", request.getQuotedName()),
+                    true, request, RequestFailedReason.CIRCUIT_IS_OPEN);
             cancelEvent.schedule();
             consumed = true;
         } else {
             int currentActiveConnections = activeConnectionCount.get(target);
             if (currentActiveConnections > requestVolumeThreshold) {
                 state.notifyArrivalFailure();
-                owner.updateListenerProxy.onRequestFailed(request, when, RequestFailedReason.CONNECTION_VOLUME_LIMIT_REACHED);
+                owner.updateListenerProxy
+                    .onRequestFailed(request, when, RequestFailedReason.CONNECTION_VOLUME_LIMIT_REACHED);
                 consumed = true;
             }
         }
@@ -110,8 +123,9 @@ public final class CircuitBreaker extends NetworkPattern implements IRequestUpda
 
     @Override
     public boolean onRequestResultArrivedAtRequester(Request request, TimeInstant when) {
-        if (!(request instanceof InternalRequest))
+        if (!(request instanceof InternalRequest)) {
             return false; //ignore everything except InternalRequests (e.g. RequestAnswers)
+        }
 
         NetworkDependency dep = request.getParent().getRelatedDependency(request);
         Microservice target = dep.getTarget_Service();
@@ -121,7 +135,7 @@ public final class CircuitBreaker extends NetworkPattern implements IRequestUpda
         }
 
         activeConnections.remove(dep);
-        activeConnectionCount.merge(target,-1, Integer::sum);
+        activeConnectionCount.merge(target, -1, Integer::sum);
 
         breakerStates.get(target).notifySuccessfulCompletion();
 
@@ -131,13 +145,14 @@ public final class CircuitBreaker extends NetworkPattern implements IRequestUpda
 
     @Override
     public boolean onRequestFailed(Request request, TimeInstant when, RequestFailedReason reason) {
-        if (!(request instanceof InternalRequest))
+        if (!(request instanceof InternalRequest)) {
             return false; //ignore everything except InternalRequests (e.g. RequestAnswers)
+        }
 
-        InternalRequest internal_request = (InternalRequest) request;
+        InternalRequest internalRequest = (InternalRequest) request;
 
-        NetworkDependency dep = internal_request.getDependency();
-        if (dep.getChild_request() != internal_request) {
+        NetworkDependency dep = internalRequest.getDependency();
+        if (dep.getChildRequest() != internalRequest) {
             //dependency was asinged a new child Request already (e.g due to a retry), therefore we ignore the request
             return false;
         }
@@ -156,7 +171,8 @@ public final class CircuitBreaker extends NetworkPattern implements IRequestUpda
         for (Map.Entry<Microservice, CircuitBreakerState> entry : breakerStates.entrySet()) {
             Microservice microservice = entry.getKey();
             CircuitBreakerState circuitBreakerState = entry.getValue();
-            reporter.addDatapoint(String.format("[%s]", microservice.getName()), when, circuitBreakerState.getCurrentStatistics());
+            reporter.addDatapoint(String.format("[%s]", microservice.getName()), when,
+                circuitBreakerState.getCurrentStatistics());
         }
     }
 }

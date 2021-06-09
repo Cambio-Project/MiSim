@@ -7,7 +7,7 @@ import de.rss.fachstudie.MiSim.entities.patterns.LoadBalancer;
  *
  * @author Lion Wagner
  * @see Microservice#getNextAvailableInstance()
- * @see LoadBalancer#getNextInstance() 
+ * @see LoadBalancer#getNextInstance()
  */
 public class NoInstanceAvailableException extends RuntimeException {
 }

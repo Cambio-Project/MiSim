@@ -7,6 +7,7 @@ import desmoj.core.simulator.Model;
 
 /**
  * Triggers the instance to stats its shutdown process.
+ *
  * <p>
  * During the shutdown processes a {@code MicroserviceInstance} does not accept new requests but finishes the ones its
  * currently handling.

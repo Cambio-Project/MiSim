@@ -1,5 +1,10 @@
 package de.rss.fachstudie.MiSim.entities.microservice;
 
+import java.lang.reflect.Field;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+
 import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.Experiment;
 import desmoj.core.simulator.ExternalEvent;
@@ -8,11 +13,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import testutils.RandomTieredModel;
 import testutils.TestUtils;
-
-import java.lang.reflect.Field;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
 
 class MicroserviceInstanceTest {
 

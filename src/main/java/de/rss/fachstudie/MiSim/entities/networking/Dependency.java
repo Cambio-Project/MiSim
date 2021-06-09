@@ -1,12 +1,12 @@
 package de.rss.fachstudie.MiSim.entities.networking;
 
+import java.util.Objects;
+
 import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
 import de.rss.fachstudie.MiSim.entities.microservice.Operation;
 import de.rss.fachstudie.MiSim.misc.Util;
 import desmoj.core.dist.ContDistNormal;
 import desmoj.core.dist.NumericalDist;
-
-import java.util.Objects;
 
 /**
  * Represents a dependency of an {@code Operation} to another {@code Operation}.
@@ -18,8 +18,8 @@ public class Dependency {
     private final Microservice targetMicroservice;
     private final Operation targetOperation;
     private final double probability;
-    private final NumericalDist<Double> custom_delay;
-    private NumericalDist<Double> extra_delay;
+    private final NumericalDist<Double> customDelay;
+    private NumericalDist<Double> extraDelay;
 
     /**
      * Constructs a new Dependency object to represent the need of one operation to call another. The target operation
@@ -47,26 +47,30 @@ public class Dependency {
     }
 
     /**
+     * Constructs a new Dependency object to represent the need of one operation to call another. Messages can use a
+     * custom delay.
+     *
      * @param parent          parent operation that potentially requires this dependency
      * @param targetOperation child operation that may be need to complete the parent operation
      * @param probability     probability with which the parent operation needs to call the {@code targetOperation}
-     * @param custom_delay    delay of this dependency that overrides the default network delay, null values will be
+     * @param customDelay    delay of this dependency that overrides the default network delay, null values will be
      *                        ignored
      */
-    public Dependency(Operation parent, Operation targetOperation, double probability, Double custom_delay) {
+    public Dependency(Operation parent, Operation targetOperation, double probability, Double customDelay) {
         Objects.requireNonNull(parent);
         Objects.requireNonNull(targetOperation);
         Util.requirePercentage(probability, "Probability hast to be a value between 0 and 1 (inclusive)");
-        if (custom_delay != null) {
-            Util.requireNonNegative(custom_delay, "Delay has to be positive.");
+        if (customDelay != null) {
+            Util.requireNonNegative(customDelay, "Delay has to be positive.");
         }
 
         this.parent = parent;
         this.targetMicroservice = targetOperation.getOwnerMS();
         this.targetOperation = targetOperation;
         this.probability = probability;
-        this.custom_delay = custom_delay == null ? null : new ContDistNormal(parent.getModel(), null, custom_delay, 0, false, false);
-        this.extra_delay = null;
+        this.customDelay =
+            customDelay == null ? null : new ContDistNormal(parent.getModel(), null, customDelay, 0, false, false);
+        this.extraDelay = null;
     }
 
     public double getProbability() {
@@ -82,27 +86,42 @@ public class Dependency {
     }
 
     public void setExtraDelay(NumericalDist<Double> dist) {
-        extra_delay = dist;
+        extraDelay = dist;
     }
 
+    /**
+     * Gets the extra delay assigned to this dependency.
+     * @return the extra delay assigned to this dependency.
+     */
     public synchronized double getNextExtraDelay() {
-        if (extra_delay == null)
+        if (extraDelay == null) {
             return 0;
+        }
         double nextlatency;
         do {
-            nextlatency = extra_delay.sample();
+            nextlatency = extraDelay.sample();
         } while (nextlatency < 0);
         return nextlatency;
     }
 
+    /**
+     * Gets whether this dependency has a custom delay.
+     * This delay can be used to override the the default network delay.
+     *
+     * @return whether this dependency has a custom delay.
+     */
     public synchronized boolean hasCustomDelay() {
-        return custom_delay != null;
+        return customDelay != null;
     }
 
+    /**
+     * Gets the custom delay assigned to this dependency.
+     * @return the custom delay assigned to this dependency.
+     */
     public synchronized double getNextCustomDelay() {
         double nextlatency;
         do {
-            nextlatency = custom_delay.sample();
+            nextlatency = customDelay.sample();
         } while (nextlatency < 0);
         return nextlatency;
     }

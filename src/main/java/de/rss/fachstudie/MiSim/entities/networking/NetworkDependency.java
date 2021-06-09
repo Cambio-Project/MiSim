@@ -1,11 +1,11 @@
 package de.rss.fachstudie.MiSim.entities.networking;
 
+import java.util.Objects;
+
 import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
 import de.rss.fachstudie.MiSim.entities.microservice.Operation;
 import desmoj.core.simulator.Entity;
 import desmoj.core.simulator.Model;
-
-import java.util.Objects;
 
 /**
  * This is an instance of a {@link Dependency}. It describes an actual existing dependency of a {@code Request}, that
@@ -18,32 +18,32 @@ import java.util.Objects;
  */
 public class NetworkDependency extends Entity {
 
-    private final Request parent_request;
-    private final Microservice target_ms;
-    private final Operation target_op;
-    private final Dependency dependency_data;
+    private final Request parentRequest;
+    private final Microservice targetMicroservice;
+    private final Operation targetOp;
+    private final Dependency dependencyData;
     private boolean completed;
-    private Request child_request;
+    private Request childRequest;
 
-    public NetworkDependency(Model model, Request parent_request, Operation target_op, Dependency dependency_data) {
-        super(model, String.format("Dependency(%s)of[%s]", target_op.getName(), parent_request.getName()), false);
-        this.parent_request = parent_request;
-        this.target_op = target_op;
-        this.target_ms = target_op.getOwnerMS();
-        this.dependency_data = dependency_data;
+    public NetworkDependency(Model model, Request parentRequest, Operation targetOp, Dependency dependencyData) {
+        super(model, String.format("Dependency(%s)of[%s]", targetOp.getName(), parentRequest.getName()), false);
+        this.parentRequest = parentRequest;
+        this.targetOp = targetOp;
+        this.targetMicroservice = targetOp.getOwnerMS();
+        this.dependencyData = dependencyData;
     }
 
 
-    public Request getParent_request() {
-        return parent_request;
+    public Request getParentRequest() {
+        return parentRequest;
     }
 
     public Microservice getTarget_Service() {
-        return target_ms;
+        return targetMicroservice;
     }
 
-    public Operation getTarget_op() {
-        return target_op;
+    public Operation getTargetOp() {
+        return targetOp;
     }
 
     public boolean isCompleted() {
@@ -54,8 +54,8 @@ public class NetworkDependency extends Entity {
         this.completed = true;
     }
 
-    public Request getChild_request() {
-        return child_request;
+    public Request getChildRequest() {
+        return childRequest;
     }
 
     /**
@@ -63,35 +63,39 @@ public class NetworkDependency extends Entity {
      * if a retry creates a new request because the previous one timed out, it has to notify (update) the {@code
      * NetworkDependency} that a new child request for this dependency was created.
      *
-     * @param child_request new child request that overwrites the current one
+     * @param childRequest new child request that overwrites the current one
      */
-    public void updateChild_request(Request child_request) {
-        this.child_request = child_request;
+    public void updateChild_request(Request childRequest) {
+        this.childRequest = childRequest;
         //TODO: log
     }
 
     public double getNextExtraDelay() {
-        return dependency_data.getNextExtraDelay();
+        return dependencyData.getNextExtraDelay();
     }
 
     public boolean hasCustomDelay() {
-        return dependency_data.hasCustomDelay();
+        return dependencyData.hasCustomDelay();
     }
 
     public double getNextCustomDelay() {
-        return dependency_data.getNextCustomDelay();
+        return dependencyData.getNextCustomDelay();
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        NetworkDependency that = (NetworkDependency) o;
-        return parent_request.equals(that.parent_request) && target_op.equals(that.target_op);
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+        if (other == null || getClass() != other.getClass()) {
+            return false;
+        }
+        NetworkDependency that = (NetworkDependency) other;
+        return parentRequest.equals(that.parentRequest) && targetOp.equals(that.targetOp);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(parent_request, target_op);
+        return Objects.hash(parentRequest, targetOp);
     }
 }

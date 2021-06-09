@@ -6,6 +6,8 @@ import de.rss.fachstudie.MiSim.entities.networking.Dependency;
 import desmoj.core.simulator.Model;
 
 /**
+ * Parser for {@link Dependency} objects.
+ *
  * @author Lion Wagner
  */
 public class DependencyParser extends Parser<Dependency> {
@@ -22,8 +24,8 @@ public class DependencyParser extends Parser<Dependency> {
 
     @Override
     public Dependency convertToObject(Model model) {
-        Microservice targetMS = getMircoserviceFromName(service);
-        Operation targetOp = getOperationFromName(operation, targetMS);
+        Microservice targetService = getMircoserviceFromName(service);
+        Operation targetOp = getOperationFromName(operation, targetService);
         return new Dependency(owner, targetOp, probability, delay);
     }
 

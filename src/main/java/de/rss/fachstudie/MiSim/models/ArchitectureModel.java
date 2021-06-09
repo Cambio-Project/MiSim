@@ -1,11 +1,11 @@
 package de.rss.fachstudie.MiSim.models;
 
-import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
-import de.rss.fachstudie.MiSim.parsing.ArchModelParser;
-
 import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Set;
+
+import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
+import de.rss.fachstudie.MiSim.parsing.ArchModelParser;
 
 /**
  * Class that contains the architectural information provided by the architecture file.
@@ -15,6 +15,11 @@ import java.util.Set;
 public class ArchitectureModel {
     private static ArchitectureModel instance = null;
 
+    /**
+     * Gets the ArchitectureModel singletons.
+     *
+     * @return the ArchitectureModel singleton.
+     */
     public static ArchitectureModel get() {
         if (instance == null) {
             throw new IllegalStateException("Architecture Model was not initialized yet.");
@@ -22,6 +27,13 @@ public class ArchitectureModel {
         return instance;
     }
 
+    /**
+     * Creates the ArchitectureModel, based on an architecture file.
+     *
+     * @param archFileLocation Path to the architecture File
+     *
+     * @return the ArchitectureModel singleton.
+     */
     public static ArchitectureModel initialize(Path archFileLocation) {
         if (instance != null) {
             throw new IllegalStateException("Architecture Model was already initialized.");
@@ -38,7 +50,10 @@ public class ArchitectureModel {
         microservices = ArchModelParser.parseMicroservicesArchModelFile(archFile);
     }
 
-
+    /**
+     * Gets all available microservices.
+     * @return all microservices
+     */
     public Set<Microservice> getMicroservices() {
         return new HashSet<>(microservices);
     }

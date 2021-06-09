@@ -1,15 +1,15 @@
 package de.rss.fachstudie.MiSim.entities.patterns;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import de.rss.fachstudie.MiSim.entities.microservice.InstanceState;
 import de.rss.fachstudie.MiSim.entities.microservice.MicroserviceInstance;
 import de.rss.fachstudie.MiSim.entities.microservice.NoInstanceAvailableException;
 import desmoj.core.simulator.Entity;
 import desmoj.core.simulator.Model;
-
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Wrapper Class for {@link LoadBalancingStrategy} to encapsulate common behavior around it. E.g. capture last chosen
@@ -31,14 +31,16 @@ public final class LoadBalancer extends Entity {
 
     public MicroserviceInstance getNextInstance() throws NoInstanceAvailableException {
         //filter for all running Instances
-        Collection<MicroserviceInstance> running_instances = instances
-                .stream()
-                .filter(microserviceInstance -> microserviceInstance.getState() == InstanceState.RUNNING)
-                .collect(Collectors.toList());
-        final MicroserviceInstance next = loadBalancingStrategy.getNextInstance(running_instances);
+        Collection<MicroserviceInstance> runningInstances = this.instances
+            .stream()
+            .filter(microserviceInstance -> microserviceInstance.getState() == InstanceState.RUNNING)
+            .collect(Collectors.toList());
+        final MicroserviceInstance next = loadBalancingStrategy.getNextInstance(runningInstances);
         lastChosenInstance = next;
 
-        if (next == null) throw new NoInstanceAvailableException();
+        if (next == null) {
+            throw new NoInstanceAvailableException();
+        }
 
         distribution.merge(next, 1, Integer::sum);
         return next;

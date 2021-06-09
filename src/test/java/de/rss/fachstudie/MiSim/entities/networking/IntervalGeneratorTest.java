@@ -15,7 +15,7 @@ class IntervalGeneratorTest {
         Experiment exp = new Experiment("Test Experiment");
         model.connectToExperiment(exp);
 
-        generator = new IntervalGenerator(model, "Generator X", true, null,100);
+        generator = new IntervalGenerator(model, "Generator X", true, null, 100);
 
     }
 

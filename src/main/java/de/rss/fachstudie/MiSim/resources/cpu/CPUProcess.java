@@ -5,9 +5,11 @@ import desmoj.core.simulator.TimeInstant;
 
 /**
  * Data-class that contains information about a currently running (or potentially finished) process.
+ *
  * <p>
  * More specifically, it concentrates on holding information about the total work units totally needed and left to
  * complete the process. Further, there are methods to manipulate the later.
+ *
  * <p>
  * For the purpose of compatibility (e.g. non impacting operations) a demand of {@code 0} is allowed.
  *
@@ -21,7 +23,7 @@ public final class CPUProcess implements Comparable<CPUProcess> {
     private ComputationBurstCompletedEvent currentBurstCompletionEvent;
 
     /**
-     * Constructor that can be used to create artificial load onto the system
+     * Constructor that can be used to create artificial load onto the system.
      *
      * @param demandTotal load in simulation units
      */
@@ -40,7 +42,9 @@ public final class CPUProcess implements Comparable<CPUProcess> {
 
 
     private CPUProcess(int demand, Request request) {
-        if (demand < 0) throw new IllegalArgumentException("Demand has to be 0 or greater");
+        if (demand < 0) {
+            throw new IllegalArgumentException("Demand has to be 0 or greater");
+        }
         this.demandTotal = demand;
         this.demandRemainder = demandTotal;
         this.request = request;
@@ -51,7 +55,9 @@ public final class CPUProcess implements Comparable<CPUProcess> {
     }
 
     /**
-     * @return the remaining demand units before the start of the latest burst.
+     * Gets the remaining demand from before the start of the latest burst.
+     *
+     * @return the remaining demand from before the start of the latest burst.
      */
     public int getDemandRemainder() {
         return demandRemainder;
@@ -59,11 +65,13 @@ public final class CPUProcess implements Comparable<CPUProcess> {
 
     /**
      * Calculates the time/work left for the current burst of this processes at the specific point int time.
+     *
      * <p>
      * Specifically returns: Remainder at start of Burst - (peekTime - startTime) * computingCapacityPerTimeUnit
      *
      * @param peekTime                     time for which the current remainder should be calculated
      * @param computingCapacityPerTimeUnit computing capacity of a thread per time unit
+     *
      * @return the remaining demand of the currently handled process
      */
     public double getDemandRemainder(TimeInstant peekTime, double computingCapacityPerTimeUnit) {
@@ -81,18 +89,25 @@ public final class CPUProcess implements Comparable<CPUProcess> {
      * Natural sorting is based on left over demand.
      */
     @Override
-    public int compareTo(CPUProcess o) {
-        if (o == null) return -1;
-        return this.demandRemainder - o.demandRemainder;
+    public int compareTo(CPUProcess other) {
+        if (other == null) {
+            return -1;
+        }
+        return this.demandRemainder - other.demandRemainder;
     }
 
     /**
+     * Subtracts the given demand amount from he this process remaining demand.
+     *
      * @param amount value by which the demand remainder should be reduced
+     *
      * @throws IllegalArgumentException if the given amount is larger than the demand remainder.
      */
-    public void reduceDemandRemainder(int amount) {
-        if (this.demandRemainder < amount)
-            throw new IllegalArgumentException(String.format("Cannot reduce left over demand (which is %d) by %d", demandRemainder, amount));
+    public void reduceDemandRemainder(double amount) {
+        if (this.demandRemainder < amount) {
+            throw new IllegalArgumentException(
+                String.format("Cannot reduce left over demand (which is %d) by %f", demandRemainder, amount));
+        }
         this.demandRemainder -= amount;
     }
 
@@ -109,8 +124,9 @@ public final class CPUProcess implements Comparable<CPUProcess> {
      * Cancels the current Burst of the this process and reset its progress.
      */
     public void cancel() {
-        if (currentBurstCompletionEvent != null)
+        if (currentBurstCompletionEvent != null) {
             currentBurstCompletionEvent.cancel();
+        }
     }
 
     /**

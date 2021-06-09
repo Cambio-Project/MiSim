@@ -1,12 +1,13 @@
 package de.rss.fachstudie.MiSim.events;
 
+import java.util.Objects;
+
 import desmoj.core.simulator.ExternalEvent;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 
-import java.util.Objects;
-
 /**
+ * Represents an event that can do an initial self schedule if ask to.
  *
  * @author Lion Wagner
  */
@@ -15,6 +16,7 @@ public abstract class SelfScheduledEvent extends ExternalEvent implements ISelfS
 
     @Override
     public void doInitialSelfSchedule() {
+        Objects.requireNonNull(targetTime);
         this.schedule(targetTime);
     }
 
@@ -24,8 +26,8 @@ public abstract class SelfScheduledEvent extends ExternalEvent implements ISelfS
         this.targetTime = targetTime;
     }
 
-    public SelfScheduledEvent(Model model, String s, boolean b) {
-        super(model, s, b);
+    public SelfScheduledEvent(Model model, String name, boolean showInTrace) {
+        super(model, name, showInTrace);
     }
 
 }

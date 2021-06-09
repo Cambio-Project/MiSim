@@ -5,6 +5,7 @@ import de.rss.fachstudie.MiSim.entities.microservice.Operation;
 
 /**
  * Wrapper class to ease responding to {@code Request}s.
+ *
  * <p>
  * Represents the answering of a {@code Request}.
  *
@@ -14,11 +15,11 @@ public final class RequestAnswer extends Request {
 
     public RequestAnswer(Request wrappedRequest, MicroserviceInstance answerSender) {
         super(wrappedRequest.getModel(),
-                "Request_Answer_" + wrappedRequest.getName(),
-                wrappedRequest.traceIsOn(),
-                wrappedRequest,
-                new Operation(wrappedRequest.getModel(), "Dummy", false, null, 0),
-                answerSender); //inserting dummy operation
+            "Request_Answer_" + wrappedRequest.getName(),
+            wrappedRequest.traceIsOn(),
+            wrappedRequest,
+            new Operation(wrappedRequest.getModel(), "Dummy", false, null, 0),
+            answerSender); //inserting dummy operation
         this.getUpdateListeners().addAll(wrappedRequest.getUpdateListeners());
     }
 
@@ -28,7 +29,8 @@ public final class RequestAnswer extends Request {
 
 
     /**
-     * Unpack the original Request that is answered by this Request
+     * Unpack the original Request that is answered by this Request.
+     *
      * @return the request, that is wrapped by this answer
      */
     public Request unpack() {

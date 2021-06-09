@@ -1,12 +1,12 @@
 package de.rss.fachstudie.MiSim.entities.patterns;
 
+import java.util.LinkedList;
+
 import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
 import desmoj.core.simulator.ExternalEvent;
 import desmoj.core.simulator.TimeSpan;
 import org.javatuples.Quartet;
 import org.javatuples.Tuple;
-
-import java.util.LinkedList;
 
 /**
  * This class represents an actual CircuitBreaker with the behavior defined by Hystrix.
@@ -35,11 +35,15 @@ public class CircuitBreakerState {
         return new Quartet<>(state, totalSuccessCounter, totalFailureCounter, errorRate);
     }
 
+    /**
+     * Contains the three possible states of a CircuitBreaker.
+     */
     public enum BreakerState {
         CLOSED, HALF_OPEN, OPEN
     }
 
-    CircuitBreakerState(Microservice monitoredService, double errorThresholdPercentage, int rollingWindow, double sleepWindow) {
+    CircuitBreakerState(Microservice monitoredService, double errorThresholdPercentage, int rollingWindow,
+                        double sleepWindow) {
         this.errorThresholdPercentage = errorThresholdPercentage;
         this.rollingWindow = rollingWindow;
         this.monitoredService = monitoredService;
@@ -80,7 +84,7 @@ public class CircuitBreakerState {
 
 
     /**
-     * Method called by the {@link HalfOpenBreakerEvent} to half open this circuit after a certain amount of time
+     * Method called by the {@link HalfOpenBreakerEvent} to half open this circuit after a certain amount of time.
      */
     synchronized void toHalfOpen() {
         state = BreakerState.HALF_OPEN;
@@ -112,7 +116,8 @@ public class CircuitBreakerState {
 
     private synchronized double getErrorRate() {
         //if there are not enough datapoints we cant determine errorrate -> 0
-        return currentWindow.size() < rollingWindow ? 0 : 1.0 - ((double) currentWindow.stream().mapToInt(value -> value).sum() / currentWindow.size());
+        return currentWindow.size() < rollingWindow ? 0 :
+            1.0 - ((double) currentWindow.stream().mapToInt(value -> value).sum() / currentWindow.size());
     }
 
 }

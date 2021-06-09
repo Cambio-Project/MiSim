@@ -1,21 +1,23 @@
 package de.rss.fachstudie.MiSim.entities.generator;
 
-import de.rss.fachstudie.MiSim.entities.microservice.Operation;
-import desmoj.core.simulator.Model;
-import desmoj.core.simulator.TimeInstant;
-import org.javatuples.Pair;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import de.rss.fachstudie.MiSim.entities.microservice.Operation;
+import desmoj.core.simulator.Model;
+import desmoj.core.simulator.TimeInstant;
+import org.javatuples.Pair;
+
 /**
  * Generator that produces UserRequestArrivalEvent at a target Service Endpoint based on a LIMBO load model.
+ *
  * <p>
  * This generator provides the following json options to the architecture:
  * <table border="1">
@@ -29,7 +31,8 @@ import java.util.stream.Collectors;
  *     <td> repeating </td> <td>false</td> <td>Whether the Profile should be repeated after finishing</td>
  *   </tr>
  *   <tr>
- *     <td> repetition_skip </td> <td>1</td> <td>Time in s to wait between repetitions (usually the default interval of the load model)</td>
+ *     <td> repetition_skip </td> <td>1</td> <td>Time in s to wait between repetitions (usually the default interval of
+ *     the load model)</td>
  *   </tr>
  *   <caption>Json properties of this generator.</caption>
  * </table>
@@ -43,35 +46,60 @@ public class LIMBOGenerator extends Generator {
     private static final boolean DEFAULT_REPEATING = false;
 
 
+    private final List<Double> alternative;
+    private Iterator<Double> iter;
     private final List<Pair<Double, Integer>> targetTimes;
-    private LinkedList<Pair<Double, Integer>> workingCopy_targetTimes;
-    private Pair<Double, Integer> currentPair; //holds the amount of missing request for the current
+    private final LinkedList<Pair<Double, Integer>> workingCopyTargetTimes;
     private int repetitions = 0;
-    private double maxTimeShift = 0;
 
-    private final double repetition_skip;
+    private final double repetitionSkip;
     private final boolean repeating;
 
     public LIMBOGenerator(Model model, String name, boolean showInTrace, Operation operation, File limboModel) {
         this(model, name, showInTrace, operation, limboModel, DEFAULT_REPEATING, DEFAULT_REPETITION_SKIP);
     }
 
-    public LIMBOGenerator(Model model, String name, boolean showInTrace, Operation operation, File limboModel, double repetition_skip) {
-        this(model, name, showInTrace, operation, limboModel, DEFAULT_REPEATING, repetition_skip);
+    public LIMBOGenerator(Model model, String name, boolean showInTrace, Operation operation, File limboModel,
+                          double repetitionSkip) {
+        this(model, name, showInTrace, operation, limboModel, DEFAULT_REPEATING, repetitionSkip);
     }
 
-    public LIMBOGenerator(Model model, String name, boolean showInTrace, Operation operation, File limboModel, boolean repeating) {
+    public LIMBOGenerator(Model model, String name, boolean showInTrace, Operation operation, File limboModel,
+                          boolean repeating) {
         this(model, name, showInTrace, operation, limboModel, repeating, DEFAULT_REPETITION_SKIP);
     }
 
-    public LIMBOGenerator(Model model, String name, boolean showInTrace, Operation operation, File LimboProfile, boolean repeating, double repetition_skip) {
+    public LIMBOGenerator(Model model, String name, boolean showInTrace, Operation operation, File limboModel,
+                          boolean repeating, double repetitionSkip) {
         super(model, name, showInTrace, operation);
 
-        targetTimes = getPairList(LimboProfile);
-        workingCopy_targetTimes = new LinkedList<>(targetTimes);
+        targetTimes = getPairList(limboModel);
+        alternative = new LinkedList<>(applyDistribution(targetTimes));
+        iter = alternative.iterator();
+        workingCopyTargetTimes = new LinkedList<>(targetTimes);
         this.repeating = repeating;
-        this.repetition_skip = repetition_skip;
+        this.repetitionSkip = repetitionSkip;
     }
+
+    private List<Double> applyDistribution(List<Pair<Double, Integer>> pairs) {
+        return pairs.stream().parallel().flatMap(pair -> expandPair(pair).stream()).collect(Collectors.toList());
+    }
+
+    private List<Double> expandPair(final Pair<Double, Integer> pair) {
+        return expandPair(pair, 1);
+    }
+
+    private List<Double> expandPair(final Pair<Double, Integer> pair, final double distributionDuration) {
+        double time = pair.getValue0();
+        int currentLoad = pair.getValue1() / 5;
+        double timeSteps = distributionDuration / currentLoad;
+        List<Double> out = new ArrayList<>(currentLoad);
+        for (int i = 0; i < currentLoad; i++, time += timeSteps) {
+            out.add(time);
+        }
+        return out;
+    }
+
 
     private List<Pair<Double, Integer>> getPairList(File limboProfile) {
         List<Pair<Double, Integer>> tmpList = new ArrayList<>();
@@ -79,8 +107,11 @@ public class LIMBOGenerator extends Generator {
             List<String> lines = Files.readAllLines(limboProfile.toPath());
             tmpList = lines.stream().map(line -> {
                 String[] split = line.split(";|,");
-                if (split.length != 2) throw new ArrayIndexOutOfBoundsException("Malformed Limbo File");
-                return new Pair<>(Double.valueOf(split[0]), (int) Math.round(Double.parseDouble(split[1]))); //Orientated at Limbo load generator, which just downcasts double values to ints
+                if (split.length != 2) {
+                    throw new ArrayIndexOutOfBoundsException("Malformed Limbo File");
+                }
+                return new Pair<>(Double.valueOf(split[0]), (int) Math.round(Double.parseDouble(
+                    split[1]))); //Orientated at Limbo load generator, which just downcasts double values to ints
             }).collect(Collectors.toList());
 
         } catch (IOException e) {
@@ -88,7 +119,8 @@ public class LIMBOGenerator extends Generator {
         } catch (ArrayIndexOutOfBoundsException e) {
             //TODO: throw Exception for malformed Limbo file
         }
-        tmpList = tmpList.stream().filter(objects -> objects.getValue1() > 0).collect(Collectors.toList()); // remove entries with 0 load
+        tmpList = tmpList.stream().filter(objects -> objects.getValue1() > 0)
+            .collect(Collectors.toList()); // remove entries with 0 load
         tmpList.sort(Comparator.comparing(Pair::getValue0)); //ensure sorting
 
         return tmpList;
@@ -101,29 +133,24 @@ public class LIMBOGenerator extends Generator {
 
     @Override
     protected TimeInstant getFirstTargetTime() {
-        if (workingCopy_targetTimes.isEmpty())
+        if (workingCopyTargetTimes.isEmpty()) {
             throw new GeneratorStopException("Load Profile does not define any loads.");
+        }
         return getNextTimeInstant();
     }
 
     private TimeInstant getNextTimeInstant() {
-        if (currentPair == null || currentPair.getValue1() <= 0) { //if current pairs is empty
-            if (workingCopy_targetTimes.isEmpty()) {
-                if (repeating) {
-                    repetitions++;
-                    maxTimeShift = currentPair.getValue0();
-                    currentPair = null;
-                    workingCopy_targetTimes = new LinkedList<>(targetTimes);
-                    return getNextTimeInstant();
-                } else {
-                    throw new GeneratorStopException("No further rates are defined.");
-                }
+        if (iter.hasNext()) {
+            return new TimeInstant(iter.next() + (repetitions * repetitionSkip));
+        } else {
+            if (repeating) {
+                repetitions++;
+                iter = alternative.iterator();
+                return getNextTargetTime();
             } else {
-                currentPair = workingCopy_targetTimes.pollFirst();
+                throw new GeneratorStopException("No further rates are defined.");
             }
         }
 
-        currentPair = currentPair.setAt1(currentPair.getValue1() - 1);
-        return new TimeInstant(currentPair.getValue0() + repetitions * (maxTimeShift + repetition_skip));
     }
 }

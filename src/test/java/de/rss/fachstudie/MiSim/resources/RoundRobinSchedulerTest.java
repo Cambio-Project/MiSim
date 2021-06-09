@@ -1,13 +1,11 @@
 package de.rss.fachstudie.MiSim.resources;
 
+import java.util.ArrayList;
+
 import de.rss.fachstudie.MiSim.resources.cpu.CPUProcess;
 import de.rss.fachstudie.MiSim.resources.cpu.scheduling.RoundRobinScheduler;
 import org.javatuples.Pair;
 import org.junit.jupiter.api.Test;
-
-import java.util.ArrayList;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class RoundRobinSchedulerTest extends CPUProcessSchedulerTest<RoundRobinScheduler> {
 
@@ -23,7 +21,7 @@ class RoundRobinSchedulerTest extends CPUProcessSchedulerTest<RoundRobinSchedule
         arrivalList.add(new Pair<>(new CPUProcess(60), 0));
         arrivalList.add(new Pair<>(new CPUProcess(80), 0));
 
-        int[] expectedResult = new int[]{1, 2, 3, 4, 3, 4, 4}; //process numbers (position in arrivalList + 1)
+        int[] expectedResult = new int[] {1, 2, 3, 4, 3, 4, 4}; //process numbers (position in arrivalList + 1)
 
         testProcessOrder(arrivalList, expectedResult);
     }
@@ -39,7 +37,7 @@ class RoundRobinSchedulerTest extends CPUProcessSchedulerTest<RoundRobinSchedule
         arrivalList.add(new Pair<>(new CPUProcess(70), 0));
         arrivalList.add(new Pair<>(new CPUProcess(120), 0));
 
-        int[] expectedResult = new int[]{1, 2, 3, 4, 3, 4, 4}; //process numbers (position in arrivalList + 1)
+        int[] expectedResult = new int[] {1, 2, 3, 4, 3, 4, 4}; //process numbers (position in arrivalList + 1)
 
         testProcessOrder(arrivalList, expectedResult);
     }
@@ -56,7 +54,7 @@ class RoundRobinSchedulerTest extends CPUProcessSchedulerTest<RoundRobinSchedule
         arrivalList.add(new Pair<>(new CPUProcess(70), 8));
         arrivalList.add(new Pair<>(new CPUProcess(74), 16));
 
-        int[] expectedResult = new int[]{1, 2, 3, 4, 4}; //process numbers (position in arrivalList + 1)
+        int[] expectedResult = new int[] {1, 2, 3, 4, 4}; //process numbers (position in arrivalList + 1)
 
         testProcessOrder(arrivalList, expectedResult);
     }
@@ -72,7 +70,7 @@ class RoundRobinSchedulerTest extends CPUProcessSchedulerTest<RoundRobinSchedule
         arrivalList.add(new Pair<>(new CPUProcess(70), 13));
         arrivalList.add(new Pair<>(new CPUProcess(120), 21));
 
-        int[] expectedResult = new int[]{1, 2, 3, 4, 4}; //process numbers (position in arrivalList + 1)
+        int[] expectedResult = new int[] {1, 2, 3, 4, 4}; //process numbers (position in arrivalList + 1)
 
         testProcessOrder(arrivalList, expectedResult);
     }

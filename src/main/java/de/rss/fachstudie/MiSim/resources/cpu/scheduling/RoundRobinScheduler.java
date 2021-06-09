@@ -1,38 +1,48 @@
 package de.rss.fachstudie.MiSim.resources.cpu.scheduling;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
+
 import de.rss.fachstudie.MiSim.resources.cpu.CPUProcess;
 import org.javatuples.Pair;
-
-import java.util.*;
 
 /**
  * <b>S</b>elf <b>a</b>djusting <b>R</b>ound <b>R</b>obin (SARR) scheduler with dynamic median-based quantum
  * calculation.
+ *
  * <p>
  * Algorithm developed by Ram Matarneh: <i>Self-Adjustment Time Quantum in Round Robin Algorithm Depending on Burst Time
  * of the Now Running Processes</i>
+ *
  * <p>
  * Executes a round robin scheduling where the assigned work quantum is the median of all current left over work demands
  * of all entered processes. The quantum is updated each time a new processes enters or all processes had a round with
  * the current quantum. This provides a shorter average waiting and turn-around time than the fixed quantum round robin.
  * Further, this round robin scheduler adjust dynamically to demand sizes that can heavily vary between
  * experiments/architecture descriptions.
+ *
  * <p>
  * Keeps processes in order (first come first serve). And ensures fairness.
  *
  * @author Lion Wagner
- * @see <a href=https://www.researchgate.net/publication/40832774_Self-Adjustment_Time_Quantum_in_Round_Robin_Algorithm_Depending_on_Burst_Time_of_the_Now_Running_Processes>SARR algorithm</a>
+ * @see <a href=https://www.researchgate.net/publication/40832774_Self-Adjustment_Time_Quantum_in_Round_Robin_Algorithm_Depending_on_Burst_Time_of_the_Now_Running_Processes>SARR
+ * algorithm</a>
  */
 public final class RoundRobinScheduler extends CPUProcessScheduler {
 
     //TODO: 25 is the default value given by the paper its there to prevent too many context switches
-    //However, this might vary from CPU to CPU, depending on total thread capacity. Therefore, this should actually made dynamic at some point.
+    //However, this might vary from CPU to CPU, depending on total thread capacity. Therefore, this should actually
+    //made dynamic at some point.
     private static final int MINIMUM_QUANTUM = 25;
 
     private final Queue<CPUProcess> processes = new LinkedList<>();
     private final HashSet<CPUProcess> executedWithCurrentQuantum = new HashSet<>();
-    private int current_quantum;
-    private boolean update_quantum = true;
+    private int currentQuantum;
+    private boolean updateQuantum = true;
 
     public RoundRobinScheduler(String name) {
         super(name);
@@ -46,7 +56,7 @@ public final class RoundRobinScheduler extends CPUProcessScheduler {
     @Override
     public void enterProcess(CPUProcess process) {
         processes.add(process);
-        update_quantum = true;
+        updateQuantum = true;
     }
 
     /**
@@ -56,25 +66,29 @@ public final class RoundRobinScheduler extends CPUProcessScheduler {
      */
     @Override
     public Pair<CPUProcess, Integer> retrieveNextProcess() {
-        if (update_quantum) updateQuantum();
+        if (updateQuantum) {
+            updateQuantum();
+        }
 
         CPUProcess nextProcess = processes.poll();
-        if (nextProcess == null) return null;
+        if (nextProcess == null) {
+            return null;
+        }
 
         executedWithCurrentQuantum.add(nextProcess);
 
         int nextDemand = nextProcess.getDemandRemainder();
 
         Pair<CPUProcess, Integer> output;
-        if (nextDemand <= current_quantum) {
+        if (nextDemand <= currentQuantum) {
             output = new Pair<>(nextProcess, nextDemand);
         } else {
-            processes.add(nextProcess);//put at end of Queue
-            output = new Pair<>(nextProcess, current_quantum);
+            processes.add(nextProcess); //put at end of Queue
+            output = new Pair<>(nextProcess, currentQuantum);
         }
 
         if (executedWithCurrentQuantum.contains(processes.peek())) {
-            update_quantum = true;
+            updateQuantum = true;
         }
         return output;
 
@@ -82,6 +96,7 @@ public final class RoundRobinScheduler extends CPUProcessScheduler {
 
     /**
      * Interface used by Multi Level Feedback queues.
+     *
      * <p>
      * Does not put the process back into the Queue.
      *
@@ -90,7 +105,9 @@ public final class RoundRobinScheduler extends CPUProcessScheduler {
     @Override
     public Pair<CPUProcess, Integer> retrieveNextProcessNoReschedule() {
         Pair<CPUProcess, Integer> nextTarget = retrieveNextProcess();
-        if (nextTarget == null) return null;
+        if (nextTarget == null) {
+            return null;
+        }
         processes.remove(nextTarget.getValue0());
         return nextTarget;
     }
@@ -100,7 +117,7 @@ public final class RoundRobinScheduler extends CPUProcessScheduler {
         executedWithCurrentQuantum.clear();
 
         if (processes.isEmpty()) {
-            current_quantum = MINIMUM_QUANTUM;
+            currentQuantum = MINIMUM_QUANTUM;
             return;
         }
 
@@ -116,21 +133,21 @@ public final class RoundRobinScheduler extends CPUProcessScheduler {
             median = list.get(list.size() / 2).getDemandRemainder();
         }
 
-        current_quantum = Math.max(median, MINIMUM_QUANTUM);
-        update_quantum = false;
+        currentQuantum = Math.max(median, MINIMUM_QUANTUM);
+        updateQuantum = false;
     }
 
 
     /**
-     * @return true if there is a thread ready to schedule, false otherwise
+     * {@inheritDoc}
      */
     @Override
-    public boolean hasThreadsToSchedule() {
+    public boolean hasProcessesToSchedule() {
         return !processes.isEmpty();
     }
 
     /**
-     * @return the sum of the demand remainder of all processes that are currently in queue.
+     * {@inheritDoc}
      */
     @Override
     public int getTotalWorkDemand() {
@@ -138,7 +155,7 @@ public final class RoundRobinScheduler extends CPUProcessScheduler {
     }
 
     /**
-     * Clears all current processes from the scheduler
+     * {@inheritDoc}
      */
     @Override
     public void clear() {
@@ -146,6 +163,9 @@ public final class RoundRobinScheduler extends CPUProcessScheduler {
         executedWithCurrentQuantum.clear();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int size() {
         return processes.size();

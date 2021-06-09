@@ -1,11 +1,14 @@
 package de.rss.fachstudie.MiSim.resources;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import de.rss.fachstudie.MiSim.resources.cpu.CPUProcess;
 import desmoj.core.simulator.TimeInstant;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class CPUProcessTest {
 

@@ -1,5 +1,7 @@
 package de.rss.fachstudie.MiSim.entities.networking;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 import co.paralleluniverse.fibers.SuspendExecution;
 import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
 import de.rss.fachstudie.MiSim.entities.microservice.MicroserviceInstance;
@@ -9,15 +11,9 @@ import desmoj.core.dist.NumericalDist;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeSpan;
 
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
-
 /**
- * Event that represents the sending of a request.
- * <p>
- * Can introduce network delay.
- * <p>
- * May be canceled during (and before) the travelling time of the request.
+ * Event that represents the sending of a request. Can introduce network delay. May be canceled during (and before) the
+ * travelling of the request.
  *
  * @author Lion Wagner
  */
@@ -41,36 +37,41 @@ public class NetworkRequestSendEvent extends NetworkRequestEvent {
     private final MicroserviceInstance targetInstance;
     private boolean isCanceled = false;
 
-    public NetworkRequestSendEvent(Model model, String name, boolean showInTrace, Request request, MicroserviceInstance target) {
+    public NetworkRequestSendEvent(Model model, String name, boolean showInTrace, Request request,
+                                   MicroserviceInstance target) {
         this(model, name, showInTrace, request, null, target);
     }
 
-    public NetworkRequestSendEvent(Model model, String name, boolean showInTrace, Request request, Microservice target) {
+    public NetworkRequestSendEvent(Model model, String name, boolean showInTrace, Request request,
+                                   Microservice target) {
         this(model, name, showInTrace, request, target, null);
     }
 
-    private NetworkRequestSendEvent(Model model, String name, boolean showInTrace, Request request, Microservice targetService, MicroserviceInstance targetInstance) {
+    private NetworkRequestSendEvent(Model model, String name, boolean showInTrace, Request request,
+                                    Microservice targetService, MicroserviceInstance targetInstance) {
         super(model, name, showInTrace, request);
         this.targetService = targetService;
         this.targetInstance = targetInstance;
         request.setSendEvent(this);
 
-        if (rng == null) //a dirty fix to avoid memory leakage
-            rng = new ContDistNormal(getModel(), "DefaultNetworkDelay_RNG", 6, 1, true, false);
+        //TODO: remove dirty fix to avoid memory leakage
+        if (rng == null) {
+            rng = new ContDistNormal(getModel(), "DefaultNetworkDelay_RNG", 1.6, 0.6, true, false);
+        }
     }
 
     @Override
     public void eventRoutine() throws SuspendExecution {
-        traveling_request.stampSendoff(presentTime());
+        travelingRequest.stampSendoff(presentTime());
 
         counterSendEvents.getAndIncrement();
 
-        if (traveling_request instanceof RequestAnswer && traveling_request.getParent() instanceof UserRequest) {
+        if (travelingRequest instanceof RequestAnswer && travelingRequest.getParent() instanceof UserRequest) {
             // if an answer to a UserRequest is send, it will be considered done (since there is no receiver)
-            traveling_request.stampReceived(presentTime());
-            traveling_request.getParent().stampReceived(presentTime());
-            updateListener.onRequestArrivalAtTarget(traveling_request, presentTime());
-            updateListener.onRequestResultArrivedAtRequester(traveling_request.getParent(), presentTime());
+            travelingRequest.stampReceived(presentTime());
+            travelingRequest.getParent().stampReceived(presentTime());
+            updateListener.onRequestArrivalAtTarget(travelingRequest, presentTime());
+            updateListener.onRequestResultArrivedAtRequester(travelingRequest.getParent(), presentTime());
             return;
         }
 
@@ -84,38 +85,49 @@ public class NetworkRequestSendEvent extends NetworkRequestEvent {
         nextDelay = customizeLatency(nextDelay);
 
         //Apply custom latency and/or add delay of latency injection
-        updateListener.onRequestSend(traveling_request, presentTime());
-        if (isCanceled) return; //this event might get canceled by the sending listeners
+        updateListener.onRequestSend(travelingRequest, presentTime());
+        if (isCanceled) {
+            return; //this event might get canceled by the sending listeners
+        }
 
         MicroserviceInstance targetInstance = retrieveTargetInstance();
         if (targetInstance == null) {
-            NetworkRequestEvent cancelEvent = new NetworkRequestCanceledEvent(getModel(), "RequestCanceledEvent", traceIsOn(), traveling_request,
+            NetworkRequestEvent cancelEvent =
+                new NetworkRequestCanceledEvent(getModel(), "RequestCanceledEvent", traceIsOn(), travelingRequest,
                     RequestFailedReason.NO_INSTANCE_AVAILABLE,
                     String.format("No Instance for Service %s was available.", targetService.getQuotedName()));
             cancelEvent.schedule(new TimeSpan(nextDelay));
         } else {
-            receiverEvent = new NetworkRequestReceiveEvent(getModel(), String.format("Receiving of %s", traveling_request.getQuotedName()), traceIsOn(), traveling_request, targetInstance);
+            receiverEvent = new NetworkRequestReceiveEvent(getModel(),
+                String.format("Receiving of %s", travelingRequest.getQuotedName()), traceIsOn(), travelingRequest,
+                targetInstance);
             receiverEvent.schedule(new TimeSpan(nextDelay));
 
-            timeoutEvent = new NetworkRequestTimeoutEvent(getModel(), "Timeout Checker for " + traveling_request.getName(), getModel().traceIsOn(), traveling_request);
-            traveling_request.addUpdateListener(timeoutEvent);
+            timeoutEvent =
+                new NetworkRequestTimeoutEvent(getModel(), "Timeout Checker for " + travelingRequest.getName(),
+                    getModel().traceIsOn(), travelingRequest);
+            travelingRequest.addUpdateListener(timeoutEvent);
 
-            traveling_request.setReceiveEvent(receiverEvent);
+            travelingRequest.setReceiveEvent(receiverEvent);
         }
     }
 
     private double customizeLatency(double nextDelay) {
-        if (this.traveling_request instanceof UserRequest) return 0;
+        if (this.travelingRequest instanceof UserRequest) {
+            return 0;
+        }
 
         double modifiedDelay = nextDelay;
-        if (traveling_request.hasParent()) {
-            NetworkDependency dep = traveling_request.getParent().getRelatedDependency(traveling_request);
-            if (traveling_request instanceof RequestAnswer) {
-                Request parent = ((RequestAnswer) traveling_request).unpack();
+        if (travelingRequest.hasParent()) {
+            NetworkDependency dep = travelingRequest.getParent().getRelatedDependency(travelingRequest);
+            if (travelingRequest instanceof RequestAnswer) {
+                Request parent = ((RequestAnswer) travelingRequest).unpack();
                 dep = parent.getParent().getRelatedDependency(parent);
             }
 
-            if (dep == null) return modifiedDelay;
+            if (dep == null) {
+                return modifiedDelay;
+            }
 
             if (dep.hasCustomDelay()) {
                 modifiedDelay = dep.getNextCustomDelay();
@@ -133,19 +145,26 @@ public class NetworkRequestSendEvent extends NetworkRequestEvent {
 
         // An answer to a UserRequest cannot be canceled, since they are not send back to the user.
         // Rather they are considered completed once the answer is send by the handling instance.
-        if (traveling_request instanceof RequestAnswer && traveling_request.getParent() instanceof UserRequest) return;
+        if (travelingRequest instanceof RequestAnswer && travelingRequest.getParent() instanceof UserRequest) {
+            return;
+        }
 
-        if (receiverEvent != null && receiverEvent.isScheduled())
+        if (receiverEvent != null && receiverEvent.isScheduled()) {
             receiverEvent.cancel();
-        if (timeoutEvent != null && timeoutEvent.isScheduled())
+        }
+        if (timeoutEvent != null && timeoutEvent.isScheduled()) {
             timeoutEvent.cancel();
-        new NetworkRequestCanceledEvent(getModel(), "RequestCanceledEvent", traceIsOn(), traveling_request, RequestFailedReason.REQUESTING_INSTANCE_DIED, "Sending was forcibly aborted!");
+        }
+        new NetworkRequestCanceledEvent(getModel(), "RequestCanceledEvent", traceIsOn(), travelingRequest,
+            RequestFailedReason.REQUESTING_INSTANCE_DIED, "Sending was forcibly aborted!");
     }
 
     protected MicroserviceInstance retrieveTargetInstance() {
-        if (targetInstance != null) return targetInstance;
-        else if (targetService == null) throw new IllegalStateException("Sender cant find a valid target instance.");
-        else {
+        if (targetInstance != null) {
+            return targetInstance;
+        } else if (targetService == null) {
+            throw new IllegalStateException("Sender cant find a valid target instance.");
+        } else {
             try {
                 return targetService.getNextAvailableInstance();
             } catch (NoInstanceAvailableException e) {

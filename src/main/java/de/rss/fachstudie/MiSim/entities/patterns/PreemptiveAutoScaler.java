@@ -1,12 +1,12 @@
 package de.rss.fachstudie.MiSim.entities.patterns;
 
+import java.util.List;
+
 import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
 import de.rss.fachstudie.MiSim.export.MultiDataPointReporter;
 import de.rss.fachstudie.MiSim.parsing.FromJson;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
-
-import java.util.List;
 
 /**
  * Autoscaler that periodically checks all instances of a service. If the average CPU utilization is above the target
@@ -41,17 +41,19 @@ public final class PreemptiveAutoScaler extends PeriodicServiceOwnedPattern {
     protected void onTriggered() {
 
         List<Double> utils = owner.getRelativeUtilizationOfInstances();
-        reporter.addDatapoint("_Util",presentTime(),utils);
+        reporter.addDatapoint("_Util", presentTime(), utils);
 
         int currentInstanceCount = owner.getInstancesCount();
-//        double avg = owner.getUtilizationOfInstances().stream().mapToDouble(value -> value).average().orElse(0.0);
+        // double avg = owner.getUtilizationOfInstances().stream().mapToDouble(value -> value).average().orElse(0.0);
         double avg = owner.getAverageRelativeUtilization();
         if (currentInstanceCount <= 0) { //starts a instances if there are none
             owner.setInstancesCount(1);
         } else if (avg >= upperBound) {
             owner.scaleToInstancesCount(currentInstanceCount + 1);
             lastScaleUp = presentTime();
-        } else if (avg <= lowerBound && currentInstanceCount > 1 && presentTime().getTimeAsDouble() - lastScaleUp.getTimeAsDouble() > holdTime) {
+        } else if (avg <= lowerBound
+            && currentInstanceCount > 1
+            && presentTime().getTimeAsDouble() - lastScaleUp.getTimeAsDouble() > holdTime) {
             owner.scaleToInstancesCount(currentInstanceCount - 1);
         }
         if (owner.getInstancesCount() != currentInstanceCount) {

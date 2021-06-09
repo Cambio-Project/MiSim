@@ -23,6 +23,7 @@ public class ExperimentMetaData {
 
     /**
      * Gets the experiment meta data singleton.
+     *
      * @return the experiment meta data.
      */
     public static ExperimentMetaData get() {
@@ -34,6 +35,7 @@ public class ExperimentMetaData {
 
     /**
      * Initializes the experiment meta data object based on a experiment or scenario file.
+     *
      * @return the experiment meta data object.
      */
     public static ExperimentMetaData initialize(File archFileLocation, File expFileLocation, File scenarioPath) {
@@ -79,7 +81,7 @@ public class ExperimentMetaData {
 
 
     @SuppressWarnings("FieldMayBeFinal")
-    private Integer seed = new Random().nextInt();
+    private int seed = new Random().nextInt();
     @SuppressWarnings("FieldMayBeFinal")
     private String report = "default";
     @SuppressWarnings("FieldMayBeFinal")

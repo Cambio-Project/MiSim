@@ -1,5 +1,8 @@
 package de.rss.fachstudie.MiSim.entities.patterns;
 
+import java.lang.reflect.Field;
+import java.util.Set;
+
 import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
 import de.rss.fachstudie.MiSim.entities.microservice.MicroserviceInstance;
 import desmoj.core.simulator.Experiment;
@@ -8,9 +11,6 @@ import org.junit.jupiter.api.Test;
 import testutils.RandomTieredModel;
 import testutils.TestExperiment;
 import testutils.TestUtils;
-
-import java.lang.reflect.Field;
-import java.util.Set;
 
 class CircuitBreakerTest {
 

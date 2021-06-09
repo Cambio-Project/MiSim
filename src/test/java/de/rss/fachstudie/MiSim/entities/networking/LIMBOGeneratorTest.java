@@ -1,5 +1,16 @@
 package de.rss.fachstudie.MiSim.entities.networking;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
+
 import de.rss.fachstudie.MiSim.entities.generator.GeneratorStopException;
 import de.rss.fachstudie.MiSim.entities.generator.LIMBOGenerator;
 import de.rss.fachstudie.MiSim.entities.microservice.Operation;
@@ -11,17 +22,6 @@ import org.mockito.Mockito;
 import testutils.TestExperiment;
 import testutils.TestModel;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Function;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 
 class LIMBOGeneratorTest {
 
@@ -29,19 +29,23 @@ class LIMBOGeneratorTest {
      * Test class that exposes the important next TargetTime for testing
      */
     private static class ExposingLIMBOGenerator extends LIMBOGenerator {
-        public ExposingLIMBOGenerator(Model model, String name, boolean showInTrace, Operation operation, File limboModel) {
+        public ExposingLIMBOGenerator(Model model, String name, boolean showInTrace, Operation operation,
+                                      File limboModel) {
             super(model, name, showInTrace, operation, limboModel);
         }
 
-        public ExposingLIMBOGenerator(Model model, String name, boolean showInTrace, Operation operation, File limboModel, double repetition_skip) {
+        public ExposingLIMBOGenerator(Model model, String name, boolean showInTrace, Operation operation,
+                                      File limboModel, double repetition_skip) {
             super(model, name, showInTrace, operation, limboModel, repetition_skip);
         }
 
-        public ExposingLIMBOGenerator(Model model, String name, boolean showInTrace, Operation operation, File limboModel, boolean repeating) {
+        public ExposingLIMBOGenerator(Model model, String name, boolean showInTrace, Operation operation,
+                                      File limboModel, boolean repeating) {
             super(model, name, showInTrace, operation, limboModel, repeating);
         }
 
-        public ExposingLIMBOGenerator(Model model, String name, boolean showInTrace, Operation operation, File LimboProfile, boolean repeating, double repetition_skip) {
+        public ExposingLIMBOGenerator(Model model, String name, boolean showInTrace, Operation operation,
+                                      File LimboProfile, boolean repeating, double repetition_skip) {
             super(model, name, showInTrace, operation, LimboProfile, repeating, repetition_skip);
         }
 
@@ -85,7 +89,8 @@ class LIMBOGeneratorTest {
 
             while (true) {
                 double nextLoad = loadFunction.apply(time);
-                Files.write(f.toPath(), String.format("%s;%s\n", time, nextLoad).getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
+                Files.write(f.toPath(), String.format("%s;%s\n", time, nextLoad).getBytes(StandardCharsets.UTF_8),
+                    StandardOpenOption.APPEND);
                 time++;
             }
         } catch (IOException e) {
@@ -100,8 +105,9 @@ class LIMBOGeneratorTest {
     @Test
     void loadsFirstTargetTimeCorrectly() {
         File testLoadmodel = createTestLoadModel(integer -> (integer <= 2) ? (double) integer :
-                0 / 0); //throwing an exception on purpose to stop generation
-        ExposingLIMBOGenerator gen = new ExposingLIMBOGenerator(mod, "TestGenerator", false, getMockOperation(), testLoadmodel);
+            0 / 0); //throwing an exception on purpose to stop generation
+        ExposingLIMBOGenerator gen =
+            new ExposingLIMBOGenerator(mod, "TestGenerator", false, getMockOperation(), testLoadmodel);
         TimeInstant nextTargetTime = gen.getFirstTargetTime();
         assertEquals(1, nextTargetTime.getTimeAsDouble(), 0.000001);
     }
@@ -110,11 +116,14 @@ class LIMBOGeneratorTest {
     @Test
     void repeatsCorrectly() {
         Function<Integer, Double> func = integer -> {
-            if (integer > 200) throw new RuntimeException();
+            if (integer > 200) {
+                throw new RuntimeException();
+            }
             return integer.doubleValue();
         };
         File testLoadmodel = createTestLoadModel(func);
-        ExposingLIMBOGenerator gen = new ExposingLIMBOGenerator(mod, "TestGenerator", false, getMockOperation(), testLoadmodel, false);
+        ExposingLIMBOGenerator gen =
+            new ExposingLIMBOGenerator(mod, "TestGenerator", false, getMockOperation(), testLoadmodel, false);
 
         int maxTime = 200;
         Map<TimeInstant, Integer> targetTimes = getGeneratorResults(gen, new TimeInstant(maxTime));
@@ -127,9 +136,10 @@ class LIMBOGeneratorTest {
     void ArrivalRateTest() {
         int maxTime = 10;
         Function<Integer, Double> func = integer -> (integer <= maxTime) ? (double) (integer * integer) :
-                0 / 0;
+            0 / 0;
         File testLoadmodel = createTestLoadModel(func); //throwing an exception on purpose to stop generation
-        ExposingLIMBOGenerator gen = new ExposingLIMBOGenerator(mod, "TestGenerator", false, getMockOperation(), testLoadmodel, false);
+        ExposingLIMBOGenerator gen =
+            new ExposingLIMBOGenerator(mod, "TestGenerator", false, getMockOperation(), testLoadmodel, false);
 
         Map<TimeInstant, Integer> targetTimes = getGeneratorResults(gen, new TimeInstant(10));
         assertEquals(maxTime, targetTimes.size());
@@ -149,7 +159,9 @@ class LIMBOGeneratorTest {
         try {
             targetTimes.put(generator.getFirstTargetTime(), 1);
             while (targetTimes.keySet().stream().min(TimeInstant::compareTo).get().compareTo(maxTime) < 0) {
-                targetTimes.merge(generator.getNextTargetTime(targetTimes.keySet().stream().max(TimeInstant::compareTo).get()), 1, Integer::sum);
+                targetTimes
+                    .merge(generator.getNextTargetTime(targetTimes.keySet().stream().max(TimeInstant::compareTo).get()),
+                        1, Integer::sum);
             }
         } catch (GeneratorStopException ignored) {
         }

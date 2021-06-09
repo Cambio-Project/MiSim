@@ -1,5 +1,14 @@
 package de.rss.fachstudie.MiSim.entities.microservice;
 
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
 import de.rss.fachstudie.MiSim.entities.patterns.InstanceOwnedPattern;
 import de.rss.fachstudie.MiSim.entities.patterns.LoadBalancer;
 import de.rss.fachstudie.MiSim.entities.patterns.LoadBalancingStrategy;
@@ -12,23 +21,22 @@ import desmoj.core.simulator.Entity;
 import desmoj.core.simulator.Event;
 import desmoj.core.simulator.Model;
 
-import java.util.*;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
 /**
  * A Microservice is one of the core Entities of the simulation. It represents the meta layer of a microservice that is
  * usually present in its managing platform, e.g. CloudFoundry.
+ *
  * <p>
- * Specifically, it can take care of starting, killing and shutting down {@code MicroserviceInstance}s (in the following
- * just called instances) and provides meta data to each instance. For example, a {@code Microservice} object knows
+ * Specifically, it can take care of starting, killing and shutting down {@link MicroserviceInstance}s (in the following
+ * just called instances) and provides meta data to each instance. For example, a {@link Microservice} object knows
  * which resilience patterns should be implemented by each instance and how many resources each instances is assigned.
  * Naturally it also knows the status of all existing (including killed ones) instances of this service.
+ *
  * <p>
  * Further it has the ability to apply resilience patterns such as autoscaling and different types of load balancing to
  * itself.
+ *
  * <p>
- * The interface of a {@code Microservice} is defined via its operations.
+ * The interface of a {@link Microservice} is defined via its operations.
  *
  * @author Lion Wagner
  * @see MicroserviceInstance
@@ -58,7 +66,7 @@ public class Microservice extends Entity {
         super(model, name, showInTrace);
         setName(name);
         loadBalancer = new LoadBalancer(model, "Loadbalancer of " + this.getQuotedName(), traceIsOn(), instancesSet);
-        setLoadBalancingStrategy("random");//defaulting to random lb
+        setLoadBalancingStrategy("random"); //defaulting to random lb
         reporter = new ContinuousMultiDataPointReporter(String.format("S[%s]_", name));
     }
 
@@ -66,9 +74,9 @@ public class Microservice extends Entity {
         started = true;
         scaleToInstancesCount(targetInstanceCount);
         serviceOwnedPatterns = Arrays.stream(patternsData)
-                .map(patternData -> patternData.tryGetServiceOwnedPatternOrNull(this))
-                .filter(Objects::nonNull)
-                .toArray(ServiceOwnedPattern[]::new);
+            .map(patternData -> patternData.tryGetServiceOwnedPatternOrNull(this))
+            .filter(Objects::nonNull)
+            .toArray(ServiceOwnedPattern[]::new);
     }
 
     public String getName() {
@@ -113,15 +121,21 @@ public class Microservice extends Entity {
 
             if (getInstancesCount() < targetInstanceCount) {
                 //TODO: restart shutdown instances instead of creating new ones
-                changedInstance = new MicroserviceInstance(getModel(), String.format("[%s]_I%d", getName(), instanceSpawnCounter), this.traceIsOn(), this, instanceSpawnCounter);
+                changedInstance =
+                    new MicroserviceInstance(getModel(), String.format("[%s]_I%d", getName(), instanceSpawnCounter),
+                        this.traceIsOn(), this, instanceSpawnCounter);
                 changedInstance.activatePatterns(patternsData);
                 instanceSpawnCounter++;
-                changeEvent = new InstanceStartupEvent(getModel(), "Instance Startup of " + changedInstance.getQuotedName(), traceIsOn());
+                changeEvent =
+                    new InstanceStartupEvent(getModel(), "Instance Startup of " + changedInstance.getQuotedName(),
+                        traceIsOn());
                 instancesSet.add(changedInstance);
             } else {
                 //tires to find the least used instance to shut it down
-                changedInstance = instancesSet.stream().min(Comparator.comparingDouble(MicroserviceInstance::getUsage)).get();
-                changeEvent = new InstanceShutdownStartEvent(getModel(), String.format("Instance %s Shutdown Start", changedInstance.getQuotedName()), traceIsOn());
+                changedInstance =
+                    instancesSet.stream().min(Comparator.comparingDouble(MicroserviceInstance::getUsage)).get();
+                changeEvent = new InstanceShutdownStartEvent(getModel(),
+                    String.format("Instance %s Shutdown Start", changedInstance.getQuotedName()), traceIsOn());
                 instancesSet.remove(changedInstance);
             }
             changeEvent.schedule(changedInstance, presentTime());
@@ -150,8 +164,11 @@ public class Microservice extends Entity {
      */
     public synchronized void killInstance() {
         //TODO: use UniformDistribution form desmoj
-        MicroserviceInstance instanceToKill = instancesSet.stream().findAny().orElse(null); //selects an element of the stream, not
-        if (instanceToKill == null) return;
+        MicroserviceInstance instanceToKill =
+            instancesSet.stream().findAny().orElse(null); //selects an element of the stream, not
+        if (instanceToKill == null) {
+            return;
+        }
         instanceToKill.die();
         instancesSet.remove(instanceToKill);
         reporter.addDatapoint("InstanceCount", presentTime(), instancesSet.size());
@@ -166,17 +183,19 @@ public class Microservice extends Entity {
      * differ. It may starts with the name of this mircoservice instance or ands with a '#' and a number.
      *
      * @param name name of the operation that should be found
+     *
      * @return an operation that has exactly that name, {@code null} if not found
      */
     public Operation getOperationByName(String name) {
 
         //format of the name: (this.getName()_)name(#[0-9]+), (..) being 'optional' and [..] 'pick one from'
-        Pattern searchPattern = Pattern.compile(String.format("^(\\Q%s\\E_)?\\(?\\Q%s\\E\\)?(#[0-9]+)?$", this.getName(), name));
+        Pattern searchPattern =
+            Pattern.compile(String.format("^(\\Q%s\\E_)?\\(?\\Q%s\\E\\)?(#[0-9]+)?$", this.getName(), name));
 
         return Arrays.stream(operations)
-                .filter(operation -> searchPattern.matcher(operation.getName()).matches())
-                .findAny()
-                .orElse(null);
+            .filter(operation -> searchPattern.matcher(operation.getName()).matches())
+            .findAny()
+            .orElse(null);
     }
 
     public void setOperations(Operation[] operations) {
@@ -209,9 +228,9 @@ public class Microservice extends Entity {
     }
 
 
-    public void applyDelay(NumericalDist<Double> dist, Operation operation_src, Operation operation_trg) {
-        if (operation_trg == null) {
-            if (operation_src == null) {
+    public void applyDelay(NumericalDist<Double> dist, Operation operationSrc, Operation operationTrg) {
+        if (operationTrg == null) {
+            if (operationSrc == null) {
                 //delay all operations
                 for (Operation operation : operations) {
                     operation.applyExtraDelay(dist);
@@ -219,7 +238,7 @@ public class Microservice extends Entity {
                 return;
             }
         }
-        operation_src.applyExtraDelay(dist, operation_trg);
+        operationSrc.applyExtraDelay(dist, operationTrg);
     }
 
     public void finalizeStatistics() {

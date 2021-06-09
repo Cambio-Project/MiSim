@@ -6,15 +6,21 @@ import desmoj.core.simulator.ExternalEvent;
 import desmoj.core.simulator.Model;
 
 /**
+ * Event that represents the half-closing of a circuit breaker.
+ *
  * @author Lion Wagner
  */
 public class HalfOpenBreakerEvent extends ExternalEvent {
 
     private final CircuitBreakerState stateToChange;
 
-
-    public HalfOpenBreakerEvent(Model model, String s, boolean b, CircuitBreakerState stateToChange) {
-        super(model, s, b);
+    /**
+     * Constructs a new {@link HalfOpenBreakerEvent}.
+     *
+     * @param stateToChange circuit breaker that should change its state to half-open
+     */
+    public HalfOpenBreakerEvent(Model model, String name, boolean showInTrace, CircuitBreakerState stateToChange) {
+        super(model, name, showInTrace);
         this.stateToChange = stateToChange;
         setSchedulingPriority(Priority.IMMEDIATELY_ON_TARGETED_TIME);
     }

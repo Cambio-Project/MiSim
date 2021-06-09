@@ -1,27 +1,28 @@
 package de.rss.fachstudie.MiSim.export;
 
-import desmoj.core.report.Reporter;
-import desmoj.core.simulator.TimeInstant;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.TreeMap;
+
+import desmoj.core.report.Reporter;
+import desmoj.core.simulator.TimeInstant;
 
 /**
+ * Dynamically-typed data point collector.
+ *
  * @author Lion Wagner
  */
 public class MultiDataPointReporter extends Reporter {
 
     protected final HashMap<String, HashMap<Double, ?>> dataSets = new HashMap<>();
-    protected final String datasets_prefix;
+    protected final String datasetsPrefix;
 
     public MultiDataPointReporter() {
         this("");
     }
 
-    public MultiDataPointReporter(String datasets_prefix) {
-        this.datasets_prefix = datasets_prefix;
+    public MultiDataPointReporter(String datasetsPrefix) {
+        this.datasetsPrefix = datasetsPrefix;
         register();
     }
 
@@ -38,7 +39,8 @@ public class MultiDataPointReporter extends Reporter {
         Objects.requireNonNull(when);
         Objects.requireNonNull(data);
 
-        Map<Double, T> dataSet = (HashMap<Double, T>) dataSets.computeIfAbsent(datasets_prefix + dataSetName, s -> new HashMap<Double, T>());
+        Map<Double, T> dataSet =
+            (HashMap<Double, T>) dataSets.computeIfAbsent(datasetsPrefix + dataSetName, s -> new HashMap<Double, T>());
         dataSet.put(when.getTimeAsDouble(), data);
     }
 
@@ -60,9 +62,9 @@ public class MultiDataPointReporter extends Reporter {
         StringBuilder builder = new StringBuilder("Time;Value\n");
         for (Map.Entry<Double, ?> dataPoint : dataSets.get(datasetkey).entrySet()) {
             builder.append(dataPoint.getKey())
-                    .append(";")
-                    .append(dataPoint.getValue())
-                    .append("\n");
+                .append(";")
+                .append(dataPoint.getValue())
+                .append("\n");
         }
         return builder.toString().split("\n");
     }

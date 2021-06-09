@@ -1,5 +1,8 @@
 package de.rss.fachstudie.MiSim.events;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 import co.paralleluniverse.fibers.SuspendExecution;
 import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
 import de.rss.fachstudie.MiSim.entities.microservice.Operation;
@@ -10,9 +13,6 @@ import desmoj.core.simulator.ExternalEvent;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeSpan;
 
-import java.util.Arrays;
-import java.util.Objects;
-
 /**
  * Event that triggers a latency injection. The injection can be applied on different levels:<br> Either all outgoing
  * requests of a {@code Microservice} are delayed.<br> Or all outgoing dependency requests of a single {@code Operation}
@@ -22,10 +22,10 @@ import java.util.Objects;
  */
 public class LatencyMonkeyEvent extends SelfScheduledEvent {
     private final double delay;
-    private final double std_deviation;
+    private final double stdDeviation;
     private final Microservice microservice;
-    private final Operation operation_src;
-    private final Operation operation_trg;
+    private final Operation operationSrc;
+    private final Operation operationTrg;
 
     private double duration;
 
@@ -33,31 +33,35 @@ public class LatencyMonkeyEvent extends SelfScheduledEvent {
         this(model, name, showInTrace, delay, 0, microservice, null, null);
     }
 
-    public LatencyMonkeyEvent(Model model, String name, boolean showInTrace, double delay, Operation operation_src) {
-        this(model, name, showInTrace, delay, 0, operation_src.getOwnerMS(), operation_src, null);
+    public LatencyMonkeyEvent(Model model, String name, boolean showInTrace, double delay, Operation operationSrc) {
+        this(model, name, showInTrace, delay, 0, operationSrc.getOwnerMS(), operationSrc, null);
     }
 
-    public LatencyMonkeyEvent(Model model, String name, boolean showInTrace, double delay, Operation operation_src, Operation operation_trg) {
-        this(model, name, showInTrace, delay, 0, operation_src.getOwnerMS(), operation_src, operation_trg);
+    public LatencyMonkeyEvent(Model model, String name, boolean showInTrace, double delay, Operation operationSrc,
+                              Operation operationTrg) {
+        this(model, name, showInTrace, delay, 0, operationSrc.getOwnerMS(), operationSrc, operationTrg);
     }
 
-    public LatencyMonkeyEvent(Model model, String name, boolean showInTrace, double delay, double std_deviation, Microservice microservice) {
-        this(model, name, showInTrace, delay, std_deviation, microservice, null, null);
+    public LatencyMonkeyEvent(Model model, String name, boolean showInTrace, double delay, double stdDeviation,
+                              Microservice microservice) {
+        this(model, name, showInTrace, delay, stdDeviation, microservice, null, null);
     }
 
-    public LatencyMonkeyEvent(Model model, String name, boolean showInTrace, double delay, double std_deviation, Operation operation_src) {
-        this(model, name, showInTrace, delay, std_deviation, operation_src.getOwnerMS(), operation_src, null);
+    public LatencyMonkeyEvent(Model model, String name, boolean showInTrace, double delay, double stdDeviation,
+                              Operation operationSrc) {
+        this(model, name, showInTrace, delay, stdDeviation, operationSrc.getOwnerMS(), operationSrc, null);
     }
 
-    public LatencyMonkeyEvent(Model model, String name, boolean showInTrace, double delay, double std_deviation, Microservice microservice, Operation operation_src, Operation operation_trg) {
+    public LatencyMonkeyEvent(Model model, String name, boolean showInTrace, double delay, double stdDeviation,
+                              Microservice microservice, Operation operationSrc, Operation operationTrg) {
         super(model, name, showInTrace);
         Objects.requireNonNull(microservice);
 
         this.delay = delay;
-        this.std_deviation = std_deviation;
+        this.stdDeviation = stdDeviation;
         this.microservice = microservice;
-        this.operation_src = operation_src;
-        this.operation_trg = operation_trg;
+        this.operationSrc = operationSrc;
+        this.operationTrg = operationTrg;
 
         validateArguments();
     }
@@ -66,15 +70,18 @@ public class LatencyMonkeyEvent extends SelfScheduledEvent {
         Objects.requireNonNull(microservice);
 
         Util.requireNonNegative(delay, "The injected delay cannot be negative");
-        Util.requireNonNegative(std_deviation, "The standard deviation of the injected delay cannot be negative");
+        Util.requireNonNegative(stdDeviation, "The standard deviation of the injected delay cannot be negative");
 
-        if (operation_src != null) {
-            if (Arrays.stream(microservice.getOperations()).noneMatch(operation -> operation == operation_src)) {
-                throw new IllegalArgumentException(String.format("Operation %s is not an operation of microservice %s", operation_src, microservice));
+        if (operationSrc != null) {
+            if (Arrays.stream(microservice.getOperations()).noneMatch(operation -> operation == operationSrc)) {
+                throw new IllegalArgumentException(
+                    String.format("Operation %s is not an operation of microservice %s", operationSrc, microservice));
             }
-            if (operation_trg != null
-                    && Arrays.stream(operation_src.getDependencies()).noneMatch(dependency -> dependency.getTargetOperation() == operation_trg)) {
-                throw new IllegalArgumentException(String.format("Operation %s is not a dependency of operation %s", operation_trg, operation_src));
+            if (operationTrg != null
+                && Arrays.stream(operationSrc.getDependencies())
+                .noneMatch(dependency -> dependency.getTargetOperation() == operationTrg)) {
+                throw new IllegalArgumentException(
+                    String.format("Operation %s is not a dependency of operation %s", operationTrg, operationSrc));
             }
         }
     }
@@ -85,12 +92,14 @@ public class LatencyMonkeyEvent extends SelfScheduledEvent {
 
     @Override
     public void eventRoutine() {
-        NumericalDist<Double> dist = new ContDistNormal(getModel(), String.format("DelayDistribution_of_%s", this.getName()), delay, std_deviation, false, false);
-        microservice.applyDelay(dist, operation_src, operation_trg);
+        NumericalDist<Double> dist =
+            new ContDistNormal(getModel(), String.format("DelayDistribution_of_%s", this.getName()), delay,
+                               stdDeviation, false, false);
+        microservice.applyDelay(dist, operationSrc, operationTrg);
         new ExternalEvent(getModel(), "LatencyMonkeyDeactivator", this.traceIsOn()) {
             @Override
             public void eventRoutine() throws SuspendExecution {
-                microservice.applyDelay(null, operation_src, operation_trg);
+                microservice.applyDelay(null, operationSrc, operationTrg);
             }
         }.schedule(new TimeSpan(duration));
 

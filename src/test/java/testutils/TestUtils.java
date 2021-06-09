@@ -1,19 +1,7 @@
 package testutils;
 
-import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
-import de.rss.fachstudie.MiSim.entities.microservice.MicroserviceInstance;
-import de.rss.fachstudie.MiSim.entities.networking.NetworkRequestSendEvent;
-import de.rss.fachstudie.MiSim.entities.patterns.CircuitBreaker;
-import de.rss.fachstudie.MiSim.entities.patterns.PreemptiveAutoScaler;
-import de.rss.fachstudie.MiSim.entities.patterns.RetryManager;
-import de.rss.fachstudie.MiSim.export.CSVData;
-import de.rss.fachstudie.MiSim.export.ReportCollector;
-import de.rss.fachstudie.MiSim.parsing.PatternData;
-import desmoj.core.simulator.Experiment;
-import desmoj.core.simulator.Model;
-import desmoj.core.simulator.TimeInstant;
-import org.apache.commons.math3.stat.descriptive.rank.Percentile;
-import org.mockito.Mockito;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -28,8 +16,20 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
+import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
+import de.rss.fachstudie.MiSim.entities.microservice.MicroserviceInstance;
+import de.rss.fachstudie.MiSim.entities.networking.NetworkRequestSendEvent;
+import de.rss.fachstudie.MiSim.entities.patterns.CircuitBreaker;
+import de.rss.fachstudie.MiSim.entities.patterns.PreemptiveAutoScaler;
+import de.rss.fachstudie.MiSim.entities.patterns.RetryManager;
+import de.rss.fachstudie.MiSim.export.CSVData;
+import de.rss.fachstudie.MiSim.export.ReportCollector;
+import de.rss.fachstudie.MiSim.parsing.PatternData;
+import desmoj.core.simulator.Experiment;
+import desmoj.core.simulator.Model;
+import desmoj.core.simulator.TimeInstant;
+import org.apache.commons.math3.stat.descriptive.rank.Percentile;
+import org.mockito.Mockito;
 
 /**
  * @author Lion Wagner
@@ -59,21 +59,23 @@ public class TestUtils {
     public static PatternData getRetryPatternMock(Model model) {
         PatternData data = mock(PatternData.class);
         Mockito.when(data.tryGetInstanceOwnedPatternOrNull(any(MicroserviceInstance.class)))
-                .thenAnswer(invocationOnMock -> new RetryManager(model, "Retry", true, invocationOnMock.getArgument(0)));
+            .thenAnswer(invocationOnMock -> new RetryManager(model, "Retry", true, invocationOnMock.getArgument(0)));
         return data;
     }
 
     public static PatternData getCircuitBreaker(Model model) {
         PatternData data = mock(PatternData.class);
         Mockito.when(data.tryGetInstanceOwnedPatternOrNull(any(MicroserviceInstance.class)))
-                .thenAnswer(invocationOnMock -> new CircuitBreaker(model, "CircuitBreaker", true, invocationOnMock.getArgument(0)));
+            .thenAnswer(
+                invocationOnMock -> new CircuitBreaker(model, "CircuitBreaker", true, invocationOnMock.getArgument(0)));
         return data;
     }
 
     public static PatternData getAutoscaler(Model model) {
         PatternData data = mock(PatternData.class);
         Mockito.when(data.tryGetServiceOwnedPatternOrNull(any(Microservice.class)))
-                .thenAnswer(invocationOnMock -> new PreemptiveAutoScaler(model, "AutoScaler", true, invocationOnMock.getArgument(0)));
+            .thenAnswer(invocationOnMock -> new PreemptiveAutoScaler(model, "AutoScaler", true,
+                invocationOnMock.getArgument(0)));
         return data;
     }
 
@@ -110,7 +112,9 @@ public class TestUtils {
      *
      * @param percentile        target percentile in [0:100)
      * @param number_collection collection containing the analysed dataset
+     *
      * @return the asked percentile
+     *
      * @throws org.apache.commons.math3.exception.MathIllegalArgumentException if percentile not in [0:100)
      * @see Percentile
      */

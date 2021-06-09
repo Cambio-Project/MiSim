@@ -6,6 +6,7 @@ import desmoj.core.simulator.TimeInstant;
 
 /**
  * Generator that produces UserRequestArrivalEvent at a target Service Endpoint on an interval.
+ *
  * <p>
  * This generator provides the following json options to the architecture:
  * <table border="1">
@@ -21,8 +22,7 @@ import desmoj.core.simulator.TimeInstant;
  *   <caption>Json properties of this generator.</caption>
  * </table>
  *
- * @author Lion Wagner
- * TODO: even, exponential or randomized distribution within a simulation time unit
+ * @author Lion Wagner TODO: even, exponential or randomized distribution within a simulation time unit
  */
 public final class IntervalGenerator extends Generator {
 
@@ -33,7 +33,8 @@ public final class IntervalGenerator extends Generator {
         this(model, name, showInTrace, operation, interval, 0);
     }
 
-    public IntervalGenerator(Model model, String name, boolean showInTrace, Operation operation, double interval, double start) {
+    public IntervalGenerator(Model model, String name, boolean showInTrace, Operation operation, double interval,
+                             double start) {
         super(model, name, showInTrace, operation);
         this.interval = interval; //TODO: Time Unit
         this.start = start;
@@ -41,8 +42,8 @@ public final class IntervalGenerator extends Generator {
 
     @Override
     protected TimeInstant getNextTargetTime(final TimeInstant lastTargetTime) {
-        double nextTargetTime_d = lastTargetTime != null ? lastTargetTime.getTimeAsDouble() : 0;
-        return new TimeInstant(nextTargetTime_d + interval);
+        double nextTargetTimeDouble = lastTargetTime != null ? lastTargetTime.getTimeAsDouble() : 0;
+        return new TimeInstant(nextTargetTimeDouble + interval);
     }
 
     @Override

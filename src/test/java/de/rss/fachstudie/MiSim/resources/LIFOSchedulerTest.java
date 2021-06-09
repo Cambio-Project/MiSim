@@ -1,14 +1,14 @@
 package de.rss.fachstudie.MiSim.resources;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import de.rss.fachstudie.MiSim.resources.cpu.CPUProcess;
 import de.rss.fachstudie.MiSim.resources.cpu.scheduling.LIFOScheduler;
 import org.javatuples.Pair;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 class LIFOSchedulerTest extends CPUProcessSchedulerTest<LIFOScheduler> {
 
@@ -53,7 +53,7 @@ class LIFOSchedulerTest extends CPUProcessSchedulerTest<LIFOScheduler> {
 
         Assertions.assertEquals(processList.size(), results.size());
 
-        int[] expectedOrder = new int[]{20, 22, 23, 21, 25, 24};
+        int[] expectedOrder = new int[] {20, 22, 23, 21, 25, 24};
 
         for (int i = 0; i < results.size(); i++) {
             Pair<CPUProcess, Integer> result = results.get(i);

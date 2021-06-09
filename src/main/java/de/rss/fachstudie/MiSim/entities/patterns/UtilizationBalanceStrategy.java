@@ -1,9 +1,9 @@
 package de.rss.fachstudie.MiSim.entities.patterns;
 
-import de.rss.fachstudie.MiSim.entities.microservice.MicroserviceInstance;
-
 import java.util.Collection;
 import java.util.Comparator;
+
+import de.rss.fachstudie.MiSim.entities.microservice.MicroserviceInstance;
 
 /**
  * Strategy that chooses the least utilized Microservice Instance by current relative Queue demand.
@@ -16,7 +16,7 @@ class UtilizationBalanceStrategy implements LoadBalancingStrategy {
     @Override
     public MicroserviceInstance getNextInstance(Collection<MicroserviceInstance> runningInstances) {
         return runningInstances.stream()
-                .min(Comparator.comparingDouble(MicroserviceInstance::getRelativeWorkDemand))
-                .orElse(null);
+            .min(Comparator.comparingDouble(MicroserviceInstance::getRelativeWorkDemand))
+            .orElse(null);
     }
 }

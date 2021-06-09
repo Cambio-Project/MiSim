@@ -1,13 +1,15 @@
 package de.rss.fachstudie.MiSim.export;
 
-import desmoj.core.report.AbstractTableFormatter;
-import desmoj.core.report.FileOutput;
-
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 
+import desmoj.core.report.AbstractTableFormatter;
+import desmoj.core.report.FileOutput;
+
 /**
+ * Exporter that can write the data of a dataset to a csv file.
+ *
  * @author Lion Wagner
  */
 class CSVExporter extends AbstractTableFormatter {
@@ -32,12 +34,13 @@ class CSVExporter extends AbstractTableFormatter {
         writeDataset(datasetName, "Value", dataset, reportFolder);
     }
 
-    public static void writeDataset(String datasetName, String name_value_column, Map<Double, Object> dataset, Path reportFolder) {
+    public static void writeDataset(String datasetName, String nameValueColumn, Map<Double, Object> dataset,
+                                    Path reportFolder) {
 
         final String separator = ";";
         AbstractTableFormatter exporter = new CSVExporter(datasetName, separator, reportFolder);
 
-        exporter.openTable("Time" + separator + name_value_column + separator);
+        exporter.openTable("Simulation Time" + separator + nameValueColumn + separator);
 
         for (Map.Entry<Double, Object> entry : dataset.entrySet()) {
             exporter.openRow();
@@ -50,8 +53,8 @@ class CSVExporter extends AbstractTableFormatter {
     }
 
     @Override
-    public void open(String s) {
-        out.open(s);
+    public void open(String file) {
+        out.open(file);
     }
 
     @Override
@@ -80,23 +83,23 @@ class CSVExporter extends AbstractTableFormatter {
     }
 
     @Override
-    public void openTable(String s) {
-        writeHeading(0, s);
+    public void openTable(String value) {
+        writeHeading(0, value);
     }
 
     @Override
-    public void writeHeading(int i, String s) {
-        out.writeln(s);
+    public void writeHeading(int loc, String value) {
+        out.writeln(value);
     }
 
     @Override
-    public void writeHeadingCell(String s) {
-        writeCell(s, 0);
+    public void writeHeadingCell(String value) {
+        writeCell(value, 0);
     }
 
     @Override
-    public void writeCell(String s, int i) {
-        out.writeSep(s);
+    public void writeCell(String value, int loc) {
+        out.writeSep(value);
     }
 
     @Override

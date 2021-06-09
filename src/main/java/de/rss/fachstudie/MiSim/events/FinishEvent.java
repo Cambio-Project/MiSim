@@ -7,7 +7,8 @@ import desmoj.core.simulator.ExternalEvent;
 import desmoj.core.simulator.Model;
 
 /**
- * A <code>FinishEvent</code> is an <code>ExternalEvent</code> that is called upon the end of the simulation.
+ * A {@link FinishEvent} is an {@link ExternalEvent} that is called upon the end of the simulation.
+ *
  * <p>
  * Its used for cleanup and finalizing statistics.
  */
@@ -19,7 +20,6 @@ public class FinishEvent extends ExternalEvent {
 
     @Override
     public void eventRoutine() throws SuspendExecution {
-
         ArchitectureModel.get().getMicroservices().forEach(Microservice::finalizeStatistics);
 
     }

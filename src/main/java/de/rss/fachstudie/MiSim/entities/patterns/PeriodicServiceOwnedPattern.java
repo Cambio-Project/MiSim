@@ -10,6 +10,8 @@ import desmoj.core.simulator.TimeInstant;
 import desmoj.core.simulator.TimeSpan;
 
 /**
+ * A service owned pattern that is automatically triggered periodically.
+ *
  * @author Lion Wagner
  */
 public abstract class PeriodicServiceOwnedPattern extends ServiceOwnedPattern {
@@ -70,8 +72,9 @@ public abstract class PeriodicServiceOwnedPattern extends ServiceOwnedPattern {
     @Override
     public void shutdown() {
         try {
-            if (scheduler.isScheduled())
+            if (scheduler.isScheduled()) {
                 scheduler.cancel();
+            }
             scheduler.passivate();
         } catch (SuspendExecution suspendExecution) {
             suspendExecution.printStackTrace();

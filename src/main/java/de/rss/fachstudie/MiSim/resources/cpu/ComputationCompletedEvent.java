@@ -7,6 +7,7 @@ import desmoj.core.simulator.Model;
 
 /**
  * Marks the end of the last computation burst of a thread.
+ *
  * <p>
  * On execution, it resubmits the computed request at its handler.
  *

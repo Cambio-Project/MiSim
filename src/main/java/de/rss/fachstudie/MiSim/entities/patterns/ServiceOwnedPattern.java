@@ -3,6 +3,10 @@ package de.rss.fachstudie.MiSim.entities.patterns;
 import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
 import desmoj.core.simulator.Model;
 
+/**
+ * Resilience Pattern that is owned by a {@link Microservice}.
+ * These patterns should represent mechanics that live on a meta-level, such as scaling.
+ */
 public abstract class ServiceOwnedPattern extends Pattern {
 
     protected final Microservice owner;

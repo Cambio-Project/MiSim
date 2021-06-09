@@ -1,16 +1,21 @@
 package de.rss.fachstudie.MiSim.parsing;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.lang.reflect.Array;
+import java.lang.reflect.InvocationTargetException;
+import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonReader;
 import de.rss.fachstudie.MiSim.models.MainModel;
-
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.lang.reflect.Array;
-import java.nio.file.Path;
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * The ExpModelParser class reads a json file that contains the experiment model.
@@ -28,24 +33,35 @@ public class ExpModelParser {
      */
     static {
         List<Class<? extends Parser<?>>> temp = Arrays.asList(
-                ChaosMonkeyParser.class,
-                SummonerMonkeyParser.class,
-                LatencyMonkeyParser.class,
-                GeneratorParser.class);
+            ChaosMonkeyParser.class,
+            SummonerMonkeyParser.class,
+            LatencyMonkeyParser.class,
+            GeneratorParser.class);
         parserClasses = Collections.unmodifiableList(temp);
     }
 
+    /**
+     * Read the given experiment file and parses it into a set of objects. These objects are usually self-scheduling
+     * Events like, {@link de.rss.fachstudie.MiSim.events.ChaosMonkeyEvent} or {@link
+     * de.rss.fachstudie.MiSim.entities.generator.Generator} objects.
+     *
+     * @return a set of objects that represent the experiment.
+     */
     public static Set<Object> parseExperimentData(Path path) {
         try {
             Gson gson = new GsonParser().getGson();
             JsonObject root = gson.fromJson(new JsonReader(new FileReader(path.toFile())), JsonObject.class);
 
-            Set<? extends Parser<?>> parserInstances = parserClasses.stream().map(aClass -> {
+            Set<? extends Parser<?>> parserInstances = parserClasses.stream().map(clazz -> {
                 try {
-                    return aClass.newInstance();
-                } catch (InstantiationException | IllegalAccessException e) {
+                    return clazz.getDeclaredConstructor().newInstance();
+                } catch (InstantiationException
+                    | IllegalAccessException
+                    | NoSuchMethodException
+                    | InvocationTargetException e) {
                     e.printStackTrace();
-                    throw new ParsingException(String.format("Parser %s could not be instantiated.", aClass.getTypeName()));
+                    throw new ParsingException(
+                        String.format("Parser %s could not be instantiated.", clazz.getTypeName()));
                 }
             }).collect(Collectors.toSet());
 
@@ -55,7 +71,9 @@ public class ExpModelParser {
                 Class<?> clazz = Array.newInstance(parserInstance.getClass(), 0).getClass();
                 Object result = gson.fromJson(root.get(parserInstance.getDescriptionKey()), clazz);
 
-                if (result == null) continue;
+                if (result == null) {
+                    continue;
+                }
 
                 int count = Array.getLength(result);
                 for (int i = 0; i < count; i++) {
@@ -63,7 +81,8 @@ public class ExpModelParser {
                 }
             }
 
-            parsedExperimentObjects = parsedObjects.stream().map(o -> o.convertToObject(MainModel.get())).collect(Collectors.toSet());
+            parsedExperimentObjects =
+                parsedObjects.stream().map(o -> o.convertToObject(MainModel.get())).collect(Collectors.toSet());
 
             return parsedExperimentObjects;
 

@@ -1,9 +1,9 @@
 package de.rss.fachstudie.MiSim.parsing;
 
-import org.junit.jupiter.api.BeforeAll;
-
 import java.io.File;
 import java.nio.file.Paths;
+
+import org.junit.jupiter.api.BeforeAll;
 
 class ArchModelParserTest {
 
@@ -12,7 +12,6 @@ class ArchModelParserTest {
         File f = new File("./Examples/example_architecture_model.json");
         ArchModelParser.parseMicroservicesArchModelFile(Paths.get(f.getAbsolutePath()));
     }
-
 
 
 }

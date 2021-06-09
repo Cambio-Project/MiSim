@@ -1,15 +1,15 @@
 package de.rss.fachstudie.MiSim.export;
 
-import desmoj.core.simulator.TimeInstant;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import desmoj.core.simulator.TimeInstant;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class ReportCollectorTest {
 
@@ -25,7 +25,7 @@ class ReportCollectorTest {
     @BeforeEach
     void setUp() {
         ReportCollector.getInstance().elements().forEach(reporter ->
-                ReportCollector.getInstance().deRegister(reporter));
+            ReportCollector.getInstance().deRegister(reporter));
     }
 
     @Test

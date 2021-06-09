@@ -6,6 +6,7 @@ import desmoj.core.simulator.Model;
 
 /**
  * Represents the end of the shutdown process of an instance.
+ *
  * @author Lion Wagner
  */
 public class InstanceShutdownEndEvent extends Event<MicroserviceInstance> {

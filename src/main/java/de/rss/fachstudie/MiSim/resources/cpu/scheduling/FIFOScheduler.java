@@ -1,13 +1,14 @@
 package de.rss.fachstudie.MiSim.resources.cpu.scheduling;
 
-import de.rss.fachstudie.MiSim.resources.cpu.CPUProcess;
-import org.javatuples.Pair;
-
 import java.util.LinkedList;
 import java.util.Queue;
 
+import de.rss.fachstudie.MiSim.resources.cpu.CPUProcess;
+import org.javatuples.Pair;
+
 /**
  * <b>F</b>irst <b>i</b>n <b>f</b>irst <b>o</b>ut scheduler.
+ *
  * <p>
  * Schedules all entered processes in the same order that they arrived in. Always assigns the full work demand needed
  * for a processes.
@@ -30,8 +31,8 @@ public class FIFOScheduler extends CPUProcessScheduler {
      */
     @Override
     public synchronized void enterProcess(CPUProcess process) {
-        if (!processes.contains(process))
-            processes.add(process);
+        //if (!processes.contains(process))
+        processes.add(process);
     }
 
     /**
@@ -52,6 +53,7 @@ public class FIFOScheduler extends CPUProcessScheduler {
     /**
      * Pulls the next Process to handle and its assigned time/work quantum.<br> Prevents automatic rescheduling of the
      * process like in round robin scheduling.
+     *
      * <p>
      * This method is used to offer scheduling for multithreading.
      *
@@ -63,15 +65,15 @@ public class FIFOScheduler extends CPUProcessScheduler {
     }
 
     /**
-     * @return true if there is a thread ready to schedule, false otherwise
+     * {@inheritDoc}
      */
     @Override
-    public boolean hasThreadsToSchedule() {
+    public boolean hasProcessesToSchedule() {
         return !processes.isEmpty();
     }
 
     /**
-     * @return the sum of the demand remainder of all processes that are currently in queue.
+     * {@inheritDoc}
      */
     @Override
     public int getTotalWorkDemand() {
@@ -79,14 +81,16 @@ public class FIFOScheduler extends CPUProcessScheduler {
     }
 
     /**
-     * Clears all current processes from the scheduler
+     * {@inheritDoc}
      */
     @Override
     public void clear() {
         processes.clear();
     }
 
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int size() {
         return processes.size();

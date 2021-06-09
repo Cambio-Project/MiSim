@@ -1,5 +1,11 @@
 package de.rss.fachstudie.MiSim.entities.networking;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.PriorityQueue;
+import java.util.Random;
+import java.util.Set;
+
 import de.rss.fachstudie.MiSim.entities.microservice.MicroserviceInstance;
 import de.rss.fachstudie.MiSim.entities.microservice.Operation;
 import de.rss.fachstudie.MiSim.misc.Util;
@@ -8,9 +14,9 @@ import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 import org.apache.commons.math3.util.Precision;
 
-import java.util.*;
-
 /**
+ * Represents a Request that can travel between two {@link MicroserviceInstance}s.
+ *
  * @author Lion Wagner
  */
 public abstract class Request extends Entity {
@@ -18,9 +24,10 @@ public abstract class Request extends Entity {
     private final Set<NetworkDependency> dependencies = new HashSet<>();
 
 
-    private MicroserviceInstance handler_instance; //microservice instance that collects dependencies of this request and computes it
-    private boolean computation_completed = false;
-    private boolean dependencies_completed = false;
+    private MicroserviceInstance handlerInstance;
+    //microservice instance that collects dependencies of this request and computes it
+    private boolean computationCompleted = false;
+    private boolean dependenciesCompleted = false;
 
     private final Request parent;
     private final MicroserviceInstance requester;
@@ -29,20 +36,23 @@ public abstract class Request extends Entity {
     private NetworkRequestCanceledEvent canceledEvent;
     private final PriorityQueue<IRequestUpdateListener> updateListeners = new PriorityQueue<>();
 
-    private TimeInstant timestamp_send;
-    private TimeInstant timestamp_received;
-    private TimeInstant timestamp_received_at_handler;
-    private TimeInstant timestamp_computation_completed;
-    private TimeInstant timestamp_dependencies_completed;
+    private TimeInstant timestampSend;
+    private TimeInstant timestampReceived;
+    private TimeInstant timestampReceivedAtHandler;
+    private TimeInstant timestampComputationCompleted;
+    private TimeInstant timestampDependenciesCompleted;
 
 
-    public Request(Model model, String name, boolean showInTrace, Request parent, Operation operation, MicroserviceInstance requester) {
+    public Request(Model model, String name, boolean showInTrace, Request parent, Operation operation,
+                   MicroserviceInstance requester) {
         super(model, name, showInTrace);
         this.operation = operation;
         this.requester = requester;
         this.parent = parent;
         createDependencies();
-        if (dependencies.isEmpty()) notifyDependencyHasFinished(null);
+        if (dependencies.isEmpty()) {
+            notifyDependencyHasFinished(null);
+        }
     }
 
 
@@ -84,27 +94,27 @@ public abstract class Request extends Entity {
     }
 
     public final boolean isCompleted() {
-        return computation_completed && dependencies_completed;
+        return computationCompleted && dependenciesCompleted;
     }
 
-    public boolean isComputation_completed() {
-        return computation_completed;
+    public boolean isComputationCompleted() {
+        return computationCompleted;
     }
 
-    public boolean isDependencies_completed() {
-        return dependencies_completed;
+    public boolean isDependenciesCompleted() {
+        return dependenciesCompleted;
     }
 
-    public TimeInstant getTimestamp_received() {
-        return timestamp_received;
+    public TimeInstant getTimestampReceived() {
+        return timestampReceived;
     }
 
-    public TimeInstant getTimestamp_send() {
-        return timestamp_send;
+    public TimeInstant getTimestampSend() {
+        return timestampSend;
     }
 
     public void resetSendTimeStamps() {
-        timestamp_send = null;
+        timestampSend = null;
     }
 
     public void setSendEvent(NetworkRequestSendEvent sendEvent) {
@@ -120,70 +130,78 @@ public abstract class Request extends Entity {
     }
 
     public final void setComputation_completed() {
-        if (this.computation_completed)
+        if (this.computationCompleted) {
             throw new IllegalStateException("Computation was already completed!");
-        this.computation_completed = true;
-        timestamp_computation_completed = presentTime();
+        }
+        this.computationCompleted = true;
+        timestampComputationCompleted = presentTime();
         onComputationComplete();
-        if (dependencies_completed && computation_completed) {
+        if (dependenciesCompleted && computationCompleted) {
             onCompletion();
         }
     }
 
     private void setDependencies_completed() {
-        if (this.dependencies_completed)
+        if (this.dependenciesCompleted) {
             throw new IllegalStateException("Dependencies were already completed!");
-        this.dependencies_completed = true;
-        timestamp_dependencies_completed = presentTime();
+        }
+        this.dependenciesCompleted = true;
+        timestampDependenciesCompleted = presentTime();
         onDependenciesComplete();
-        if (dependencies_completed && computation_completed) {
+        if (dependenciesCompleted && computationCompleted) {
             onCompletion();
         }
-        if (handler_instance != null && handler_instance.checkIfCanHandle(this))
-            handler_instance.handle(this); //resubmitting itself for further handling
+        if (handlerInstance != null && handlerInstance.checkIfCanHandle(this)) {
+            handlerInstance.handle(this); //resubmitting itself for further handling
+        }
     }
 
     public final void stampReceived(TimeInstant stamp) {
-        this.setTimestamp_received(stamp);
+        this.setTimestampReceived(stamp);
         onReceive();
     }
 
     public final void stampSendoff(TimeInstant stamp) {
-        this.setTimestamp_send(stamp);
+        this.setTimestampSend(stamp);
     }
 
     public final void stampReceivedAtHandler(TimeInstant stamp) {
-        if (this.timestamp_received_at_handler != null)
+        if (this.timestampReceivedAtHandler != null) {
             throw new IllegalStateException("This Request was already received by its handler.");
-        this.timestamp_received_at_handler = stamp;
+        }
+        this.timestampReceivedAtHandler = stamp;
     }
 
-    private void setTimestamp_received(TimeInstant timestamp_received) {
-        if (this.timestamp_received != null)
+    private void setTimestampReceived(TimeInstant timestampReceived) {
+        if (this.timestampReceived != null) {
             throw new IllegalStateException("Receive Stamp is already set!");
-        this.timestamp_received = timestamp_received;
+        }
+        this.timestampReceived = timestampReceived;
     }
 
-    private void setTimestamp_send(TimeInstant timestamp_send) {
-        if (this.timestamp_send != null)
+    private void setTimestampSend(TimeInstant timestampSend) {
+        if (this.timestampSend != null) {
             throw new IllegalStateException("Send Stamp is already set!");
-        this.timestamp_send = timestamp_send;
+        }
+        this.timestampSend = timestampSend;
     }
 
     public boolean notifyDependencyHasFinished(NetworkDependency dep) {
-        if (this.dependencies_completed)
+        if (this.dependenciesCompleted) {
             throw new IllegalStateException("Dependencies were already completed!");
+        }
 
         if (dep != null) {
-            if (!dependencies.contains(dep))
+            if (!dependencies.contains(dep)) {
                 throw new IllegalStateException("This dependency is not part of this Request");
+            }
             dep.setCompleted();
         }
 
         if ((dependencies.stream().allMatch(NetworkDependency::isCompleted))) {
-            this.dependencies_completed = true;
+            this.dependenciesCompleted = true;
             onDependenciesComplete();
-            if (dependencies_completed && computation_completed) {
+            if (dependenciesCompleted && computationCompleted) {
                 onCompletion();
             }
             return true;
@@ -194,7 +212,7 @@ public abstract class Request extends Entity {
 
     public NetworkDependency getRelatedDependency(Request request) {
         for (NetworkDependency networkDependency : dependencies) {
-            if (networkDependency.getChild_request() == request) {
+            if (networkDependency.getChildRequest() == request) {
                 return networkDependency;
             }
         }
@@ -202,27 +220,27 @@ public abstract class Request extends Entity {
     }
 
     public final double getResponseTime() {
-        if (timestamp_send == null) {
+        if (timestampSend == null) {
             throw new IllegalStateException("Can't retrieve response time: Request was not send yet.");
-        } else if (timestamp_received == null) {
+        } else if (timestampReceived == null) {
             throw new IllegalStateException("Can't retrieve response time: Request was not received yet.");
         }
 
-        double responsetime = timestamp_received.getTimeAsDouble() - timestamp_send.getTimeAsDouble();
+        double responsetime = timestampReceived.getTimeAsDouble() - timestampSend.getTimeAsDouble();
         responsetime = Precision.round(responsetime, 15);
         return responsetime;
     }
 
     public final double getDependencyWaitTime() {
-        return timestamp_dependencies_completed.getTimeAsDouble() - timestamp_send.getTimeAsDouble();
+        return timestampDependenciesCompleted.getTimeAsDouble() - timestampSend.getTimeAsDouble();
     }
 
     public final double getComputeTime() {
-        return timestamp_computation_completed.getTimeAsDouble() - timestamp_dependencies_completed.getTimeAsDouble();
+        return timestampComputationCompleted.getTimeAsDouble() - timestampDependenciesCompleted.getTimeAsDouble();
     }
 
     public final boolean areDependencies_completed() {
-        return dependencies_completed;
+        return dependenciesCompleted;
     }
 
 
@@ -247,11 +265,11 @@ public abstract class Request extends Entity {
     }
 
     public void setHandler(MicroserviceInstance handler) {
-        this.handler_instance = handler;
+        this.handlerInstance = handler;
     }
 
     public MicroserviceInstance getHandler() {
-        return handler_instance;
+        return handlerInstance;
     }
 
     public Collection<IRequestUpdateListener> getUpdateListeners() {
@@ -264,29 +282,20 @@ public abstract class Request extends Entity {
 
 
     public void cancelSending() {
-        if (sendEvent.isScheduled())
+        if (sendEvent.isScheduled()) {
             sendEvent.cancel();
+        }
         sendEvent.setCanceled();
     }
 
     /**
-     * used to cancel this request
+     * Use, to cancel this request.
      */
     public void cancelExecutionAtHandler() {
-        //TODO: delay could be added here to simulate sending of the HTTP/TCP connection failure
-        //Be careful: then messages can arrive at killed services.
-
-
-        Request request = this; //unpack if request is an
-//        if(request instanceof RequestAnswer)
-//            request = ((RequestAnswer) request).unpack();
-
-
-        // (may be fixed) TODO: minor: Completed UserRequests sometimes appear here if a MicroserviceInstance#shutdown call has priority over the IRequestUpdateListener#onRequestArrivalAtTarget
-//        if (request instanceof UserRequest && request.isCompleted()) {
-//            return;
-//        }
-        NetworkRequestEvent cancelEvent = new NetworkRequestCanceledEvent(getModel(), String.format("CANCEL Event for %s", request.getQuotedName()), request.traceIsOn(), request, RequestFailedReason.HANDLING_INSTANCE_DIED);
+        Request request = this;
+        NetworkRequestEvent cancelEvent =
+            new NetworkRequestCanceledEvent(getModel(), String.format("CANCEL Event for %s", request.getQuotedName()),
+                request.traceIsOn(), request, RequestFailedReason.HANDLING_INSTANCE_DIED);
         cancelEvent.schedule(presentTime());
         request.canceledEvent = canceledEvent;
     }

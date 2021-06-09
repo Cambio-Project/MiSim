@@ -6,6 +6,7 @@ import desmoj.core.simulator.Model;
 
 /**
  * Event that represents the successful arrival of a request at its target instance.
+ *
  * <p>
  * Gives the traveling request to the receiving handler on arrival.
  *
@@ -15,25 +16,30 @@ public class NetworkRequestReceiveEvent extends NetworkRequestEvent {
 
     private final MicroserviceInstance receivingInstance;
 
-    public NetworkRequestReceiveEvent(Model model, String name, boolean showInTrace, Request traveling_request, MicroserviceInstance receiver) {
-        super(model, name, showInTrace, traveling_request);
+    public NetworkRequestReceiveEvent(Model model, String name, boolean showInTrace,
+                                      Request travelingRequest,
+                                      MicroserviceInstance receiver) {
+        super(model, name, showInTrace, travelingRequest);
         receivingInstance = receiver;
     }
 
     @Override
     public void eventRoutine() throws SuspendExecution {
-        traveling_request.stampReceivedAtHandler(presentTime());
+        travelingRequest.stampReceivedAtHandler(presentTime());
 
         try {
-            receivingInstance.handle(traveling_request);
+            receivingInstance.handle(travelingRequest);
 
-            if (traveling_request instanceof RequestAnswer) {
-                updateListener.onRequestResultArrivedAtRequester(((RequestAnswer) traveling_request).unpack(), presentTime());
+            if (travelingRequest instanceof RequestAnswer) {
+                updateListener
+                    .onRequestResultArrivedAtRequester(((RequestAnswer) travelingRequest).unpack(), presentTime());
             }
 
-            updateListener.onRequestArrivalAtTarget(traveling_request, presentTime());
+            updateListener.onRequestArrivalAtTarget(travelingRequest, presentTime());
         } catch (IllegalStateException e) {
-            NetworkRequestEvent event = new NetworkRequestCanceledEvent(getModel(), String.format("CANCEL Event for %s", traveling_request.getQuotedName()), traceIsOn(), traveling_request, RequestFailedReason.HANDLING_INSTANCE_DIED);
+            NetworkRequestEvent event = new NetworkRequestCanceledEvent(getModel(),
+                String.format("CANCEL Event for %s", travelingRequest.getQuotedName()), traceIsOn(), travelingRequest,
+                RequestFailedReason.HANDLING_INSTANCE_DIED);
             event.schedule(presentTime());
         }
 

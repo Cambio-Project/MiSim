@@ -7,6 +7,8 @@ import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 
 /**
+ * Parser vor a {@link ChaosMonkeyEvent}.
+ *
  * @author Lion Wagner
  */
 public class ChaosMonkeyParser extends Parser<ChaosMonkeyEvent> {
@@ -38,7 +40,9 @@ public class ChaosMonkeyParser extends Parser<ChaosMonkeyEvent> {
 
         Microservice target = getMircoserviceFromName(microservice);
 
-        ChaosMonkeyEvent monkeyEvent = new ChaosMonkeyEvent(model, String.format("ChaosMonkey_(%s)", microservice), model.traceIsOn(), target, instances);
+        ChaosMonkeyEvent monkeyEvent =
+            new ChaosMonkeyEvent(model, String.format("ChaosMonkey_(%s)", microservice), model.traceIsOn(), target,
+                instances);
         monkeyEvent.setTargetTime(new TimeInstant(time, model.getExperiment().getReferenceUnit()));
         return monkeyEvent;
     }

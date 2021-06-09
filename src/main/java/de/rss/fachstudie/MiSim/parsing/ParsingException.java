@@ -5,7 +5,7 @@ package de.rss.fachstudie.MiSim.parsing;
  *
  * @author Lion Wagner
  */
-public class ParsingException extends RuntimeException{
+public class ParsingException extends RuntimeException {
     public ParsingException() {
     }
 

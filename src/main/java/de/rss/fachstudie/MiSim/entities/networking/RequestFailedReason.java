@@ -1,7 +1,7 @@
 package de.rss.fachstudie.MiSim.entities.networking;
 
 /**
- * Contains a collection of reasons, why a request can fail
+ * Contains a collection of reasons, why a request can fail.
  */
 public enum RequestFailedReason {
     NETWORK_FAILED,

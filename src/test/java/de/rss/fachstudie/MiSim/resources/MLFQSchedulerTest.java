@@ -1,13 +1,13 @@
 package de.rss.fachstudie.MiSim.resources;
 
+import java.util.ArrayList;
+
 import de.rss.fachstudie.MiSim.resources.cpu.CPUProcess;
-import de.rss.fachstudie.MiSim.resources.cpu.scheduling.MLFQScheduler;
+import de.rss.fachstudie.MiSim.resources.cpu.scheduling.MultiLevelFeedbackQueueScheduler;
 import org.javatuples.Pair;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-
-class MLFQSchedulerTest extends CPUProcessSchedulerTest<MLFQScheduler> {
+class MLFQSchedulerTest extends CPUProcessSchedulerTest<MultiLevelFeedbackQueueScheduler> {
 
     @Test
     void test_simultaneous_schedules() {
@@ -17,7 +17,7 @@ class MLFQSchedulerTest extends CPUProcessSchedulerTest<MLFQScheduler> {
         arrivalList.add(new Pair<>(new CPUProcess(60), 0));
         arrivalList.add(new Pair<>(new CPUProcess(80), 0));
 
-        int[] expectedResult = new int[]{1, 2, 3, 4, 3, 4, 4};
+        int[] expectedResult = new int[] {1, 2, 3, 4, 3, 4, 4};
 
         testProcessOrder(arrivalList, expectedResult);
     }
@@ -32,7 +32,7 @@ class MLFQSchedulerTest extends CPUProcessSchedulerTest<MLFQScheduler> {
         arrivalList.add(new Pair<>(new CPUProcess(10), 1)); //P5
         arrivalList.add(new Pair<>(new CPUProcess(45), 2)); //P6
 
-        int[] expectedResult = new int[]{1, 2, 3, 4, 5, 6, 3, 4, 4};
+        int[] expectedResult = new int[] {1, 2, 3, 4, 5, 6, 3, 4, 4};
 
         testProcessOrder(arrivalList, expectedResult);
     }
@@ -61,7 +61,7 @@ class MLFQSchedulerTest extends CPUProcessSchedulerTest<MLFQScheduler> {
         arrivalList.add(new Pair<>(new CPUProcess(5), 309)); //P12
 
 
-        int[] expectedResult = new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 1, 2, 6, 7, 8, 12, 1, 2};
+        int[] expectedResult = new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 1, 2, 6, 7, 8, 12, 1, 2};
 
         testProcessOrder(arrivalList, expectedResult);
     }

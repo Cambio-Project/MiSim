@@ -46,7 +46,8 @@ public class ChaosMonkeyEvent extends SelfScheduledEvent {
         boolean hasServicesLeft = microservice.getInstancesCount() > 0;
         sendTraceNote("Chaos Monkey " + getQuotedName() + " was executed.");
         sendTraceNote(String.format("There are %s instances left of service %s",
-                hasServicesLeft ? String.format("still %d", microservice.getInstancesCount()) : "no", microservice.getName()));
+            hasServicesLeft ? String.format("still %d", microservice.getInstancesCount()) : "no",
+            microservice.getName()));
     }
 
     @Override

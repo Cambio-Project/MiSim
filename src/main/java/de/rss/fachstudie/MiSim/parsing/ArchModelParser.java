@@ -1,5 +1,12 @@
 package de.rss.fachstudie.MiSim.parsing;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonReader;
@@ -7,15 +14,6 @@ import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
 import de.rss.fachstudie.MiSim.entities.microservice.Operation;
 import de.rss.fachstudie.MiSim.models.ArchitectureModel;
 import de.rss.fachstudie.MiSim.models.MainModel;
-
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * The ArchModelParser reads a valid json file and converts the contents into microservices and operations.
@@ -35,16 +33,21 @@ public class ArchModelParser {
         try {
             Gson gson = new Gson();
             JsonObject root = gson.fromJson(new JsonReader(new FileReader(path.toFile())), JsonObject.class);
-            MicroservicePOJO[] microservicePojos = gson.fromJson(root.get("microservices"), MicroservicePOJO[].class);
+            MicroserviceParserData[]
+                microservicesData = gson.fromJson(root.get("microservices"), MicroserviceParserData[].class);
 
-            List<Microservice> services = Arrays.stream(microservicePojos).map(microservicePOJO -> microservicePOJO.convertToMicroservice(MainModel.get(), MainModel.get().traceIsOn())).collect(Collectors.toList());
-
-            return new HashSet<>(services);
+            return Arrays.stream(microservicesData).map(microserviceParserData ->
+                microserviceParserData.convertToMicroservice(MainModel.get(), MainModel.get().traceIsOn()))
+                .collect(Collectors.toSet());
         } catch (FileNotFoundException e) {
-            throw new ParsingException(String.format("Could not find architecture file '%s'", path.toAbsolutePath()), e);
+            throw new ParsingException(String.format("Could not find architecture file '%s'", path.toAbsolutePath()),
+                e);
         }
     }
 
+    /**
+     * Creates the actual Operation objects for each microservice. (Building concrete dependencies)
+     */
     public static void initializeOperations() {
         for (Microservice service : ArchitectureModel.get().getMicroservices()) {
             for (Operation operation : service.getOperations()) {

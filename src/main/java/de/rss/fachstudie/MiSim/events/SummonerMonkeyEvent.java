@@ -6,9 +6,9 @@ import de.rss.fachstudie.MiSim.misc.Priority;
 import desmoj.core.simulator.Model;
 
 /**
- * A {@code SummonerMonkeyEvent} is an {@code ExternalEvent} that gets scheduled at the begin of the
- * experiment. It starts a specified number of {@code MicroserviceInstance}s of a specified {@code Microservice} in
- * its {@code eventRoutine} method.
+ * A {@code SummonerMonkeyEvent} is an {@code ExternalEvent} that gets scheduled at the begin of the experiment. It
+ * starts a specified number of {@code MicroserviceInstance}s of a specified {@code Microservice} in its {@code
+ * eventRoutine} method.
  */
 public class SummonerMonkeyEvent extends SelfScheduledEvent {
     private final int instances;
@@ -23,7 +23,8 @@ public class SummonerMonkeyEvent extends SelfScheduledEvent {
      * @param microservice int: The ID of the microservice whose instances should be started
      * @param instances    int: The number of instances of the specified microservice should be started
      */
-    public SummonerMonkeyEvent(Model owner, String name, boolean showInTrace, Microservice microservice, int instances) {
+    public SummonerMonkeyEvent(Model owner, String name, boolean showInTrace, Microservice microservice,
+                               int instances) {
         super(owner, name, showInTrace);
 
         this.microservice = microservice;
@@ -32,15 +33,16 @@ public class SummonerMonkeyEvent extends SelfScheduledEvent {
     }
 
     /**
-     * The eventRoutine of the {@code SummonerMonkeyEvent}. Starts a specified number of instances of a specified
-     * {@code Microservice}.
+     * The eventRoutine of the {@code SummonerMonkeyEvent}. Starts a specified number of instances of a specified {@code
+     * Microservice}.
      */
     @Override
     public void eventRoutine() throws SuspendExecution {
         microservice.scaleToInstancesCount(microservice.getInstancesCount() + instances);
 
         sendTraceNote("Summoner Monkey " + getQuotedName() + " was executed.");
-        sendTraceNote(String.format("There are now %s instances of service %s", microservice.getInstancesCount(), microservice.getName()));
+        sendTraceNote(String.format("There are now %s instances of service %s", microservice.getInstancesCount(),
+            microservice.getName()));
     }
 
     @Override

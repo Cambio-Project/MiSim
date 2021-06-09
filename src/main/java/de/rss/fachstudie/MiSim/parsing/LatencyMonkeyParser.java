@@ -1,5 +1,7 @@
 package de.rss.fachstudie.MiSim.parsing;
 
+import java.util.Arrays;
+
 import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
 import de.rss.fachstudie.MiSim.entities.microservice.Operation;
 import de.rss.fachstudie.MiSim.entities.networking.Dependency;
@@ -7,21 +9,21 @@ import de.rss.fachstudie.MiSim.events.LatencyMonkeyEvent;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 
-import java.util.Arrays;
-
 /**
+ * Parser for a {@link LatencyMonkeyEvent}.
+ *
  * @author Lion Wagner
  */
 public final class LatencyMonkeyParser extends Parser<LatencyMonkeyEvent> {
     public Double time;
     public double delay;
-    public double std_deviation = 0;
+    public double stdDeviation = 0;
     public double duration = 0;
 
     //specification levels
     public String microservice;
-    public String operation_src = null;
-    public String operation_trg = null;
+    public String operationSrc = null;
+    public String operationTrg = null;
 
 
     @Override
@@ -47,13 +49,15 @@ public final class LatencyMonkeyParser extends Parser<LatencyMonkeyEvent> {
         }
 
 
-        Operation src_op = service.getOperationByName(operation_src);
-        Operation trg_op =
-                src_op == null ?
-                        null :
-                        Arrays.stream(src_op.getDependencies()).map(Dependency::getTargetOperation).filter(targetOperation -> targetOperation.getName().equals(operation_trg)).findAny().orElse(null);
+        Operation srcOp = service.getOperationByName(operationSrc);
+        Operation trgOp =
+            srcOp == null ? null :
+                Arrays.stream(srcOp.getDependencies()).map(Dependency::getTargetOperation)
+                    .filter(targetOperation -> targetOperation.getName().equals(operationTrg)).findAny().orElse(null);
 
-        LatencyMonkeyEvent event = new LatencyMonkeyEvent(model, generateName(), model.traceIsOn(), delay, std_deviation, service, src_op, trg_op);
+        LatencyMonkeyEvent event =
+            new LatencyMonkeyEvent(model, generateName(), model.traceIsOn(), delay, stdDeviation, service, srcOp,
+                                   trgOp);
         event.setDuration(duration);
         event.setTargetTime(new TimeInstant(time, model.getExperiment().getReferenceUnit()));
 
@@ -63,12 +67,13 @@ public final class LatencyMonkeyParser extends Parser<LatencyMonkeyEvent> {
     private String generateName() {
         StringBuilder b = new StringBuilder("Lantency_Injector_");
 
-        if (operation_src == null && operation_trg == null) {
+        if (operationSrc == null && operationTrg == null) {
             b.append(String.format("[%s]", microservice));
-        } else if (operation_src != null && operation_trg == null) {
-            b.append(String.format("[%s(%s)]", microservice, operation_src));
-        } else if (operation_src != null && operation_trg != null) {
-            b.append(String.format("[%s(%s)->(%s)]", microservice, operation_src, operation_trg)); //maybe TODO: find parent service of operation_trg
+        } else if (operationSrc != null && operationTrg == null) {
+            b.append(String.format("[%s(%s)]", microservice, operationSrc));
+        } else if (operationSrc != null && operationTrg != null) {
+            b.append(String.format("[%s(%s)->(%s)]", microservice, operationSrc,
+                                   operationTrg)); //maybe TODO: find parent service of operation_trg
         }
         return b.toString();
     }

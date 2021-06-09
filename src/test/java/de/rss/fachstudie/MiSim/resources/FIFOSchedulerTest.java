@@ -1,14 +1,14 @@
 package de.rss.fachstudie.MiSim.resources;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import de.rss.fachstudie.MiSim.resources.cpu.CPUProcess;
 import de.rss.fachstudie.MiSim.resources.cpu.scheduling.FIFOScheduler;
 import org.javatuples.Pair;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 class FIFOSchedulerTest extends CPUProcessSchedulerTest<FIFOScheduler> {
 

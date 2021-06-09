@@ -1,26 +1,38 @@
 package de.rss.fachstudie.MiSim.resources;
 
 
-import de.rss.fachstudie.MiSim.resources.cpu.CPUProcess;
-import de.rss.fachstudie.MiSim.resources.cpu.scheduling.CPUProcessScheduler;
-import org.javatuples.Pair;
-import org.junit.jupiter.api.*;
-import testutils.TestExperiment;
-import testutils.TestModel;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Random;
 
-import static org.junit.jupiter.api.Assertions.*;
+import de.rss.fachstudie.MiSim.resources.cpu.CPUProcess;
+import de.rss.fachstudie.MiSim.resources.cpu.scheduling.CPUProcessScheduler;
+import org.javatuples.Pair;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
+import testutils.TestExperiment;
+import testutils.TestModel;
 
 class CPUProcessSchedulerTest<T extends CPUProcessScheduler> {
 
     private CPUProcessScheduler scheduler;
 
     @BeforeEach
-    void setUp() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+    void setUp()
+        throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
 
         Assumptions.assumeTrue(this.getClass() != CPUProcessSchedulerTest.class); //skips tests in this superclass
 
@@ -31,7 +43,7 @@ class CPUProcessSchedulerTest<T extends CPUProcessScheduler> {
         mod.connectToExperiment(testExperiment);
 
         Class<? extends T> genericType = ((Class<? extends T>) ((ParameterizedType) this.getClass().
-                getGenericSuperclass()).getActualTypeArguments()[0]);
+            getGenericSuperclass()).getActualTypeArguments()[0]);
 
         Constructor<? extends T> constructor = genericType.getConstructor(String.class);
         this.scheduler = constructor.newInstance("TestScheduler");
@@ -44,16 +56,16 @@ class CPUProcessSchedulerTest<T extends CPUProcessScheduler> {
 
     @Test
     public void returnsHasToScheduleCorrectly() {
-        assertFalse(scheduler.hasThreadsToSchedule());
+        assertFalse(scheduler.hasProcessesToSchedule());
         scheduler.enterProcess(new CPUProcess(1));
-        assertTrue(scheduler.hasThreadsToSchedule());
+        assertTrue(scheduler.hasProcessesToSchedule());
     }
 
     @Test
     public void detectsThreadsToSchedule() {
-        assertFalse(scheduler.hasThreadsToSchedule());
+        assertFalse(scheduler.hasProcessesToSchedule());
         scheduler.enterProcess(new CPUProcess(1));
-        assertTrue(scheduler.hasThreadsToSchedule());
+        assertTrue(scheduler.hasProcessesToSchedule());
     }
 
     @Test
@@ -75,8 +87,9 @@ class CPUProcessSchedulerTest<T extends CPUProcessScheduler> {
     public void returnsOneProcessCorrectly() {
         for (int i = 0; i < 100; i++) {
             int nextDemand;
-            do
+            do {
                 nextDemand = new Random().nextInt();
+            }
             while (nextDemand < 1);
             CPUProcess process = new CPUProcess(nextDemand);
             scheduler.enterProcess(process);
@@ -96,7 +109,9 @@ class CPUProcessSchedulerTest<T extends CPUProcessScheduler> {
 
         while (true) {
             next = scheduler.retrieveNextProcess();
-            if (next == null) break;
+            if (next == null) {
+                break;
+            }
             order.add(next);
             next.getValue0().reduceDemandRemainder(next.getValue1());
         }
@@ -105,7 +120,9 @@ class CPUProcessSchedulerTest<T extends CPUProcessScheduler> {
     }
 
     protected List<Pair<CPUProcess, Integer>> retrieveSchedulingOrder(Iterable<CPUProcess> input) {
-        for (CPUProcess cpuProcess : input) scheduler.enterProcess(cpuProcess);
+        for (CPUProcess cpuProcess : input) {
+            scheduler.enterProcess(cpuProcess);
+        }
         return retrieveSchedulingOrder();
     }
 
@@ -114,7 +131,9 @@ class CPUProcessSchedulerTest<T extends CPUProcessScheduler> {
         List<Pair<CPUProcess, Integer>> order = new ArrayList<>();
         Pair<CPUProcess, Integer> next;
 
-        if (input.isEmpty()) return order;
+        if (input.isEmpty()) {
+            return order;
+        }
 
         LinkedList<Pair<CPUProcess, Integer>> sortedInput = new LinkedList<>(input);
         sortedInput.sort(Comparator.comparing(Pair::getValue1));

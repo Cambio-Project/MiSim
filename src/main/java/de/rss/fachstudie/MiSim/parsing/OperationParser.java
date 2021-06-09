@@ -15,7 +15,8 @@ class OperationParser {
     public DependencyParser[] dependencies = new DependencyParser[0];
 
     public Operation convertToOperation(Model model, boolean showInTrace, Microservice owner) {
-        Operation op = new Operation(model, String.format("%s_(%s)", owner.getName(), name), showInTrace, owner, demand);
+        Operation op =
+            new Operation(model, String.format("%s_(%s)", owner.getName(), name), showInTrace, owner, demand);
         op.setDependenciesData(dependencies);
         return op;
     }
