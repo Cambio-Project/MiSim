@@ -44,7 +44,7 @@ jobs:
         git config --local user.name "DocumentationBot[bot]"
         git checkout gh-pages
         git pull
-        gir rm -rf
+        git rm -rf
         cp -rpv ~/docs/ .
         git add .
         git commit -m "Updated documentation"
