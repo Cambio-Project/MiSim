@@ -139,7 +139,7 @@ public class Microservice extends Entity {
      * @param numberOfInstances number of instances that should be instantly killed
      */
     public synchronized void killInstances(final int numberOfInstances) {
-        final int maxKills = Math.min(numberOfInstances, this.instancesSet.size());
+        final int maxKills = Math.max(0, Math.min(numberOfInstances, this.instancesSet.size()));
         for (int i = 0; i < maxKills; i++) {
             killInstance();
         }
