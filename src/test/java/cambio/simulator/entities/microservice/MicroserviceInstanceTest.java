@@ -52,7 +52,8 @@ class MicroserviceInstanceTest {
         exp.start();
         exp.finish();
 
-        instanceList.forEach(instance -> Assertions.assertEquals(InstanceState.SHUTDOWN, instance.getState()));
+        instanceList.forEach(instance -> Assertions.assertTrue(
+            instance.getState() == InstanceState.SHUTDOWN || instance.getState() == InstanceState.SHUTTING_DOWN));
 
     }
 }

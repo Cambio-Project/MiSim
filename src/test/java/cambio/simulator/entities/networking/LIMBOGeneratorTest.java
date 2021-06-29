@@ -17,12 +17,14 @@ import cambio.simulator.entities.microservice.Operation;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import testutils.TestExperiment;
 import testutils.TestModel;
 
 
+@Disabled
 class LIMBOGeneratorTest {
 
     /**
@@ -136,8 +138,8 @@ class LIMBOGeneratorTest {
     void ArrivalRateTest() {
         int maxTime = 10;
         Function<Integer, Double> func = integer -> (integer <= maxTime) ? (double) (integer * integer) :
-            0 / 0;
-        File testLoadmodel = createTestLoadModel(func); //throwing an exception on purpose to stop generation
+            0 / 0; //throwing an exception on purpose to stop generation
+        File testLoadmodel = createTestLoadModel(func);
         ExposingLIMBOGenerator gen =
             new ExposingLIMBOGenerator(mod, "TestGenerator", false, getMockOperation(), testLoadmodel, false);
 

@@ -1,4 +1,4 @@
-package Scenarios.evaluation;
+package scenarios.evaluation;
 
 import java.io.File;
 

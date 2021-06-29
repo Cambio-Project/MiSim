@@ -1,4 +1,4 @@
-package Scenarios.calibration;
+package scenarios.calibration;
 
 import java.io.File;
 
