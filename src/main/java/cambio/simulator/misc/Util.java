@@ -18,7 +18,7 @@ public class Util {
      * Checks whether a number is greater than 0.
      *
      * @param number the value to check
-     * @throws IllegalArgumentException if {@code number} is NOT > 0
+     * @throws IllegalArgumentException if {@code number} is NOT &gt;0
      */
     public static void requireGreaterZero(Number number) {
         requireGreaterZero(number, "Argument has to be greater than 0.");
@@ -29,7 +29,7 @@ public class Util {
      *
      * @param number  the value to check
      * @param message The message that should be thrown if the number is not in the correct value range
-     * @throws IllegalArgumentException if {@code number} is NOT > 0
+     * @throws IllegalArgumentException if {@code number} is NOT &gt;0
      */
     public static void requireGreaterZero(Number number, String message) {
         if (!(number.doubleValue() > 0)) {
@@ -41,7 +41,7 @@ public class Util {
      * Checks whether a number is smaller than zero.
      *
      * @param number the value to check
-     * @throws IllegalArgumentException if {@code number} is < 0
+     * @throws IllegalArgumentException if {@code number} is &lt;0
      */
     public static void requireNonNegative(Number number) {
         requireNonNegative(number, "Argument cannot be negative.");
@@ -53,7 +53,7 @@ public class Util {
      *
      * @param number  the value to check
      * @param message The message that should be thrown if the number is not in the correct value range
-     * @throws IllegalArgumentException if {@code number} is < 0
+     * @throws IllegalArgumentException if {@code number} is &lt;0
      */
     public static void requireNonNegative(Number number, String message) {
         if (number.doubleValue() < 0) {
@@ -89,7 +89,7 @@ public class Util {
      * Formats a nanosecond time into a fixed time span format.
      *
      * @param nanosecs The amount of nanoseconds that should be parsed
-     * @return A String that contains nanosecs value formated to days, hours,min, sec and ms
+     * @return A String that contains nanosecs value formated to days, hours, min, sec and ms
      */
     public static String timeFormat(long nanosecs) {
         long tempSec = nanosecs / (1000 * 1000 * 1000);
