@@ -1,0 +1,79 @@
+{
+  "simulation_meta_data": {
+    "experiment_name": "Scenario_4",
+    "model_name": "Scenario 4",
+    "duration": 250,
+    "seed": 404
+  },
+  "request_generators": [
+    {
+      "microservice": "gateway",
+      "operation": "INTERNAL_DEP",
+      "limbo_model": "./Examples/Calibration/ResponseTimeEvaluationSimArrivalRates.csv",
+      "repeating": false,
+      "repetition_skip": 0
+    },
+    {
+      "microservice": "gateway",
+      "operation": "EXTERNAL_DEP",
+      "limbo_model": "./Examples/Calibration/ResponseTimeEvaluationSimArrivalRates.csv",
+      "repeating": false,
+      "repetition_skip": 0
+    },
+    {
+      "microservice": "gateway",
+      "operation": "gateway.DB_READ",
+      "limbo_model": "./Examples/Calibration/ResponseTimeEvaluationSimArrivalRates.csv",
+      "repeating": false,
+      "repetition_skip": 0
+    },
+    {
+      "microservice": "gateway",
+      "operation": "gateway.DB_WRITE",
+      "limbo_model": "./Examples/Calibration/ResponseTimeEvaluationSimArrivalRates.csv",
+      "repeating": false,
+      "repetition_skip": 0
+    },
+    {
+      "microservice": "gateway",
+      "operation": "UNAFFECTED_SERVICE",
+      "limbo_model": "./Examples/Calibration/ResponseTimeEvaluationSimArrivalRates.csv",
+      "repeating": false,
+      "repetition_skip": 0
+    }
+  ],
+  "latencymonkeys": [
+    {
+      "microservice": "gateway",
+      "operation_src": "INTERNAL_DEP",
+      "delay": 0.5,
+      "std_deviation": 0.2,
+      "time": 90,
+      "duration": 60
+    },
+    {
+      "microservice": "gateway",
+      "operation_src": "EXTERNAL_DEP",
+      "delay": 0.5,
+      "std_deviation": 0.2,
+      "time": 90,
+      "duration": 60
+    },
+    {
+      "microservice": "gateway",
+      "operation_src": "gateway.DB_READ",
+      "delay": 0.5,
+      "std_deviation": 0.2,
+      "time": 90,
+      "duration": 60
+    },
+    {
+      "microservice": "gateway",
+      "operation_src": "gateway.DB_WRITE",
+      "delay": 0.5,
+      "std_deviation": 0.2,
+      "time": 90,
+      "duration": 60
+    }
+  ]
+}

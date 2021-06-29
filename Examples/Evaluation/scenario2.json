@@ -1,0 +1,16 @@
+{
+  "duration": 190,
+  "name": "ScenarioDescriptionParser2",
+  "description": "Exponential growing workload spike",
+  "artifact": "gateway",
+  "component": "ALL ENDPOINTS",
+  "stimulus": "LOAD Examples/Evaluation/Scenario2ArrivalRates.csv",
+  "source": "USER",
+  "environment": "IDLE",
+  "response": "Artifact should be available again",
+  "response-measure": {
+    "normal-response-time": "1s",
+    "normal-response-cases": "99%",
+    "recovery-time": "20s"
+  }
+}

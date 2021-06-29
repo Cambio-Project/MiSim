@@ -1,0 +1,59 @@
+{
+  "simulation_meta_data": {
+    "experiment_name": "Example-ChaosMonkey-Test",
+    "model_name": "Scenario ChaosMonkey",
+    "duration": 200,
+    "report": "",
+    "datapoints": 200,
+    "seed": 1337
+  },
+  "request_generators": [
+    {
+      "microservice": "gateway",
+      "operation": "gateway.PING",
+      "interval": 0
+    },
+    {
+      "microservice": "gateway",
+      "operation": "INTERNAL_DEP",
+      "limbo_model": "./Examples/example_arrival_rates.csv",
+      "repeating": true,
+      "repetition_skip": 5
+
+    },
+    {
+      "microservice": "gateway",
+      "operation": "gateway.DB_READ",
+      "interval": 0
+    },
+    {
+      "microservice": "gateway",
+      "operation": "UNAFFECTED_SERVICE",
+      "interval": 0
+    }
+  ],
+  "chaosmonkeys": [
+    {
+      "microservice": "example-service",
+      "instances": 0,
+      "time": 30
+    },
+    {
+      "microservice": "example-service2",
+      "instances": 2,
+      "time": 60
+    },
+    {
+      "microservice": "gateway",
+      "instances": 3,
+      "time": 210
+    }
+  ],
+  "summonermonkeys": [
+    {
+      "microservice": "example-service2",
+      "instances": 2,
+      "time": 100
+    }
+  ]
+}

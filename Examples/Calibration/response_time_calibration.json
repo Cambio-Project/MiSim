@@ -1,0 +1,45 @@
+{
+  "simulation_meta_data": {
+    "experiment_name": "Example-Calibration",
+    "model_name": "Scenario Calibration",
+    "duration": 500,
+    "seed": 404
+  },
+  "request_generators": [
+    {
+      "microservice": "gateway",
+      "operation": "INTERNAL_DEP",
+      "limbo_model": "./Examples/Calibration/BehaviorRangeSimArrivalRates.csv",
+      "repeating": true,
+      "repetition_skip": 0
+    },
+    {
+      "microservice": "gateway",
+      "operation": "EXTERNAL_DEP",
+      "limbo_model": "./Examples/Calibration/BehaviorRangeSimArrivalRates.csv",
+      "repeating": true,
+      "repetition_skip": 0
+    },
+    {
+      "microservice": "gateway",
+      "operation": "gateway.DB_READ",
+      "limbo_model": "./Examples/Calibration/BehaviorRangeSimArrivalRates.csv",
+      "repeating": true,
+      "repetition_skip": 0
+    },
+    {
+      "microservice": "gateway",
+      "operation": "gateway.DB_WRITE",
+      "limbo_model": "./Examples/Calibration/BehaviorRangeSimArrivalRates.csv",
+      "repeating": true,
+      "repetition_skip": 0
+    },
+    {
+      "microservice": "gateway",
+      "operation": "UNAFFECTED_SERVICE",
+      "limbo_model": "./Examples/Calibration/BehaviorRangeSimArrivalRates.csv",
+      "repeating": true,
+      "repetition_skip": 0
+    }
+  ]
+}
