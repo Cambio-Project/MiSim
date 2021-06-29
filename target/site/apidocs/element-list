@@ -1,0 +1,15 @@
+de.rss.fachstudie.MiSim.entities
+de.rss.fachstudie.MiSim.entities.generator
+de.rss.fachstudie.MiSim.entities.microservice
+de.rss.fachstudie.MiSim.entities.networking
+de.rss.fachstudie.MiSim.entities.patterns
+de.rss.fachstudie.MiSim.events
+de.rss.fachstudie.MiSim.export
+de.rss.fachstudie.MiSim.misc
+de.rss.fachstudie.MiSim.models
+de.rss.fachstudie.MiSim.parsing
+de.rss.fachstudie.MiSim.parsing.adapter
+de.rss.fachstudie.MiSim.resources
+de.rss.fachstudie.MiSim.resources.cpu
+de.rss.fachstudie.MiSim.resources.cpu.scheduling
+de.rss.fachstudie.MiSim.resources.storage
