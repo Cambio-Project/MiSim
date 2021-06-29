@@ -8,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.annotations.SerializedName;
 import com.google.gson.stream.JsonReader;
 import de.unistuttgart.sqa.orcas.misim.parsing.GsonParser;
 import de.unistuttgart.sqa.orcas.misim.parsing.ParsingException;
@@ -87,8 +88,10 @@ public class ExperimentMetaData {
     @SuppressWarnings("FieldMayBeFinal")
     private double duration = -1;
     @SuppressWarnings("FieldMayBeFinal")
+    @SerializedName(value = "experimentName", alternate = {"experiment_name"})
     private String experimentName;
     @SuppressWarnings("FieldMayBeFinal")
+    @SerializedName(value = "modelName", alternate = {"model_name"})
     private String modelName;
     @SuppressWarnings("FieldMayBeFinal")
     private TimeUnit timeUnit = TimeUnit.SECONDS;

@@ -11,7 +11,7 @@ import de.unistuttgart.sqa.orcas.misim.entities.generator.LIMBOGenerator;
 import de.unistuttgart.sqa.orcas.misim.entities.microservice.Microservice;
 import de.unistuttgart.sqa.orcas.misim.entities.microservice.Operation;
 import de.unistuttgart.sqa.orcas.misim.events.ChaosMonkeyEvent;
-import de.unistuttgart.sqa.orcas.misim.events.LatencyMonkeyEvent;
+import de.unistuttgart.sqa.orcas.misim.events.DelayInjection;
 import de.unistuttgart.sqa.orcas.misim.events.SummonerMonkeyEvent;
 import de.unistuttgart.sqa.orcas.misim.models.ArchitectureModel;
 import de.unistuttgart.sqa.orcas.misim.models.MainModel;
@@ -162,7 +162,7 @@ public class ScenarioDescription {
 
 
             scheduables.add(
-                new LatencyMonkeyEvent(MainModel.get(), "LatencyMonkey", true, baseDelay, deviationDelay, service) {
+                new DelayInjection(MainModel.get(), "LatencyMonkey", true, baseDelay, deviationDelay, service) {
                     {
                         setTargetTime(new TimeInstant(targetTime));
                         setDuration(duration);

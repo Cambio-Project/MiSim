@@ -28,7 +28,7 @@ import org.javatuples.Pair;
  */
 public class CPU extends ExternalEvent {
 
-    private static final int DEFAULT_THREADPOOLSIZE = 1000;
+    private static final int DEFAULT_THREADPOOLSIZE = 100;
 
     private final MultiDataPointReporter reporter;
 
@@ -95,9 +95,6 @@ public class CPU extends ExternalEvent {
         this.owner = owner;
         this.scheduler = scheduler;
 
-        if (this.owner.getName().contains("gateway")) {
-            threadPoolSize = 1;
-        }
         this.capacityPerThread = (double) capacity / threadPoolSize;
         this.threadPoolSize = threadPoolSize;
         activeProcesses = new HashSet<>(threadPoolSize);
@@ -122,7 +119,7 @@ public class CPU extends ExternalEvent {
         if (hasProcessAndThreadReady()) {
             forceScheduleNow();
         }
-        // reporter.addDatapoint("TotalProcesses", presentTime(), getProcessesCount());
+        reporter.addDatapoint("TotalProcesses", presentTime(), getProcessesCount());
     }
 
     /**

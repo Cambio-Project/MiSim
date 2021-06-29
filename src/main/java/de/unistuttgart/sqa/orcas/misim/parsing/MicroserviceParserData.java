@@ -2,6 +2,7 @@ package de.unistuttgart.sqa.orcas.misim.parsing;
 
 import java.util.Arrays;
 
+import com.google.gson.annotations.SerializedName;
 import de.unistuttgart.sqa.orcas.misim.entities.microservice.Microservice;
 import de.unistuttgart.sqa.orcas.misim.entities.microservice.Operation;
 import desmoj.core.simulator.Model;
@@ -15,6 +16,7 @@ public class MicroserviceParserData {
     public String name = "";
     public int instances = 0;
     public int capacity = 0;
+    @SerializedName(value = "loadbalancerStrategy", alternate = "loadbalancer_strategy")
     public String loadbalancerStrategy = null;
     public PatternData[] patterns = new PatternData[0];
     public OperationParser[] operations;
@@ -22,7 +24,7 @@ public class MicroserviceParserData {
     /**
      * Converts the given data into a {@link Microservice} object.
      *
-     * @param model respective DESMO-J model
+     * @param model       respective DESMO-J model
      * @param showInTrace whether events of the service should be shown in the trace.
      * @return the new constrcuted {@link Microservice} instance.
      */

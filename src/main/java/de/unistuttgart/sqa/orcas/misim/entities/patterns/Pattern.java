@@ -47,7 +47,8 @@ public abstract class Pattern extends Entity {
 
             try {
                 field.setAccessible(true);
-                Object argumentValue = arguments != null ? arguments.get(field.getName()) : null;
+                Object argumentValue =
+                    arguments != null ? arguments.get(field.getName().toLowerCase().replace("_", "")) : null;
                 if (argumentValue == null) {
                     String missingInfo;
                     Object defaultValue = field.get(this);

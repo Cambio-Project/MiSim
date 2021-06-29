@@ -2,6 +2,7 @@ package de.unistuttgart.sqa.orcas.misim.events;
 
 import java.util.Objects;
 
+import com.google.gson.annotations.SerializedName;
 import desmoj.core.simulator.ExternalEvent;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
@@ -12,6 +13,7 @@ import desmoj.core.simulator.TimeInstant;
  * @author Lion Wagner
  */
 public abstract class SelfScheduledEvent extends ExternalEvent implements ISelfScheduled {
+    @SerializedName(value = "arrival_time", alternate = {"time", "target_time", "targetTime"})
     private TimeInstant targetTime;
 
     @Override

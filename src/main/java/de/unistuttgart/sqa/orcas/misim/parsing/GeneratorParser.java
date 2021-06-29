@@ -2,6 +2,7 @@ package de.unistuttgart.sqa.orcas.misim.parsing;
 
 import java.io.File;
 
+import com.google.gson.annotations.SerializedName;
 import de.unistuttgart.sqa.orcas.misim.entities.generator.Generator;
 import de.unistuttgart.sqa.orcas.misim.entities.generator.IntervalGenerator;
 import de.unistuttgart.sqa.orcas.misim.entities.generator.LIMBOGenerator;
@@ -30,8 +31,10 @@ class GeneratorParser extends Parser<Generator> {
     public double start = 0;
 
     //LIMBO Generator
+    @SerializedName(value = "limboModel", alternate = {"limbo_model"})
     public String limboModel;
     public boolean repeating = false;
+    @SerializedName(value = "repetitionSkip", alternate = {"repetition_skip"})
     public double repetitionSkip = 1000;
 
 

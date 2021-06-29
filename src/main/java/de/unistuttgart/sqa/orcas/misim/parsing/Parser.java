@@ -7,7 +7,7 @@ import desmoj.core.simulator.Model;
 
 /**
  * Abstract superclass with a generic interface to ease object parsing.
- * 
+ *
  * <p>
  * TODO: create a Parser subclass for parsing time dependent events (e.g. SummonerMonkey, ChaosMonkey)
  *
@@ -30,10 +30,14 @@ public abstract class Parser<T> {
         Operation targetOperation = parent.getOperationByName(name);
         if (targetOperation == null) {
             throw new ParsingException(
-                String.format("Operation '%s' is not part of microserivce %s", name, parent.getName()));
+                String.format("Operation '%s' is not part of microservice %s", name, parent.getName()));
         }
         return targetOperation;
     }
 
     public abstract String getDescriptionKey();
+
+    public String[] getAlternateKeys() {
+        return new String[0];
+    }
 }

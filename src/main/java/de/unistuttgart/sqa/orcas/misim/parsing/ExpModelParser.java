@@ -5,6 +5,7 @@ import java.io.FileReader;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -37,7 +38,7 @@ public class ExpModelParser {
         List<Class<? extends Parser<?>>> temp = Arrays.asList(
             ChaosMonkeyParser.class,
             SummonerMonkeyParser.class,
-            LatencyMonkeyParser.class,
+            DelayInjectionParser.class,
             GeneratorParser.class);
         parserClasses = Collections.unmodifiableList(temp);
     }
@@ -70,16 +71,24 @@ public class ExpModelParser {
 
             for (Parser<?> parserInstance : parserInstances) {
                 Class<?> clazz = Array.newInstance(parserInstance.getClass(), 0).getClass();
-                Object result = gson.fromJson(root.get(parserInstance.getDescriptionKey()), clazz);
 
-                if (result == null) {
-                    continue;
+                ArrayList<String> keys = new ArrayList<String>();
+                keys.add(parserInstance.getDescriptionKey());
+                keys.addAll(Arrays.asList(parserInstance.getAlternateKeys()));
+
+                for (String key : keys) {
+                    Object result = gson.fromJson(root.get(key), clazz);
+
+                    if (result == null) {
+                        continue;
+                    }
+
+                    int count = Array.getLength(result);
+                    for (int i = 0; i < count; i++) {
+                        parsedObjects.add((Parser<?>) Array.get(result, i));
+                    }
                 }
 
-                int count = Array.getLength(result);
-                for (int i = 0; i < count; i++) {
-                    parsedObjects.add((Parser<?>) Array.get(result, i));
-                }
             }
 
             parsedExperimentObjects =

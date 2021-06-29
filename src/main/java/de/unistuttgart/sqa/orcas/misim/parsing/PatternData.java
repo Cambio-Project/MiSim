@@ -89,7 +89,9 @@ public class PatternData {
             default:
                 throw new ParsingException(String.format("Could not find pattern of type %s", typename));
         }
-        output.initFields(config);
+        Map<String, Object> nameMap = new HashMap<>();
+        config.forEach((s, o) -> nameMap.put(s.toLowerCase().replace("_", ""), o));
+        output.initFields(nameMap);
         return output;
     }
 }

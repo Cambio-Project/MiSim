@@ -337,9 +337,6 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
 
 
     private void collectQueueStatistics() {
-        if (true) {
-            return;
-        }
         int notComputed = 0;
         int waiting = 0;
         for (Request request : currentRequestsToHandle) {

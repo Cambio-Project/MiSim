@@ -21,7 +21,7 @@ import desmoj.core.simulator.TimeSpan;
  *
  * @author Lion Wagner
  */
-public class LatencyMonkeyEvent extends SelfScheduledEvent {
+public class DelayInjection extends SelfScheduledEvent {
     private final double delay;
     private final double stdDeviation;
     private final Microservice microservice;
@@ -30,31 +30,31 @@ public class LatencyMonkeyEvent extends SelfScheduledEvent {
 
     private double duration;
 
-    public LatencyMonkeyEvent(Model model, String name, boolean showInTrace, double delay, Microservice microservice) {
+    public DelayInjection(Model model, String name, boolean showInTrace, double delay, Microservice microservice) {
         this(model, name, showInTrace, delay, 0, microservice, null, null);
     }
 
-    public LatencyMonkeyEvent(Model model, String name, boolean showInTrace, double delay, Operation operationSrc) {
+    public DelayInjection(Model model, String name, boolean showInTrace, double delay, Operation operationSrc) {
         this(model, name, showInTrace, delay, 0, operationSrc.getOwnerMS(), operationSrc, null);
     }
 
-    public LatencyMonkeyEvent(Model model, String name, boolean showInTrace, double delay, Operation operationSrc,
-                              Operation operationTrg) {
+    public DelayInjection(Model model, String name, boolean showInTrace, double delay, Operation operationSrc,
+                          Operation operationTrg) {
         this(model, name, showInTrace, delay, 0, operationSrc.getOwnerMS(), operationSrc, operationTrg);
     }
 
-    public LatencyMonkeyEvent(Model model, String name, boolean showInTrace, double delay, double stdDeviation,
-                              Microservice microservice) {
+    public DelayInjection(Model model, String name, boolean showInTrace, double delay, double stdDeviation,
+                          Microservice microservice) {
         this(model, name, showInTrace, delay, stdDeviation, microservice, null, null);
     }
 
-    public LatencyMonkeyEvent(Model model, String name, boolean showInTrace, double delay, double stdDeviation,
-                              Operation operationSrc) {
+    public DelayInjection(Model model, String name, boolean showInTrace, double delay, double stdDeviation,
+                          Operation operationSrc) {
         this(model, name, showInTrace, delay, stdDeviation, operationSrc.getOwnerMS(), operationSrc, null);
     }
 
     /**
-     * Constructs a new {@link LatencyMonkeyEvent}.
+     * Constructs a new {@link DelayInjection}.
      *
      * @param delay        mean delay that should be added to a connection
      * @param stdDeviation standard deviation of this delay
@@ -64,8 +64,8 @@ public class LatencyMonkeyEvent extends SelfScheduledEvent {
      * @param operationTrg target {@link Operation} of the operationSrc that should be affected, can be set to {@code
      *                     null} to affect all outgoing {@link InternalRequest}s
      */
-    public LatencyMonkeyEvent(Model model, String name, boolean showInTrace, double delay, double stdDeviation,
-                              Microservice microservice, Operation operationSrc, Operation operationTrg) {
+    public DelayInjection(Model model, String name, boolean showInTrace, double delay, double stdDeviation,
+                          Microservice microservice, Operation operationSrc, Operation operationTrg) {
         super(model, name, showInTrace);
         Objects.requireNonNull(microservice);
 
@@ -110,7 +110,7 @@ public class LatencyMonkeyEvent extends SelfScheduledEvent {
         microservice.applyDelay(dist, operationSrc, operationTrg);
         new ExternalEvent(getModel(), "LatencyMonkeyDeactivator", this.traceIsOn()) {
             @Override
-            public void eventRoutine() throws SuspendExecution {
+            public void eventRoutine() {
                 microservice.applyDelay(null, operationSrc, operationTrg);
             }
         }.schedule(new TimeSpan(duration));

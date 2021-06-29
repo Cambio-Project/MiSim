@@ -2,32 +2,36 @@ package de.unistuttgart.sqa.orcas.misim.parsing;
 
 import java.util.Arrays;
 
+import com.google.gson.annotations.SerializedName;
 import de.unistuttgart.sqa.orcas.misim.entities.microservice.Microservice;
 import de.unistuttgart.sqa.orcas.misim.entities.microservice.Operation;
 import de.unistuttgart.sqa.orcas.misim.entities.networking.Dependency;
-import de.unistuttgart.sqa.orcas.misim.events.LatencyMonkeyEvent;
+import de.unistuttgart.sqa.orcas.misim.events.DelayInjection;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 
 /**
- * Parser for a {@link LatencyMonkeyEvent}.
+ * Parser for a {@link DelayInjection}.
  *
  * @author Lion Wagner
  */
-public final class LatencyMonkeyParser extends Parser<LatencyMonkeyEvent> {
+public final class DelayInjectionParser extends Parser<DelayInjection> {
     public Double time;
     public double delay;
+    @SerializedName(value = "stdDeviation", alternate = "std_deviation")
     public double stdDeviation = 0;
     public double duration = 0;
 
     //specification levels
     public String microservice;
+    @SerializedName(value = "operationSrc", alternate = "operation_src")
     public String operationSrc = null;
+    @SerializedName(value = "operationTrg", alternate = "operation_trg")
     public String operationTrg = null;
 
 
     @Override
-    public LatencyMonkeyEvent convertToObject(Model model) {
+    public DelayInjection convertToObject(Model model) {
         try {
             return parse(model);
         } catch (IllegalArgumentException e) {
@@ -40,7 +44,12 @@ public final class LatencyMonkeyParser extends Parser<LatencyMonkeyEvent> {
         return "latencymonkeys";
     }
 
-    private LatencyMonkeyEvent parse(Model model) throws IllegalArgumentException {
+    @Override
+    public String[] getAlternateKeys() {
+        return new String[] {"latencyInjection"};
+    }
+
+    private DelayInjection parse(Model model) throws IllegalArgumentException {
         Microservice service = getMircoserviceFromName(microservice);
 
 
@@ -55,9 +64,9 @@ public final class LatencyMonkeyParser extends Parser<LatencyMonkeyEvent> {
                 Arrays.stream(srcOp.getDependencies()).map(Dependency::getTargetOperation)
                     .filter(targetOperation -> targetOperation.getName().equals(operationTrg)).findAny().orElse(null);
 
-        LatencyMonkeyEvent event =
-            new LatencyMonkeyEvent(model, generateName(), model.traceIsOn(), delay, stdDeviation, service, srcOp,
-                                   trgOp);
+        DelayInjection event =
+            new DelayInjection(model, generateName(), model.traceIsOn(), delay, stdDeviation, service, srcOp,
+                trgOp);
         event.setDuration(duration);
         event.setTargetTime(new TimeInstant(time, model.getExperiment().getReferenceUnit()));
 
@@ -73,7 +82,7 @@ public final class LatencyMonkeyParser extends Parser<LatencyMonkeyEvent> {
             b.append(String.format("[%s(%s)]", microservice, operationSrc));
         } else if (operationSrc != null && operationTrg != null) {
             b.append(String.format("[%s(%s)->(%s)]", microservice, operationSrc,
-                                   operationTrg)); //maybe TODO: find parent service of operation_trg
+                operationTrg)); //maybe TODO: find parent service of operation_trg
         }
         return b.toString();
     }
