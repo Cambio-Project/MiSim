@@ -46,7 +46,7 @@ jobs:
         git pull
         cp -rpv ~/docs/. .
         git add .
-        git commit -m "Updated documentation"
+        git commit -m "Updated documentation" --allow-empty
         
     - name: Push changes
       uses: ad-m/github-push-action@master
