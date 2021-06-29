@@ -3,6 +3,8 @@ name: Publish Artifact
 on:
   push:
     branches: [ master, Version3 ]
+  pull_request:
+    branches: [ master ]
   workflow_dispatch:
     
 jobs:
