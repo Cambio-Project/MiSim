@@ -14,12 +14,12 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import de.unistuttgart.sqa.orcas.misim.entities.generator.Generator;
-import de.unistuttgart.sqa.orcas.misim.entities.generator.IntervalGenerator;
-import de.unistuttgart.sqa.orcas.misim.entities.microservice.Microservice;
-import de.unistuttgart.sqa.orcas.misim.entities.microservice.Operation;
-import de.unistuttgart.sqa.orcas.misim.entities.networking.Dependency;
-import de.unistuttgart.sqa.orcas.misim.parsing.PatternData;
+import cambio.simulator.entities.generator.Generator;
+import cambio.simulator.entities.generator.IntervalGenerator;
+import cambio.simulator.entities.microservice.Microservice;
+import cambio.simulator.entities.microservice.Operation;
+import cambio.simulator.entities.networking.Dependency;
+import cambio.simulator.parsing.PatternData;
 import desmoj.core.simulator.Model;
 import org.junit.jupiter.api.Assertions;
 
