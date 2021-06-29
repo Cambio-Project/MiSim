@@ -1,0 +1,32 @@
+{
+  "version": 3.1,
+  "name": "New Experiment",
+  "description": "Contains examples for the new Experiemnt format",
+  "generators": [
+    {
+      "type": "limbo",
+      "config": {
+        "arrivalTime": 0,
+        "model": "./Examples/Evaluation/Scenario1ArrivalRates.csv",
+        "repeating": true,
+        "repetitionSkip": 10
+      }
+    },
+    {
+      "type": "interval",
+      "config": {
+        "arrivalTime": 0,
+        "terminationTime": 10,
+        "interval": 5
+      }
+    },
+    {
+      "type": "interval",
+      "config": {
+        "arrivalTime": 0,
+        "duration": 20,
+        "interval": 3
+      }
+    }
+  ]
+}
