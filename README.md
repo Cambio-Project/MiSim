@@ -1,8 +1,13 @@
+[![Build Artifact](https://github.com/LitschiW/resilience-simulator/actions/workflows/build_artifact.yml/badge.svg)](https://github.com/LitschiW/resilience-simulator/actions/workflows/build_artifact.yml)
+[![Documentation](https://img.shields.io/badge/Documentation-online-32CA55?style=flat&logo=github&logoColor=959DA5&labelColor=2F353C)](https://litschiw.github.io/resilience-simulator/)
 [![DOI](https://zenodo.org/badge/200825938.svg)](https://zenodo.org/badge/latestdoi/200825938)
 
-# MiSim Microservice Resilience Simulator
 
-This simulator was created as part of the Fachstudie __Simulation-based Resilience Prediction of Microservice Architectures__ at the Reliable Software Systems Research Group of the Institute of Software Technology at the University of Stuttgart.
+## WIP Note: This ReadMe is still WIP. Some information is not true for MiSim 3.0 onwards.
+
+# MiSim - Microservice Resilience Simulator
+
+This simulator was created as part of two Bachelor Thesis and a Fachstudie __Simulation-based Resilience Prediction of Microservice Architectures__ at the Software Quality Group of the Institute of Software Engineering at the University of Stuttgart.
 
 It allows the simulation of microservice architectures in regard to resilience and is based on the [DesmoJ](http://desmoj.sourceforge.net) framework for discrete event modelling and simulation. 
 
@@ -12,9 +17,28 @@ It allows the simulation of microservice architectures in regard to resilience a
 - [Architectural Model](#arch_mod)
 - [Experiment Model](#exp_mod)
 
-## <a name="Installation"></a>Installation
+## <a name="Usage"></a>Usage
 
-In order to run the simulator you have to download the DesmoJ binary from [sourceforge](http://desmoj.sourceforge.net/download.html) and then include it into the project.
+### Artifact Download
+
+Download the [newest stable release](https://github.com/LitschiW/resilience-simulator/releases) or a [nightly build](https://github.com/LitschiW/resilience-simulator/actions/workflows/build_artifact.yml) (see artifacts of newest workflow run).
+
+### Build from source
+
+Clone via git and run 
+`mvn -B package --file pom.xml "-DskipTests=true" "-Dmaven.javadoc.skip=true" "-Dcheckstyle.skipExec=true"`. 
+You should see a `misim.jar` file in the resulting `target/` directory.
+
+### Execution
+
+Simply run `java -jar misim.jar [arguments]`.
+
+### Parameters
+
+| Argument | Short | Required | Description | Example |
+|----------|------|----------|-------------|---------|
+|   --arch_model       |   -a   |     true     |    provides path to the architecture file         |     ./Examples/example_architecture_scaling.json    |
+
 
 ## <a name="Execution"></a>Execution
 
