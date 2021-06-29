@@ -1,7 +1,7 @@
 {
   "duration": 190,
-  "name": "ScenarioDescriptionParser4",
-  "description": "Exponential growing workload spike",
+  "name": "ScenarioDescription4",
+  "description": "Delay injection into example-service",
   "artifact": "example-service",
   "component": "ALL ENDPOINTS",
   "stimulus": "LOAD Examples/Calibration/ResponseTimeEvaluationSimArrivalRates.csv AND DELAY 0.5+-0.2@90~60",

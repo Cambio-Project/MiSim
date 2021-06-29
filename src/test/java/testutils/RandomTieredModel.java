@@ -1,20 +1,27 @@
 package testutils;
 
-import de.rss.fachstudie.MiSim.entities.generator.Generator;
-import de.rss.fachstudie.MiSim.entities.generator.IntervalGenerator;
-import de.rss.fachstudie.MiSim.entities.microservice.Microservice;
-import de.rss.fachstudie.MiSim.entities.microservice.Operation;
-import de.rss.fachstudie.MiSim.entities.networking.Dependency;
-import de.rss.fachstudie.MiSim.parsing.PatternData;
-import desmoj.core.simulator.Model;
-import org.junit.jupiter.api.Assertions;
+import static testutils.TestUtils.nextNonNegative;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static testutils.TestUtils.nextNonNegative;
+import cambio.simulator.entities.generator.Generator;
+import cambio.simulator.entities.generator.IntervalGenerator;
+import cambio.simulator.entities.microservice.Microservice;
+import cambio.simulator.entities.microservice.Operation;
+import cambio.simulator.entities.networking.Dependency;
+import cambio.simulator.parsing.PatternData;
+import desmoj.core.simulator.Model;
+import org.junit.jupiter.api.Assertions;
 
 public class RandomTieredModel extends Model {
 
@@ -59,14 +66,16 @@ public class RandomTieredModel extends Model {
                 Microservice current_ms = new Microservice(this, "MS_" + tiernb + "_" + i, false);
                 current_ms.setInstancesCount(2);
                 current_ms.setCapacity(nextNonNegative());
-                current_ms.setPatternData(new PatternData[]{
-                        TestUtils.getRetryPatternMock(this),
-                        TestUtils.getCircuitBreaker(this),
-                        TestUtils.getAutoscaler(this)
+                current_ms.setPatternData(new PatternData[] {
+                    TestUtils.getRetryPatternMock(this),
+                    TestUtils.getCircuitBreaker(this),
+                    TestUtils.getAutoscaler(this)
                 });
                 ArrayList<Operation> current_ops = new ArrayList<>();
                 for (int j = 0; j < new Random().nextInt(5) + 1; j++) {
-                    Operation currentOP = new Operation(this, String.format("%s_OP%d", current_ms.getName(), j), false, current_ms, nextNonNegative(Math.max(current_ms.getCapacity() / (int) Math.pow(5, tiernb + 1), 1)));//
+                    Operation currentOP =
+                        new Operation(this, String.format("%s_OP%d", current_ms.getName(), j), false, current_ms,
+                            nextNonNegative(Math.max(current_ms.getCapacity() / (int) Math.pow(5, tiernb + 1), 1)));//
                     current_ops.add(currentOP);
                 }
                 current_ms.setOperations(current_ops.toArray(new Operation[0]));
@@ -85,14 +94,16 @@ public class RandomTieredModel extends Model {
             }
 
             List<Microservice> nextTier = tiers.get(current_tier + 1);
-            int operationsInNextTier = nextTier.stream().mapToInt(microservice1 -> microservice1.getOperations().length).sum();
+            int operationsInNextTier =
+                nextTier.stream().mapToInt(microservice1 -> microservice1.getOperations().length).sum();
             List<Operation> nextTierOps = new ArrayList<>();
             nextTier.forEach(microservice1 -> nextTierOps.addAll(Arrays.asList(microservice1.getOperations())));
 
             for (Operation operation : microservice.getOperations()) {
                 Set<Dependency> dependencies = new HashSet<>();
-                int depTargetCount = operationsInNextTier/2 + nextNonNegative(operationsInNextTier)/2;
-                Predicate<Operation> alreadyTargeted = op -> dependencies.stream().anyMatch(dependency -> dependency.getTargetOperation() == op);
+                int depTargetCount = operationsInNextTier / 2 + nextNonNegative(operationsInNextTier) / 2;
+                Predicate<Operation> alreadyTargeted =
+                    op -> dependencies.stream().anyMatch(dependency -> dependency.getTargetOperation() == op);
                 for (int i = 0; i < depTargetCount; i++) {
                     Operation targetOP = null;
                     while (targetOP == null || alreadyTargeted.test(targetOP)) {
@@ -107,7 +118,8 @@ public class RandomTieredModel extends Model {
         //asserting model correctness
         for (Operation operation : all_operations) {
             for (Dependency dependency : operation.getDependencies()) {
-                Assertions.assertEquals(1, getTier(dependency.getTargetMicroservice()) - getTier(operation.getOwnerMS()));
+                Assertions
+                    .assertEquals(1, getTier(dependency.getTargetMicroservice()) - getTier(operation.getOwnerMS()));
             }
         }
 
@@ -115,8 +127,9 @@ public class RandomTieredModel extends Model {
 
     private int getTier(Microservice microservice) {
         for (Map.Entry<Integer, List<Microservice>> entry : tiers.entrySet()) {
-            if (entry.getValue().contains(microservice))
+            if (entry.getValue().contains(microservice)) {
                 return entry.getKey();
+            }
         }
         return -1;
     }
@@ -133,12 +146,12 @@ public class RandomTieredModel extends Model {
         List<Operation> tier1Operations = new ArrayList<>();
         tiers.get(1).forEach(microservice -> tier1Operations.addAll(Arrays.asList(microservice.getOperations())));
         all_generators.addAll(IntStream.range(0, generator_count)
-                .mapToObj(operand -> (Generator)
-                        new IntervalGenerator(this,
-                                "intervalgen",
-                                false,
-                                tier1Operations.get(nextNonNegative(tier1Operations.size())), interval, 0))
-                .collect(Collectors.toList()));
+            .mapToObj(operand -> (Generator)
+                new IntervalGenerator(this,
+                    "intervalgen",
+                    false,
+                    tier1Operations.get(nextNonNegative(tier1Operations.size())), interval, 0))
+            .collect(Collectors.toList()));
     }
 
     public ArrayList<Microservice> getAllMicroservices() {

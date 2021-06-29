@@ -85,21 +85,21 @@
       "name": "example-service",
       "instances": 1,
       "patterns": [],
-      "capacity": 15,
+      "capacity": 15000,
       "operations": [
         {
           "name": "example-service.DB_WRITE",
-          "demand": 220,
+          "demand": 100,
           "dependencies": []
         },
         {
           "name": "example-service.DB_READ",
-          "demand": 220,
+          "demand": 100,
           "dependencies": []
         },
         {
           "name": "call_example-service2",
-          "demand": 220,
+          "demand": 100,
           "dependencies": [
             {
               "service": "example-service2",
@@ -109,7 +109,7 @@
         },
         {
           "name": "call_external_service",
-          "demand": 220,
+          "demand": 100,
           "dependencies": []
         }
       ]

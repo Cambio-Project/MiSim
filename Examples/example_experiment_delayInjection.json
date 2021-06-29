@@ -20,6 +20,11 @@
     },
     {
       "microservice": "gateway",
+      "operation": "gateway.DB_WRITE",
+      "interval": 1
+    },
+    {
+      "microservice": "gateway",
       "operation": "gateway.DB_READ",
       "interval": 1
     },
@@ -33,14 +38,15 @@
     {
       "microservice": "example-service",
       "delay": 0.3,
-      "std_deviation": 0.1,
+      "std_deviation": 0.2,
       "time": 120,
       "duration": 30
     },
     {
       "microservice": "gateway",
-      "delay": 0.3,
-      "time": 50
+      "delay": 0.2,
+      "time": 50,
+      "duration": 20
     }
   ]
 }
