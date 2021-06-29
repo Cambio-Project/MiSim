@@ -1,5 +1,5 @@
-[![Build Artifact](https://github.com/LitschiW/resilience-simulator/actions/workflows/build_artifact.yml/badge.svg)](https://github.com/LitschiW/resilience-simulator/actions/workflows/build_artifact.yml)
-[![Documentation](https://img.shields.io/badge/Documentation-online-32CA55?style=flat&logo=github&logoColor=959DA5&labelColor=2F353C)](https://litschiw.github.io/resilience-simulator/)
+[![Build Artifact](https://github.com/Cambio-Project/resilience-simulator/actions/workflows/build_artifact.yml/badge.svg)](https://github.com/Cambio-Project/resilience-simulator/actions/workflows/build_artifact.yml)
+[![Documentation](https://img.shields.io/badge/Documentation-online-32CA55?style=flat&logo=github&logoColor=959DA5&labelColor=2F353C)](https://Cambio-Project.github.io/resilience-simulator/)
 [![DOI](https://zenodo.org/badge/200825938.svg)](https://zenodo.org/badge/latestdoi/200825938)
 
 
@@ -21,7 +21,7 @@ It allows the simulation of microservice architectures in regard to resilience a
 
 ### Artifact Download
 
-Download the [newest stable release](https://github.com/LitschiW/resilience-simulator/releases) or a [nightly build](https://github.com/LitschiW/resilience-simulator/actions/workflows/build_artifact.yml) (see artifacts of newest workflow run).
+Download the [newest stable release](https://github.com/Cambio-Project/resilience-simulator/releases) or a [nightly build](https://github.com/Cambio-Project/resilience-simulator/actions/workflows/build_artifact.yml) (see artifacts of newest workflow run).
 
 ### Build from source
 
