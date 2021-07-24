@@ -5,6 +5,7 @@ import java.util.Arrays;
 import cambio.simulator.entities.networking.DependencyDescription;
 import cambio.simulator.entities.networking.NetworkDependency;
 import cambio.simulator.parsing.DependencyParser;
+import com.google.gson.annotations.Expose;
 import desmoj.core.dist.NumericalDist;
 import desmoj.core.simulator.Entity;
 import desmoj.core.simulator.Model;
@@ -14,7 +15,10 @@ import desmoj.core.simulator.Model;
  * dependencies.
  */
 public class Operation extends Entity {
+    @Expose
     private final int demand;
+
+
     private final Microservice ownerMS;
     private DependencyDescription[] dependencies = new DependencyDescription[0];
     //POJOs that hold the (json) data of the dependencies, used for parsing
@@ -27,7 +31,7 @@ public class Operation extends Entity {
      * @param demand  CPU demand of this operation.
      */
     public Operation(Model model, String name, boolean showInTrace, Microservice ownerMS, int demand) {
-        super(model, name, showInTrace);
+        super(model, (ownerMS == null ? "" : ownerMS.getPlainName() + ".") + name, showInTrace);
         this.demand = demand;
         this.ownerMS = ownerMS;
     }
@@ -54,12 +58,20 @@ public class Operation extends Entity {
 
     @Override
     public String getQuotedName() {
-        return "'" + getName() + "'";
+        return "'" + getName() + "'"; //TODO:remove ownerMs.name from return value here
     }
 
     @Override
     public String toString() {
-        return getName();
+        return getFullyQualifiedName();
+    }
+
+    public String getFullyQualifiedName() {
+        return ownerMS.getPlainName() + "." + getName();
+    }
+
+    public String getQuotedFullyQualifiedName() {
+        return super.getQuotedName();
     }
 
     /**
@@ -106,5 +118,9 @@ public class Operation extends Entity {
      */
     public void applyExtraDelay(NumericalDist<Double> dist) {
         applyExtraDelay(dist, null);
+    }
+
+    public String getPlainName() {
+        return getName().substring(0, getName().length() - ((int) Math.ceil(Math.log10(getIdentNumber()))));
     }
 }

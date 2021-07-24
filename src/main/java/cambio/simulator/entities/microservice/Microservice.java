@@ -17,6 +17,8 @@ import cambio.simulator.entities.patterns.ServiceOwnedPattern;
 import cambio.simulator.export.ContinuousMultiDataPointReporter;
 import cambio.simulator.export.MultiDataPointReporter;
 import cambio.simulator.parsing.PatternData;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 import desmoj.core.dist.NumericalDist;
 import desmoj.core.simulator.Entity;
 import desmoj.core.simulator.Event;
@@ -46,24 +48,36 @@ import desmoj.core.simulator.Model;
  * @see InstanceOwnedPattern
  */
 public class Microservice extends Entity {
-    private final Set<MicroserviceInstance> instancesSet = new HashSet<>();
+    private final transient Set<MicroserviceInstance> instancesSet = new HashSet<>();
+    private final transient MultiDataPointReporter reporter;
+    @Expose
+    @SerializedName(value = "load_balancer_strategy", alternate = "load_balancer")
     private final LoadBalancer loadBalancer;
-    private final MultiDataPointReporter reporter;
-    private boolean started = false;
-    private String name = "";
+    private transient boolean started = false;
+    private transient int instanceSpawnCounter = 0; // running counter to create instance ID's
+    private transient ServiceOwnedPattern[] serviceOwnedPatterns;
+    @Expose
+    @SerializedName(value = "name")
+    private String plainName = ""; //TODO: fix this whole naming confusion thing
+    @Expose
     private int capacity = 0;
-    private int targetInstanceCount = 0;
-    private int instanceSpawnCounter = 0; // running counter to create instance ID's
+    @Expose
+    private int startingInstanceCount = 1;
+
+    @Expose
     private Operation[] operations;
+
+    @Expose
+    @SerializedName(value = "pattern", alternate = {"patterns"})
     private PatternData[] patternsData;
-    private ServiceOwnedPattern[] serviceOwnedPatterns;
+
 
     /**
      * Creates a new instance of a {@link Microservice}.
      */
     public Microservice(Model model, String name, boolean showInTrace) {
         super(model, name, showInTrace);
-        setName(name);
+        setPlainName(name);
         loadBalancer = new LoadBalancer(model, "Loadbalancer of " + this.getQuotedName(), traceIsOn(), instancesSet);
         setLoadBalancingStrategy("random"); //defaulting to random lb
         reporter = new ContinuousMultiDataPointReporter(String.format("S[%s]_", name));
@@ -75,7 +89,7 @@ public class Microservice extends Entity {
      */
     public synchronized void start() {
         started = true;
-        scaleToInstancesCount(targetInstanceCount);
+        scaleToInstancesCount(startingInstanceCount);
         serviceOwnedPatterns = Arrays.stream(patternsData)
             .map(patternData -> patternData.tryGetServiceOwnedPatternOrNull(this))
             .filter(Objects::nonNull)
@@ -83,11 +97,15 @@ public class Microservice extends Entity {
     }
 
     public String getName() {
-        return name;
+        return plainName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public String getPlainName() {
+        return plainName;
+    }
+
+    public void setPlainName(String plainName) {
+        this.plainName = plainName;
     }
 
     public int getCapacity() {
@@ -113,7 +131,7 @@ public class Microservice extends Entity {
      * @param numberOfInstances amount of instance that this service should target.
      */
     public synchronized void setInstancesCount(final int numberOfInstances) {
-        targetInstanceCount = numberOfInstances;
+        startingInstanceCount = numberOfInstances;
         if (started) {
             scaleToInstancesCount(numberOfInstances);
         }
@@ -286,5 +304,4 @@ public class Microservice extends Entity {
     public double getAverageUtilization() {
         return getUtilizationOfInstances().stream().mapToDouble(value -> value).average().orElse(0);
     }
-
 }

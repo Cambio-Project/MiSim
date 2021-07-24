@@ -3,6 +3,7 @@ package cambio.simulator.models;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.time.LocalDateTime;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -24,11 +25,11 @@ public class ExperimentMetaData {
     @SuppressWarnings("FieldMayBeFinal")
     private int seed = new Random().nextInt();
     @SuppressWarnings("FieldMayBeFinal")
-    private String report = "default";
+    private String reportType = "default";
     @SuppressWarnings("FieldMayBeFinal")
     private double duration = -1;
     @SuppressWarnings("FieldMayBeFinal")
-    @SerializedName(value = "experimentName", alternate = {"experiment_name"})
+    @SerializedName(value = "experimentName", alternate = {"experiment_name", "name"})
     private String experimentName;
     @SuppressWarnings("FieldMayBeFinal")
     @SerializedName(value = "modelName", alternate = {"model_name"})
@@ -40,6 +41,13 @@ public class ExperimentMetaData {
      */
     private File expFileLocation;
     private File archFileLocation;
+    private File reportLocation;
+    private String description;
+
+    private LocalDateTime startTimestamp;
+
+    private transient long startOfSetup;
+    private long durationOfSetupMS = -1;
 
     /**
      * Gets the experiment meta data singleton.
@@ -99,8 +107,9 @@ public class ExperimentMetaData {
         return get();
     }
 
+
     public String getReportType() {
-        return report;
+        return reportType;
     }
 
     public String getExperimentName() {
@@ -137,5 +146,38 @@ public class ExperimentMetaData {
 
     private void setArchFileLocation(File archFileLocation) {
         this.archFileLocation = archFileLocation;
+    }
+
+
+    public void markStartOfSetup(long startTime) {
+        this.startOfSetup = startTime;
+    }
+
+    public void markEndOfSetup(long endTime) {
+        this.durationOfSetupMS = endTime - startOfSetup;
+    }
+
+    public void setStartDate(LocalDateTime startTime) {
+        this.startTimestamp = startTime;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public long getDurationOfSetupMS() {
+        return durationOfSetupMS;
+    }
+
+    public LocalDateTime getStartTimestamp() {
+        return startTimestamp;
+    }
+
+    public File getReportLocation() {
+        return reportLocation;
     }
 }

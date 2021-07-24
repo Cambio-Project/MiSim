@@ -1,11 +1,15 @@
 package cambio.simulator.models;
 
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.parsing.ArchModelParser;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+import desmoj.core.dist.ContDistNormal;
 
 /**
  * Class that contains the architectural information provided by the architecture file.
@@ -14,10 +18,16 @@ import cambio.simulator.parsing.ArchModelParser;
  */
 public class ArchitectureModel {
     private static ArchitectureModel instance = null;
-    private final Set<Microservice> microservices;
+
+    @Expose
+    private final Microservice[] microservices;
+
+    @Expose
+    @SerializedName(value = "network_latency", alternate = {"network_delay", "delay", "latency"})
+    private ContDistNormal networkLatency;
 
     private ArchitectureModel(Path archFile) {
-        microservices = ArchModelParser.parseMicroservicesArchModelFile(archFile);
+        microservices = ArchModelParser.parseMicroservicesArchModelFile(archFile).toArray(new Microservice[0]);
     }
 
     /**
@@ -53,6 +63,6 @@ public class ArchitectureModel {
      * @return all microservices
      */
     public Set<Microservice> getMicroservices() {
-        return new HashSet<>(microservices);
+        return new HashSet<>(Arrays.asList(microservices));
     }
 }

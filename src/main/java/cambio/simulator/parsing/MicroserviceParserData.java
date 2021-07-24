@@ -32,7 +32,6 @@ public class MicroserviceParserData {
         final Microservice service = new Microservice(model, name, showInTrace);
         service.setLoadBalancingStrategy(loadbalancerStrategy);
         service.setCapacity(capacity);
-        service.setName(name);
         service.setInstancesCount(instances);
 
         Operation[] operationsObj = Arrays.stream(operations)
