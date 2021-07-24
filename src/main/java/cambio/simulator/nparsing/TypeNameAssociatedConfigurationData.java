@@ -2,7 +2,7 @@ package cambio.simulator.nparsing;
 
 import java.util.Map;
 
-import cambio.simulator.parsing.GsonParser;
+import cambio.simulator.parsing.GsonHelper;
 import com.google.gson.Gson;
 
 /**
@@ -13,7 +13,7 @@ public class TypeNameAssociatedConfigurationData {
     public Map<String, Object> config;
 
     public String getConfigAsJsonString() {
-        Gson gson = new GsonParser().getGson();
+        Gson gson = new GsonHelper().getGson();
         return gson.toJson(config);
     }
 
