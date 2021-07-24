@@ -54,19 +54,20 @@ public abstract class Request extends Entity {
 
     private void createDependencies() {
 
-        for (Dependency dependency : operation.getDependencies()) {
+        for (DependencyDescription dependencyDescription : operation.getDependencies()) {
 
             // Roll probability
             Random prob;
             prob = Util.tryGetRandomFromExperimentSeed();
 
-            double probability = dependency.getProbability();
+            double probability = dependencyDescription.getProbability();
             double sample = prob.nextDouble();
             if (sample <= probability) {
 
-                Operation nextOperationEntity = dependency.getTargetOperation();
+                Operation nextOperationEntity = dependencyDescription.getTargetOperation();
 
-                NetworkDependency dep = new NetworkDependency(getModel(), this, nextOperationEntity, dependency);
+                NetworkDependency dep = new NetworkDependency(getModel(), this, nextOperationEntity,
+                    dependencyDescription);
 
                 dependencies.add(dep);
             }

@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.entities.microservice.Operation;
-import cambio.simulator.entities.networking.Dependency;
+import cambio.simulator.entities.networking.DependencyDescription;
 import cambio.simulator.events.DelayInjection;
 import com.google.gson.annotations.SerializedName;
 import desmoj.core.simulator.Model;
@@ -61,7 +61,7 @@ public final class DelayInjectionParser extends Parser<DelayInjection> {
         Operation srcOp = service.getOperationByName(operationSrc);
         Operation trgOp =
             srcOp == null ? null :
-                Arrays.stream(srcOp.getDependencies()).map(Dependency::getTargetOperation)
+                Arrays.stream(srcOp.getDependencies()).map(DependencyDescription::getTargetOperation)
                     .filter(targetOperation -> targetOperation.getName().equals(operationTrg)).findAny().orElse(null);
 
         DelayInjection event =

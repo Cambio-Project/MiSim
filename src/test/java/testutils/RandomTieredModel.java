@@ -18,7 +18,7 @@ import cambio.simulator.entities.generator.Generator;
 import cambio.simulator.entities.generator.IntervalGenerator;
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.entities.microservice.Operation;
-import cambio.simulator.entities.networking.Dependency;
+import cambio.simulator.entities.networking.DependencyDescription;
 import cambio.simulator.parsing.PatternData;
 import desmoj.core.simulator.Model;
 import org.junit.jupiter.api.Assertions;
@@ -100,7 +100,7 @@ public class RandomTieredModel extends Model {
             nextTier.forEach(microservice1 -> nextTierOps.addAll(Arrays.asList(microservice1.getOperations())));
 
             for (Operation operation : microservice.getOperations()) {
-                Set<Dependency> dependencies = new HashSet<>();
+                Set<DependencyDescription> dependencies = new HashSet<>();
                 int depTargetCount = operationsInNextTier / 2 + nextNonNegative(operationsInNextTier) / 2;
                 Predicate<Operation> alreadyTargeted =
                     op -> dependencies.stream().anyMatch(dependency -> dependency.getTargetOperation() == op);
@@ -109,17 +109,17 @@ public class RandomTieredModel extends Model {
                     while (targetOP == null || alreadyTargeted.test(targetOP)) {
                         targetOP = nextTierOps.get(nextNonNegative(nextTierOps.size()));
                     }
-                    dependencies.add(new Dependency(operation, targetOP));
+                    dependencies.add(new DependencyDescription(operation, targetOP));
                 }
-                operation.setDependencies(dependencies.toArray(new Dependency[0]));
+                operation.setDependencies(dependencies.toArray(new DependencyDescription[0]));
             }
         }
 
         //asserting model correctness
         for (Operation operation : all_operations) {
-            for (Dependency dependency : operation.getDependencies()) {
+            for (DependencyDescription dependencyDescription : operation.getDependencies()) {
                 Assertions
-                    .assertEquals(1, getTier(dependency.getTargetMicroservice()) - getTier(operation.getOwnerMS()));
+                    .assertEquals(1, getTier(dependencyDescription.getTargetMicroservice()) - getTier(operation.getOwnerMS()));
             }
         }
 

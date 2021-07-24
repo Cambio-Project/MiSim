@@ -9,11 +9,11 @@ import desmoj.core.simulator.Entity;
 import desmoj.core.simulator.Model;
 
 /**
- * This is an instance of a {@link Dependency}. It describes an actual existing dependency of a {@code Request}, that
+ * This is an instance of a {@link DependencyDescription}. It describes an actual existing dependency of a {@code Request}, that
  * arrived at a {@code MicroserviceInstance}.
  *
  * @author Lion Wagner
- * @see Dependency
+ * @see DependencyDescription
  * @see Request
  * @see MicroserviceInstance
  */
@@ -22,24 +22,25 @@ public class NetworkDependency extends Entity {
     private final Request parentRequest;
     private final Microservice targetMicroservice;
     private final Operation targetOp;
-    private final Dependency dependencyData;
+    private final DependencyDescription dependencyDescription;
     private boolean completed;
     private Request childRequest;
 
     /**
-     * Creates an actual instance of a {@link Dependency}.
+     * Creates an actual instance of a {@link DependencyDescription}.
      *
-     * @param model          DESMO-J model
-     * @param parentRequest  {@link Request} that requires this dependency.
-     * @param targetOp       {@link Operation} that is targeted by this dependency.
-     * @param dependencyData generic data that describes this dependency.
+     * @param model                 DESMO-J model
+     * @param parentRequest         {@link Request} that requires this dependency.
+     * @param targetOp              {@link Operation} that is targeted by this dependency.
+     * @param dependencyDescription generic data that describes this dependency.
      */
-    public NetworkDependency(Model model, Request parentRequest, Operation targetOp, Dependency dependencyData) {
+    public NetworkDependency(Model model, Request parentRequest, Operation targetOp,
+                             DependencyDescription dependencyDescription) {
         super(model, String.format("Dependency(%s)of[%s]", targetOp.getName(), parentRequest.getName()), false);
         this.parentRequest = parentRequest;
         this.targetOp = targetOp;
         this.targetMicroservice = targetOp.getOwnerMS();
-        this.dependencyData = dependencyData;
+        this.dependencyDescription = dependencyDescription;
     }
 
 
@@ -80,15 +81,15 @@ public class NetworkDependency extends Entity {
     }
 
     public double getNextExtraDelay() {
-        return dependencyData.getNextExtraDelay();
+        return dependencyDescription.getNextExtraDelay();
     }
 
     public boolean hasCustomDelay() {
-        return dependencyData.hasCustomDelay();
+        return dependencyDescription.hasCustomDelay();
     }
 
     public double getNextCustomDelay() {
-        return dependencyData.getNextCustomDelay();
+        return dependencyDescription.getNextCustomDelay();
     }
 
     @Override

@@ -2,7 +2,7 @@ package cambio.simulator.entities.microservice;
 
 import java.util.Arrays;
 
-import cambio.simulator.entities.networking.Dependency;
+import cambio.simulator.entities.networking.DependencyDescription;
 import cambio.simulator.entities.networking.NetworkDependency;
 import cambio.simulator.parsing.DependencyParser;
 import desmoj.core.dist.NumericalDist;
@@ -16,7 +16,7 @@ import desmoj.core.simulator.Model;
 public class Operation extends Entity {
     private final int demand;
     private final Microservice ownerMS;
-    private Dependency[] dependencies = new Dependency[0];
+    private DependencyDescription[] dependencies = new DependencyDescription[0];
     //POJOs that hold the (json) data of the dependencies, used for parsing
     private DependencyParser[] dependenciesData = new DependencyParser[0];
 
@@ -36,11 +36,11 @@ public class Operation extends Entity {
         this.dependenciesData = dependenciesData;
     }
 
-    public Dependency[] getDependencies() {
+    public DependencyDescription[] getDependencies() {
         return dependencies;
     }
 
-    public void setDependencies(Dependency[] operations) {
+    public void setDependencies(DependencyDescription[] operations) {
         this.dependencies = operations;
     }
 
@@ -64,10 +64,10 @@ public class Operation extends Entity {
 
     /**
      * A call of this method is needed for proper usage.<br> Parses the set {@link DependencyParser}s into {@link
-     * Dependency} objects.
+     * DependencyDescription} objects.
      */
     public void initializeDependencies() {
-        dependencies = new Dependency[dependenciesData.length];
+        dependencies = new DependencyDescription[dependenciesData.length];
         for (int i = 0; i < dependenciesData.length; i++) {
             dependenciesData[i].setOwningOperation(this);
             dependencies[i] = this.dependenciesData[i].convertToObject(getModel());
@@ -83,11 +83,11 @@ public class Operation extends Entity {
      */
     public void applyExtraDelay(NumericalDist<Double> dist, Operation operationTrg) {
         if (operationTrg == null) {
-            for (Dependency dependency : dependencies) {
-                dependency.setExtraDelay(dist);
+            for (DependencyDescription dependencyDescription : dependencies) {
+                dependencyDescription.setExtraDelay(dist);
             }
         } else {
-            Dependency targetDependency =
+            DependencyDescription targetDependency =
                 Arrays.stream(dependencies).filter(dependency -> dependency.getTargetOperation() == operationTrg)
                     .findAny().orElse(null);
             if (targetDependency == null) {

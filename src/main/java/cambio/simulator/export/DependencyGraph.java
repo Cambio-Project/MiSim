@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.entities.microservice.Operation;
-import cambio.simulator.entities.networking.Dependency;
+import cambio.simulator.entities.networking.DependencyDescription;
 import cambio.simulator.models.ExperimentMetaData;
 import cambio.simulator.models.MainModel;
 
@@ -103,7 +103,7 @@ public class DependencyGraph {
             StringBuilder labels = new StringBuilder();
             for (Operation op : ms.getOperations()) {
                 labels.append("'").append(op.getName()).append("',");
-                for (Dependency depService : op.getDependencies()) {
+                for (DependencyDescription depService : op.getDependencies()) {
                     long depId = depService.getTargetMicroservice().getIdentNumber();
                     json.append("{source:").append(ms.getIdentNumber())
                         .append(",target:").append(depId)
