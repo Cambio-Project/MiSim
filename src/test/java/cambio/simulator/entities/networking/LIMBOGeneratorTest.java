@@ -51,11 +51,11 @@ class LIMBOGeneratorTest {
             super(model, name, showInTrace, operation, LimboProfile, repeating, repetition_skip);
         }
 
-        public TimeInstant getNextTargetTime(TimeInstant lastTargetTime) {
+        public TimeInstant getNextTargetTime(TimeInstant lastTargetTime) throws GeneratorStopException {
             return super.getNextTargetTime(lastTargetTime);
         }
 
-        public TimeInstant getFirstTargetTime() {
+        public TimeInstant getFirstTargetTime() throws GeneratorStopException {
             return super.getFirstTargetTime();
         }
     }
@@ -105,7 +105,7 @@ class LIMBOGeneratorTest {
     }
 
     @Test
-    void loadsFirstTargetTimeCorrectly() {
+    void loadsFirstTargetTimeCorrectly() throws GeneratorStopException {
         File testLoadmodel = createTestLoadModel(integer -> (integer <= 2) ? (double) integer :
             0 / 0); //throwing an exception on purpose to stop generation
         ExposingLIMBOGenerator gen =
