@@ -2,10 +2,13 @@ package cambio.simulator.parsing;
 
 
 import java.io.File;
+import java.time.LocalDateTime;
 
+import cambio.simulator.nparsing.adapter.LocalDateTimeAdapter;
 import cambio.simulator.parsing.adapter.FileAdapter;
 import cambio.simulator.parsing.adapter.TimeInstantAdapter;
 import cambio.simulator.parsing.adapter.TimeSpanAdapter;
+import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import desmoj.core.simulator.TimeInstant;
@@ -17,10 +20,7 @@ import desmoj.core.simulator.TimeSpan;
  * @author Lion Wagner
  * @see com.google.gson.TypeAdapter
  */
-public class GsonParser {
-
-    public GsonParser() {
-    }
+public class GsonHelper {
 
     /**
      * Creates a new default Gson object for parsing JSON that supports {@link File}, {@link TimeInstant} and {@link
@@ -29,11 +29,17 @@ public class GsonParser {
      * @return a default {@link Gson}.
      */
     public Gson getGson() {
-        return new GsonBuilder()
-            .registerTypeAdapter(File.class, new FileAdapter())
-            .registerTypeAdapter(TimeInstant.class, new TimeInstantAdapter())
-            .registerTypeAdapter(TimeSpan.class, new TimeSpanAdapter())
-            .create();
+        return getGsonBuilder().create();
     }
+
+    public GsonBuilder getGsonBuilder() {
+        return new GsonBuilder()
+            .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+            .registerTypeAdapter(File.class, new FileAdapter())
+            .registerTypeAdapter(TimeSpan.class, new TimeSpanAdapter())
+            .registerTypeAdapter(TimeInstant.class, new TimeInstantAdapter())
+            .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter());
+    }
+
 
 }

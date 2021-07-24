@@ -26,7 +26,7 @@ import cambio.simulator.export.ReportCollector;
 import cambio.simulator.export.ReportWriter;
 import cambio.simulator.misc.Priority;
 import cambio.simulator.misc.Util;
-import cambio.simulator.parsing.GsonParser;
+import cambio.simulator.parsing.GsonHelper;
 import cambio.simulator.parsing.ScenarioDescription;
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
@@ -241,7 +241,7 @@ public class MainModel extends Model {
     private static void generateReport(MainModel model) {
         ExperimentMetaData metaData = ExperimentMetaData.get();
         Path reportLocation = Paths.get(".", "Report_" + metaData.getExperimentName());
-        Gson gson = new GsonParser().getGson();
+        Gson gson = new GsonHelper().getGson();
         try {
             FileUtils.deleteDirectory(reportLocation.toFile());
             reportLocation.toFile().mkdirs();

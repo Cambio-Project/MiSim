@@ -6,7 +6,7 @@ import java.io.FileReader;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-import cambio.simulator.parsing.GsonParser;
+import cambio.simulator.parsing.GsonHelper;
 import cambio.simulator.parsing.ParsingException;
 import cambio.simulator.parsing.ScenarioDescription;
 import com.google.gson.Gson;
@@ -62,7 +62,7 @@ public class ExperimentMetaData {
         if (instance != null) {
             throw new IllegalStateException("Architecture Model was already initialized.");
         }
-        Gson gson = new GsonParser().getGson();
+        Gson gson = new GsonHelper().getGson();
 
         try {
             if (expFileLocation != null) {

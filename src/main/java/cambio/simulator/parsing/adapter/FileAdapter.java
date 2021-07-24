@@ -25,7 +25,7 @@ public class FileAdapter extends TypeAdapter<File> {
         if (value == null) {
             out.nullValue();
         } else {
-            out.value(value.getAbsolutePath());
+            out.jsonValue(value.getAbsolutePath());
         }
     }
 
