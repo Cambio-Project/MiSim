@@ -40,7 +40,8 @@ public class ArchModelParser {
                 microserviceParserData.convertToMicroservice(MainModel.get(), MainModel.get().traceIsOn()))
                 .collect(Collectors.toSet());
         } catch (FileNotFoundException e) {
-            throw new ParsingException(String.format("Could not find architecture file '%s'", path.toAbsolutePath()),
+            throw new ParsingException(
+                String.format("Could not find architecture file '%s'", path.toAbsolutePath()),
                 e);
         }
     }

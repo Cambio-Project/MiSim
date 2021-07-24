@@ -62,7 +62,7 @@ public class PatternData {
      *
      * @param owner owning entity, e.g. a {@code MicroserviceInstance} or {@code Microservice}
      * @return the parsed pattern
-     * @throws ParsingException if the string encoded type is unknown.
+     * @throws IlleagalStateException if the string encoded type is unknown.
      */
     private Pattern tryGetPattern(Entity owner) {
         // TODO: find pattern type from name
