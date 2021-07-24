@@ -119,7 +119,8 @@ public class RandomTieredModel extends Model {
         for (Operation operation : all_operations) {
             for (DependencyDescription dependencyDescription : operation.getDependencies()) {
                 Assertions
-                    .assertEquals(1, getTier(dependencyDescription.getTargetMicroservice()) - getTier(operation.getOwnerMS()));
+                    .assertEquals(1,
+                        getTier(dependencyDescription.getTargetMicroservice()) - getTier(operation.getOwnerMS()));
             }
         }
 

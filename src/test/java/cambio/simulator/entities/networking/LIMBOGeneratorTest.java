@@ -27,46 +27,10 @@ import testutils.TestModel;
 @Disabled
 class LIMBOGeneratorTest {
 
-    /**
-     * Test class that exposes the important next TargetTime for testing
-     */
-    private static class ExposingLIMBOGenerator extends LIMBOGenerator {
-        public ExposingLIMBOGenerator(Model model, String name, boolean showInTrace, Operation operation,
-                                      File limboModel) {
-            super(model, name, showInTrace, operation, limboModel);
-        }
-
-        public ExposingLIMBOGenerator(Model model, String name, boolean showInTrace, Operation operation,
-                                      File limboModel, double repetition_skip) {
-            super(model, name, showInTrace, operation, limboModel, repetition_skip);
-        }
-
-        public ExposingLIMBOGenerator(Model model, String name, boolean showInTrace, Operation operation,
-                                      File limboModel, boolean repeating) {
-            super(model, name, showInTrace, operation, limboModel, repeating);
-        }
-
-        public ExposingLIMBOGenerator(Model model, String name, boolean showInTrace, Operation operation,
-                                      File LimboProfile, boolean repeating, double repetition_skip) {
-            super(model, name, showInTrace, operation, LimboProfile, repeating, repetition_skip);
-        }
-
-        public TimeInstant getNextTargetTime(TimeInstant lastTargetTime) throws GeneratorStopException {
-            return super.getNextTargetTime(lastTargetTime);
-        }
-
-        public TimeInstant getFirstTargetTime() throws GeneratorStopException {
-            return super.getFirstTargetTime();
-        }
-    }
-
-
-    private static TestExperiment testExperiment;
-    private static TestModel mod;
-
     private static final File testFile = new File("src/test/resources/example_arrival_rates.csv");
     private static final File testFile2 = new File("Examples/example_arrival_rates_simple.csv");
-
+    private static TestExperiment testExperiment;
+    private static TestModel mod;
 
     @BeforeAll
     static void beforeAll() {
@@ -113,7 +77,6 @@ class LIMBOGeneratorTest {
         TimeInstant nextTargetTime = gen.getFirstTargetTime();
         assertEquals(1, nextTargetTime.getTimeAsDouble(), 0.000001);
     }
-
 
     @Test
     void repeatsCorrectly() {
@@ -170,11 +133,43 @@ class LIMBOGeneratorTest {
         return targetTimes;
     }
 
-
     private Operation getMockOperation() {
         Operation op = Mockito.mock(Operation.class, Mockito.RETURNS_DEEP_STUBS);
         Mockito.when(op.getOwnerMS().getName()).thenReturn("TestMS");
         Mockito.when(op.getName()).thenReturn("TestOP");
         return op;
+    }
+
+    /**
+     * Test class that exposes the important next TargetTime for testing
+     */
+    private static class ExposingLIMBOGenerator extends LIMBOGenerator {
+        public ExposingLIMBOGenerator(Model model, String name, boolean showInTrace, Operation operation,
+                                      File limboModel) {
+            super(model, name, showInTrace, operation, limboModel);
+        }
+
+        public ExposingLIMBOGenerator(Model model, String name, boolean showInTrace, Operation operation,
+                                      File limboModel, double repetition_skip) {
+            super(model, name, showInTrace, operation, limboModel, repetition_skip);
+        }
+
+        public ExposingLIMBOGenerator(Model model, String name, boolean showInTrace, Operation operation,
+                                      File limboModel, boolean repeating) {
+            super(model, name, showInTrace, operation, limboModel, repeating);
+        }
+
+        public ExposingLIMBOGenerator(Model model, String name, boolean showInTrace, Operation operation,
+                                      File LimboProfile, boolean repeating, double repetition_skip) {
+            super(model, name, showInTrace, operation, LimboProfile, repeating, repetition_skip);
+        }
+
+        public TimeInstant getNextTargetTime(TimeInstant lastTargetTime) throws GeneratorStopException {
+            return super.getNextTargetTime(lastTargetTime);
+        }
+
+        public TimeInstant getFirstTargetTime() throws GeneratorStopException {
+            return super.getFirstTargetTime();
+        }
     }
 }

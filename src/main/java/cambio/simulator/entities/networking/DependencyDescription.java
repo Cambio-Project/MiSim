@@ -154,11 +154,14 @@ public class DependencyDescription {
     }
 
     /**
-     * Turns the {@link DependencyDescription#targetServiceName} and  {@link DependencyDescription#targetOperationName} into the actual target Operation reference.
-     * <p>
-     * This method is used during parsing with a {@link cambio.simulator.nparsing.adapter.ArchitectureModelAdapter} and may only be called once per {@link DependencyDescription} object.
+     * Turns the {@link DependencyDescription#targetServiceName} and  {@link DependencyDescription#targetOperationName}
+     * into the actual target Operation reference.
      *
-     * @param model
+     * <p>
+     * This method is used during parsing with a {@link cambio.simulator.nparsing.adapter.ArchitectureModelAdapter} and
+     * may only be called once per {@link DependencyDescription} object.
+     *
+     * @param model {@link ArchitectureModel} that this {@link DependencyDescription} belongs to.
      */
     public void resolveNames(ArchitectureModel model) {
         if (hasResolvedNames) {

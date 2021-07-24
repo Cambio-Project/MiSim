@@ -112,9 +112,7 @@ public class TestUtils {
      *
      * @param percentile        target percentile in [0:100)
      * @param number_collection collection containing the analysed dataset
-     *
      * @return the asked percentile
-     *
      * @throws org.apache.commons.math3.exception.MathIllegalArgumentException if percentile not in [0:100)
      * @see Percentile
      */

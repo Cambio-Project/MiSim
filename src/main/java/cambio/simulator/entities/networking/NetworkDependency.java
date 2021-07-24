@@ -9,8 +9,8 @@ import desmoj.core.simulator.Entity;
 import desmoj.core.simulator.Model;
 
 /**
- * This is an instance of a {@link DependencyDescription}. It describes an actual existing dependency of a {@code Request}, that
- * arrived at a {@code MicroserviceInstance}.
+ * This is an instance of a {@link DependencyDescription}. It describes an actual existing dependency of a
+ * {@code Request}, that arrived at a {@code MicroserviceInstance}.
  *
  * @author Lion Wagner
  * @see DependencyDescription

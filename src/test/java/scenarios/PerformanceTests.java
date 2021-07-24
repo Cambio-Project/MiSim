@@ -6,9 +6,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import co.paralleluniverse.fibers.SuspendExecution;
 import cambio.simulator.entities.networking.NetworkRequestSendEvent;
 import cambio.simulator.export.CSVData;
+import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.Experiment;
 import desmoj.core.simulator.NameCatalog;
 import desmoj.core.simulator.SimProcess;
@@ -24,14 +24,6 @@ import testutils.TestUtils;
  */
 @Disabled
 public class PerformanceTests {
-    static class TestResult implements CSVData {
-        public long execution_duration_ms;
-        public int simulated_duration_ms;
-        public int number_of_services;
-        public int number_of_dependencies;
-        public long number_of_sendEvents;
-    }
-
     static List<TestResult> performanceTest(int max_service_count, int tier_count, int iterations) {
         List<TestResult> testResults = new LinkedList<>();
 
@@ -162,5 +154,13 @@ public class PerformanceTests {
         }
 
         TestUtils.writeOutput(testResults, "./message_scale_test.csv");
+    }
+
+    static class TestResult implements CSVData {
+        public long execution_duration_ms;
+        public int simulated_duration_ms;
+        public int number_of_services;
+        public int number_of_dependencies;
+        public long number_of_sendEvents;
     }
 }

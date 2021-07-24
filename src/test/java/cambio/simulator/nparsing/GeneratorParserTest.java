@@ -1,15 +1,15 @@
 package cambio.simulator.nparsing;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+
+import cambio.simulator.entities.generator.Generator;
+import cambio.simulator.nparsing.adapter.GeneratorAdapter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
-import cambio.simulator.entities.generator.Generator;
-import cambio.simulator.nparsing.adapter.GeneratorAdapter;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 
 @Disabled
 class GeneratorParserTest {
