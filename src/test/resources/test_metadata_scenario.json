@@ -1,0 +1,19 @@
+{
+  "name": "New Experiment",
+  "description": "Contains examples for the new Experiment format",
+  "reportType": "continuous",
+  "reportLocation": "/Report_42/",
+  "duration": 180,
+  "seed": 42,
+  "artifact": "gateway",
+  "component": "ALL ENDPOINTS",
+  "stimulus": "LOAD Examples/Evaluation/Scenario1ArrivalRates.csv",
+  "source": "USER",
+  "environment": "IDLE",
+  "response": "Artifact should be available again",
+  "response-measure": {
+    "normal-response-time": "1s",
+    "normal-response-cases": "99%",
+    "recovery-time": "20s"
+  }
+}

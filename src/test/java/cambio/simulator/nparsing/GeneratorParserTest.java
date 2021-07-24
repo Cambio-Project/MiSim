@@ -18,7 +18,7 @@ class GeneratorParserTest {
     void name() throws FileNotFoundException {
         Gson gson = new GsonBuilder().registerTypeAdapter(Generator.class, new GeneratorAdapter()).create();
 
-        JsonReader reader = new JsonReader(new FileReader("Examples/new_example.json"));
+        JsonReader reader = new JsonReader(new FileReader("src/test/resources/test_experiment.json"));
         Experiment exp = gson.fromJson(reader, Experiment.class);
     }
 }
