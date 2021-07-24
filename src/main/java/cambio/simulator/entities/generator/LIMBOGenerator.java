@@ -139,19 +139,19 @@ public class LIMBOGenerator extends Generator {
     }
 
     @Override
-    protected TimeInstant getNextTargetTime(TimeInstant lastTargetTime) {
+    protected TimeInstant getNextTargetTime(TimeInstant lastTargetTime) throws GeneratorStopException {
         return getNextTimeInstant();
     }
 
     @Override
-    protected TimeInstant getFirstTargetTime() {
+    protected TimeInstant getFirstTargetTime() throws GeneratorStopException {
         if (workingCopyTargetTimes.isEmpty()) {
             throw new GeneratorStopException("Load Profile does not define any loads.");
         }
         return getNextTimeInstant();
     }
 
-    private TimeInstant getNextTimeInstant() {
+    private TimeInstant getNextTimeInstant() throws GeneratorStopException {
         if (iter.hasNext()) {
             return new TimeInstant(iter.next() + (repetitions * repetitionSkip));
         } else {

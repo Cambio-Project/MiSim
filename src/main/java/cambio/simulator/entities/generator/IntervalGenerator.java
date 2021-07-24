@@ -68,7 +68,7 @@ public final class IntervalGenerator extends Generator {
     }
 
     @Override
-    protected TimeInstant getFirstTargetTime() {
+    protected TimeInstant getFirstTargetTime() throws GeneratorStopException {
         if (interval == 0) {
             throw new GeneratorStopException("Interval was not above 0.");
         }

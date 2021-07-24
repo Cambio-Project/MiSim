@@ -98,7 +98,7 @@ public abstract class Generator extends RequestSender implements IRequestUpdateL
      * @return the next target time
      * @throws GeneratorStopException when the Generator is stops.
      */
-    protected abstract TimeInstant getNextTargetTime(final TimeInstant lastTargetTime);
+    protected abstract TimeInstant getNextTargetTime(final TimeInstant lastTargetTime) throws GeneratorStopException;
 
     /**
      * Method to compute the first or initial target time. Called by the superclass upon need for the first
@@ -110,12 +110,12 @@ public abstract class Generator extends RequestSender implements IRequestUpdateL
      * @return the point in simulation time when the first request should be sent by this generator
      * @throws GeneratorStopException when the Generator is stops.
      */
-    protected abstract TimeInstant getFirstTargetTime();
+    protected abstract TimeInstant getFirstTargetTime() throws GeneratorStopException;
 
     /**
      * Helper to decide between First and Next TargetTime and to help with data collection.
      */
-    private TimeInstant getNextExecutionTimeInstance() {
+    private TimeInstant getNextExecutionTimeInstance() throws GeneratorStopException {
         nextTargetTime = lastTargetTime == null ? getFirstTargetTime() : getNextTargetTime(lastTargetTime);
 
         accReporter.addDatapoint("Load", nextTargetTime, 1);

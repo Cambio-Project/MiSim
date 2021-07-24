@@ -7,7 +7,7 @@ package cambio.simulator.entities.generator;
  * @author Lion Wagner
  * @see Generator
  */
-public class GeneratorStopException extends RuntimeException {
+public class GeneratorStopException extends Exception {
 
     /**
      * Constructs a new runtime exception with {@code null} as its detail message.  The cause is not initialized, and
