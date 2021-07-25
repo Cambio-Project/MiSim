@@ -23,7 +23,8 @@ public class InternalRequest extends Request {
                            MicroserviceInstance requester) {
         super(model,
             String
-                .format("Cascading Request %s(%s)", dependency.getTargetOp().getOwnerMS().getPlainName(), dependency.getTargetOp().getPlainName()),
+                .format("Cascading Request %s(%s)", dependency.getTargetOp().getOwnerMS().getPlainName(),
+                    dependency.getTargetOp().getPlainName()),
             showInTrace,
             dependency.getParentRequest(),
             dependency.getTargetOp(), requester);
