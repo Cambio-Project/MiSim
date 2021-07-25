@@ -81,7 +81,9 @@ loadScripts(document, 'script');</script>
 <div class="inheritance">desmoj.core.simulator.ModelComponent
 <div class="inheritance">desmoj.core.simulator.Schedulable
 <div class="inheritance">desmoj.core.simulator.Entity
+<div class="inheritance"><a href="../NamedEntity.html" title="class in cambio.simulator.entities">cambio.simulator.entities.NamedEntity</a>
 <div class="inheritance">cambio.simulator.entities.microservice.Operation</div>
+</div>
 </div>
 </div>
 </div>
@@ -90,7 +92,7 @@ loadScripts(document, 'script');</script>
 <section class="description">
 <hr>
 <pre>public class <span class="type-name-label">Operation</span>
-extends desmoj.core.simulator.Entity</pre>
+extends <a href="../NamedEntity.html" title="class in cambio.simulator.entities">NamedEntity</a></pre>
 <div class="block">An <code>Operation</code> represents an endpoint of a service. It has a specific computational demand and may have
  dependencies.</div>
 </section>
@@ -212,11 +214,14 @@ int&nbsp;demand)</code></th>
 </div>
 </div>
 <div class="inherited-list">
+<h3 id="methods.inherited.from.class.cambio.simulator.entities.NamedEntity">Methods inherited from class&nbsp;cambio.simulator.entities.<a href="../NamedEntity.html" title="class in cambio.simulator.entities">NamedEntity</a></h3>
+<code><a href="../NamedEntity.html#getPlainName()">getPlainName</a>, <a href="../NamedEntity.html#getQuotedPlainName()">getQuotedPlainName</a>, <a href="../NamedEntity.html#rename(java.lang.String)">rename</a></code></div>
+<div class="inherited-list">
 <h3 id="methods.inherited.from.class.desmoj.core.simulator.Entity">Methods inherited from class&nbsp;desmoj.core.simulator.Entity</h3>
 <code>clone, generateTraceForScheduling, getIdentNumber, getQueueingPriority, getQueues, getScheduledEvents, isEqual, isLarger, isLargerOrEqual, isNotEqual, isQueued, isSimProcess, isSmaller, isSmallerOrEqual, schedule, schedule, schedule, schedule, schedule, schedule, schedule, schedule, schedule, scheduleAfter, scheduleAfter, scheduleAfter, scheduleBefore, scheduleBefore, scheduleBefore, schedulePreempt, schedulePreempt, schedulePreempt, setQueueingPriority</code></div>
 <div class="inherited-list">
 <h3 id="methods.inherited.from.class.desmoj.core.simulator.Schedulable">Methods inherited from class&nbsp;desmoj.core.simulator.Schedulable</h3>
-<code>assignReporter, cancel, getCorrespondingReportable, isCurrent, isScheduled, rename, reSchedule, reSchedule, reSchedulePreempt, scheduledNext, setCorrespondingReportable</code></div>
+<code>assignReporter, cancel, getCorrespondingReportable, isCurrent, isScheduled, reSchedule, reSchedule, reSchedulePreempt, scheduledNext, setCorrespondingReportable</code></div>
 <div class="inherited-list">
 <h3 id="methods.inherited.from.class.desmoj.core.simulator.ModelComponent">Methods inherited from class&nbsp;desmoj.core.simulator.ModelComponent</h3>
 <code>current, currentEntity, currentEntityAll, currentEvent, currentlySendDebugNotes, currentlySendTraceNotes, currentModel, currentSimProcess, debugIsOn, debugOff, debugOn, getModel, isExperimentCompatible, isModelCompatible, presentTime, sendDebugNote, sendMessage, sendTraceNote, sendWarning, skipTraceNote, skipTraceNote, traceIsOn, traceOff, traceOn</code></div>

@@ -115,9 +115,31 @@ loadScripts(document, 'script');</script>
 <li class="circle">desmoj.core.simulator.Entity
 <ul>
 <li class="circle">cambio.simulator.entities.patterns.<a href="cambio/simulator/entities/patterns/LoadBalancer.html" title="class in cambio.simulator.entities.patterns"><span class="type-name-link">LoadBalancer</span></a></li>
+<li class="circle">cambio.simulator.entities.<a href="cambio/simulator/entities/NamedEntity.html" title="class in cambio.simulator.entities"><span class="type-name-link">NamedEntity</span></a>
+<ul>
 <li class="circle">cambio.simulator.entities.microservice.<a href="cambio/simulator/entities/microservice/Microservice.html" title="class in cambio.simulator.entities.microservice"><span class="type-name-link">Microservice</span></a></li>
 <li class="circle">cambio.simulator.entities.networking.<a href="cambio/simulator/entities/networking/NetworkDependency.html" title="class in cambio.simulator.entities.networking"><span class="type-name-link">NetworkDependency</span></a></li>
 <li class="circle">cambio.simulator.entities.microservice.<a href="cambio/simulator/entities/microservice/Operation.html" title="class in cambio.simulator.entities.microservice"><span class="type-name-link">Operation</span></a></li>
+<li class="circle">cambio.simulator.entities.networking.<a href="cambio/simulator/entities/networking/Request.html" title="class in cambio.simulator.entities.networking"><span class="type-name-link">Request</span></a>
+<ul>
+<li class="circle">cambio.simulator.entities.networking.<a href="cambio/simulator/entities/networking/InternalRequest.html" title="class in cambio.simulator.entities.networking"><span class="type-name-link">InternalRequest</span></a></li>
+<li class="circle">cambio.simulator.entities.networking.<a href="cambio/simulator/entities/networking/RequestAnswer.html" title="class in cambio.simulator.entities.networking"><span class="type-name-link">RequestAnswer</span></a></li>
+<li class="circle">cambio.simulator.entities.networking.<a href="cambio/simulator/entities/networking/UserRequest.html" title="class in cambio.simulator.entities.networking"><span class="type-name-link">UserRequest</span></a></li>
+</ul>
+</li>
+<li class="circle">cambio.simulator.entities.networking.<a href="cambio/simulator/entities/networking/RequestSender.html" title="class in cambio.simulator.entities.networking"><span class="type-name-link">RequestSender</span></a>
+<ul>
+<li class="circle">cambio.simulator.entities.generator.<a href="cambio/simulator/entities/generator/Generator.html" title="class in cambio.simulator.entities.generator"><span class="type-name-link">Generator</span></a> (implements cambio.simulator.entities.networking.<a href="cambio/simulator/entities/networking/IRequestUpdateListener.html" title="interface in cambio.simulator.entities.networking">IRequestUpdateListener</a>, cambio.simulator.events.<a href="cambio/simulator/events/ISelfScheduled.html" title="interface in cambio.simulator.events">ISelfScheduled</a>)
+<ul>
+<li class="circle">cambio.simulator.entities.generator.<a href="cambio/simulator/entities/generator/IntervalGenerator.html" title="class in cambio.simulator.entities.generator"><span class="type-name-link">IntervalGenerator</span></a></li>
+<li class="circle">cambio.simulator.entities.generator.<a href="cambio/simulator/entities/generator/LIMBOGenerator.html" title="class in cambio.simulator.entities.generator"><span class="type-name-link">LIMBOGenerator</span></a></li>
+</ul>
+</li>
+<li class="circle">cambio.simulator.entities.microservice.<a href="cambio/simulator/entities/microservice/MicroserviceInstance.html" title="class in cambio.simulator.entities.microservice"><span class="type-name-link">MicroserviceInstance</span></a> (implements cambio.simulator.entities.networking.<a href="cambio/simulator/entities/networking/IRequestUpdateListener.html" title="interface in cambio.simulator.entities.networking">IRequestUpdateListener</a>)</li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="circle">cambio.simulator.entities.patterns.<a href="cambio/simulator/entities/patterns/Pattern.html" title="class in cambio.simulator.entities.patterns"><span class="type-name-link">Pattern</span></a>
 <ul>
 <li class="circle">cambio.simulator.entities.patterns.<a href="cambio/simulator/entities/patterns/InstanceOwnedPattern.html" title="class in cambio.simulator.entities.patterns"><span class="type-name-link">InstanceOwnedPattern</span></a>
@@ -139,24 +161,6 @@ loadScripts(document, 'script');</script>
 </li>
 </ul>
 </li>
-</ul>
-</li>
-<li class="circle">cambio.simulator.entities.networking.<a href="cambio/simulator/entities/networking/Request.html" title="class in cambio.simulator.entities.networking"><span class="type-name-link">Request</span></a>
-<ul>
-<li class="circle">cambio.simulator.entities.networking.<a href="cambio/simulator/entities/networking/InternalRequest.html" title="class in cambio.simulator.entities.networking"><span class="type-name-link">InternalRequest</span></a></li>
-<li class="circle">cambio.simulator.entities.networking.<a href="cambio/simulator/entities/networking/RequestAnswer.html" title="class in cambio.simulator.entities.networking"><span class="type-name-link">RequestAnswer</span></a></li>
-<li class="circle">cambio.simulator.entities.networking.<a href="cambio/simulator/entities/networking/UserRequest.html" title="class in cambio.simulator.entities.networking"><span class="type-name-link">UserRequest</span></a></li>
-</ul>
-</li>
-<li class="circle">cambio.simulator.entities.networking.<a href="cambio/simulator/entities/networking/RequestSender.html" title="class in cambio.simulator.entities.networking"><span class="type-name-link">RequestSender</span></a>
-<ul>
-<li class="circle">cambio.simulator.entities.generator.<a href="cambio/simulator/entities/generator/Generator.html" title="class in cambio.simulator.entities.generator"><span class="type-name-link">Generator</span></a> (implements cambio.simulator.entities.networking.<a href="cambio/simulator/entities/networking/IRequestUpdateListener.html" title="interface in cambio.simulator.entities.networking">IRequestUpdateListener</a>, cambio.simulator.events.<a href="cambio/simulator/events/ISelfScheduled.html" title="interface in cambio.simulator.events">ISelfScheduled</a>)
-<ul>
-<li class="circle">cambio.simulator.entities.generator.<a href="cambio/simulator/entities/generator/IntervalGenerator.html" title="class in cambio.simulator.entities.generator"><span class="type-name-link">IntervalGenerator</span></a></li>
-<li class="circle">cambio.simulator.entities.generator.<a href="cambio/simulator/entities/generator/LIMBOGenerator.html" title="class in cambio.simulator.entities.generator"><span class="type-name-link">LIMBOGenerator</span></a></li>
-</ul>
-</li>
-<li class="circle">cambio.simulator.entities.microservice.<a href="cambio/simulator/entities/microservice/MicroserviceInstance.html" title="class in cambio.simulator.entities.microservice"><span class="type-name-link">MicroserviceInstance</span></a> (implements cambio.simulator.entities.networking.<a href="cambio/simulator/entities/networking/IRequestUpdateListener.html" title="interface in cambio.simulator.entities.networking">IRequestUpdateListener</a>)</li>
 </ul>
 </li>
 </ul>
