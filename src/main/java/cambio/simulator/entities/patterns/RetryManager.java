@@ -88,13 +88,14 @@ public class RetryManager extends NetworkPattern implements IRequestUpdateListen
             Request newRequest = new InternalRequest(getModel(), this.traceIsOn(), dep,
                 request.getRequester()); //updates the dependency that had the original request as child
             if (handler == null || tries == maxTries - 1) {
-                owner.sendRequest(String.format("Collecting dependency %s", dep.getQuotedName()), newRequest,
+                owner.sendRequest(String.format("Collecting dependency %s", dep.getQuotedPlainName()), newRequest,
                     dep.getTargetService(), new TimeSpan(delay));
             } else {
-                owner.sendRequest(String.format("Collecting dependency %s", dep.getQuotedName()), newRequest, handler,
+                owner.sendRequest(String.format("Collecting dependency %s", dep.getQuotedPlainName()), newRequest,
+                    handler,
                     new TimeSpan(delay));
             }
-            sendTraceNote(String.format("Try %d, send Request: %s", tries + 1, newRequest.getQuotedName()));
+            sendTraceNote(String.format("Try %d, send Request: %s", tries + 1, newRequest.getQuotedPlainName()));
         } else {
             request.getUpdateListeners().forEach(iRequestUpdateListener -> iRequestUpdateListener
                 .onRequestFailed(request, when, RequestFailedReason.MAX_RETRIES_REACHED));

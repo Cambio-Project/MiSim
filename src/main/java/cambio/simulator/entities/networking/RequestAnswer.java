@@ -21,7 +21,7 @@ public final class RequestAnswer extends Request {
      */
     public RequestAnswer(Request wrappedRequest, MicroserviceInstance answerSender) {
         super(wrappedRequest.getModel(),
-            "Request_Answer_" + wrappedRequest.getName(),
+            "Request_Answer_" + wrappedRequest.getPlainName(),
             wrappedRequest.traceIsOn(),
             wrappedRequest,
             new Operation(wrappedRequest.getModel(), "Dummy", false, null, 0),
