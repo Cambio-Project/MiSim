@@ -2,10 +2,10 @@ package cambio.simulator.entities.networking;
 
 import java.util.Objects;
 
+import cambio.simulator.entities.NamedEntity;
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.entities.microservice.MicroserviceInstance;
 import cambio.simulator.entities.microservice.Operation;
-import desmoj.core.simulator.Entity;
 import desmoj.core.simulator.Model;
 
 /**
@@ -17,7 +17,7 @@ import desmoj.core.simulator.Model;
  * @see Request
  * @see MicroserviceInstance
  */
-public class NetworkDependency extends Entity {
+public class NetworkDependency extends NamedEntity {
 
     private final Request parentRequest;
     private final Microservice targetMicroservice;

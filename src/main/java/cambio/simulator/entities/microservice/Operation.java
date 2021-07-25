@@ -2,6 +2,7 @@ package cambio.simulator.entities.microservice;
 
 import java.util.Arrays;
 
+import cambio.simulator.entities.NamedEntity;
 import cambio.simulator.entities.networking.Dependency;
 import cambio.simulator.entities.networking.NetworkDependency;
 import cambio.simulator.parsing.DependencyParser;
@@ -13,7 +14,7 @@ import desmoj.core.simulator.Model;
  * An {@code Operation} represents an endpoint of a service. It has a specific computational demand and may have
  * dependencies.
  */
-public class Operation extends Entity {
+public class Operation extends NamedEntity{
     private final int demand;
     private final Microservice ownerMS;
     private Dependency[] dependencies = new Dependency[0];
