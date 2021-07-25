@@ -35,7 +35,8 @@ public class NetworkDependency extends NamedEntity {
      * @param dependencyData generic data that describes this dependency.
      */
     public NetworkDependency(Model model, Request parentRequest, Operation targetOp, Dependency dependencyData) {
-        super(model, String.format("Dependency(%s)of[%s]", targetOp.getName(), parentRequest.getName()), false);
+        super(model, String.format("Dependency(%s)of[%s]", targetOp.getPlainName(), parentRequest.getPlainName()),
+            false);
         this.parentRequest = parentRequest;
         this.targetOp = targetOp;
         this.targetMicroservice = targetOp.getOwnerMS();

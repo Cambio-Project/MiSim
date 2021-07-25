@@ -97,12 +97,12 @@ public class NetworkRequestSendEvent extends NetworkRequestEvent {
             cancelEvent.schedule(new TimeSpan(nextDelay));
         } else {
             receiverEvent = new NetworkRequestReceiveEvent(getModel(),
-                String.format("Receiving of %s", travelingRequest.getQuotedName()), traceIsOn(), travelingRequest,
+                String.format("Receiving of %s", travelingRequest.getQuotedPlainName()), traceIsOn(), travelingRequest,
                 targetInstance);
             receiverEvent.schedule(new TimeSpan(nextDelay));
 
             timeoutEvent =
-                new NetworkRequestTimeoutEvent(getModel(), "Timeout Checker for " + travelingRequest.getName(),
+                new NetworkRequestTimeoutEvent(getModel(), "Timeout Checker for " + travelingRequest.getPlainName(),
                     getModel().traceIsOn(), travelingRequest);
             travelingRequest.addUpdateListener(timeoutEvent);
 
