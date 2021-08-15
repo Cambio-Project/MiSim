@@ -201,7 +201,7 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
         //3. request does have dependencies -> create internal request
         if (request.isCompleted()) {
             RequestAnswer answer = new RequestAnswer(request, this);
-            sendRequest("Request_Answer_" + request.getQuotedName(), answer, request.getRequester());
+            sendRequest("Request_Answer_" + request.getPlainName(), answer, request.getRequester());
 
             int size = currentRequestsToHandle.size();
             currentRequestsToHandle.remove(request);
@@ -226,7 +226,7 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
                 Request internalRequest = new InternalRequest(getModel(), this.traceIsOn(), dependency, this);
                 sendRequest(String.format("Collecting dependency %s", dependency.getQuotedName()), internalRequest,
                     dependency.getTargetService());
-                sendTraceNote(String.format("Try 1, send Request: %s ", internalRequest.getQuotedName()));
+                sendTraceNote(String.format("Try 1, send Request: %s ", internalRequest.getQuotedPlainName()));
             }
         }
     }

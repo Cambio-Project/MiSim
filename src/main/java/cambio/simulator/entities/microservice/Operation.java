@@ -2,19 +2,19 @@ package cambio.simulator.entities.microservice;
 
 import java.util.Arrays;
 
+import cambio.simulator.entities.NamedEntity;
 import cambio.simulator.entities.networking.DependencyDescription;
 import cambio.simulator.entities.networking.NetworkDependency;
 import cambio.simulator.parsing.DependencyParser;
 import com.google.gson.annotations.Expose;
 import desmoj.core.dist.NumericalDist;
-import desmoj.core.simulator.Entity;
 import desmoj.core.simulator.Model;
 
 /**
  * An {@code Operation} represents an endpoint of a service. It has a specific computational demand and may have
  * dependencies.
  */
-public class Operation extends Entity {
+public class Operation extends NamedEntity {
     @Expose
     private final int demand;
 

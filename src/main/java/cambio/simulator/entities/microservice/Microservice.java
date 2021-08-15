@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import cambio.simulator.entities.NamedEntity;
 import cambio.simulator.entities.networking.InternalRequest;
 import cambio.simulator.entities.patterns.InstanceOwnedPattern;
 import cambio.simulator.entities.patterns.LoadBalancer;
@@ -20,7 +21,6 @@ import cambio.simulator.parsing.PatternData;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import desmoj.core.dist.NumericalDist;
-import desmoj.core.simulator.Entity;
 import desmoj.core.simulator.Event;
 import desmoj.core.simulator.Model;
 
@@ -47,7 +47,7 @@ import desmoj.core.simulator.Model;
  * @see ServiceOwnedPattern
  * @see InstanceOwnedPattern
  */
-public class Microservice extends Entity {
+public class Microservice extends NamedEntity {
     private final transient Set<MicroserviceInstance> instancesSet = new HashSet<>();
     private final transient MultiDataPointReporter reporter;
     @Expose

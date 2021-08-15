@@ -147,7 +147,7 @@ public class CPU extends ExternalEvent {
 
             ComputationBurstCompletedEvent endEvent = new ComputationBurstCompletedEvent(getModel(),
                 String.format("Computation burst finished of %s",
-                    nextProcess.getRequest().getQuotedName()),
+                    nextProcess.getRequest().getQuotedPlainName()),
                 debugIsOn(),
                 nextProcess,
                 this,

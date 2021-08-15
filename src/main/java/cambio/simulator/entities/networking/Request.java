@@ -6,10 +6,10 @@ import java.util.PriorityQueue;
 import java.util.Random;
 import java.util.Set;
 
+import cambio.simulator.entities.NamedEntity;
 import cambio.simulator.entities.microservice.MicroserviceInstance;
 import cambio.simulator.entities.microservice.Operation;
 import cambio.simulator.misc.Util;
-import desmoj.core.simulator.Entity;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 import org.apache.commons.math3.util.Precision;
@@ -19,7 +19,7 @@ import org.apache.commons.math3.util.Precision;
  *
  * @author Lion Wagner
  */
-public abstract class Request extends Entity {
+public abstract class Request extends NamedEntity {
     public final Operation operation;
     private final Set<NetworkDependency> dependencies = new HashSet<>();
     private final Request parent;

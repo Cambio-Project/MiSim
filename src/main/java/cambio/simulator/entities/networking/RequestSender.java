@@ -3,9 +3,9 @@ package cambio.simulator.entities.networking;
 import java.util.Objects;
 import java.util.TreeSet;
 
+import cambio.simulator.entities.NamedEntity;
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.entities.microservice.MicroserviceInstance;
-import desmoj.core.simulator.Entity;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 import desmoj.core.simulator.TimeSpan;
@@ -15,7 +15,7 @@ import desmoj.core.simulator.TimeSpan;
  *
  * @author Lion Wagner
  */
-public class RequestSender extends Entity {
+public class RequestSender extends NamedEntity {
 
     private final TreeSet<IRequestUpdateListener> updateListeners = new TreeSet<>();
     /**
