@@ -11,11 +11,63 @@ This simulator was created as part of two Bachelor Thesis and a Fachstudie __Sim
 
 It allows the simulation of microservice architectures in regard to resilience and is based on the [DesmoJ](http://desmoj.sourceforge.net) framework for discrete event modelling and simulation. 
 
-**Table of contents:**
-- [Installation](#Installation)
-- [Execution](#Execution)
-- [Architectural Model](#arch_mod)
-- [Experiment Model](#exp_mod)
+## Features
+
+###  Feature Overview
+
+- Simulation of Resilience Features
+	- Retry
+	- Auto Scaling
+	- Load Balancing 
+	- Circuit Breaker
+	- Connection Pool (limits number of concurrent requests | part of Circuit Breaker)
+- Simulation of Chaos Injections
+	- Instance Killing
+	- Network Delay
+- Manual starting of Instances
+- Multi-Core CPU-Simulation
+- support for [LIMBO](https://se.informatik.uni-wuerzburg.de/software-engineering-group/tools/limbo/) load profiles
+- easy architecture and experiment descriptions
+- Support for experiments in scenario form (see [ATAM](https://doi.org/10.1109/ICECCS.1998.706657), [Resources about the ATAM](https://resources.sei.cmu.edu/library/asset-view.cfm?assetid=513908))
+- headless 
+- lightweight (~11MB)
+- non-interactive
+- Supporting tools that can create architectures and (scenario-based) experiments 
+- easily extendable with new strategies
+
+#### Planned Features:
+
+ - CPU Load Injection
+ - Network Load Injection
+ - Simulation of Caching
+ - Auto-Self Restarting
+ - Output of Error Rates
+ - Output of Message/Execution Traces
+
+### Output Metrics
+
+These are 
+
+| Statistics Group | Metric                  | Description                                                                                       |
+|------------------|-------------------------|---------------------------------------------------------------------------------------------------|
+| Service          | Instance Count          | Count of currently running instances of a service.                                                |
+|		   |			     |													 |
+| Instance         | Queue Lengths           | Outputs different waiting queues e.g. current number of requests that are waiting for computation |
+|		   |			     |													 |
+| CPU              | Usage                   | Displays the current precentral usage of a CPU.                                                   |
+|                  | Queue Length            | Queuing length of the processor									 |
+|                  | Active Process Count    | Number of active processor								         |
+|		   |			     |													 |
+| Workload         | Workload Profile        | Workload that is created on the systems, divided by endpoint.                                     |
+|                  | Successful Requests     | Number of successfully completed requests with a 1s binning.                                      |
+|                  | Failed/Dropped Requests | Number of failed or dropped (timeout) requests with a 1s binning.                                 |
+|                  | Response Times          | Response times of every request.                                                                  |
+|		   |			     |													 |
+| Circuit Breaker  | State                   | Current state of the Circuit Breaker (OPEN, HALF-OPEN, CLOSED)                                    |
+|                  | Failure Rate            | Failure rate that is currently registered by the circuit breaker. (windowed)                      |
+|		   |			     |													 |
+| Retry            | Retry Delay             | Captures all delays that were calculated by a retry.                                              |
+
 
 ## <a name="Usage"></a>Usage
 
@@ -38,6 +90,8 @@ Simply run `java -jar misim.jar [arguments]`.
 | Argument | Short | Required | Description | Example |
 |----------|------|----------|-------------|---------|
 |   --arch_model       |   -a   |     true     |    provides path to the architecture file         |     ./Examples/example_architecture_scaling.json    |
+
+
 
 
 ## <a name="Execution"></a>Execution
