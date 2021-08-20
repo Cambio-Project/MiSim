@@ -7,6 +7,8 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface LoadGeneratorDescriptorTypeName {
-    String name();
+public @interface JsonTypeName {
+    String value();
+
+    String[] alternativeNames() default {};
 }

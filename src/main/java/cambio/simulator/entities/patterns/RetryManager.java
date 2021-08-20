@@ -15,6 +15,7 @@ import cambio.simulator.entities.networking.RequestAnswer;
 import cambio.simulator.entities.networking.RequestFailedReason;
 import cambio.simulator.export.MultiDataPointReporter;
 import cambio.simulator.misc.Priority;
+import cambio.simulator.nparsing.adapter.JsonTypeName;
 import cambio.simulator.parsing.FromJson;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
@@ -27,7 +28,8 @@ import desmoj.core.simulator.TimeSpan;
  * @see <a href="https://aws.amazon.com/de/blogs/architecture/exponential-backoff-and-jitter/">Articel on Backoff and
  * Jitter Algorithms </a>
  */
-public class RetryManager extends NetworkPattern implements IRequestUpdateListener {
+@JsonTypeName("retry")
+public class RetryManager extends InstanceOwnedNetworkPattern implements IRequestUpdateListener {
 
     private static final MultiDataPointReporter reporter = new MultiDataPointReporter("RM");
     private static final List<Double> all = new LinkedList<>();

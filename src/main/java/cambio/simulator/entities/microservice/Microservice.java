@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import cambio.simulator.entities.NamedEntity;
 import cambio.simulator.entities.networking.InternalRequest;
 import cambio.simulator.entities.patterns.InstanceOwnedPattern;
+import cambio.simulator.entities.patterns.InstanceOwnedPatternConfiguration;
 import cambio.simulator.entities.patterns.LoadBalancer;
 import cambio.simulator.entities.patterns.LoadBalancingStrategy;
 import cambio.simulator.entities.patterns.ServiceOwnedPattern;
@@ -68,8 +69,12 @@ public class Microservice extends NamedEntity {
     private Operation[] operations;
 
     @Expose
-    @SerializedName(value = "pattern", alternate = {"patterns"})
-    private PatternData[] patternsData;
+    @SerializedName(value = "patterns", alternate = {"instance_patterns", "i_patterns"})
+    private InstanceOwnedPatternConfiguration[] instanceOwnedPatternConfigurations;
+
+//    @Expose
+//    @SerializedName(value = "s_patterns", alternate = {"service_patterns"})
+//    private ServiceOwnedPattern[] serviceOwnedPatterns;
 
 
     /**
@@ -90,10 +95,10 @@ public class Microservice extends NamedEntity {
     public synchronized void start() {
         started = true;
         scaleToInstancesCount(startingInstanceCount);
-        serviceOwnedPatterns = Arrays.stream(patternsData)
-            .map(patternData -> patternData.tryGetServiceOwnedPatternOrNull(this))
-            .filter(Objects::nonNull)
-            .toArray(ServiceOwnedPattern[]::new);
+//        serviceOwnedPatterns = Arrays.stream(patternsData)
+//            .map(patternData -> patternData.tryGetServiceOwnedPatternOrNull(this))
+//            .filter(Objects::nonNull)
+//            .toArray(ServiceOwnedPattern[]::new);
     }
 
     public String getName() {
@@ -117,7 +122,11 @@ public class Microservice extends NamedEntity {
     }
 
     public void setPatternData(PatternData[] patterns) {
-        this.patternsData = patterns;
+        this.instanceOwnedPatternConfigurations =
+            Arrays.stream(patterns)
+                .map(patternData -> new InstanceOwnedPatternConfiguration(patternData.type, patternData.config))
+                .collect(Collectors.toList())
+                .toArray(this.instanceOwnedPatternConfigurations);
     }
 
     public int getInstancesCount() {
@@ -160,7 +169,7 @@ public class Microservice extends NamedEntity {
                 changedInstance =
                     new MicroserviceInstance(getModel(), String.format("[%s]_I%d", getName(), instanceSpawnCounter),
                         this.traceIsOn(), this, instanceSpawnCounter);
-                changedInstance.activatePatterns(patternsData);
+                changedInstance.activatePatterns(instanceOwnedPatternConfigurations);
                 instanceSpawnCounter++;
                 changeEvent =
                     new InstanceStartupEvent(getModel(), "Instance Startup of " + changedInstance.getQuotedName(),

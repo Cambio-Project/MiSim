@@ -7,7 +7,6 @@ import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.entities.microservice.MicroserviceInstance;
 import cambio.simulator.entities.patterns.CircuitBreaker;
 import cambio.simulator.entities.patterns.InstanceOwnedPattern;
-import cambio.simulator.entities.patterns.Pattern;
 import cambio.simulator.entities.patterns.PreemptiveAutoScaler;
 import cambio.simulator.entities.patterns.RetryManager;
 import cambio.simulator.entities.patterns.ServiceOwnedPattern;
@@ -21,9 +20,9 @@ import desmoj.core.simulator.Entity;
 public class PatternData {
 
     @SuppressWarnings({"FieldMayBeFinal", "FieldCanBeLocal"})
-    private String type = "";
+    public String type = "";
     @SuppressWarnings("FieldMayBeFinal")
-    private Map<String, Object> config = new HashMap<>();
+    public Map<String, Object> config = new HashMap<>();
 
     /**
      * Tries to parse the pattern into an {@code InstanceOwnedPattern}. Returns {@code null} otherwise.
@@ -64,13 +63,10 @@ public class PatternData {
      * @return the parsed pattern
      * @throws IlleagalStateException if the string encoded type is unknown.
      */
-    private Pattern tryGetPattern(Entity owner) {
-        // TODO: find pattern type from name
-        // see  Thread.currentThread().getContextClassLoader().loadClass("java.lang.String");
-        // or https://github.com/ronmamo/reflections
+    private Object tryGetPattern(Entity owner) {
 
         String typename = type.toLowerCase().trim();
-        Pattern output;
+        Object output;
         switch (typename) {
             case "retry":
                 output = new RetryManager(owner.getModel(), String.format("RetryManager_of_%s", owner.getName()), true,
@@ -91,7 +87,7 @@ public class PatternData {
         }
         Map<String, Object> nameMap = new HashMap<>();
         config.forEach((s, o) -> nameMap.put(s.toLowerCase().replace("_", ""), o));
-        output.initFields(nameMap);
+//        output.initFields(nameMap);
         return output;
     }
 }

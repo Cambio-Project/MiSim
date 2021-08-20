@@ -16,6 +16,7 @@ import cambio.simulator.entities.networking.Request;
 import cambio.simulator.entities.networking.RequestFailedReason;
 import cambio.simulator.export.MultiDataPointReporter;
 import cambio.simulator.misc.Priority;
+import cambio.simulator.nparsing.adapter.JsonTypeName;
 import cambio.simulator.parsing.FromJson;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
@@ -36,7 +37,8 @@ import desmoj.core.simulator.TimeInstant;
  * @see Microservice
  * @see MicroserviceInstance
  */
-public final class CircuitBreaker extends NetworkPattern implements IRequestUpdateListener {
+@JsonTypeName("circuitbreaker")
+public final class CircuitBreaker extends InstanceOwnedNetworkPattern implements IRequestUpdateListener {
 
     private final Set<NetworkDependency> activeConnections = new HashSet<>();
     private final Map<Microservice, CircuitBreakerState> breakerStates = new HashMap<>();

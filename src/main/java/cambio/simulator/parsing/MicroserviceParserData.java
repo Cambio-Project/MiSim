@@ -30,7 +30,7 @@ public class MicroserviceParserData {
      */
     public Microservice convertToMicroservice(Model model, boolean showInTrace) {
         final Microservice service = new Microservice(model, name, showInTrace);
-        service.setLoadBalancingStrategy(loadbalancerStrategy);
+//        service.setLoadBalancingStrategy(loadbalancerStrategy);
         service.setCapacity(capacity);
         service.setInstancesCount(instances);
 
