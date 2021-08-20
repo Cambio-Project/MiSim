@@ -4,17 +4,16 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import cambio.simulator.entities.NamedEntity;
 import cambio.simulator.entities.networking.InternalRequest;
+import cambio.simulator.entities.patterns.ILoadBalancingStrategy;
 import cambio.simulator.entities.patterns.InstanceOwnedPattern;
 import cambio.simulator.entities.patterns.InstanceOwnedPatternConfiguration;
 import cambio.simulator.entities.patterns.LoadBalancer;
-import cambio.simulator.entities.patterns.LoadBalancingStrategy;
 import cambio.simulator.entities.patterns.ServiceOwnedPattern;
 import cambio.simulator.export.ContinuousMultiDataPointReporter;
 import cambio.simulator.export.MultiDataPointReporter;
@@ -44,7 +43,7 @@ import desmoj.core.simulator.Model;
  *
  * @author Lion Wagner
  * @see MicroserviceInstance
- * @see LoadBalancingStrategy
+ * @see ILoadBalancingStrategy
  * @see ServiceOwnedPattern
  * @see InstanceOwnedPattern
  */
@@ -52,7 +51,7 @@ public class Microservice extends NamedEntity {
     private final transient Set<MicroserviceInstance> instancesSet = new HashSet<>();
     private final transient MultiDataPointReporter reporter;
     @Expose
-    @SerializedName(value = "load_balancer_strategy", alternate = "load_balancer")
+    @SerializedName(value = "loadbalancer_strategy", alternate = "load_balancer")
     private final LoadBalancer loadBalancer;
     private transient boolean started = false;
     private transient int instanceSpawnCounter = 0; // running counter to create instance ID's
@@ -83,8 +82,8 @@ public class Microservice extends NamedEntity {
     public Microservice(Model model, String name, boolean showInTrace) {
         super(model, name, showInTrace);
         setPlainName(name);
-        loadBalancer = new LoadBalancer(model, "Loadbalancer of " + this.getQuotedName(), traceIsOn(), instancesSet);
-        setLoadBalancingStrategy("random"); //defaulting to random lb
+        //default load balancer
+        loadBalancer = new LoadBalancer(model, "Loadbalancer", traceIsOn(), null);
         reporter = new ContinuousMultiDataPointReporter(String.format("S[%s]_", name));
     }
 
@@ -246,15 +245,6 @@ public class Microservice extends NamedEntity {
             .orElse(null);
     }
 
-    /**
-     * Injector for load balancing strategy for easier json parsing.
-     *
-     * @param loadBalancingStrategy name of the strategy that is to be applied
-     */
-    public void setLoadBalancingStrategy(String loadBalancingStrategy) {
-        loadBalancer.setLoadBalancingStrategy(LoadBalancingStrategy.fromName(this, loadBalancingStrategy));
-    }
-
 
     @Override
     public String toString() {
@@ -268,7 +258,7 @@ public class Microservice extends NamedEntity {
 
 
     public MicroserviceInstance getNextAvailableInstance() throws NoInstanceAvailableException {
-        return loadBalancer.getNextInstance();
+        return loadBalancer.getNextInstance(instancesSet);
     }
 
 

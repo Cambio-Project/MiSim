@@ -34,7 +34,7 @@ public abstract class PeriodicServiceOwnedPattern extends ServiceOwnedPattern {
     }
 
     @Override
-    protected void onFieldInitCompleted() {
+    public void onInitializedCompleted() {
         periodSpan = new TimeSpan(period, getModel().getExperiment().getReferenceUnit());
         scheduler = new PatternScheduler(getModel(), this);
         scheduler.activate(new TimeInstant(start));

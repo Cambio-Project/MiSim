@@ -1,10 +1,11 @@
-package cambio.simulator.nparsing.adapter;
+package cambio.simulator.nparsing.adapter.experiement;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import cambio.simulator.nparsing.adapter.JsonTypeName;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
 import org.reflections.util.ClasspathHelper;
@@ -29,15 +30,15 @@ public final class GeneratorDescriptionResolver {
 
         Map<String, Class<? extends LoadGeneratorDescription>> tempDescriptorMap = new HashMap<>();
         for (Class<? extends LoadGeneratorDescription> clazz : set) {
-            LoadGeneratorDescriptorTypeName name = clazz.getAnnotation(LoadGeneratorDescriptorTypeName.class);
+            JsonTypeName name = clazz.getAnnotation(JsonTypeName.class);
             if (name == null) {
                 System.out.println(String
                     .format("%s %s is missing its @%s annotation and can therefore not be parsed.",
                         LoadGeneratorDescription.class.getSimpleName(), clazz.getName(),
-                        LoadGeneratorDescriptorTypeName.class.getName()));
+                        JsonTypeName.class.getName()));
                 continue;
             }
-            tempDescriptorMap.put(name.name(), clazz);
+            tempDescriptorMap.put(name.value(), clazz);
         }
         descriptorMap = Collections.unmodifiableMap(tempDescriptorMap);
     }

@@ -36,7 +36,6 @@ public class ConfigurableNamedTypeAdapter<T> extends TypeAdapter<T> {
     public T read(JsonReader in) throws IOException {
         JsonToken token = in.peek();
 
-
         if (token == JsonToken.STRING) {
             String JsonTypeName = in.nextString();
             Class<? extends T> type = JsonTypeNameResolver.resolveFromJsonTypeName(JsonTypeName, superClassType);

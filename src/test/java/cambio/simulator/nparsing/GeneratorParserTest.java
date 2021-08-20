@@ -4,7 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 
 import cambio.simulator.entities.generator.Generator;
-import cambio.simulator.nparsing.adapter.GeneratorAdapter;
+import cambio.simulator.nparsing.adapter.experiement.GeneratorAdapter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;

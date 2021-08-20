@@ -98,6 +98,7 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
             .filter(pattern -> pattern instanceof InstanceOwnedNetworkPattern)
             .map(pattern -> (InstanceOwnedNetworkPattern) pattern)
             .forEach(this::addUpdateListener);
+        this.patterns.forEach(InstanceOwnedPattern::start);
     }
 
     /**
