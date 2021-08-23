@@ -1,36 +1,20 @@
 package cambio.simulator.nparsing.adapter.architecture;
 
-import java.io.IOException;
-
 import cambio.simulator.entities.patterns.ILoadBalancingStrategy;
 import cambio.simulator.entities.patterns.LoadBalancer;
 import cambio.simulator.models.MiSimModel;
-import cambio.simulator.nparsing.adapter.ConfigurableNamedTypeAdapter;
-import com.google.gson.TypeAdapter;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
+import cambio.simulator.nparsing.adapter.StrategyWrapperTypeAdapter;
 
 /**
  * @author Lion Wagner
  */
-public class LoadBalancerAdapter extends TypeAdapter<LoadBalancer> {
-
-    private final ConfigurableNamedTypeAdapter<ILoadBalancingStrategy> wrappedAdapter =
-        new ConfigurableNamedTypeAdapter<>(ILoadBalancingStrategy.class);
-    private final MiSimModel baseModel;
-
+//This class could be replaced by inlining the constructor call below.
+//However, this would decrease readability by quite a bit.
+class LoadBalancerAdapter extends StrategyWrapperTypeAdapter<LoadBalancer, ILoadBalancingStrategy> {
     public LoadBalancerAdapter(MiSimModel baseModel) {
-        this.baseModel = baseModel;
+        super(ILoadBalancingStrategy.class,
+            iLoadBalancingStrategy -> new LoadBalancer(baseModel, "Loadbalancer", true, iLoadBalancingStrategy));
+
     }
 
-    @Override
-    public void write(JsonWriter out, LoadBalancer value) throws IOException {
-        wrappedAdapter.write(out, value.getLoadBalancingStrategy());
-    }
-
-    @Override
-    public LoadBalancer read(JsonReader in) throws IOException {
-        ILoadBalancingStrategy strategy = wrappedAdapter.read(in);
-        return new LoadBalancer(baseModel, "Loadbalancer", false, strategy);
-    }
 }

@@ -8,10 +8,12 @@ import java.util.LinkedList;
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.entities.microservice.Operation;
 import cambio.simulator.entities.networking.DependencyDescription;
+import cambio.simulator.entities.patterns.ILoadBalancingStrategy;
 import cambio.simulator.entities.patterns.InstanceOwnedPatternConfiguration;
 import cambio.simulator.entities.patterns.LoadBalancer;
 import cambio.simulator.models.MiSimModel;
 import cambio.simulator.nparsing.adapter.NormalDistributionAdapter;
+import cambio.simulator.nparsing.adapter.StrategyWrapperTypeAdapter;
 import cambio.simulator.parsing.GsonHelper;
 import com.google.gson.Gson;
 import com.google.gson.InstanceCreator;
@@ -25,14 +27,13 @@ import desmoj.core.dist.ContDistNormal;
 /**
  * @author Lion Wagner
  */
-public class MicroserviceAdapter extends TypeAdapter<Microservice> {
+class MicroserviceAdapter extends TypeAdapter<Microservice> {
     private final MiSimModel baseModel;
     private final LinkedList<DependencyDescription> dependencies;
 
     public MicroserviceAdapter(MiSimModel baseModel,
                                LinkedList<DependencyDescription> dependencies) {
         this.baseModel = baseModel;
-
         this.dependencies = dependencies;
     }
 
@@ -58,7 +59,7 @@ public class MicroserviceAdapter extends TypeAdapter<Microservice> {
 
         Microservice microservice = gson.fromJson(root, Microservice.class);
 
-        //inject owning microservice into ownerMs field
+        //inject owning microservice into ownerMs field of operations
         try {
             Field ownerInjectionField = Operation.class.getDeclaredField("ownerMS");
             ownerInjectionField.setAccessible(true);

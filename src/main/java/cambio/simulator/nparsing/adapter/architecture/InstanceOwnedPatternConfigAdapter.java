@@ -12,7 +12,7 @@ import com.google.gson.stream.JsonWriter;
 /**
  * @author Lion Wagner
  */
-public class InstanceOwnedPatternConfigAdapter extends TypeAdapter<InstanceOwnedPatternConfiguration> {
+class InstanceOwnedPatternConfigAdapter extends TypeAdapter<InstanceOwnedPatternConfiguration> {
     @Override
     public void write(JsonWriter out, InstanceOwnedPatternConfiguration value) throws IOException {
         throw new RuntimeException("");
@@ -21,6 +21,6 @@ public class InstanceOwnedPatternConfigAdapter extends TypeAdapter<InstanceOwned
     @Override
     public InstanceOwnedPatternConfiguration read(JsonReader in) throws IOException {
         Gson gson = new GsonHelper().getGson();
-        return gson.fromJson(in,InstanceOwnedPatternConfiguration.class);
+        return gson.fromJson(in, InstanceOwnedPatternConfiguration.class);
     }
 }
