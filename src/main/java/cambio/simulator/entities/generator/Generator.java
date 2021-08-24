@@ -138,7 +138,7 @@ public abstract class Generator extends RequestSender implements IRequestUpdateL
 
         try {
             sendRequest(String.format("User_Request@(%s) ",
-                operation.getQuotedName()), request, operation.getOwnerMS().getNextAvailableInstance(),
+                    operation.getQuotedName()), request, operation.getOwnerMS().getNextAvailableInstance(),
                 new TimeSpan(0));
 
             TimeInstant nextExecutionTimeInstance;

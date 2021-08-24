@@ -8,12 +8,11 @@ import java.util.LinkedList;
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.entities.microservice.Operation;
 import cambio.simulator.entities.networking.DependencyDescription;
-import cambio.simulator.entities.patterns.ILoadBalancingStrategy;
 import cambio.simulator.entities.patterns.InstanceOwnedPatternConfiguration;
 import cambio.simulator.entities.patterns.LoadBalancer;
+import cambio.simulator.entities.patterns.ServiceOwnedPattern;
 import cambio.simulator.models.MiSimModel;
 import cambio.simulator.nparsing.adapter.NormalDistributionAdapter;
-import cambio.simulator.nparsing.adapter.StrategyWrapperTypeAdapter;
 import cambio.simulator.parsing.GsonHelper;
 import com.google.gson.Gson;
 import com.google.gson.InstanceCreator;
@@ -55,17 +54,29 @@ class MicroserviceAdapter extends TypeAdapter<Microservice> {
             .registerTypeAdapter(LoadBalancer.class, new LoadBalancerAdapter(baseModel))
             .registerTypeAdapter(Operation.class, new OperationAdapter(baseModel, microserviceName, dependencies))
             .registerTypeAdapter(InstanceOwnedPatternConfiguration.class, new InstanceOwnedPatternConfigAdapter())
+            .registerTypeAdapter(ServiceOwnedPattern.class, new ServiceOwnedPatternAdapter(baseModel, microserviceName))
             .create();
 
         Microservice microservice = gson.fromJson(root, Microservice.class);
 
         //inject owning microservice into ownerMs field of operations
         try {
-            Field ownerInjectionField = Operation.class.getDeclaredField("ownerMS");
-            ownerInjectionField.setAccessible(true);
+            Field ownerInjectionFieldOperation = Operation.class.getDeclaredField("ownerMS");
+            ownerInjectionFieldOperation.setAccessible(true);
             for (Operation operation : microservice.getOperations()) {
-                ownerInjectionField.set(operation, microservice);
+                ownerInjectionFieldOperation.set(operation, microservice);
             }
+
+            Field ownerInjectionFieldServicePattern = ServiceOwnedPattern.class.getDeclaredField("owner");
+            Field serviceOwnedPatternsField = Microservice.class.getDeclaredField("serviceOwnedPatterns");
+            ownerInjectionFieldServicePattern.setAccessible(true);
+            serviceOwnedPatternsField.setAccessible(true);
+            ServiceOwnedPattern[] serviceOwnedPatterns =
+                (ServiceOwnedPattern[]) serviceOwnedPatternsField.get(microservice);
+            for (ServiceOwnedPattern pattern : serviceOwnedPatterns) {
+                ownerInjectionFieldServicePattern.set(pattern, microservice);
+            }
+
         } catch (NoSuchFieldException | IllegalAccessException e) {
             e.printStackTrace();
         }

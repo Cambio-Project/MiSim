@@ -45,6 +45,7 @@ public class MiSimModel extends Model {
 
     @Override
     public void doInitialSchedules() {
+        architectureModel.getMicroservices().forEach(microservice -> microservice.start());
         for (ISelfScheduled selfScheduledEvent : experimentModel.getAllSelfSchedulesEvents()) {
             selfScheduledEvent.doInitialSelfSchedule();
         }

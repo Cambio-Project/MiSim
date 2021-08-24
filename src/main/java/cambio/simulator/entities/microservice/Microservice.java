@@ -55,7 +55,7 @@ public class Microservice extends NamedEntity {
     private final LoadBalancer loadBalancer;
     private transient boolean started = false;
     private transient int instanceSpawnCounter = 0; // running counter to create instance ID's
-    private transient ServiceOwnedPattern[] serviceOwnedPatterns;
+
     @Expose
     @SerializedName(value = "name")
     private String plainName = ""; //TODO: fix this whole naming confusion thing
@@ -65,15 +65,16 @@ public class Microservice extends NamedEntity {
     private int startingInstanceCount = 1;
 
     @Expose
-    private Operation[] operations;
+    private Operation[] operations = new Operation[0];
 
     @Expose
     @SerializedName(value = "patterns", alternate = {"instance_patterns", "i_patterns"})
-    private InstanceOwnedPatternConfiguration[] instanceOwnedPatternConfigurations;
+    private InstanceOwnedPatternConfiguration[] instanceOwnedPatternConfigurations =
+        new InstanceOwnedPatternConfiguration[0];
 
-//    @Expose
-//    @SerializedName(value = "s_patterns", alternate = {"service_patterns"})
-//    private ServiceOwnedPattern[] serviceOwnedPatterns;
+    @Expose
+    @SerializedName(value = "s_patterns", alternate = {"service_patterns"})
+    private ServiceOwnedPattern[] serviceOwnedPatterns = new ServiceOwnedPattern[0];
 
 
     /**

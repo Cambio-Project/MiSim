@@ -3,7 +3,6 @@ package cambio.simulator.nparsing.adapter;
 import java.io.IOException;
 import java.util.function.Function;
 
-import cambio.simulator.nparsing.adapter.ConfigurableNamedTypeAdapter;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;

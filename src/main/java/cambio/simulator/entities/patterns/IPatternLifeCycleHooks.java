@@ -5,7 +5,7 @@ package cambio.simulator.entities.patterns;
  *
  * @author Lion Wagner
  */
-interface IPatternLifeCycleHooks {
+public interface IPatternLifeCycleHooks {
 
     /**
      * Will be called after completion of the initialization right after the config was injected.
@@ -16,7 +16,7 @@ interface IPatternLifeCycleHooks {
     /**
      * Will be called once the owning entity is ready to communicate.
      */
-    default void start(){
+    default void start() {
     }
 
     /**

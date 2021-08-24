@@ -15,6 +15,7 @@ public class JsonTypeNameResolver {
 
     private static final HashMap<Class<?>, Map<String, Class<?>>> resolvedNamesCache = new HashMap<>();
 
+
     public static <U> Class<? extends U> resolveFromJsonTypeName(final String jsonTypeName,
                                                                  final Class<U> targetClass) {
         Map<String, Class<?>> resolvedNames =
@@ -30,7 +31,7 @@ public class JsonTypeNameResolver {
 
                 Set<Class<? extends U>> subtypes = reflections.getSubTypesOf(actualClass);
 
-                Map<String, Class<?>> resolvedNamesInner = new HashMap<String, Class<?>>();
+                Map<String, Class<?>> resolvedNamesInner = new HashMap<>();
                 for (Class<? extends U> subtype : subtypes) {
                     if (!subtype.isAnnotationPresent(JsonTypeName.class)) {
                         continue;
@@ -44,8 +45,10 @@ public class JsonTypeNameResolver {
                     for (String potentialName : potentialNames) {
                         if (resolvedNamesInner.containsKey(potentialName)) {
                             Class<?> other = resolvedNamesInner.get(potentialName);
-                            System.out.println("Warning: Types " + other.getTypeName() + " and " + subtype.getTypeName()
-                                + " do have the same JsonTypeName. Ignoring the second entry.");
+                            System.out.printf(
+                                "Warning: Types %s and %s do have the same JsonTypeName. "
+                                    + "Ignoring the second entry (%s).%n",
+                                other.getTypeName(), subtype.getTypeName(), subtype.getSimpleName());
 
                         } else {
                             resolvedNamesInner.put(potentialName, subtype);

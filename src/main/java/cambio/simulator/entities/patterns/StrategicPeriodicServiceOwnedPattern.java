@@ -5,22 +5,21 @@ import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 
 /**
- * A service owned pattern that is automatically triggered periodically.
- *
  * @author Lion Wagner
  */
-public abstract class PeriodicServiceOwnedPattern extends ServiceOwnedPattern implements IPeriodicServiceOwnedPattern {
+public abstract class StrategicPeriodicServiceOwnedPattern<S extends IStrategy> extends StrategicServiceOwnedPattern<S>
+    implements IPeriodicServiceOwnedPattern {
 
     @Expose
-    private double period = 1;
+    protected final double period = 1;
     @Expose
-    private double start = 0;
+    protected final double start = 0;
     @Expose
-    private double stop = Double.MAX_VALUE;
+    protected final double stop = Double.MAX_VALUE;
 
     private transient PeriodicPatternScheduler scheduler;
 
-    public PeriodicServiceOwnedPattern(Model model, String name, boolean showInTrace) {
+    public StrategicPeriodicServiceOwnedPattern(Model model, String name, boolean showInTrace) {
         super(model, name, showInTrace);
     }
 
@@ -34,5 +33,4 @@ public abstract class PeriodicServiceOwnedPattern extends ServiceOwnedPattern im
     public final PeriodicPatternScheduler getScheduler() {
         return scheduler;
     }
-
 }

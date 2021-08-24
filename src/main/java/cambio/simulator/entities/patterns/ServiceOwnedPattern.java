@@ -10,11 +10,10 @@ import desmoj.core.simulator.Model;
  */
 public abstract class ServiceOwnedPattern extends NamedEntity implements IPatternLifeCycleHooks {
 
-    protected final Microservice owner;
+    protected final Microservice owner = null;
 
-    public ServiceOwnedPattern(Model model, String name, boolean showInTrace, Microservice owner) {
+    public ServiceOwnedPattern(Model model, String name, boolean showInTrace) {
         super(model, name, showInTrace);
-        this.owner = owner;
     }
 
 }

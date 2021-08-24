@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import cambio.simulator.entities.microservice.MicroserviceInstance;
 import cambio.simulator.entities.networking.IRequestUpdateListener;
@@ -16,7 +15,7 @@ import cambio.simulator.entities.networking.RequestFailedReason;
 import cambio.simulator.export.MultiDataPointReporter;
 import cambio.simulator.misc.Priority;
 import cambio.simulator.nparsing.adapter.JsonTypeName;
-import cambio.simulator.parsing.FromJson;
+import com.google.gson.annotations.Expose;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 import desmoj.core.simulator.TimeSpan;
@@ -29,32 +28,21 @@ import desmoj.core.simulator.TimeSpan;
  * Jitter Algorithms </a>
  */
 @JsonTypeName("retry")
-public class RetryManager extends InstanceOwnedNetworkPattern implements IRequestUpdateListener {
+public class Retry extends StrategicInstanceOwnedPattern<IRetryStrategy> implements IRequestUpdateListener {
 
     private static final MultiDataPointReporter reporter = new MultiDataPointReporter("RM");
     private static final List<Double> all = new LinkedList<>();
-    /**
-     * Dictonary that tracks how many retries were currently done for each active dependency.
-     */
+
     private final Map<NetworkDependency, Integer> requestIndex = new HashMap<>();
-    @FromJson
+
+    @Expose
     @SuppressWarnings({"FieldMayBeFinal", "FieldCanBeLocal"})
     private int maxTries = 5;
-    @FromJson
-    @SuppressWarnings({"FieldMayBeFinal", "FieldCanBeLocal"})
-    private double baseBackoff = 0.010;
-    @FromJson
-    @SuppressWarnings({"FieldMayBeFinal", "FieldCanBeLocal"})
-    private double maxBackoff = 1;
-    @FromJson
-    @SuppressWarnings({"FieldMayBeFinal", "FieldCanBeLocal"})
-    private int base = 3;
-    @FromJson
-    @SuppressWarnings({"FieldMayBeFinal", "FieldCanBeLocal"})
-    private boolean jittering = false;
 
-    public RetryManager(Model model, String name, boolean showInTrace, MicroserviceInstance listener) {
-        super(model, name, showInTrace, listener);
+
+    public Retry(final Model model, final String name, final boolean showInTrace) {
+        super(model, name, showInTrace);
+        this.setStrategy(new JitteringExponentialBackoffRetryStrategy()); // set default value
     }
 
     @Override
@@ -76,11 +64,7 @@ public class RetryManager extends InstanceOwnedNetworkPattern implements IReques
         int tries = requestIndex.get(dep);
 
         if (tries < maxTries) {
-            double delay = Math.min(baseBackoff * Math.pow(base, tries - 1), maxBackoff);
-
-            if (jittering) {
-                delay = new Random().nextDouble() * delay;
-            }
+            double delay = strategy.getNextDelay(tries);
 
             reporter.addDatapoint("RetryTimings", presentTime(), delay);
             all.add(delay);

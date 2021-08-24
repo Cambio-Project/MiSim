@@ -79,7 +79,7 @@ public final class ModelLoader {
             throw new ParsingException(
                 String
                     .format("[Error]  Cannot start the simulation. Model file %s was not found!",
-                        targetFile.getAbsolutePath()),e);
+                        targetFile.getAbsolutePath()), e);
         }
     }
 }

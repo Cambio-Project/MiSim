@@ -11,7 +11,7 @@ import cambio.simulator.entities.microservice.MicroserviceInstance;
  * Implementations will be provided a collection of running instances and should be able to select one of these as next
  * target.
  */
-public interface ILoadBalancingStrategy {
+public interface ILoadBalancingStrategy extends IStrategy {
 
     /**
      * Searches through the list of available instances to find the most suitable to receive the next request.
