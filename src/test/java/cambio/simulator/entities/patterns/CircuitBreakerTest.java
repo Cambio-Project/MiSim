@@ -27,8 +27,8 @@ class CircuitBreakerTest {
         Set<MicroserviceInstance> instances = (Set<MicroserviceInstance>) f.get(service);
         MicroserviceInstance instance = instances.stream().findAny().orElse(null);
 
-        CircuitBreaker cb = new CircuitBreaker(mockModel, "", false, instance);
-        RetryManager retry = new RetryManager(mockModel, "", false, instance);
+        CircuitBreaker cb = new CircuitBreaker(mockModel, "", false);
+        Retry retry = new Retry(mockModel, "", false);
 
 
         Assertions.assertTrue(cb.getListeningPriority() < retry.getListeningPriority());

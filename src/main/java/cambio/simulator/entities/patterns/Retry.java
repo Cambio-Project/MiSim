@@ -14,7 +14,7 @@ import cambio.simulator.entities.networking.RequestAnswer;
 import cambio.simulator.entities.networking.RequestFailedReason;
 import cambio.simulator.export.MultiDataPointReporter;
 import cambio.simulator.misc.Priority;
-import cambio.simulator.nparsing.adapter.JsonTypeName;
+import cambio.simulator.parsing.adapter.JsonTypeName;
 import com.google.gson.annotations.Expose;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
@@ -36,7 +36,6 @@ public class Retry extends StrategicInstanceOwnedPattern<IRetryStrategy> impleme
     private final Map<NetworkDependency, Integer> requestIndex = new HashMap<>();
 
     @Expose
-    @SuppressWarnings({"FieldMayBeFinal", "FieldCanBeLocal"})
     private int maxTries = 5;
 
 

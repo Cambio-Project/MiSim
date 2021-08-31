@@ -1,5 +1,7 @@
 package cambio.simulator.models;
 
+import static cambio.simulator.parsing.adapter.experiement.ExperimentMetaDataAdapter.SIMULATION_METADATA_KEY;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -24,14 +26,12 @@ public class ExperimentMetaData {
     private static ExperimentMetaData instance = null;
     @SuppressWarnings("FieldMayBeFinal")
     private int seed = new Random().nextInt();
+
     @SuppressWarnings("FieldMayBeFinal")
     private String reportType = "default";
-    @SuppressWarnings("FieldMayBeFinal")
     private double duration = -1;
-    @SuppressWarnings("FieldMayBeFinal")
     @SerializedName(value = "experimentName", alternate = {"experiment_name", "name"})
     private String experimentName;
-    @SuppressWarnings("FieldMayBeFinal")
     @SerializedName(value = "modelName", alternate = {"model_name"})
     private String modelName;
     @SuppressWarnings("FieldMayBeFinal")
@@ -75,7 +75,7 @@ public class ExperimentMetaData {
         try {
             if (expFileLocation != null) {
                 JsonObject root = gson.fromJson(new JsonReader(new FileReader(expFileLocation)), JsonObject.class);
-                instance = gson.fromJson(root.get("simulation_meta_data"), ExperimentMetaData.class);
+                instance = gson.fromJson(root.get(SIMULATION_METADATA_KEY), ExperimentMetaData.class);
                 instance.setExpFileLocation(expFileLocation);
             } else if (scenarioPath != null) {
                 ScenarioDescription description =

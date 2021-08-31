@@ -8,7 +8,7 @@ import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.entities.microservice.Operation;
 import cambio.simulator.entities.networking.DependencyDescription;
 import cambio.simulator.models.ExperimentMetaData;
-import cambio.simulator.models.MainModel;
+import desmoj.core.simulator.Model;
 
 /**
  * The <code>DependencyGraph</code> class is used in order to create the graph that displays the dependencies between
@@ -18,7 +18,7 @@ public class DependencyGraph {
     private static final int hashMultiplier = 11;
 
 
-    private final MainModel model;
+    private final Model model;
     private final Collection<Microservice> microservices;
 
     /**
@@ -27,7 +27,7 @@ public class DependencyGraph {
      * @param model         MainModel: The model which owns this DependencyGraph
      * @param microservices all known services
      */
-    public DependencyGraph(MainModel model, Collection<Microservice> microservices) {
+    public DependencyGraph(Model model, Collection<Microservice> microservices) {
         this.model = model;
         this.microservices = microservices;
     }
@@ -72,7 +72,7 @@ public class DependencyGraph {
                     Math.min(ms.getInstancesCount(), 10);
 
             for (int i = 0; i < instanceLimit; ++i) {
-                long instanceIdentifier = ms.hashCode() * hashMultiplier + i;
+                long instanceIdentifier = (long) ms.hashCode() * hashMultiplier + i;
                 json.append("{name:").append(ms.getQuotedName())
                     .append(",id:")
                     .append(instanceIdentifier)
@@ -103,7 +103,7 @@ public class DependencyGraph {
             StringBuilder labels = new StringBuilder();
             for (Operation op : ms.getOperations()) {
                 labels.append("'").append(op.getName()).append("',");
-                for (DependencyDescription depService : op.getDependencies()) {
+                for (DependencyDescription depService : op.getDependencyDescriptions()) {
                     long depId = depService.getTargetMicroservice().getIdentNumber();
                     json.append("{source:").append(ms.getIdentNumber())
                         .append(",target:").append(depId)

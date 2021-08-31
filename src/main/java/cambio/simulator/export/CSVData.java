@@ -34,8 +34,8 @@ public interface CSVData {
                 field.setAccessible(true);
                 result.append(field.get(this)).append(sep);
             }
-        } catch (IllegalAccessException ignored) {
-            ignored.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
         }
         if (result.length() > 0) {
             result.deleteCharAt(result.lastIndexOf(String.valueOf(sep)));

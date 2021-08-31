@@ -6,6 +6,7 @@ package cambio.simulator.misc;
  *
  * @author Lion Wagner
  */
+//TODO: change to enum
 public final class Priority {
     public static final int IMMEDIATELY_ON_TARGETED_TIME = Integer.MAX_VALUE;
     public static final int VERY_HIGH = Integer.MAX_VALUE / 2;

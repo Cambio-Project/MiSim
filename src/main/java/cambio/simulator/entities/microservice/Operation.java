@@ -5,7 +5,6 @@ import java.util.Arrays;
 import cambio.simulator.entities.NamedEntity;
 import cambio.simulator.entities.networking.DependencyDescription;
 import cambio.simulator.entities.networking.NetworkDependency;
-import cambio.simulator.parsing.DependencyParser;
 import com.google.gson.annotations.Expose;
 import desmoj.core.dist.NumericalDist;
 import desmoj.core.simulator.Model;
@@ -15,14 +14,13 @@ import desmoj.core.simulator.Model;
  * dependencies.
  */
 public class Operation extends NamedEntity {
+
+    private final transient Microservice ownerMS;
+
     @Expose
-    private final int demand;
+    private int demand;
 
-
-    private final Microservice ownerMS;
-    private DependencyDescription[] dependencies = new DependencyDescription[0];
-    //POJOs that hold the (json) data of the dependencies, used for parsing
-    private DependencyParser[] dependenciesData = new DependencyParser[0];
+    private final DependencyDescription[] dependencies = new DependencyDescription[0];
 
     /**
      * Constructs a new endpoint for a microservice.
@@ -36,16 +34,8 @@ public class Operation extends NamedEntity {
         this.ownerMS = ownerMS;
     }
 
-    public void setDependenciesData(DependencyParser[] dependenciesData) {
-        this.dependenciesData = dependenciesData;
-    }
-
-    public DependencyDescription[] getDependencies() {
+    public DependencyDescription[] getDependencyDescriptions() {
         return dependencies;
-    }
-
-    public void setDependencies(DependencyDescription[] operations) {
-        this.dependencies = operations;
     }
 
     public int getDemand() {
@@ -58,7 +48,7 @@ public class Operation extends NamedEntity {
 
     @Override
     public String getQuotedName() {
-        return "'" + getName() + "'"; //TODO:remove ownerMs.name from return value here
+        return "'" + getPlainName() + "'";
     }
 
     @Override
@@ -71,19 +61,7 @@ public class Operation extends NamedEntity {
     }
 
     public String getQuotedFullyQualifiedName() {
-        return super.getQuotedName();
-    }
-
-    /**
-     * A call of this method is needed for proper usage.<br> Parses the set {@link DependencyParser}s into {@link
-     * DependencyDescription} objects.
-     */
-    public void initializeDependencies() {
-        dependencies = new DependencyDescription[dependenciesData.length];
-        for (int i = 0; i < dependenciesData.length; i++) {
-            dependenciesData[i].setOwningOperation(this);
-            dependencies[i] = this.dependenciesData[i].convertToObject(getModel());
-        }
+        return "'" + getFullyQualifiedName() + "'";
     }
 
     /**
@@ -120,7 +98,4 @@ public class Operation extends NamedEntity {
         applyExtraDelay(dist, null);
     }
 
-    public String getPlainName() {
-        return getName().substring(0, getName().length() - ((int) Math.ceil(Math.log10(getIdentNumber()))));
-    }
 }

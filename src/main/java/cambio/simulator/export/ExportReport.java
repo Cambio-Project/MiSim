@@ -6,9 +6,8 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.TreeMap;
 
-import cambio.simulator.models.ArchitectureModel;
 import cambio.simulator.models.ExperimentMetaData;
-import cambio.simulator.models.MainModel;
+import cambio.simulator.models.MiSimModel;
 
 /**
  * legacy class for reporting. May be removed later.
@@ -16,15 +15,15 @@ import cambio.simulator.models.MainModel;
  * @deprecated replaced by {@link ReportCollector} and {@link MultiDataPointReporter} framework.
  */
 public class ExportReport {
-    private final MainModel model;
+    private final MiSimModel model;
     private final String resourcePath = "Report/resources/";
 
     /**
      * Legacy reporter class that output data.
      */
-    public ExportReport(MainModel model) {
+    public ExportReport(MiSimModel model) {
         this.model = model;
-        this.graphReport();
+        this.graphReport(model);
         //  this.chartReport();
     }
 
@@ -77,8 +76,8 @@ public class ExportReport {
         return series;
     }
 
-    private void graphReport() {
-        DependencyGraph graph = new DependencyGraph(model, ArchitectureModel.get().getMicroservices());
+    private void graphReport(MiSimModel model) {
+        DependencyGraph graph = new DependencyGraph(model, model.getArchitectureModel().getMicroservices());
 
         try {
             Files.delete(Paths.get("./Report/js/graph.js"));

@@ -1,8 +1,6 @@
 package cambio.simulator.models;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
@@ -17,21 +15,12 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
 import java.util.TreeMap;
 
-import cambio.simulator.entities.microservice.Microservice;
-import cambio.simulator.events.FinishEvent;
-import cambio.simulator.events.ISelfScheduled;
-import cambio.simulator.export.ExportReport;
-import cambio.simulator.export.MultiDataPointReporter;
 import cambio.simulator.export.ReportCollector;
 import cambio.simulator.export.ReportWriter;
-import cambio.simulator.misc.Priority;
 import cambio.simulator.misc.Util;
 import cambio.simulator.parsing.GsonHelper;
-import cambio.simulator.parsing.ScenarioDescription;
 import com.google.gson.Gson;
-import com.google.gson.stream.JsonReader;
 import desmoj.core.simulator.Experiment;
-import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -47,44 +36,7 @@ import org.apache.commons.io.FileUtils;
  * doInitialSchedules Starts the inital event. initFields Gets called at the start of the experiment and loads all
  * relevant experiment resources.
  */
-public class MainModel extends Model {
-
-    /**
-     * general reporter, can be used if objects/classes do not want to create their own reporter or use a common
-     * reporter.
-     */
-    public static MultiDataPointReporter generalReporter = new MultiDataPointReporter();
-    private static MainModel instance = null;
-
-    public MainModel(Model owner, String modelName, boolean showInReport, boolean showInTrace) {
-        super(owner, modelName, showInReport, showInTrace);
-    }
-
-    /**
-     * Gets the main reference model.
-     *
-     * @return the main reference model.
-     */
-    public static MainModel get() {
-        if (instance == null) {
-            throw new IllegalStateException("MainModel was not initialized yet.");
-        }
-        return instance;
-    }
-
-    /**
-     * Initializes the main reference model.
-     *
-     * @param modelName name of the model.
-     * @return the main reference model.
-     */
-    public static MainModel initialize(String modelName) {
-        if (instance != null) {
-            throw new IllegalStateException("Architecture Model was already initialized.");
-        }
-        instance = new MainModel(null, modelName, true, true);
-        return get();
-    }
+public class MainModel {
 
     /**
      * Main entry point of the program.
@@ -117,12 +69,12 @@ public class MainModel extends Model {
         options.addOption(debugOutput);
 
 
-        CommandLineParser cmdparser = new DefaultParser();
+        CommandLineParser cmdParser = new DefaultParser();
         HelpFormatter formatter = new HelpFormatter();
         CommandLine cmd;
 
         try {
-            cmd = cmdparser.parse(options, args);
+            cmd = cmdParser.parse(options, args);
         } catch (ParseException e) {
             System.out.println(e.getMessage());
             formatter.printHelp("Simulator", options);
@@ -168,14 +120,9 @@ public class MainModel extends Model {
             return;
         }
 
-        //data/modeling parsing | setup
-        final long startTime = System.nanoTime();
+        MiSimModel model = new MiSimModel(new File(archModel), new File(expModel));
+        ExperimentMetaData metaData = model.getExperimentMetaData();
 
-        ExperimentMetaData metaData = ExperimentMetaData.initialize(new File(archModel),
-            expModel == null ? null : new File(expModel),
-            scenarioLoc == null ? null : new File(scenarioLoc));
-
-        MainModel model = MainModel.initialize(metaData.getModelName());
         if (cmd.hasOption(debugOutput.getOpt())) {
             model.debugOn();
         }
@@ -195,21 +142,6 @@ public class MainModel extends Model {
         }
 
 
-        ArchitectureModel.initialize(ExperimentMetaData.get().getArchFileLocation().toPath());
-
-        if (expModel != null) {
-            ExperimentModel.initialize(Paths.get(expModel));
-        } else {
-            Gson gson = new Gson();
-            try {
-                ExperimentModel.initialize((ScenarioDescription) gson
-                    .fromJson(new JsonReader(new FileReader(scenarioLoc)), ScenarioDescription.class));
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-        }
-
-        final long setupTime = System.nanoTime() - startTime;
         final long experimentStartTime = System.nanoTime();
 
         //run experiment
@@ -227,18 +159,18 @@ public class MainModel extends Model {
         }
 
         final long reportTime = System.nanoTime() - reportStartTime;
-        final long executionTime = System.nanoTime() - startTime;
+        final long executionTime = reportTime + metaData.getDurationOfSetupMS() * 1000;
 
         System.out.println("\n*** Simulator ***");
         System.out.println("Simulation of Architecture: " + archModel);
         System.out.println("Executed Experiment:        " + metaData.getExperimentName());
-        System.out.println("Setup took:                 " + Util.timeFormat(setupTime));
+        System.out.println("Setup took:                 " + Util.timeFormat(metaData.getDurationOfSetupMS() * 1000));
         System.out.println("Experiment took:            " + Util.timeFormat(experimentTime));
         System.out.println("Report took:                " + Util.timeFormat(reportTime));
         System.out.println("Execution took:             " + Util.timeFormat(executionTime));
     }
 
-    private static void generateReport(MainModel model) {
+    private static void generateReport(MiSimModel model) {
         ExperimentMetaData metaData = ExperimentMetaData.get();
         Path reportLocation = Paths.get(".", "Report_" + metaData.getExperimentName());
         Gson gson = new GsonHelper().getGson();
@@ -264,7 +196,7 @@ public class MainModel extends Model {
             });
 
             //export legacy graph
-            new ExportReport(model);
+//            new ExportReport(model);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -273,47 +205,5 @@ public class MainModel extends Model {
         TreeMap<String, TreeMap<Double, Object>> sortedData = new TreeMap<>(data);
         ReportWriter.writeReporterCollectorOutput(sortedData, reportLocation);
 
-    }
-
-    /**
-     * Required method which returns a description for the model.
-     *
-     * @return the description of the model
-     */
-    @Override
-    public String description() {
-        return "This is the central model of the simulation of microservice architectures.";
-    }
-
-    /**
-     * Initialize static model components like distributions and queues.
-     */
-    @Override
-    public void init() {
-
-
-    }
-
-
-    public void log(String message) {
-        System.out.println(this.presentTime() + ": \t" + message);
-    }
-
-    /**
-     * Place all events on the internal event list of the simulator which are necessary to start the simulation.
-     */
-    @Override
-    public void doInitialSchedules() {
-
-        ArchitectureModel.get().getMicroservices().forEach(Microservice::start); //initalizes spawning of instances
-
-        for (ISelfScheduled event : ExperimentModel.get().getAllSelfSchedulesEvents()) {
-            event.doInitialSelfSchedule();
-        }
-
-        //Fire off the finish event which is called during at the end of the simulation
-        FinishEvent event = new FinishEvent(this, "Finishing Event", false);
-        event.setSchedulingPriority(Priority.HIGH);
-        event.schedule(new TimeInstant(ExperimentMetaData.get().getDuration()));
     }
 }

@@ -1,7 +1,6 @@
 package cambio.simulator.entities.patterns;
 
-import cambio.simulator.nparsing.adapter.JsonTypeName;
-import cambio.simulator.parsing.FromJson;
+import cambio.simulator.parsing.adapter.JsonTypeName;
 
 /**
  * @author Lion Wagner
@@ -9,14 +8,11 @@ import cambio.simulator.parsing.FromJson;
 @JsonTypeName("linear")
 public class LinearBackoffRetryStrategy implements IRetryStrategy {
 
-    @FromJson
-    @SuppressWarnings({"FieldMayBeFinal", "FieldCanBeLocal"})
+    @SuppressWarnings({"FieldMayBeFinal", "CanBeFinal", "FieldCanBeLocal"})
     private double baseBackoff = 0.010;
-    @FromJson
-    @SuppressWarnings({"FieldMayBeFinal", "FieldCanBeLocal"})
+    @SuppressWarnings({"FieldMayBeFinal", "CanBeFinal", "FieldCanBeLocal"})
     private double maxBackoff = 1;
-    @FromJson
-    @SuppressWarnings({"FieldMayBeFinal", "FieldCanBeLocal"})
+    @SuppressWarnings({"FieldMayBeFinal", "CanBeFinal", "FieldCanBeLocal"})
     private int base = 3;
 
 

@@ -3,8 +3,8 @@ package cambio.simulator.entities.patterns;
 import java.util.Map;
 
 import cambio.simulator.entities.microservice.MicroserviceInstance;
-import cambio.simulator.nparsing.TypeNameAssociatedConfigurationData;
-import cambio.simulator.nparsing.adapter.PatternConfigurationParser;
+import cambio.simulator.parsing.TypeNameAssociatedConfigurationData;
+import cambio.simulator.parsing.adapter.PatternConfigurationParser;
 import org.jetbrains.annotations.NotNull;
 
 /**

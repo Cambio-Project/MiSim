@@ -14,12 +14,10 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import cambio.simulator.entities.generator.Generator;
-import cambio.simulator.entities.generator.IntervalGenerator;
+import cambio.simulator.entities.generator.LoadGeneratorDescriptionExecutor;
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.entities.microservice.Operation;
 import cambio.simulator.entities.networking.DependencyDescription;
-import cambio.simulator.parsing.PatternData;
 import desmoj.core.simulator.Model;
 import org.junit.jupiter.api.Assertions;
 
@@ -27,7 +25,7 @@ public class RandomTieredModel extends Model {
 
     private final ArrayList<Microservice> all_microservices = new ArrayList<>();
     private final ArrayList<Operation> all_operations = new ArrayList<>();
-    private final ArrayList<Generator> all_generators = new ArrayList<>();
+    private final ArrayList<LoadGeneratorDescriptionExecutor> all_generators = new ArrayList<>();
 
     private final int maxServicesPerTier;
     private final int tierCount;
@@ -53,7 +51,7 @@ public class RandomTieredModel extends Model {
             microservice.start();
         }
         createGenerators(generator_count, generator_interval);
-        all_generators.forEach(Generator::doInitialSelfSchedule);
+        all_generators.forEach(LoadGeneratorDescriptionExecutor::doInitialSelfSchedule);
     }
 
     @Override
@@ -66,11 +64,8 @@ public class RandomTieredModel extends Model {
                 Microservice current_ms = new Microservice(this, "MS_" + tiernb + "_" + i, false);
                 current_ms.setInstancesCount(2);
                 current_ms.setCapacity(nextNonNegative());
-                current_ms.setPatternData(new PatternData[] {
-                    TestUtils.getRetryPatternMock(this),
-                    TestUtils.getCircuitBreaker(this),
-                    TestUtils.getAutoscaler(this)
-                });
+                //todo: patterns
+
                 ArrayList<Operation> current_ops = new ArrayList<>();
                 for (int j = 0; j < new Random().nextInt(5) + 1; j++) {
                     Operation currentOP =
@@ -111,13 +106,13 @@ public class RandomTieredModel extends Model {
                     }
                     dependencies.add(new DependencyDescription(operation, targetOP));
                 }
-                operation.setDependencies(dependencies.toArray(new DependencyDescription[0]));
+//                operation.setDependencies(dependencies.toArray(new DependencyDescription[0]));
             }
         }
 
         //asserting model correctness
         for (Operation operation : all_operations) {
-            for (DependencyDescription dependencyDescription : operation.getDependencies()) {
+            for (DependencyDescription dependencyDescription : operation.getDependencyDescriptions()) {
                 Assertions
                     .assertEquals(1,
                         getTier(dependencyDescription.getTargetMicroservice()) - getTier(operation.getOwnerMS()));
@@ -147,11 +142,7 @@ public class RandomTieredModel extends Model {
         List<Operation> tier1Operations = new ArrayList<>();
         tiers.get(1).forEach(microservice -> tier1Operations.addAll(Arrays.asList(microservice.getOperations())));
         all_generators.addAll(IntStream.range(0, generator_count)
-            .mapToObj(operand -> (Generator)
-                new IntervalGenerator(this,
-                    "intervalgen",
-                    false,
-                    tier1Operations.get(nextNonNegative(tier1Operations.size())), interval, 0))
+            .mapToObj(operand -> (LoadGeneratorDescriptionExecutor) null)
             .collect(Collectors.toList()));
     }
 

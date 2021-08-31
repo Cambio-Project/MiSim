@@ -16,7 +16,7 @@ import cambio.simulator.entities.networking.Request;
 import cambio.simulator.entities.networking.RequestFailedReason;
 import cambio.simulator.export.MultiDataPointReporter;
 import cambio.simulator.misc.Priority;
-import cambio.simulator.nparsing.adapter.JsonTypeName;
+import cambio.simulator.parsing.adapter.JsonTypeName;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import desmoj.core.simulator.Model;
@@ -47,20 +47,15 @@ public final class CircuitBreaker extends InstanceOwnedPattern implements IReque
     private final MultiDataPointReporter reporter;
 
     @Expose
-    @SuppressWarnings("FieldMayBeFinal")
     private int requestVolumeThreshold = Integer.MAX_VALUE;
     @Expose
     @SerializedName(value = "error_threshold_percentage", alternate = "threshold")
-    @SuppressWarnings("FieldMayBeFinal")
     private double errorThresholdPercentage = Double.POSITIVE_INFINITY;
     @Expose
-    @SuppressWarnings("FieldMayBeFinal")
     private double sleepWindow = 0.500;
     @Expose
-    @SuppressWarnings("FieldMayBeFinal")
     private int timeout = Integer.MAX_VALUE;
     @Expose
-    @SuppressWarnings("FieldMayBeFinal")
     private int rollingWindow = 20; //window over which error rates are collected
 
     public CircuitBreaker(Model model, String name, boolean showInTrace) {

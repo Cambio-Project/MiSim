@@ -1,6 +1,6 @@
 package cambio.simulator.entities.networking;
 
-import cambio.simulator.entities.generator.Generator;
+import cambio.simulator.entities.generator.LoadGeneratorDescriptionExecutor;
 import cambio.simulator.entities.microservice.Operation;
 import cambio.simulator.export.MultiDataPointReporter;
 import desmoj.core.simulator.Model;
@@ -13,7 +13,7 @@ import desmoj.core.simulator.Model;
  * root request of a trace.
  *
  * @author Lion Wagner
- * @see Generator
+ * @see LoadGeneratorDescriptionExecutor
  */
 public class UserRequest extends Request {
 

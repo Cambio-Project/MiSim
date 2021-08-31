@@ -8,7 +8,7 @@ import cambio.simulator.entities.microservice.Operation;
 import cambio.simulator.misc.NameResolver;
 import cambio.simulator.misc.Util;
 import cambio.simulator.models.ArchitectureModel;
-import cambio.simulator.nparsing.adapter.architecture.ArchitectureModelAdapter;
+import cambio.simulator.parsing.adapter.architecture.ArchitectureModelAdapter;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import desmoj.core.dist.ContDistNormal;

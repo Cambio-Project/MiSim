@@ -6,6 +6,7 @@ import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.entities.microservice.Operation;
 import cambio.simulator.models.ArchitectureModel;
 import cambio.simulator.models.MiSimModel;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Lion Wagner
@@ -30,7 +31,7 @@ public final class NameResolver {
 
     }
 
-    public static Operation resolveOperationName(ArchitectureModel model, String name) {
+    public static Operation resolveOperationName(@NotNull ArchitectureModel model, @NotNull String name) {
 
         if (name.contains(".")) {
             String[] names = name.split("\\.");

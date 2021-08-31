@@ -1,13 +1,11 @@
 package cambio.simulator.models;
 
-import java.nio.file.Path;
-import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import cambio.simulator.entities.generator.LoadGeneratorDescriptionExecutor;
+import cambio.simulator.events.ExperimentAction;
 import cambio.simulator.events.ISelfScheduled;
-import cambio.simulator.parsing.ExpModelParser;
-import cambio.simulator.parsing.ScenarioDescription;
 
 /**
  * Singleton class that represents the experiment model.
@@ -15,59 +13,17 @@ import cambio.simulator.parsing.ScenarioDescription;
  * @author Lion Wagner
  */
 public class ExperimentModel {
-    private static ExperimentModel instance = null;
-    private final Set<Object> experimentObjects;
+    private final LoadGeneratorDescriptionExecutor[] generators;
 
-    private ExperimentModel(Path expFileLocation) {
-        experimentObjects = Collections.unmodifiableSet(ExpModelParser.parseExperimentData(expFileLocation));
+    private final Set<ExperimentAction> otherExperimentActions;
+
+
+    public ExperimentModel(LoadGeneratorDescriptionExecutor[] generators,
+                           Set<ExperimentAction> experimentActions) {
+        this.generators = generators;
+        this.otherExperimentActions = experimentActions;
     }
 
-    private ExperimentModel(ScenarioDescription scenarioDescription) {
-        experimentObjects = scenarioDescription.parse();
-    }
-
-    /**
-     * Gets the experiment model singleton.
-     *
-     * @return the experiment model singleton.
-     */
-    public static ExperimentModel get() {
-        if (instance == null) {
-            throw new IllegalStateException("Experiment Model was not initialized yet.");
-        }
-        return instance;
-    }
-
-    /**
-     * Initializes the experiment model singleton.
-     *
-     * @param expFileLocation path of the experiment file
-     * @return the experiment model singleton.
-     * @throws IllegalStateException if model was already initialized
-     */
-    public static ExperimentModel initialize(Path expFileLocation) {
-        if (instance != null) {
-            throw new IllegalStateException("Experiment Model was already initialized.");
-        }
-        instance = new ExperimentModel(expFileLocation);
-
-        return get();
-    }
-
-    /**
-     * Initializes the experiment model singleton.
-     *
-     * @param scenario description the scenario that should be executed
-     * @return the experiment model singleton.
-     * @throws IllegalStateException if model was already initialized
-     */
-    public static ExperimentModel initialize(ScenarioDescription scenario) {
-        if (instance != null) {
-            throw new IllegalStateException("Experiment Model was already initialized.");
-        }
-        instance = new ExperimentModel(scenario);
-        return get();
-    }
 
     public Set<ISelfScheduled> getAllSelfSchedulesEvents() {
         return getAllObjectsOfType(ISelfScheduled.class);
@@ -75,7 +31,7 @@ public class ExperimentModel {
     }
 
     public <T> Set<T> getAllObjectsOfType(Class<T> clazz) {
-        return experimentObjects.stream().filter(o -> clazz.isAssignableFrom(o.getClass())).map(clazz::cast)
+        return otherExperimentActions.stream().filter(o -> clazz.isAssignableFrom(o.getClass())).map(clazz::cast)
             .collect(Collectors.toSet());
     }
 }

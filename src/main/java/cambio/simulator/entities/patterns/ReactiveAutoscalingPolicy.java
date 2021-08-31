@@ -4,14 +4,14 @@ import java.util.List;
 
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.export.MultiDataPointReporter;
-import cambio.simulator.nparsing.adapter.JsonTypeName;
+import cambio.simulator.parsing.adapter.JsonTypeName;
 import desmoj.core.simulator.TimeInstant;
 
 /**
  * @author Lion Wagner
  */
 @JsonTypeName("reactive")
-public class ReactiveAutoscalingPolicy implements IAutoscalingPolicy {
+class ReactiveAutoscalingPolicy implements IAutoscalingPolicy {
 
 
     private final transient MultiDataPointReporter reporter = new MultiDataPointReporter("AS");

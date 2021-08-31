@@ -54,7 +54,7 @@ public abstract class Request extends NamedEntity {
 
     private void createDependencies() {
 
-        for (DependencyDescription dependencyDescription : operation.getDependencies()) {
+        for (DependencyDescription dependencyDescription : operation.getDependencyDescriptions()) {
 
             // Roll probability
             Random prob;

@@ -3,6 +3,7 @@ package cambio.simulator.entities.patterns;
 import java.util.Collection;
 
 import cambio.simulator.entities.microservice.MicroserviceInstance;
+import cambio.simulator.entities.microservice.NoInstanceAvailableException;
 
 /**
  * Interface for a load balancing strategy.
@@ -19,7 +20,8 @@ public interface ILoadBalancingStrategy extends IStrategy {
      * @param runningInstances collection of all currently running instances.
      * @return the {@link MicroserviceInstance} to which the next request should be sent.
      */
-    MicroserviceInstance getNextInstance(Collection<MicroserviceInstance> runningInstances);
+    MicroserviceInstance getNextInstance(Collection<MicroserviceInstance> runningInstances) throws
+        NoInstanceAvailableException;
 
 }
 

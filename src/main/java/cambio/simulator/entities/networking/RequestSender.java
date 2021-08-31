@@ -15,6 +15,7 @@ import desmoj.core.simulator.TimeSpan;
  *
  * @author Lion Wagner
  */
+@SuppressWarnings("UnusedReturnValue")
 public class RequestSender extends NamedEntity {
 
     private final TreeSet<IRequestUpdateListener> updateListeners = new TreeSet<>();

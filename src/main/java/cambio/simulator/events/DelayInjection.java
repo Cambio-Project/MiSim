@@ -6,9 +6,10 @@ import java.util.Objects;
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.entities.microservice.Operation;
 import cambio.simulator.entities.networking.InternalRequest;
-import cambio.simulator.misc.Util;
+import cambio.simulator.parsing.adapter.JsonTypeName;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 import desmoj.core.dist.ContDistNormal;
-import desmoj.core.dist.NumericalDist;
 import desmoj.core.simulator.ExternalEvent;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeSpan;
@@ -20,36 +21,22 @@ import desmoj.core.simulator.TimeSpan;
  *
  * @author Lion Wagner
  */
-public class DelayInjection extends SelfScheduledEvent {
-    private final double delay;
-    private final double stdDeviation;
-    private final Microservice microservice;
-    private final Operation operationSrc;
-    private final Operation operationTrg;
-
+@JsonTypeName(value = "delay", alternativeNames = "delay_injection")
+public class DelayInjection extends SelfScheduledExperimentAction {
+    @Expose
+    @SerializedName(value = "delay", alternate = {"delay_distribution", "distribution"})
+    private ContDistNormal delayDistribution;
+    @Expose
+    private Microservice microservice;
+    @Expose
+    private Operation operationSrc;
+    @Expose
+    private Operation operationTrg;
+    @Expose
     private double duration;
 
-    public DelayInjection(Model model, String name, boolean showInTrace, double delay, Microservice microservice) {
-        this(model, name, showInTrace, delay, 0, microservice, null, null);
-    }
-
-    public DelayInjection(Model model, String name, boolean showInTrace, double delay, Operation operationSrc) {
-        this(model, name, showInTrace, delay, 0, operationSrc.getOwnerMS(), operationSrc, null);
-    }
-
-    public DelayInjection(Model model, String name, boolean showInTrace, double delay, Operation operationSrc,
-                          Operation operationTrg) {
-        this(model, name, showInTrace, delay, 0, operationSrc.getOwnerMS(), operationSrc, operationTrg);
-    }
-
-    public DelayInjection(Model model, String name, boolean showInTrace, double delay, double stdDeviation,
-                          Microservice microservice) {
-        this(model, name, showInTrace, delay, stdDeviation, microservice, null, null);
-    }
-
-    public DelayInjection(Model model, String name, boolean showInTrace, double delay, double stdDeviation,
-                          Operation operationSrc) {
-        this(model, name, showInTrace, delay, stdDeviation, operationSrc.getOwnerMS(), operationSrc, null);
+    public DelayInjection(Model model, String name, boolean showInTrace) {
+        super(model, name, showInTrace);
     }
 
     /**
@@ -68,8 +55,7 @@ public class DelayInjection extends SelfScheduledEvent {
         super(model, name, showInTrace);
         Objects.requireNonNull(microservice);
 
-        this.delay = delay;
-        this.stdDeviation = stdDeviation;
+        this.delayDistribution = new ContDistNormal(model, null, delay, stdDeviation, false, false);
         this.microservice = microservice;
         this.operationSrc = operationSrc;
         this.operationTrg = operationTrg;
@@ -80,8 +66,8 @@ public class DelayInjection extends SelfScheduledEvent {
     private void validateArguments() {
         Objects.requireNonNull(microservice);
 
-        Util.requireNonNegative(delay, "The injected delay cannot be negative");
-        Util.requireNonNegative(stdDeviation, "The standard deviation of the injected delay cannot be negative");
+//        Util.requireNonNegative(delay, "The injected delay cannot be negative");
+//        Util.requireNonNegative(stdDeviation, "The standard deviation of the injected delay cannot be negative");
 
         if (operationSrc != null) {
             if (Arrays.stream(microservice.getOperations()).noneMatch(operation -> operation == operationSrc)) {
@@ -89,7 +75,7 @@ public class DelayInjection extends SelfScheduledEvent {
                     String.format("Operation %s is not an operation of microservice %s", operationSrc, microservice));
             }
             if (operationTrg != null
-                && Arrays.stream(operationSrc.getDependencies())
+                && Arrays.stream(operationSrc.getDependencyDescriptions())
                 .noneMatch(dependency -> dependency.getTargetOperation() == operationTrg)) {
                 throw new IllegalArgumentException(
                     String.format("Operation %s is not a dependency of operation %s", operationTrg, operationSrc));
@@ -103,10 +89,7 @@ public class DelayInjection extends SelfScheduledEvent {
 
     @Override
     public void eventRoutine() {
-        NumericalDist<Double> dist =
-            new ContDistNormal(getModel(), String.format("DelayDistribution_of_%s", this.getName()), delay,
-                stdDeviation, false, false);
-        microservice.applyDelay(dist, operationSrc, operationTrg);
+        microservice.applyDelay(delayDistribution, operationSrc, operationTrg);
         new ExternalEvent(getModel(), "LatencyMonkeyDeactivator", this.traceIsOn()) {
             @Override
             public void eventRoutine() {

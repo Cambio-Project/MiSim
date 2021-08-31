@@ -66,19 +66,39 @@
       ],
       "patterns": [
         {
-          "type": "retry",
+          "type": "circuitbreaker",
           "config": {
-            "maxTries": 5,
-            "baseBackoff": 0.02,
-            "maxBackoff": 1,
-            "base": 2,
-            "jittering": true
+            "error_threshold_percentage": 0.7
           }
         },
         {
-          "type": "circuitbreaker",
+          "type": "retry",
           "config": {
-            "errorThresholdPercentage": 0.7
+            "maxTries": 5
+          },
+          "strategy": {
+            "type": "jittering",
+            "config": {
+              "baseBackoff": 0.02,
+              "maxBackoff": 1,
+              "base": 2
+            }
+          }
+        }
+      ],
+      "s_patterns": [
+        {
+          "type": "autoscaling",
+          "config": {
+            "period": 0.5
+          },
+          "strategy": {
+            "type": "reactive",
+            "config": {
+              "lower_bound": 0.1,
+              "upper_bound": 0.9,
+              "hold_time": 60
+            }
           }
         }
       ]

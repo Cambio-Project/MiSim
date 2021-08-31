@@ -17,7 +17,6 @@ import cambio.simulator.entities.patterns.LoadBalancer;
 import cambio.simulator.entities.patterns.ServiceOwnedPattern;
 import cambio.simulator.export.ContinuousMultiDataPointReporter;
 import cambio.simulator.export.MultiDataPointReporter;
-import cambio.simulator.parsing.PatternData;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import desmoj.core.dist.NumericalDist;
@@ -82,7 +81,6 @@ public class Microservice extends NamedEntity {
      */
     public Microservice(Model model, String name, boolean showInTrace) {
         super(model, name, showInTrace);
-        setPlainName(name);
         //default load balancer
         loadBalancer = new LoadBalancer(model, "Loadbalancer", traceIsOn(), null);
         reporter = new ContinuousMultiDataPointReporter(String.format("S[%s]_", name));
@@ -95,22 +93,16 @@ public class Microservice extends NamedEntity {
     public synchronized void start() {
         started = true;
         scaleToInstancesCount(startingInstanceCount);
-//        serviceOwnedPatterns = Arrays.stream(patternsData)
-//            .map(patternData -> patternData.tryGetServiceOwnedPatternOrNull(this))
-//            .filter(Objects::nonNull)
-//            .toArray(ServiceOwnedPattern[]::new);
     }
 
-    public String getName() {
-        return plainName;
+    @Override
+    public String toString() {
+        return this.getName();
     }
 
-    public String getPlainName() {
-        return plainName;
-    }
-
-    public void setPlainName(String plainName) {
-        this.plainName = plainName;
+    @Override
+    public String getQuotedName() {
+        return "'" + this.getName() + "'";
     }
 
     public int getCapacity() {
@@ -121,13 +113,6 @@ public class Microservice extends NamedEntity {
         this.capacity = capacity;
     }
 
-    public void setPatternData(PatternData[] patterns) {
-        this.instanceOwnedPatternConfigurations =
-            Arrays.stream(patterns)
-                .map(patternData -> new InstanceOwnedPatternConfiguration(patternData.type, patternData.config))
-                .collect(Collectors.toList())
-                .toArray(this.instanceOwnedPatternConfigurations);
-    }
 
     public int getInstancesCount() {
         return instancesSet.size();
@@ -244,17 +229,6 @@ public class Microservice extends NamedEntity {
             .filter(operation -> searchPattern.matcher(operation.getName()).matches())
             .findAny()
             .orElse(null);
-    }
-
-
-    @Override
-    public String toString() {
-        return this.getName();
-    }
-
-    @Override
-    public String getQuotedName() {
-        return "'" + this.getName() + "'";
     }
 
 

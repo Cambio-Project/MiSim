@@ -17,14 +17,10 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import cambio.simulator.entities.microservice.Microservice;
-import cambio.simulator.entities.microservice.MicroserviceInstance;
 import cambio.simulator.entities.networking.NetworkRequestSendEvent;
-import cambio.simulator.entities.patterns.CircuitBreaker;
-import cambio.simulator.entities.patterns.PreemptiveAutoScaler;
-import cambio.simulator.entities.patterns.RetryManager;
+import cambio.simulator.entities.patterns.ServiceOwnedPattern;
 import cambio.simulator.export.CSVData;
 import cambio.simulator.export.ReportCollector;
-import cambio.simulator.parsing.PatternData;
 import desmoj.core.simulator.Experiment;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
@@ -56,28 +52,26 @@ public class TestUtils {
         return currentExperiment;
     }
 
-    public static PatternData getRetryPatternMock(Model model) {
-        PatternData data = mock(PatternData.class);
-        Mockito.when(data.tryGetInstanceOwnedPatternOrNull(any(MicroserviceInstance.class)))
-            .thenAnswer(invocationOnMock -> new RetryManager(model, "Retry", true, invocationOnMock.getArgument(0)));
-        return data;
-    }
-
-    public static PatternData getCircuitBreaker(Model model) {
-        PatternData data = mock(PatternData.class);
-        Mockito.when(data.tryGetInstanceOwnedPatternOrNull(any(MicroserviceInstance.class)))
-            .thenAnswer(
-                invocationOnMock -> new CircuitBreaker(model, "CircuitBreaker", true, invocationOnMock.getArgument(0)));
-        return data;
-    }
-
-    public static PatternData getAutoscaler(Model model) {
-        PatternData data = mock(PatternData.class);
-        Mockito.when(data.tryGetServiceOwnedPatternOrNull(any(Microservice.class)))
-            .thenAnswer(invocationOnMock -> new PreemptiveAutoScaler(model, "AutoScaler", true,
-                invocationOnMock.getArgument(0)));
-        return data;
-    }
+//    public static InstanceOwnedPatternConfiguration getRetryPatternMock(Model model) {
+//        InstanceOwnedPatternConfiguration data = mock(InstanceOwnedPatternConfiguration.class);
+//        Mockito.when(data.getPatternInstance(any(MicroserviceInstance.class)))
+//            .thenAnswer(invocationOnMock -> new Retry(model, "Retry", true));
+//        return data;
+//    }
+//
+//    public static InstanceOwnedPatternConfiguration getCircuitBreaker(Model model) {
+//        InstanceOwnedPatternConfiguration data = mock(InstanceOwnedPatternConfiguration.class);
+//        Mockito.when(data.getPatternInstance(any(MicroserviceInstance.class)))
+//            .thenAnswer(invocationOnMock -> new CircuitBreaker(model, "CircuitBreaker", true));
+//        return data;
+//    }
+//
+//    public static ServiceOwnedPattern getAutoscaler(Model model) {
+//        InstanceOwnedPatternConfiguration data = mock(InstanceOwnedPatternConfiguration.class);
+//        Mockito.when(data.getPatternInstance(any(Microservice.class)))
+//            .thenAnswer(invocationOnMock -> new BasicAutoscalingStrategyProxy(model, "AutoScaler", true));
+//        return data;
+//    }
 
     public static void resetModel(RandomTieredModel model) {
         ReportCollector.getInstance().reset(); //resetting static data point collection framework
@@ -89,7 +83,7 @@ public class TestUtils {
             Field f = Microservice.class.getDeclaredField("patternsData");
             f.setAccessible(true);
             for (Microservice microservice : model.getAllMicroservices()) {
-                PatternData[] mocks = (PatternData[]) f.get(microservice);
+                ServiceOwnedPattern[] mocks = (ServiceOwnedPattern[]) f.get(microservice);
                 Mockito.reset(mocks);
 
             }
@@ -154,4 +148,7 @@ public class TestUtils {
             e.printStackTrace();
         }
     }
+
+
+
 }

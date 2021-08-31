@@ -6,7 +6,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import cambio.simulator.entities.microservice.MicroserviceInstance;
-import cambio.simulator.nparsing.adapter.JsonTypeName;
+import cambio.simulator.entities.microservice.NoInstanceAvailableException;
+import cambio.simulator.parsing.adapter.JsonTypeName;
 
 /**
  * Strategy that balances the amount of requests evenly between instances. Does not care about internal demand of the
@@ -37,8 +38,9 @@ class EvenLoadBalanceStrategy implements ILoadBalancingStrategy {
             .orElse(null);
         if (instance != null) {
             distribution.merge(instance, 1, Integer::sum);
+        } else {
+            throw new NoInstanceAvailableException();
         }
-
         return instance;
     }
 }

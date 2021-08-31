@@ -1,20 +1,24 @@
 package cambio.simulator.parsing;
 
+import static cambio.simulator.misc.Util.injectField;
+
 import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import cambio.simulator.entities.generator.Generator;
-import cambio.simulator.entities.generator.LIMBOGenerator;
+import cambio.simulator.entities.generator.LimboLoadGeneratorDescription;
+import cambio.simulator.entities.generator.LoadGeneratorDescription;
+import cambio.simulator.entities.generator.LoadGeneratorDescriptionExecutor;
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.entities.microservice.Operation;
 import cambio.simulator.events.ChaosMonkeyEvent;
 import cambio.simulator.events.DelayInjection;
 import cambio.simulator.events.SummonerMonkeyEvent;
+import cambio.simulator.misc.NameResolver;
 import cambio.simulator.models.ArchitectureModel;
-import cambio.simulator.models.MainModel;
+import cambio.simulator.models.MiSimModel;
 import desmoj.core.simulator.TimeInstant;
 
 /**
@@ -25,6 +29,8 @@ import desmoj.core.simulator.TimeInstant;
  */
 public class ScenarioDescription {
 
+    private final MiSimModel model;
+    private final ArchitectureModel archModel;
     public String name;
     public String description;
     public String artifact;
@@ -34,10 +40,15 @@ public class ScenarioDescription {
     public String environment;
     public Integer duration;
 
+    public ScenarioDescription(MiSimModel model, ArchitectureModel archModel) {
+        this.model = model;
+        this.archModel = archModel;
+    }
+
     /**
-     * Converst this scenario description into a set of event objects.
+     * Convert this scenario description into a set of event objects.
      *
-     * @return a set of objects that describe the scneario.
+     * @return a set of objects that describe the scenario.
      */
     public Set<Object> parse() {
         Set<Object> scheduables = new HashSet<>();
@@ -60,7 +71,6 @@ public class ScenarioDescription {
 
         String profile = stimuli.replace("LOAD", "");
 
-        ArchitectureModel archModel = ArchitectureModel.get();
         Microservice service = archModel.getMicroservices()
             .stream()
             .filter(microservice -> microservice.getName().equals(artifact))
@@ -73,14 +83,22 @@ public class ScenarioDescription {
 
         if (component.equals("ALL ENDPOINTS")) {
             for (Operation operation : service.getOperations()) {
-                scheduables
-                    .add(new LIMBOGenerator(MainModel.get(), "LIMBO_GENERATOR", true, operation, new File(profile)));
+                scheduables.add(createLimboGenerator(profile, operation));
             }
         } else {
-            Operation target = service.getOperationByName(component);
-            scheduables.add(new LIMBOGenerator(MainModel.get(), "LIMBO_GENERATOR", true, target, new File(profile)));
+            Operation target = NameResolver.resolveOperationName(archModel, component);
+            scheduables.add(createLimboGenerator(profile, target));
         }
     }
+
+    private LoadGeneratorDescriptionExecutor createLimboGenerator(String profileLocation, Operation operation) {
+        LoadGeneratorDescription description = new LimboLoadGeneratorDescription();
+        injectField("modelFile", description, new File(profileLocation));
+        injectField("targetOperation", description, operation);
+        description.initializeArrivalRateModel();
+        return new LoadGeneratorDescriptionExecutor(model, description);
+    }
+
     //response and response measure are ignored for now
 
     private void parseTimedFaultload(Set<Object> scheduables, String currentStimulus) {
@@ -96,7 +114,6 @@ public class ScenarioDescription {
         }
         currentStimulus = currentStimulus.replaceFirst("@([0-9]*)", "").trim();
 
-        ArchitectureModel archModel = ArchitectureModel.get();
         Microservice service = archModel.getMicroservices()
             .stream()
             .filter(microservice -> microservice.getName().equals(artifact))
@@ -116,7 +133,7 @@ public class ScenarioDescription {
             }
 
             scheduables.add(
-                new ChaosMonkeyEvent(MainModel.get(), "Chaosmonkey", true, service, instances) {
+                new ChaosMonkeyEvent(model, "Chaosmonkey", true, service, instances) {
                     {
                         setTargetTime(new TimeInstant(targetTime));
                     }
@@ -127,7 +144,7 @@ public class ScenarioDescription {
 
 
             scheduables.add(
-                new SummonerMonkeyEvent(MainModel.get(), "Summoner", true, service, instances) {
+                new SummonerMonkeyEvent(model, "Summoner", true, service, instances) {
                     {
                         setTargetTime(new TimeInstant(targetTime));
                     }
@@ -162,7 +179,8 @@ public class ScenarioDescription {
 
 
             scheduables.add(
-                new DelayInjection(MainModel.get(), "LatencyMonkey", true, baseDelay, deviationDelay, service) {
+                new DelayInjection(model, "LatencyMonkey", true, baseDelay, deviationDelay, service, null,
+                    null) {
                     {
                         setTargetTime(new TimeInstant(targetTime));
                         setDuration(duration);

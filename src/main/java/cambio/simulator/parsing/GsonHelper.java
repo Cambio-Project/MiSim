@@ -4,8 +4,8 @@ package cambio.simulator.parsing;
 import java.io.File;
 import java.time.LocalDateTime;
 
-import cambio.simulator.nparsing.adapter.LocalDateTimeAdapter;
 import cambio.simulator.parsing.adapter.FileAdapter;
+import cambio.simulator.parsing.adapter.LocalDateTimeAdapter;
 import cambio.simulator.parsing.adapter.TimeInstantAdapter;
 import cambio.simulator.parsing.adapter.TimeSpanAdapter;
 import com.google.gson.FieldNamingPolicy;
@@ -20,7 +20,7 @@ import desmoj.core.simulator.TimeSpan;
  * @author Lion Wagner
  * @see com.google.gson.TypeAdapter
  */
-public class GsonHelper {
+public final class GsonHelper {
 
     /**
      * Creates a new default Gson object for parsing JSON that supports {@link File}, {@link TimeInstant} and {@link

@@ -2,7 +2,7 @@ package cambio.simulator.entities.patterns;
 
 import java.util.Random;
 
-import cambio.simulator.nparsing.adapter.JsonTypeName;
+import cambio.simulator.parsing.adapter.JsonTypeName;
 
 /**
  * @author Lion Wagner

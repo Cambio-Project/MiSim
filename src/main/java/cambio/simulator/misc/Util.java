@@ -1,5 +1,6 @@
 package cambio.simulator.misc;
 
+import java.lang.reflect.Field;
 import java.util.Random;
 
 import cambio.simulator.models.ExperimentMetaData;
@@ -124,5 +125,23 @@ public class Util {
             prob = new Random();
         }
         return prob;
+    }
+
+    /**
+     * Tries to inject a value into the field of an object via reflection.
+     *
+     * @param fieldName name of the field
+     * @param object    object that should be modified
+     * @param newValue  value that should be injected
+     */
+    public static void injectField(String fieldName, Object object, Object newValue) {
+        try {
+            Class<?> clazz = object.getClass();
+            Field field = clazz.getDeclaredField(fieldName);
+            field.setAccessible(true);
+            field.set(object, newValue);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
     }
 }

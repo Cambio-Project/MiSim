@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.Comparator;
 
 import cambio.simulator.entities.microservice.MicroserviceInstance;
-import cambio.simulator.nparsing.adapter.JsonTypeName;
+import cambio.simulator.parsing.adapter.JsonTypeName;
 
 /**
  * Strategy that chooses the least utilized Microservice Instance by current relative Queue demand.
