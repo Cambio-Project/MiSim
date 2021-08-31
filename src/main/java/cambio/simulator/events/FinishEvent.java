@@ -1,5 +1,6 @@
 package cambio.simulator.events;
 
+import cambio.simulator.entities.NamedExternalEvent;
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.models.ArchitectureModel;
 import co.paralleluniverse.fibers.SuspendExecution;
@@ -12,7 +13,7 @@ import desmoj.core.simulator.Model;
  * <p>
  * Its used for cleanup and finalizing statistics.
  */
-public class FinishEvent extends ExternalEvent {
+public class FinishEvent extends NamedExternalEvent {
 
     public FinishEvent(Model owner, String name, boolean showInTraceMode) {
         super(owner, name, showInTraceMode);

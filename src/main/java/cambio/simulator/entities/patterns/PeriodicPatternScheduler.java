@@ -1,5 +1,6 @@
 package cambio.simulator.entities.patterns;
 
+import cambio.simulator.entities.NamedSimProcess;
 import cambio.simulator.misc.Priority;
 import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.Model;
@@ -9,7 +10,7 @@ import desmoj.core.simulator.TimeSpan;
 /**
  * @author Lion Wagner
  */
-public class PeriodicPatternScheduler extends SimProcess {
+public class PeriodicPatternScheduler extends NamedSimProcess {
     private final IPeriodicServiceOwnedPattern owner;
     private final double start;
     private final double stop;

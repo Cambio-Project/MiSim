@@ -1,7 +1,7 @@
 package cambio.simulator.entities;
 
-import desmoj.core.simulator.Entity;
 import desmoj.core.simulator.Model;
+import desmoj.core.simulator.SimProcess;
 
 /**
  * Class that adds further options for the retrieving of names of entities.
@@ -14,12 +14,16 @@ import desmoj.core.simulator.Model;
  *
  * @author Lion Wagner
  */
-public abstract class NamedEntity extends Entity {
+public abstract class NamedSimProcess extends SimProcess {
 
     private String plainName;
 
-    public NamedEntity(Model model, String name, boolean showInTrace) {
-        super(model, name, showInTrace);
+    public NamedSimProcess(Model model, String name, boolean showInTrace) {
+        this(model, name, false, showInTrace);
+    }
+
+    public NamedSimProcess(Model model, String name, boolean repeating, boolean showInTrace) {
+        super(model, name, repeating, showInTrace);
         this.plainName = name;
     }
 

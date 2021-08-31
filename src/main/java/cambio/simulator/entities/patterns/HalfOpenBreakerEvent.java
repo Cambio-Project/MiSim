@@ -1,5 +1,6 @@
 package cambio.simulator.entities.patterns;
 
+import cambio.simulator.entities.NamedExternalEvent;
 import cambio.simulator.misc.Priority;
 import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.ExternalEvent;
@@ -10,7 +11,7 @@ import desmoj.core.simulator.Model;
  *
  * @author Lion Wagner
  */
-public class HalfOpenBreakerEvent extends ExternalEvent {
+public class HalfOpenBreakerEvent extends NamedExternalEvent {
 
     private final CircuitBreakerState stateToChange;
 
