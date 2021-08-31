@@ -165,9 +165,6 @@
                         </goals>
                     </execution>
                 </executions>
-                <configuration>
-                    <source>8</source>
-                </configuration>
             </plugin>
 
             <plugin>
