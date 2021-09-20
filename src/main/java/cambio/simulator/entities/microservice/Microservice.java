@@ -59,7 +59,7 @@ public class Microservice extends NamedEntity {
     @SerializedName(value = "name")
     private String plainName = ""; //TODO: fix this whole naming confusion thing
     @Expose
-    private int capacity = 0;
+    private int capacity = 1;
     @Expose
     @SerializedName(value = "instances", alternate = {"starting_instance_count", "starting_instances"})
     private int startingInstanceCount = 1;
