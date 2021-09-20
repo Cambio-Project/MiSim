@@ -112,20 +112,7 @@ public class Util {
         return String.format("%dms", ms);
     }
 
-    /**
-     * Creates a {@link Random} instance based on the experiment seed.
-     *
-     * @return a new Random object, based on the experiment seed.
-     */
-    public static Random tryGetRandomFromExperimentSeed() {
-        Random prob;
-        try {
-            prob = new Random(ExperimentMetaData.get().getSeed());
-        } catch (Exception e) {
-            prob = new Random();
-        }
-        return prob;
-    }
+
 
     /**
      * Tries to inject a value into the field of an object via reflection.

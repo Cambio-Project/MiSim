@@ -22,19 +22,23 @@ import com.google.gson.stream.JsonReader;
  *
  * @author Lion Wagner
  */
+@SuppressWarnings("FieldMayBeFinal")
 public class ExperimentMetaData {
     private static ExperimentMetaData instance = null;
-    @SuppressWarnings("FieldMayBeFinal")
+
+
     private int seed = new Random().nextInt();
 
-    @SuppressWarnings("FieldMayBeFinal")
     private String reportType = "default";
+
     private double duration = -1;
+
     @SerializedName(value = "experimentName", alternate = {"experiment_name", "name"})
     private String experimentName;
+
     @SerializedName(value = "modelName", alternate = {"model_name"})
     private String modelName;
-    @SuppressWarnings("FieldMayBeFinal")
+
     private TimeUnit timeUnit = TimeUnit.SECONDS;
     /*
      * These are of type File, since java.nio.Path is not directly parsable by gson
@@ -47,65 +51,8 @@ public class ExperimentMetaData {
     private LocalDateTime startTimestamp;
 
     private transient long startOfSetup;
-    private long durationOfSetupMS = -1;
-
-    /**
-     * Gets the experiment meta data singleton.
-     *
-     * @return the experiment meta data.
-     */
-    public static ExperimentMetaData get() {
-        if (instance == null) {
-            throw new IllegalStateException("Experiment Model was not initialized yet.");
-        }
-        return instance;
-    }
-
-    /**
-     * Initializes the experiment meta data object based on a experiment or scenario file.
-     *
-     * @return the experiment meta data object.
-     */
-    public static ExperimentMetaData initialize(File archFileLocation, File expFileLocation, File scenarioPath) {
-        if (instance != null) {
-            throw new IllegalStateException("Architecture Model was already initialized.");
-        }
-        Gson gson = new GsonHelper().getGson();
-
-        try {
-            if (expFileLocation != null) {
-                JsonObject root = gson.fromJson(new JsonReader(new FileReader(expFileLocation)), JsonObject.class);
-                instance = gson.fromJson(root.get(SIMULATION_METADATA_KEY), ExperimentMetaData.class);
-                instance.setExpFileLocation(expFileLocation);
-            } else if (scenarioPath != null) {
-                ScenarioDescription description =
-                    gson.fromJson(new JsonReader(new FileReader(scenarioPath)), ScenarioDescription.class);
-                instance = new ExperimentMetaData();
-                instance.experimentName = description.name;
-                instance.duration = description.duration;
-                instance.modelName = "UnnamedModel";
-                instance.setExpFileLocation(scenarioPath);
-            }
-            instance.setArchFileLocation(archFileLocation);
-
-            if (instance.duration <= 0) {
-                throw new ParsingException("Experiment 'duration' should be greater than 0.");
-            }
-            if (instance.experimentName == null) {
-                throw new ParsingException("'experiment_name' has to be set.");
-            }
-            if (instance.modelName == null) {
-                throw new ParsingException("'model_name' has to be set.");
-            }
-
-
-        } catch (FileNotFoundException e) {
-            throw new ParsingException(
-                String.format("Could not find experiment file '%s'",
-                    expFileLocation != null ? expFileLocation.getAbsolutePath() : null), e);
-        }
-        return get();
-    }
+    private transient long durationOfSetupMS = -1;
+    private transient long durationOfMetaDataLoading;
 
 
     public String getReportType() {
@@ -148,6 +95,9 @@ public class ExperimentMetaData {
         this.archFileLocation = archFileLocation;
     }
 
+    public void setDurationOfMetaDataLoading(long durationOfMetaDataLoading) {
+        this.durationOfMetaDataLoading = durationOfMetaDataLoading;
+    }
 
     public void markStartOfSetup(long startTime) {
         this.startOfSetup = startTime;
@@ -170,7 +120,7 @@ public class ExperimentMetaData {
     }
 
     public long getDurationOfSetupMS() {
-        return durationOfSetupMS;
+        return durationOfMetaDataLoading + durationOfSetupMS;
     }
 
     public LocalDateTime getStartTimestamp() {

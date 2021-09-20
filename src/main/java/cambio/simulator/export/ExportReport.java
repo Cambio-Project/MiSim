@@ -58,9 +58,9 @@ public class ExportReport {
                 lastValue = Math.round(map.get(x) * 1000000.0) / 1000000.0;
                 newmap.put(x, map.get(x));
 
-                if (mapIndex == map.size() - 1 && x < ExperimentMetaData.get().getDuration()) {
+                if (mapIndex == map.size() - 1 && x < model.getExperimentMetaData().getDuration()) {
                     lastIndex = step * Math.round((x + 0.5) / step);
-                    while (lastIndex < ExperimentMetaData.get().getDuration()) {
+                    while (lastIndex < model.getExperimentMetaData().getDuration()) {
                         if (continuous) {
                             newmap.put(lastIndex, lastValue);
                         } else {

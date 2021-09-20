@@ -14,7 +14,7 @@ import desmoj.core.simulator.Model;
  * its
  * <code>eventRoutine</code> method.
  */
-@JsonTypeName(value = "chaosmonkey", alternativeNames = {"chaos_monkey"})
+@JsonTypeName(value = "chaosmonkey", alternativeNames = {"chaos_monkey", "monkey"})
 public class ChaosMonkeyEvent extends SelfScheduledExperimentAction {
     @Expose
     @SerializedName(value = "instances", alternate = {"instance_count", "killed_instance_count", "killed_instances"})

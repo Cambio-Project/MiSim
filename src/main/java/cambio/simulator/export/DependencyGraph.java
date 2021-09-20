@@ -8,6 +8,7 @@ import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.entities.microservice.Operation;
 import cambio.simulator.entities.networking.DependencyDescription;
 import cambio.simulator.models.ExperimentMetaData;
+import cambio.simulator.models.MiSimModel;
 import desmoj.core.simulator.Model;
 
 /**
@@ -18,7 +19,7 @@ public class DependencyGraph {
     private static final int hashMultiplier = 11;
 
 
-    private final Model model;
+    private final MiSimModel model;
     private final Collection<Microservice> microservices;
 
     /**
@@ -27,7 +28,7 @@ public class DependencyGraph {
      * @param model         MainModel: The model which owns this DependencyGraph
      * @param microservices all known services
      */
-    public DependencyGraph(Model model, Collection<Microservice> microservices) {
+    public DependencyGraph(MiSimModel model, Collection<Microservice> microservices) {
         this.model = model;
         this.microservices = microservices;
     }
@@ -41,7 +42,7 @@ public class DependencyGraph {
         String nodes = printNodes();
         String links = printLinks();
         String html =
-            "var graphMinimalistic = '" + ExperimentMetaData.get().getReportType() + "';\n" + "var graph = {nodes:[";
+            "var graphMinimalistic = '" + model.getExperimentMetaData().getReportType() + "';\n" + "var graph = {nodes:[";
         if (nodes.length() > 2) {
             html += nodes.substring(0, nodes.length() - 1) + "], ";
         } else {
@@ -68,7 +69,7 @@ public class DependencyGraph {
             String labels = String
                 .join(",", Arrays.stream(ms.getOperations()).map(Operation::getQuotedName).collect(Collectors.toSet()));
             int instanceLimit =
-                !ExperimentMetaData.get().getReportType().equals("minimalistic") ? ms.getInstancesCount() :
+                !model.getExperimentMetaData().getReportType().equals("minimalistic") ? ms.getInstancesCount() :
                     Math.min(ms.getInstancesCount(), 10);
 
             for (int i = 0; i < instanceLimit; ++i) {
@@ -97,7 +98,7 @@ public class DependencyGraph {
         for (Microservice ms : microservices) {
 
             int instanceLimit =
-                !ExperimentMetaData.get().getReportType().equals("minimalistic") ? ms.getInstancesCount() :
+                !model.getExperimentMetaData().getReportType().equals("minimalistic") ? ms.getInstancesCount() :
                     Math.min(ms.getInstancesCount(), 10);
 
             StringBuilder labels = new StringBuilder();

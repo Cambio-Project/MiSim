@@ -23,16 +23,21 @@ public class MiSimModel extends Model {
     private final transient File architectureModelLocation;
     private final transient File experimentModelOrScenarioLocation;
     //exp meta data
-    private ExperimentMetaData experimentMetaData;
+    private transient ExperimentMetaData experimentMetaData;
     //arch model
-    private ArchitectureModel architectureModel;
+    private transient ArchitectureModel architectureModel;
     //exp model
-    private ExperimentModel experimentModel;
+    private transient ExperimentModel experimentModel;
 
     public MiSimModel(File architectureModelLocation, File experimentModelOrScenarioLocation) {
         super(null, "MiSimModel", true, true);
         this.architectureModelLocation = architectureModelLocation;
         this.experimentModelOrScenarioLocation = experimentModelOrScenarioLocation;
+
+        long startTime = System.currentTimeMillis();
+        this.experimentMetaData =
+            ModelLoader.loadExperimentMetaData(experimentModelOrScenarioLocation, architectureModelLocation);
+        experimentMetaData.setDurationOfMetaDataLoading(System.currentTimeMillis() - startTime);
     }
 
 
@@ -44,10 +49,7 @@ public class MiSimModel extends Model {
 
     @Override
     public void init() {
-        long startTime = System.currentTimeMillis();
-        this.experimentMetaData =
-            ModelLoader.loadExperimentMetaData(experimentModelOrScenarioLocation, architectureModelLocation);
-        this.experimentMetaData.markStartOfSetup(startTime);
+        this.experimentMetaData.markStartOfSetup(System.currentTimeMillis());
         this.architectureModel = ModelLoader.loadArchitectureModel(this);
         this.experimentModel = ModelLoader.loadExperimentModel(this);
         this.experimentMetaData.setStartDate(LocalDateTime.now());
@@ -57,6 +59,7 @@ public class MiSimModel extends Model {
     @Override
     public void doInitialSchedules() {
         architectureModel.getMicroservices().forEach(Microservice::start);
+
         for (ISelfScheduled selfScheduledEvent : experimentModel.getAllSelfSchedulesEvents()) {
             selfScheduledEvent.doInitialSelfSchedule();
         }

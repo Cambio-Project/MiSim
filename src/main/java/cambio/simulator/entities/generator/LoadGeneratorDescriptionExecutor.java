@@ -60,7 +60,7 @@ public final class LoadGeneratorDescriptionExecutor extends RequestSender implem
 
     private void sendNewUserRequest() {
         UserRequest request = new UserRequest(model, String.format("UserRequest@[%s]",
-            targetOperation.getFullyQualifiedName()), true, targetOperation);
+            targetOperation.getFullyQualifiedPlainName()), true, targetOperation);
         try {
             sendRequest(String.format("SendingUserRequest(%s)", request.getPlainName()), request,
                 targetOperation.getOwnerMS());
@@ -112,7 +112,7 @@ public final class LoadGeneratorDescriptionExecutor extends RequestSender implem
 
         private GeneratorDescriptionExecutorScheduler(String plainName) {
             super(model, plainName + "_Scheduler",
-                false, true);
+                true, true);
         }
 
         @Override
@@ -131,22 +131,23 @@ public final class LoadGeneratorDescriptionExecutor extends RequestSender implem
         public void doInitialSelfSchedule() {
             try {
                 TimeInstant nextTimeInstant = loadGeneratorDescription.getNextTimeInstant();
-                this.forceSchedule(nextTimeInstant);
+                this.activate(nextTimeInstant);
             } catch (LoadGeneratorStopException e) {
                 sendWarning(String.format("Generator %s did not start.", this.getName()),
                     this.getClass().getCanonicalName(), e.getMessage(),
                     "Check your request generators definition and input for errors.");
-            } catch (SuspendExecution e) {
-                e.fillInStackTrace().printStackTrace();
-                // may need to be rethrown. see. https://docs.paralleluniverse.co/quasar/javadoc/co/paralleluniverse/fibers/SuspendExecution.html
             }
+//            catch (SuspendExecution e) {
+//                e.fillInStackTrace().printStackTrace();
+//                // may need to be rethrown. see. https://docs.paralleluniverse.co/quasar/javadoc/co/paralleluniverse/fibers/SuspendExecution.html
+//            }
         }
 
-        private void forceSchedule(TimeInstant targetTime) throws SuspendExecution {
+        private void forceScheduleAt(TimeInstant targetTime) throws SuspendExecution {
             if (this.isScheduled()) {
-                this.reActivate(targetTime);
+                this.reSchedule(targetTime);
             } else {
-                this.hold(targetTime);
+                this.activate(targetTime);
             }
         }
     }

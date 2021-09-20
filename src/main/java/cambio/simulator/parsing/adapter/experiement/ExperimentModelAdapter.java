@@ -36,6 +36,10 @@ import org.jetbrains.annotations.NotNull;
  */
 public class ExperimentModelAdapter extends TypeAdapter<ExperimentModel> {
     public static final String CURRENT_JSON_OBJECT_NAME_KEY = "event_name";
+
+    /**
+     * Names that the array containing the generators inside the experiment file can have.
+     */
     private static final List<String> generatorNames;
 
     static {
@@ -44,8 +48,13 @@ public class ExperimentModelAdapter extends TypeAdapter<ExperimentModel> {
             Field field = ExperimentModel.class.getDeclaredField("generators");
             field.setAccessible(true);
             SerializedName annotation = field.getAnnotation(SerializedName.class);
-            names.add(annotation.value());
-            Collections.addAll(names, annotation.alternate());
+
+            if (annotation != null) {
+                names.add(annotation.value());
+                Collections.addAll(names, annotation.alternate());
+            } else {
+                names.add(field.getName());
+            }
         } catch (NoSuchFieldException e) {
             e.printStackTrace();
         }

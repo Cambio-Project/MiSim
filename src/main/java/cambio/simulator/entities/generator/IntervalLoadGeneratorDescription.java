@@ -52,7 +52,7 @@ public final class IntervalLoadGeneratorDescription extends LoadGeneratorDescrip
 
         @Override
         public boolean hasNext() {
-            return actualLoad <= 0;
+            return actualLoad > 0;
         }
 
         @Override

@@ -171,7 +171,7 @@ public class MainModel {
     }
 
     private static void generateReport(MiSimModel model) {
-        ExperimentMetaData metaData = ExperimentMetaData.get();
+        ExperimentMetaData metaData = model.getExperimentMetaData();
         Path reportLocation = Paths.get(".", "Report_" + metaData.getExperimentName());
         Gson gson = new GsonHelper().getGson();
         try {

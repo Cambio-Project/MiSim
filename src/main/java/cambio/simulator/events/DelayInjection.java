@@ -90,12 +90,14 @@ public class DelayInjection extends SelfScheduledExperimentAction {
     @Override
     public void eventRoutine() {
         microservice.applyDelay(delayDistribution, operationSrc, operationTrg);
-        new ExternalEvent(getModel(), "LatencyMonkeyDeactivator", this.traceIsOn()) {
-            @Override
-            public void eventRoutine() {
-                microservice.applyDelay(null, operationSrc, operationTrg);
-            }
-        }.schedule(new TimeSpan(duration));
+        if (duration > 0) {
+            new ExternalEvent(getModel(), "LatencyMonkeyDeactivator", this.traceIsOn()) {
+                @Override
+                public void eventRoutine() {
+                    microservice.applyDelay(null, operationSrc, operationTrg);
+                }
+            }.schedule(new TimeSpan(duration));
+        }
 
     }
 }

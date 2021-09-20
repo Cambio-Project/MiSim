@@ -60,6 +60,10 @@ public class Operation extends NamedEntity {
         return ownerMS.getPlainName() + "." + getName();
     }
 
+    public String getFullyQualifiedPlainName() {
+        return ownerMS.getPlainName() + "." + getPlainName();
+    }
+
     public String getQuotedFullyQualifiedName() {
         return "'" + getFullyQualifiedName() + "'";
     }

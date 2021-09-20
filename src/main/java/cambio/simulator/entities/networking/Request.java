@@ -9,7 +9,7 @@ import java.util.Set;
 import cambio.simulator.entities.NamedEntity;
 import cambio.simulator.entities.microservice.MicroserviceInstance;
 import cambio.simulator.entities.microservice.Operation;
-import cambio.simulator.misc.Util;
+import cambio.simulator.models.MiSimModel;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 import org.apache.commons.math3.util.Precision;
@@ -53,12 +53,13 @@ public abstract class Request extends NamedEntity {
 
 
     private void createDependencies() {
+        // Roll probability
+        Random prob;
+        prob = new Random(((MiSimModel) getModel()).getExperimentMetaData().getSeed()); //TODO: resolve this mess (e
+        // .g. enforce MiSimModel in NamedEntity)
 
         for (DependencyDescription dependencyDescription : operation.getDependencyDescriptions()) {
 
-            // Roll probability
-            Random prob;
-            prob = Util.tryGetRandomFromExperimentSeed();
 
             double probability = dependencyDescription.getProbability();
             double sample = prob.nextDouble();
