@@ -18,7 +18,7 @@ import com.google.gson.stream.JsonWriter;
  * @author Lion Wagner
  */
 public class ExperimentMetaDataAdapter extends TypeAdapter<ExperimentMetaData> {
-    public static final String SIMULATION_METADATA_KEY = "simulation_metadata";
+    public static final String[] SIMULATION_METADATA_KEYS = {"simulation_metadata", "simulation_meta_data"};
     private final File experimentOrScenarioFileLocation;
     private final File architectureModelLocation;
 
@@ -38,9 +38,12 @@ public class ExperimentMetaDataAdapter extends TypeAdapter<ExperimentMetaData> {
             Gson gson = new GsonHelper().getGson();
             JsonObject root = JsonParser.parseReader(in).getAsJsonObject();
 
-            // if contains "simulation_metadata" -> parse the value of this key into ExperimentMetaData
-            if (root.has(SIMULATION_METADATA_KEY)) {
-                root = root.get(SIMULATION_METADATA_KEY).getAsJsonObject();
+            // if contains a key from "SIMULATION_METADATA_KEYS" -> parse the value of this key into ExperimentMetaData
+            for (String key : SIMULATION_METADATA_KEYS) {
+                if (root.has(key)) {
+                    root = root.get(key).getAsJsonObject();
+                    break;
+                }
             }
 
             if (!root.has("exp_file_location")) {

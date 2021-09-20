@@ -1,6 +1,6 @@
 package cambio.simulator.parsing.adapter.experiement;
 
-import static cambio.simulator.parsing.adapter.experiement.ExperimentMetaDataAdapter.SIMULATION_METADATA_KEY;
+import static cambio.simulator.parsing.adapter.experiement.ExperimentMetaDataAdapter.SIMULATION_METADATA_KEYS;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -106,7 +106,8 @@ public class ExperimentModelAdapter extends TypeAdapter<ExperimentModel> {
                 //parsing a grouped list of (potentially unnamed) ExperimentActions
                 ExperimentAction[] parsedExperimentActions = gson.fromJson(currentElement, ExperimentAction[].class);
                 Collections.addAll(experimentActions, parsedExperimentActions);
-            } else if (token == JsonToken.BEGIN_OBJECT && !elementName.equals(SIMULATION_METADATA_KEY)) {
+            } else if (token == JsonToken.BEGIN_OBJECT
+                && Arrays.stream(SIMULATION_METADATA_KEYS).noneMatch(key -> key.equals(elementName))) {
                 //parsing a named ExperimentAction
                 //the name "simulation_meta_data" is reserved for metadata
                 currentElement.getAsJsonObject().add(CURRENT_JSON_OBJECT_NAME_KEY, new JsonPrimitive(elementName));
