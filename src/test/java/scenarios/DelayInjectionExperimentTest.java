@@ -18,7 +18,8 @@ public class DelayInjectionExperimentTest {
 
         File architecture = FileLoaderUtil.loadFromExampleResources("example_architecture_model.json");
         File experiment = FileLoaderUtil.loadFromExampleResources("example_experiment_delayInjection.json");
-        String[] args = new String[] {"-a", architecture.getAbsolutePath(), "-e", experiment.getAbsolutePath(), "-d"};
+        String[] args = new String[] {"-a", architecture.getAbsolutePath(), "-e", experiment.getAbsolutePath(), "-d",
+            "-p"};
         MainModel.main(args);
     }
 }

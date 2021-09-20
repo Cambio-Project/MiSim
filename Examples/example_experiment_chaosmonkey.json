@@ -2,43 +2,41 @@
   "simulation_metadata": {
     "experiment_name": "Example-ChaosMonkey-Test",
     "model_name": "Scenario ChaosMonkey",
-    "duration": 200,
-    "report": "",
-    "seed": 1337
+    "duration": 200
   },
   "request_generators": [
     {
       "type": "interval",
       "config": {
         "microservice": "gateway",
-        "operation": "gateway.PING",
-        "interval": 0
-      }
-    },
-    {
-      "type": "limbo",
-      "config": {
-        "microservice": "gateway",
-        "operation": "INTERNAL_DEP",
-        "limbo_model": "./Examples/example_arrival_rates.csv",
-        "repeating": true,
-        "repetition_skip": 5
+        "operation": "INTERNAL_DEP"
       }
     },
     {
       "type": "interval",
       "config": {
         "microservice": "gateway",
-        "operation": "gateway.DB_READ",
-        "interval": 0
+        "operation": "INTERNAL_DEP"
       }
     },
     {
       "type": "interval",
       "config": {
         "microservice": "gateway",
-        "operation": "UNAFFECTED_SERVICE",
-        "interval": 0
+        "operation": "DB_WRITE"
+      }
+    },
+    {
+      "type": "interval",
+      "config": {
+        "microservice": "gateway",
+        "operation": "DB_READ"
+      }
+    },
+    {
+      "type": "interval",
+      "config": {
+        "operation": "gateway.UNAFFECTED_SERVICE"
       }
     }
   ],
@@ -47,7 +45,7 @@
       "type": "monkey",
       "config": {
         "microservice": "example-service",
-        "instances": 0,
+        "instances": 1,
         "time": 30
       }
     },
@@ -55,7 +53,7 @@
       "type": "monkey",
       "config": {
         "microservice": "example-service",
-        "instances": 2,
+        "instances": 1,
         "time": 60
       }
     },
@@ -63,17 +61,17 @@
       "type": "monkey",
       "config": {
         "microservice": "example-service",
-        "instances": 3,
+        "instances": 2,
         "time": 120
       }
     }
   ],
-  "summoner": {
+  "named_summoner": {
     "type": "summoner",
     "config": {
-      "microservice": "example-service2",
+      "microservice": "example-service",
       "instances": 2,
-      "time": 100
+      "time": 150
     }
   }
 }

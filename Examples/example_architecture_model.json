@@ -84,7 +84,7 @@
     },
     {
       "name": "example-service",
-      "instances": 1,
+      "instances": 2,
       "patterns": [],
       "capacity": 15000,
       "operations": [
