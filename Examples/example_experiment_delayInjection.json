@@ -1,52 +1,63 @@
 {
-  "simulation_meta_data": {
+  "simulation_metadata": {
     "experiment_name": "Example-Delay-Injection",
     "model_name": "Delay-Injection",
     "duration": 200,
-    "report": "",
-    "datapoints": 180,
     "seed": 1337
   },
   "request_generators": [
     {
-      "microservice": "gateway",
-      "operation": "gateway.PING",
-      "interval": 1
+      "type": "interval",
+      "config": {
+        "microservice": "gateway",
+        "operation": "INTERNAL_DEP"
+      }
     },
     {
-      "microservice": "gateway",
-      "operation": "INTERNAL_DEP",
-      "interval": 1
+      "type": "interval",
+      "config": {
+        "microservice": "gateway",
+        "operation": "INTERNAL_DEP"
+      }
     },
     {
-      "microservice": "gateway",
-      "operation": "gateway.DB_WRITE",
-      "interval": 1
+      "type": "interval",
+      "config": {
+        "microservice": "gateway",
+        "operation": "DB_WRITE"
+      }
     },
     {
-      "microservice": "gateway",
-      "operation": "gateway.DB_READ",
-      "interval": 1
+      "type": "interval",
+      "config": {
+        "microservice": "gateway",
+        "operation": "DB_READ"
+      }
     },
     {
-      "microservice": "gateway",
-      "operation": "UNAFFECTED_SERVICE",
-      "interval": 1
+      "type": "interval",
+      "config": {
+        "operation": "gateway.UNAFFECTED_SERVICE"
+      }
     }
   ],
   "latencymonkeys": [
     {
-      "microservice": "example-service",
-      "delay": 0.3,
-      "std_deviation": 0.2,
-      "time": 120,
-      "duration": 30
+      "type": "delay",
+      "config": {
+        "microservice": "example-service",
+        "delay": "2+-.5",
+        "time": 50,
+        "duration": 20
+      }
     },
     {
-      "microservice": "gateway",
-      "delay": 0.2,
-      "time": 50,
-      "duration": 20
+      "type": "delay",
+      "config": {
+        "microservice": "example-service",
+        "delay": 0.3,
+        "time": 140
+      }
     }
   ]
 }
