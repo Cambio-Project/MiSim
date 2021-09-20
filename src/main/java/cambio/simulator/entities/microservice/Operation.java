@@ -20,7 +20,8 @@ public class Operation extends NamedEntity {
     @Expose
     private int demand;
 
-    private final DependencyDescription[] dependencies = new DependencyDescription[0];
+    @Expose
+    private DependencyDescription[] dependencies = new DependencyDescription[0];
 
     /**
      * Constructs a new endpoint for a microservice.

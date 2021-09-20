@@ -3,7 +3,7 @@ package cambio.simulator.parsing.adapter.architecture;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import cambio.simulator.entities.microservice.Operation;
@@ -68,12 +68,11 @@ class OperationAdapter extends TypeAdapter<Operation> {
 
         Operation operation = gson.fromJson(root, Operation.class);
 
-        DependencyDescription[] myDependencies = gson.fromJson(root.get("dependencies"), DependencyDescription[].class);
-        this.dependencies.addAll(Arrays.asList(myDependencies));
+        Collections.addAll(this.dependencies, operation.getDependencyDescriptions());
         try {
             Field parentOperationField = DependencyDescription.class.getDeclaredField("parentOperation");
             parentOperationField.setAccessible(true);
-            for (DependencyDescription dependency : myDependencies) {
+            for (DependencyDescription dependency : operation.getDependencyDescriptions()) {
                 parentOperationField.set(dependency, operation);
             }
         } catch (NoSuchFieldException | IllegalAccessException e) {
