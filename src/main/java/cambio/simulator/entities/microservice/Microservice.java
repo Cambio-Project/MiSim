@@ -61,6 +61,7 @@ public class Microservice extends NamedEntity {
     @Expose
     private int capacity = 0;
     @Expose
+    @SerializedName(value = "instances", alternate = {"starting_instance_count", "starting_instances"})
     private int startingInstanceCount = 1;
 
     @Expose
