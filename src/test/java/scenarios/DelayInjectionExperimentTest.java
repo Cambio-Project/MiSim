@@ -5,6 +5,7 @@ import java.io.File;
 import cambio.simulator.models.MainModel;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import testutils.FileLoaderUtil;
 
 /**
  * @author Lion Wagner
@@ -14,9 +15,10 @@ public class DelayInjectionExperimentTest {
 
     @Test
     void ExampleExecutionRun() {
-        File f = new File("./Examples/example_architecture_model.json");
-        File f2 = new File("./Examples/example_experiment_delayInjection.json");
-        String[] args = new String[] {"-a", f.getAbsolutePath(), "-e", f2.getAbsolutePath(), "-d"};
+
+        File architecture = FileLoaderUtil.loadFromExampleResources("example_architecture_model.json");
+        File experiment = FileLoaderUtil.loadFromExampleResources("example_experiment_delayInjection.json");
+        String[] args = new String[] {"-a", architecture.getAbsolutePath(), "-e", experiment.getAbsolutePath(), "-d"};
         MainModel.main(args);
     }
 }
