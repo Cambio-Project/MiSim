@@ -21,6 +21,19 @@ public final class IntervalLoadGeneratorDescription extends LoadGeneratorDescrip
 
     @Override
     protected ArrivalRateModel createArrivalRateModel() {
+        if (interval <= 0 || interval == Double.POSITIVE_INFINITY) {
+            throw new IllegalArgumentException("Interval has to be greater than 0 and not infinite.");
+        }
+        if (Double.isNaN(interval)) {
+            System.out.printf("[Warning] Interval '%s' is not a valid value (in (0 - %s]). "
+                + "An interval generator will not be started.%n", interval, Double.MAX_VALUE);
+            this.interval = 1;
+            this.load = 0;
+        }
+        if (Double.isNaN(load)) {
+            this.load = 0;
+        }
+
         return new IntervalArrivalRateModel();
     }
 
@@ -33,7 +46,7 @@ public final class IntervalLoadGeneratorDescription extends LoadGeneratorDescrip
         public IntervalArrivalRateModel() {
             if (loadDistribution.equals("even")) {
                 this.interArrivalTime = interval / load;
-                actualLoad = 1;
+                actualLoad = load == 0 ? 0 : 1;
             } else { //if (loadDistribution.equals("spike"))
                 this.interArrivalTime = interval;
                 this.actualLoad = (int) load;
