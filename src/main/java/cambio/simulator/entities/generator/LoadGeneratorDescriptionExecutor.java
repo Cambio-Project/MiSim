@@ -123,7 +123,7 @@ public final class LoadGeneratorDescriptionExecutor extends RequestSender implem
                 this.hold(next);
             } catch (LoadGeneratorStopException e) {
                 model.sendTraceNote(String.format("Generator %s has stopped: %s", getName(), e.getMessage()));
-
+                this.passivate();
             }
         }
 
