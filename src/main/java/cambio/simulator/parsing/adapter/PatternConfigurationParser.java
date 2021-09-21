@@ -29,6 +29,13 @@ public class PatternConfigurationParser {
 
         Class<? extends T> concreteTargetClass =
             JsonTypeNameResolver.resolveFromJsonTypeName(configurationData.type, patternBaseType);
+
+        if (concreteTargetClass == null) {
+            System.out.printf("Could not find class that inherits from '%s' and is annotated with type '%s'.%n",
+                patternBaseType.getName(), configurationData.type);
+            return null;
+        }
+
         String name = concreteTargetClass.getSimpleName() + " of " + ownerName;
 
         Gson gson = new GsonHelper().getGsonBuilder()

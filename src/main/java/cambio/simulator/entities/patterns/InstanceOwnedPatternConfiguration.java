@@ -31,7 +31,9 @@ public class InstanceOwnedPatternConfiguration extends TypeNameAssociatedConfigu
                 InstanceOwnedPattern.class);
 
         try {
-            PatternConfigurationParser.injectOwnerProperty(patternInstance, owner);
+            if (patternInstance != null) {
+                PatternConfigurationParser.injectOwnerProperty(patternInstance, owner);
+            }
         } catch (NoSuchFieldException | IllegalAccessException e) {
             e.printStackTrace();
         }

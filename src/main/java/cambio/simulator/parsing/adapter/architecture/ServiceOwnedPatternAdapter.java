@@ -40,8 +40,9 @@ public class ServiceOwnedPatternAdapter extends TypeAdapter<ServiceOwnedPattern>
         if (in.peek() == JsonToken.BEGIN_OBJECT) {
             TypeNameAssociatedConfigurationData configData =
                 gson.fromJson(in, TypeNameAssociatedConfigurationData.class);
-            return PatternConfigurationParser
+            ServiceOwnedPattern patternInstance = PatternConfigurationParser
                 .getPatternInstance(model, msName, configData, ServiceOwnedPattern.class);
+            return patternInstance;
         }
         return null;
     }

@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collector;
 
 import cambio.simulator.misc.CollectorImpl;
@@ -22,7 +23,7 @@ import org.javatuples.Pair;
 @JsonTypeName(value = "limbo", alternativeNames = {"limbo_generator"})
 public class LimboLoadGeneratorDescription extends LoadGeneratorDescription {
 
-    @SerializedName(value = "model", alternate = {"limbo_model", "limbo_file", "file", "limbo"})
+    @SerializedName(value = "model", alternate = {"limbo_model", "limbo_file", "file", "limbo", "profile"})
     protected File modelFile = null;
 
     @Override
@@ -40,9 +41,14 @@ public class LimboLoadGeneratorDescription extends LoadGeneratorDescription {
         private double currentTargetTime = Double.NEGATIVE_INFINITY;
 
         public LimboArrivalRateModel(File modelFile) {
+            Objects.requireNonNull(modelFile, () -> {
+                System.out.println("[Error] Model file was not defined in experiment description.");
+                return "Model file was not defined in experiment description";
+            });
             arrivalPairs = getPairList(modelFile);
             arrivalPairsIterator = arrivalPairs.iterator();
         }
+
 
         @Override
         protected double getDuration() {

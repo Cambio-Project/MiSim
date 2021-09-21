@@ -68,12 +68,13 @@ public class Microservice extends NamedEntity {
     private Operation[] operations = new Operation[0];
 
     @Expose
-    @SerializedName(value = "patterns", alternate = {"instance_patterns", "i_patterns"})
+    @SerializedName(value = "i_patterns",
+        alternate = {"instance_patterns", "patterns", "i_pattern", "instance_pattern"})
     private InstanceOwnedPatternConfiguration[] instanceOwnedPatternConfigurations =
         new InstanceOwnedPatternConfiguration[0];
 
     @Expose
-    @SerializedName(value = "s_patterns", alternate = {"service_patterns"})
+    @SerializedName(value = "s_patterns", alternate = {"service_patterns", "s_pattern", "service_pattern"})
     private ServiceOwnedPattern[] serviceOwnedPatterns = new ServiceOwnedPattern[0];
 
 
