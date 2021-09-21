@@ -1,5 +1,7 @@
 package cambio.simulator.entities.generator;
 
+import java.util.Random;
+
 import desmoj.core.simulator.TimeInstant;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -42,6 +44,41 @@ class IntervalLoadGeneratorDescriptionTest {
                 TimeInstant next = description.getNextTimeInstant();
                 Assertions.assertEquals(20.5 + 2 * i, next.getTimeAsDouble());
             }
+        }
+    }
+
+    @Test
+    void doesNotStartOnNaNInterval() {
+        String config = "" +
+            "{" +
+            "\"interval\": NaN" +
+            "}";
+
+        IntervalLoadGeneratorDescription description = Utils.getLoadGeneratorDescription(config,
+            IntervalLoadGeneratorDescription.class);
+        Assertions.assertThrows(LoadGeneratorStopException.class, description::getNextTimeInstant);
+    }
+
+    @Test
+    void throwsExceptionOn0Interval() {
+        String config = "" +
+            "{" +
+            "\"interval\": 0" +
+            "}";
+        Assertions.assertThrows(IllegalArgumentException.class,
+            () -> Utils.getLoadGeneratorDescription(config, IntervalLoadGeneratorDescription.class));
+    }
+
+    @Test
+    void throwsExceptionOnNegativeInterval() {
+        Random rng = new Random();
+        for (int i = 0; i < 1000; i++) {
+            String config = "" +
+                "{" +
+                "\"interval\": -" + rng.nextInt() +
+                "}";
+            Assertions.assertThrows(IllegalArgumentException.class,
+                () -> Utils.getLoadGeneratorDescription(config, IntervalLoadGeneratorDescription.class));
         }
     }
 }
