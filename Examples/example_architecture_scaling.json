@@ -61,24 +61,6 @@
             }
           ]
         }
-      ],
-      "patterns": [
-        {
-          "type": "retry",
-          "config": {
-            "maxTries": 5,
-            "baseBackoff": 0.02,
-            "maxBackoff": 1,
-            "base": 2,
-            "jittering": true
-          }
-        },
-        {
-          "type": "circuitbreaker",
-          "config": {
-            "errorThresholdPercentage": 0.7
-          }
-        }
       ]
     },
     {
@@ -113,7 +95,7 @@
           "dependencies": []
         }
       ],
-      "patterns": [
+      "s_patterns": [
         {
           "type": "autoscale"
         }
@@ -130,9 +112,16 @@
           "dependencies": []
         }
       ],
-      "patterns": [
+      "service_patterns": [
         {
-          "type": "autoscale"
+          "type": "autoscaling",
+          "strategy": {
+            "type": "reactive",
+            "config": {
+              "lower_bound": 0.1,
+              "upper_bound": 0.9
+            }
+          }
         }
       ]
     }

@@ -2,37 +2,47 @@
   "simulation_meta_data": {
     "experiment_name": "Example-Autoscale-Test",
     "model_name": "Scenario Autoscale",
-    "duration": 200,
-    "report": "",
-    "datapoints": 200,
-    "seed": 1337
+    "duration": 200
   },
   "request_generators": [
     {
-      "microservice": "gateway",
-      "operation": "gateway.PING",
-      "start": 42,
-      "stop": 50,
-      "interval": 2
+      "type": "limbo",
+      "config": {
+        "microservice": "gateway",
+        "operation": "INTERNAL_DEP",
+        "model": "./Examples/example_arrival_rates.csv"
+      }
     },
     {
-      "microservice": "gateway",
-      "operation": "INTERNAL_DEP",
-      "limbo_model": "./Examples/example_arrival_rates.csv",
-      "repeating": true,
-      "repetition_skip": 0
+      "type": "interval",
+      "config": {
+        "microservice": "gateway",
+        "operation": "INTERNAL_DEP",
+        "interval": 1
+      }
     },
     {
-      "microservice": "gateway",
-      "operation": "gateway.DB_READ",
-      "limbo_model": "./Examples/example_arrival_rates.csv",
-      "repeating": true,
-      "repetition_skip": 0
+      "type": "interval",
+      "config": {
+        "microservice": "gateway",
+        "operation": "DB_WRITE",
+        "interval": 1
+      }
     },
     {
-      "microservice": "gateway",
-      "operation": "UNAFFECTED_SERVICE",
-      "interval": 0
+      "type": "interval",
+      "config": {
+        "microservice": "gateway",
+        "operation": "DB_READ",
+        "interval": 1
+      }
+    },
+    {
+      "type": "interval",
+      "config": {
+        "operation": "gateway.UNAFFECTED_SERVICE",
+        "interval": 1
+      }
     }
   ]
 }
