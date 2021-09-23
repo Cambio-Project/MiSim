@@ -4,6 +4,9 @@ import com.google.gson.annotations.Expose;
 import desmoj.core.simulator.Model;
 
 /**
+ * Represents a {@link ServiceOwnedPattern} that wants to be injected with an  {@link IStrategy} object.
+ *
+ * @param <S> type of the {@link IStrategy} which is expected.
  * @author Lion Wagner
  */
 public abstract class StrategicInstanceOwnedPattern<S extends IStrategy> extends InstanceOwnedPattern

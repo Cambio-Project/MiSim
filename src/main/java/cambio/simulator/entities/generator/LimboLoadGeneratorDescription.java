@@ -18,7 +18,13 @@ import com.google.gson.annotations.SerializedName;
 import org.javatuples.Pair;
 
 /**
+ * Adds properties to a {@link LoadGeneratorDescription} for describing a limbo load model-based load generator.
+ *
+ * <p>
+ * A generator of this type sends requests based on a predefined load curve definition.
+ *
  * @author Lion Wagner
+ * @see <a href="https://se.informatik.uni-wuerzburg.de/software-engineering-group/tools/limbo/">LIMBO Website</a>
  */
 @JsonTypeName(value = "limbo", alternativeNames = {"limbo_generator"})
 public class LimboLoadGeneratorDescription extends LoadGeneratorDescription {
@@ -99,11 +105,11 @@ public class LimboLoadGeneratorDescription extends LoadGeneratorDescription {
                             throw new ArrayIndexOutOfBoundsException("Malformed Limbo File");
                         }
                         return new Pair<>(Double.valueOf(split[0]), (int) Math.round(Double.parseDouble(
-                            split[1]))); //Orientated at Limbo load generator, which just casts double values to ints
+                            split[1]))); //Orientated at the HTTP Loadgenerator, which just casts double values to ints
                     })
                     // ensure time constraints and remove entries with 0 (or negative) load
                     .filter(pair -> pair.getValue0() >= 0 && pair.getValue1() > 0)
-                    // collect into linked list
+                    // collect into a linked list
                     .collect(
                         new CollectorImpl<Pair<Double, Integer>, LinkedList<Pair<Double, Integer>>,
                             LinkedList<Pair<Double, Integer>>>(LinkedList::new, LinkedList::add, (pairs, pairs2) -> {
@@ -115,8 +121,6 @@ public class LimboLoadGeneratorDescription extends LoadGeneratorDescription {
                             }
                         })
                     );
-
-
                 tmpList.sort(Comparator.comparing(Pair::getValue0)); //ensure sorting
                 return tmpList;
 

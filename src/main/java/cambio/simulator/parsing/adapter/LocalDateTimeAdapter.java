@@ -11,6 +11,8 @@ import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 
 /**
+ * Allows LocalDateTimes to be parsed to and from JSON. Only has a granularity of seconds.
+ *
  * @author Lion Wagner
  */
 public class LocalDateTimeAdapter extends TypeAdapter<LocalDateTime> {

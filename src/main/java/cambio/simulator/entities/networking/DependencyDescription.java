@@ -128,8 +128,7 @@ public class DependencyDescription {
     }
 
     /**
-     * Gets whether this dependency has a custom delay.
-     * This delay can be used to override the default network delay.
+     * Gets whether this dependency has a custom delay. This delay can be used to override the default network delay.
      *
      * @return whether this dependency has a custom delay.
      */
@@ -159,8 +158,8 @@ public class DependencyDescription {
      * into the actual target Operation reference.
      *
      * <p>
-     * This method is used during parsing with a {@link ArchitectureModelAdapter} and
-     * may only be called once per {@link DependencyDescription} object.
+     * This method is used during parsing with a {@link ArchitectureModelAdapter} and may only be called once per {@link
+     * DependencyDescription} object.
      *
      * @param model {@link ArchitectureModel} that this {@link DependencyDescription} belongs to.
      */

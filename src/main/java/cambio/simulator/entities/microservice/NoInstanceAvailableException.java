@@ -9,7 +9,7 @@ import cambio.simulator.entities.patterns.ILoadBalancingStrategy;
  *
  * @author Lion Wagner
  * @see Microservice#getNextAvailableInstance()
- * @see ILoadBalancingStrategy#getNextInstance(Collection) 
+ * @see ILoadBalancingStrategy#getNextInstance(Collection)
  */
 public class NoInstanceAvailableException extends RuntimeException {
 }

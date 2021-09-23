@@ -10,10 +10,9 @@ import desmoj.core.simulator.Model;
  * Represents a resilience pattern that is owned by a {@link MicroserviceInstance}.
  *
  * <p>
- * Subclasses of this type will be automatically parsed from an architecture description and attached to their
- * owning instance  if their type name is set
- * via the {@link JsonTypeName} annotation.
- * For a successful parsing the subtype need to have a constructor with the following signature: <br>
+ * Subclasses of this type will be automatically parsed from an architecture description and attached to their owning
+ * instance  if their type name is set via the {@link JsonTypeName} annotation. For a successful parsing the subtype
+ * need to have a constructor with the following signature: <br>
  * <pre>
  * constructor({@link Model}, {@link String}, {@link Boolean}, {@link MicroserviceInstance})
  * </pre>
@@ -27,8 +26,8 @@ import desmoj.core.simulator.Model;
  * </pre>
  *
  * <p>
- * ... will be attached to each {@link MicroserviceInstance} of a
- * {@link Microservice} if its architecture description contains:
+ * ... will be attached to each {@link MicroserviceInstance} of a {@link Microservice} if its architecture description
+ * contains:
  *
  * <pre>
  *     patterns: [

@@ -15,6 +15,13 @@ import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 
 /**
+ * Adapter for parsing the metadata within an experiment description into a {@link ExperimentMetaData } object.
+ *
+ * <p>
+ * Looks for the keys found in {@link cambio.simulator.parsing.adapter.experiement.ExperimentMetaDataAdapter#SIMULATION_METADATA_KEYS}
+ * within the description. If found, the {@link JsonObject} with an equal name will be parsed, otherwise the description
+ * will be directly parsed.
+ *
  * @author Lion Wagner
  */
 public class ExperimentMetaDataAdapter extends TypeAdapter<ExperimentMetaData> {
@@ -38,7 +45,8 @@ public class ExperimentMetaDataAdapter extends TypeAdapter<ExperimentMetaData> {
             Gson gson = new GsonHelper().getGson();
             JsonObject root = JsonParser.parseReader(in).getAsJsonObject();
 
-            // if contains a key from "SIMULATION_METADATA_KEYS" -> parse the value of this key into ExperimentMetaData
+            // if contains a member name from "SIMULATION_METADATA_KEYS" ->
+            // parse the value of this member into ExperimentMetaData
             for (String key : SIMULATION_METADATA_KEYS) {
                 if (root.has(key)) {
                     root = root.get(key).getAsJsonObject();

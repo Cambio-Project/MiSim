@@ -12,15 +12,17 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
 /**
+ * Adapter for creating {@link LoadGeneratorDescriptionExecutor}s  from JSON.
+ *
  * @author Lion Wagner
  */
-public class GeneratorExecutorAdapter extends TypeAdapter<LoadGeneratorDescriptionExecutor> {
+public class LoadGeneratorExecutorAdapter extends TypeAdapter<LoadGeneratorDescriptionExecutor> {
 
     private final MiSimModel model;
 
     private Gson parser;
 
-    public GeneratorExecutorAdapter(MiSimModel model) {
+    public LoadGeneratorExecutorAdapter(MiSimModel model) {
         this.model = model;
     }
 

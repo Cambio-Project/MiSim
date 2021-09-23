@@ -19,9 +19,15 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * @param <T> super type whose subclasses should be searched for usage of the {@link JsonTypeName}
- *            annotation.
+ * This is an Adapter for a configurable and named type. Using an instance of this class for a {@link Gson} parser,
+ * automatically extracts the target type (a child-class of {@code T}) form the given information and injects the given
+ * configuration.
+ *
+ * @param <T> super type whose subclasses should be searched for usage of the {@link JsonTypeName} annotation.
  * @author Lion Wagner
+ * @see JsonTypeName
+ * @see JsonTypeNameResolver
+ * @see TypeNameAssociatedConfigurationData
  */
 public class ConfigurableNamedTypeAdapter<T> extends TypeAdapter<T> {
 
@@ -52,8 +58,8 @@ public class ConfigurableNamedTypeAdapter<T> extends TypeAdapter<T> {
      * Creates an adapter for a configurable named type.
      *
      * @param superClassType concrete class of the output value
-     * @param gson           parser that should be used to parse the {@link TypeNameAssociatedConfigurationData} into the
-     *                       target type {@code T}.
+     * @param gson           parser that should be used to parse the {@link TypeNameAssociatedConfigurationData} into
+     *                       the target type {@code T}.
      */
     public ConfigurableNamedTypeAdapter(@NotNull Class<T> superClassType, @NotNull Gson gson) {
         this.superClassType = superClassType;
@@ -70,10 +76,10 @@ public class ConfigurableNamedTypeAdapter<T> extends TypeAdapter<T> {
         JsonToken token = in.peek();
 
         if (token == JsonToken.STRING) {
-            String JsonTypeName = in.nextString();
-            Class<? extends T> type = JsonTypeNameResolver.resolveFromJsonTypeName(JsonTypeName, superClassType);
+            String jsonTypeName = in.nextString();
+            Class<? extends T> type = JsonTypeNameResolver.resolveFromJsonTypeName(jsonTypeName, superClassType);
             System.out.printf("[Warning] Potential unsafe parsing of value %s. Make sure %s defines default values.%n",
-                JsonTypeName, type.getName());
+                jsonTypeName, type.getName());
 
             T newObject = null;
             try {
@@ -83,7 +89,7 @@ public class ConfigurableNamedTypeAdapter<T> extends TypeAdapter<T> {
                 ObjectConstructor<? extends T> constructor = constructorConstructor.get(TypeToken.get(type));
                 newObject = constructor.construct();
             } catch (Exception e) {
-                System.out.printf("[Error] Could not parse %s into a %s object.%n", JsonTypeName,
+                System.out.printf("[Error] Could not parse %s into a %s object.%n", jsonTypeName,
                     type.getName());
             }
             return newObject;

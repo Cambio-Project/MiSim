@@ -32,10 +32,56 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.jetbrains.annotations.NotNull;
 
 /**
+ * Adapter for parsing a json input into the experiment model. An experiment model contains generator definitions und
+ * experiment action definitions.
+ *
+ * <p>
+ * Actions can be written directly into the root json. These are named actions:
+ * <pre>
+ *         {
+ *             ...
+ *             "named_chaos_monkey": {
+ *                 "type": "chaosmonkey",
+ *                 "config":{
+ *                     ...
+ *                 }
+ *             },
+ *             ...
+ *         }
+ * </pre>
+ * Names can also be given to actions by providing the {@code action_name} property. Also, actions can also be nested in
+ * an array for grouping.
+ * <p>
+ * This would look like the following:
+ * <pre>
+ *         {
+ *             ...
+ *             "monkeys_group":[
+ *                 "unnamed_chaos_monkey": {
+ *                     "type": "chaosmonkey",
+ *                     "config":{
+ *                         ...
+ *                     }
+ *                 },
+ *                 "named_chaos_monkey": {
+ *                     "type": "chaosmonkey",
+ *                     "action_name": "ChaosMonkey2",
+ *                     "config":{
+ *                         ...
+ *                     }
+ *                 },
+ *                 ...
+ *             ]
+ *             ...
+ *         } *
+ * </pre>
+ *
+ * </p>
+ *
  * @author Lion Wagner
  */
 public class ExperimentModelAdapter extends TypeAdapter<ExperimentModel> {
-    public static final String CURRENT_JSON_OBJECT_NAME_KEY = "event_name";
+    public static final String CURRENT_JSON_OBJECT_NAME_KEY = "action_name";
 
     /**
      * Names that the array containing the generators inside the experiment file can have.
@@ -74,7 +120,7 @@ public class ExperimentModelAdapter extends TypeAdapter<ExperimentModel> {
 
     @Override
     public ExperimentModel read(@NotNull JsonReader in) throws IOException {
-        GeneratorExecutorAdapter generatorExecutorAdapter = new GeneratorExecutorAdapter(baseModel);
+        LoadGeneratorExecutorAdapter generatorExecutorAdapter = new LoadGeneratorExecutorAdapter(baseModel);
         ExperimentActionAdapter experimentActionAdapter = new ExperimentActionAdapter(baseModel);
         Gson gson = new GsonHelper().getGsonBuilder()
             .registerTypeAdapter(LoadGeneratorDescriptionExecutor.class, generatorExecutorAdapter)

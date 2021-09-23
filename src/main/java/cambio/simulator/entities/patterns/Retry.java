@@ -25,7 +25,7 @@ import desmoj.core.simulator.TimeSpan;
  *
  * @author Lion Wagner
  * @see <a href="https://aws.amazon.com/de/blogs/architecture/exponential-backoff-and-jitter/">Articel on Backoff and
- * Jitter Algorithms </a>
+ *     Jitter Algorithms </a>
  */
 @JsonTypeName("retry")
 public class Retry extends StrategicInstanceOwnedPattern<IRetryStrategy> implements IRequestUpdateListener {

@@ -3,7 +3,6 @@ package cambio.simulator.resources.cpu;
 import cambio.simulator.entities.NamedExternalEvent;
 import cambio.simulator.entities.networking.Request;
 import co.paralleluniverse.fibers.SuspendExecution;
-import desmoj.core.simulator.ExternalEvent;
 import desmoj.core.simulator.Model;
 
 /**

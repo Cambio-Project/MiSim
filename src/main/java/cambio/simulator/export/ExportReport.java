@@ -6,7 +6,6 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.TreeMap;
 
-import cambio.simulator.models.ExperimentMetaData;
 import cambio.simulator.models.MiSimModel;
 
 /**

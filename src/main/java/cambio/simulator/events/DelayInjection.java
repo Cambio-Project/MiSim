@@ -66,9 +66,6 @@ public class DelayInjection extends SelfScheduledExperimentAction {
     private void validateArguments() {
         Objects.requireNonNull(microservice);
 
-//        Util.requireNonNegative(delay, "The injected delay cannot be negative");
-//        Util.requireNonNegative(stdDeviation, "The standard deviation of the injected delay cannot be negative");
-
         if (operationSrc != null) {
             if (Arrays.stream(microservice.getOperations()).noneMatch(operation -> operation == operationSrc)) {
                 throw new IllegalArgumentException(

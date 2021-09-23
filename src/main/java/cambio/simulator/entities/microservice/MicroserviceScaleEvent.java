@@ -2,7 +2,6 @@ package cambio.simulator.entities.microservice;
 
 import cambio.simulator.entities.NamedExternalEvent;
 import co.paralleluniverse.fibers.SuspendExecution;
-import desmoj.core.simulator.ExternalEvent;
 import desmoj.core.simulator.Model;
 
 /**

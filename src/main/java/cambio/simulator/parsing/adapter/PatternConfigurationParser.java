@@ -5,26 +5,51 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 
-import cambio.simulator.entities.NamedEntity;
 import cambio.simulator.entities.patterns.IPatternLifeCycleHooks;
 import cambio.simulator.entities.patterns.IStrategy;
 import cambio.simulator.entities.patterns.IStrategyAcceptor;
+import cambio.simulator.entities.patterns.InstanceOwnedPattern;
+import cambio.simulator.entities.patterns.ServiceOwnedPattern;
 import cambio.simulator.parsing.EntityCreator;
 import cambio.simulator.parsing.GsonHelper;
+import cambio.simulator.parsing.StrategyNotFoundException;
 import cambio.simulator.parsing.TypeNameAssociatedConfigurationData;
 import com.google.gson.Gson;
 import desmoj.core.simulator.Model;
+import org.jetbrains.annotations.NotNull;
 
 /**
+ * Utitily class for parsing {@link TypeNameAssociatedConfigurationData} into a pattern.
+ *
  * @author Lion Wagner
  */
 public class PatternConfigurationParser {
 
-
-    public static <T extends IPatternLifeCycleHooks, O extends NamedEntity> T
-    getPatternInstance(Model model,
-                       String ownerName,
-                       TypeNameAssociatedConfigurationData configurationData,
+    /**
+     * Resolves a {@link TypeNameAssociatedConfigurationData} into a pattern instance. If a strategy configuration is
+     * given, it will also be resolved into an {@link IStrategy} object and assigend using the {@link
+     * IStrategyAcceptor#setStrategy(IStrategy)} method.
+     *
+     * @param model             underlying model
+     * @param ownerName         Name of the owner, will be used for naming the pattern
+     * @param configurationData data that is used to configure (to parse from) the pattern
+     * @param patternBaseType   an instance of  {@code <T>}
+     * @param <T>               super type of the expected pattern, usually {@link InstanceOwnedPattern} or {@link
+     *                          ServiceOwnedPattern}
+     * @return an instance of the pattern described by the {@code configurationData}
+     * @throws ClassNotFoundException    if the type given by the configuration is not a sub-type of {@code <T>}.
+     * @throws ClassCastException        if the evaluated class of the resulting pattern implements {@link
+     *                                   IStrategyAcceptor} but does not have a generic parameter extending {@link
+     *                                   IStrategy}.
+     * @throws StrategyNotFoundException if a base {@link IStrategy} type was found, but no extending type that
+     *                                   correlates to the type name given in the strategy configuration given in the
+     *                                   {@code configurationData} was found.
+     * @see JsonTypeName
+     */
+    public static <T extends IPatternLifeCycleHooks> T getPatternInstance(
+        Model model,
+        String ownerName,
+        @NotNull TypeNameAssociatedConfigurationData configurationData,
                        Class<T> patternBaseType) {
 
         Class<? extends T> concreteTargetClass =
@@ -95,7 +120,14 @@ public class PatternConfigurationParser {
         return patternInstance;
     }
 
-
+    /**
+     * Tries to inject the owner object in the 'owner' field of the child object.
+     *
+     * @param child injection target
+     * @param owner injection value
+     * @throws NoSuchFieldException   if {@code  child} does not have an 'owner' field
+     * @throws IllegalAccessException if the 'owner' field of {@code child} is not accessible via reflection
+     */
     public static void injectOwnerProperty(Object child, Object owner)
         throws NoSuchFieldException, IllegalAccessException {
         Class<?> clazz = child.getClass();

@@ -6,6 +6,8 @@ import cambio.simulator.models.MiSimModel;
 import cambio.simulator.parsing.adapter.StrategyWrapperTypeAdapter;
 
 /**
+ * Wrapper class around a {@link StrategyWrapperTypeAdapter} for creating new {@link LoadBalancer} objects.
+ *
  * @author Lion Wagner
  */
 //This class could be replaced by inlining the constructor call below.

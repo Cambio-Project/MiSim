@@ -18,6 +18,11 @@ import com.google.gson.stream.JsonWriter;
 import desmoj.core.dist.ContDistNormal;
 
 /**
+ * Adapter for parsing the architecture model from json into an object.
+ *
+ * <p>
+ * Also triggers the resolving of names into proper objects once all dependencies and nodes are established.
+ *
  * @author Lion Wagner
  */
 public class ArchitectureModelAdapter extends TypeAdapter<ArchitectureModel> {

@@ -13,6 +13,14 @@ import com.google.gson.stream.JsonWriter;
 import desmoj.core.dist.ContDistNormal;
 
 /**
+ * Adapter for parsing normal distributions from JSON into a {@link ContDistNormal}.
+ *
+ * <p>
+ * Accepts the following grammar:
+ * <pre>
+ *    dist :== constant | mean'+-'stdDeviation | mean'+'leftDeviation'-'rightDeviation'
+ * </pre>
+ *
  * @author Lion Wagner
  */
 public class NormalDistributionAdapter extends TypeAdapter<ContDistNormal> {
@@ -62,7 +70,8 @@ public class NormalDistributionAdapter extends TypeAdapter<ContDistNormal> {
             } catch (NumberFormatException | NullPointerException e) {
                 throw new ParsingException(
                     String.format(
-                        "Could not parse distribution expression \"%s\". It should have the from of [mean]+-[deviation] or [mean]+[leftDev]-[rightDev]",
+                        "Could not parse distribution expression \"%s\". It should have the from of "
+                            + "[mean]+-[deviation] or [mean]+[leftDev]-[rightDev]",
                         untrimmedValue), e);
             }
 

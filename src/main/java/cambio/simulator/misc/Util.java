@@ -1,9 +1,6 @@
 package cambio.simulator.misc;
 
 import java.lang.reflect.Field;
-import java.util.Random;
-
-import cambio.simulator.models.ExperimentMetaData;
 
 /**
  * Class that holds static utility methods.
@@ -111,7 +108,6 @@ public class Util {
         }
         return String.format("%dms", ms);
     }
-
 
 
     /**

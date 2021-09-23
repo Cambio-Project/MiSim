@@ -11,29 +11,45 @@ import org.reflections.scanners.SubTypesScanner;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 
+/**
+ * Utility class for resloving {@link JsonTypeName}s into actual types using Reflection.
+ */
 public class JsonTypeNameResolver {
 
     private static final HashMap<Class<?>, Map<String, Class<?>>> resolvedNamesCache = new HashMap<>();
 
-
+    /**
+     * Resolves the given {@code jsonTypeName} into an actual type that is marked with {@code @JsonTypeName
+     * (jsonTypeName)}.
+     *
+     * <p>
+     * Depending on the search space, this method can be quite slow. However, results for each supertype will be
+     * cached.
+     *
+     * @param jsonTypeName name that should be resolved into a type
+     * @param baseClass    a class instance of {@code <U>}
+     * @param <U>          super type of the expected target type. All subtypes of this type will be searched for a
+     *                     fitting {@link JsonTypeName}.
+     * @return the resolved type of the given jsonTypeName or null if none is found.
+     */
     public static <U> Class<? extends U> resolveFromJsonTypeName(final String jsonTypeName,
-                                                                 final Class<U> targetClass) {
+                                                                 final Class<U> baseClass) {
         Map<String, Class<?>> resolvedNames =
-            JsonTypeNameResolver.resolvedNamesCache.computeIfAbsent(targetClass, aClass -> {
+            JsonTypeNameResolver.resolvedNamesCache.computeIfAbsent(baseClass, aClass -> {
                 @SuppressWarnings("unchecked")
-                Class<U> actualClass = (Class<U>) aClass;
+                Class<U> actualBaseClass = (Class<U>) aClass;
 
                 Reflections reflections = new Reflections(
                     new ConfigurationBuilder()
                         .setUrls(ClasspathHelper.forPackage(
-                            actualClass.getPackage().getName()))
+                            actualBaseClass.getPackage().getName()))
                         .setScanners(new SubTypesScanner())
                 );
 
-                Set<Class<? extends U>> subtypes = reflections.getSubTypesOf(actualClass);
+                Set<Class<? extends U>> subtypesOfBaseClass = reflections.getSubTypesOf(actualBaseClass);
 
                 Map<String, Class<?>> resolvedNamesInner = new HashMap<>();
-                for (Class<? extends U> subtype : subtypes) {
+                for (Class<? extends U> subtype : subtypesOfBaseClass) {
                     if (!subtype.isAnnotationPresent(JsonTypeName.class)) {
                         continue;
                     }

@@ -17,6 +17,8 @@ import com.google.gson.stream.JsonReader;
 import org.jetbrains.annotations.Contract;
 
 /**
+ * Utility class for loading the MiSim architecture and experiment descriptions from JSON-files.
+ *
  * @author Lion Wagner
  */
 public final class ModelLoader {
@@ -34,6 +36,15 @@ public final class ModelLoader {
         }
     }
 
+    /**
+     * Parses the given information into a new {@link ExperimentMetaData} object.
+     *
+     * @param experimentOrScenarioFileLocation location of the experiment file, that should be used
+     * @param architectureModelLocation        location of the architecture file, that should be used for the
+     *                                         experiment
+     * @return a new instance of an {@link ExperimentMetaData} object that has been parsed using an {@link
+     *     ExperimentMetaDataAdapter}.
+     */
     public static ExperimentMetaData loadExperimentMetaData(File experimentOrScenarioFileLocation,
                                                             File architectureModelLocation) {
         return loadModel(experimentOrScenarioFileLocation,
@@ -42,7 +53,14 @@ public final class ModelLoader {
 
     }
 
-
+    /**
+     * Parses the given information into a new {@link ArchitectureModel} object.
+     *
+     * @param baseModel parent {@link MiSimModel}, architecture description file location will be extracted from the
+     *                  metadata of this object.
+     * @return a new instance of an {@link ArchitectureModel} object that has been parsed using an {@link
+     *     ArchitectureModelAdapter}.
+     */
     public static ArchitectureModel loadArchitectureModel(MiSimModel baseModel) {
         return loadModel(
             baseModel.getExperimentMetaData().getArchFileLocation(),
@@ -51,6 +69,14 @@ public final class ModelLoader {
         );
     }
 
+    /**
+     * Parses the given information into a new {@link ExperimentModel} object.
+     *
+     * @param baseModel parent {@link MiSimModel}, experiment description file location will be extracted from the
+     *                  metadata of this object.
+     * @return a new instance of an {@link ExperimentModel} object that has been parsed using an {@link
+     *     ExperimentModelAdapter}.
+     */
     public static ExperimentModel loadExperimentModel(MiSimModel baseModel) {
         return loadModel(
             baseModel.getExperimentMetaData().getExpFileLocation(),

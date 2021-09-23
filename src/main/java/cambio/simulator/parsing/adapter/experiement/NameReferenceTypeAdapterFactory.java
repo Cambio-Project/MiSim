@@ -17,7 +17,14 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
 /**
+ * Factory for Adapters that turn JSON-strings into {@link Microservice} and {@link Operation} objects using the {@link
+ * NameResolver}. Requires the presence of these instances in the {@link cambio.simulator.models.ArchitectureModel}.
+ *
+ * <p>
+ * Currently, only supports {@link Microservice}s and {@link Operation}s.
+ *
  * @author Lion Wagner
+ * @see NameResolver
  */
 public class NameReferenceTypeAdapterFactory implements TypeAdapterFactory {
 
@@ -47,12 +54,12 @@ public class NameReferenceTypeAdapterFactory implements TypeAdapterFactory {
             @Override
             public T read(JsonReader in) throws IOException {
                 JsonElement entityNameJsonElement = JsonParser.parseReader(in);
-                T resolved;
+                T resolved = null;
                 try {
                     String entityName = entityNameJsonElement.getAsString();
                     if (Operation.class.isAssignableFrom(clazz)) {
                         resolved = (T) NameResolver.resolveOperationName(model, entityName);
-                    } else {
+                    } else if (Microservice.class.isAssignableFrom(clazz)) {
                         resolved = (T) NameResolver.resolveMicroserviceName(model, entityName);
                     }
 

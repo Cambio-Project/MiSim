@@ -13,9 +13,19 @@ import cambio.simulator.export.AccumulativeDataPointReporter;
 import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
+import org.jetbrains.annotations.NotNull;
 
 /**
+ * Class that can execute a {@link LoadGeneratorDescription}.
+ *
+ * <p>
+ * Reads the {@link ArrivalRateModel} of a {@link LoadGeneratorDescription} and processes all its entries. Per entry a
+ * {@link UserRequest} will be sent to the defined endpoint. This is done until the description throws a {@link
+ * LoadGeneratorStopException}.
+ *
  * @author Lion Wagner
+ * @see ArrivalRateModel
+ * @see LoadGeneratorDescription
  */
 public final class LoadGeneratorDescriptionExecutor extends RequestSender implements IRequestUpdateListener,
     ISelfScheduled {
@@ -33,7 +43,14 @@ public final class LoadGeneratorDescriptionExecutor extends RequestSender implem
     private final AccumulativeDataPointReporter accReporter;
     private final LoadGeneratorDescription loadGeneratorDescription;
 
-    public LoadGeneratorDescriptionExecutor(Model model, LoadGeneratorDescription loadGeneratorDescription) {
+    /**
+     * Creates a new {@link LoadGeneratorDescriptionExecutor} that wants to execute the given {@link
+     * LoadGeneratorDescription}.
+     *
+     * @param model                    the underlying model
+     * @param loadGeneratorDescription behavioral description of this load generator.
+     */
+    public LoadGeneratorDescriptionExecutor(Model model, @NotNull LoadGeneratorDescription loadGeneratorDescription) {
         super(model, loadGeneratorDescription.getName() != null
             ? loadGeneratorDescription.getName()
             : "Generator", true);
@@ -136,18 +153,6 @@ public final class LoadGeneratorDescriptionExecutor extends RequestSender implem
                 sendWarning(String.format("Generator %s did not start.", this.getName()),
                     this.getClass().getCanonicalName(), e.getMessage(),
                     "Check your request generators definition and input for errors.");
-            }
-//            catch (SuspendExecution e) {
-//                e.fillInStackTrace().printStackTrace();
-//                // may need to be rethrown. see. https://docs.paralleluniverse.co/quasar/javadoc/co/paralleluniverse/fibers/SuspendExecution.html
-//            }
-        }
-
-        private void forceScheduleAt(TimeInstant targetTime) throws SuspendExecution {
-            if (this.isScheduled()) {
-                this.reSchedule(targetTime);
-            } else {
-                this.activate(targetTime);
             }
         }
     }

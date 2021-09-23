@@ -12,7 +12,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * @author Lion Wagner
+ * Adapter that allows for custom initialization of entities using a function callback.
+ *
+ * @param <T> Target type
+ * @param <S> Type of the {@link cambio.simulator.entities.patterns.IStrategy} that will be passed to the custom
+ *            function callback later.
+ * @see cambio.simulator.parsing.adapter.architecture.LoadBalancerAdapter
  */
 public class StrategyWrapperTypeAdapter<T, S> extends TypeAdapter<T> {
 

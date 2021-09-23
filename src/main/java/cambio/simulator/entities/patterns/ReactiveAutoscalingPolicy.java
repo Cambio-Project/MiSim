@@ -8,6 +8,9 @@ import cambio.simulator.parsing.adapter.JsonTypeName;
 import desmoj.core.simulator.TimeInstant;
 
 /**
+ * A basic implementation of a reactive autoscaling policy. Looks at currently active and queued demand for scaling
+ * decision.
+ *
  * @author Lion Wagner
  */
 @JsonTypeName("reactive")

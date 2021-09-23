@@ -10,7 +10,6 @@ import cambio.simulator.export.MultiDataPointReporter;
 import cambio.simulator.resources.cpu.scheduling.CPUProcessScheduler;
 import cambio.simulator.resources.cpu.scheduling.RoundRobinScheduler;
 import co.paralleluniverse.fibers.SuspendExecution;
-import desmoj.core.simulator.ExternalEvent;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeSpan;
 import org.javatuples.Pair;

@@ -29,10 +29,17 @@ public class ExperimentModel {
     }
 
 
-    public Set<ISelfScheduled> getAllSelfSchedulesEvents() {
-        Set<ISelfScheduled> allSelfScheduledEvents = getAllObjectsOfType(ISelfScheduled.class);
-        Collections.addAll(allSelfScheduledEvents, generators);
-        return allSelfScheduledEvents;
+    /**
+     * Collects all self scheduling entities from the experiment, so they can be scheduled during the inital scheduling
+     * of the model.
+     *
+     * @return all self scheduling entities from the experiment
+     * @see MiSimModel#doInitialSchedules()
+     */
+    public Set<ISelfScheduled> getAllSelfSchedulesEntities() {
+        Set<ISelfScheduled> allSelfScheduledEntities = getAllObjectsOfType(ISelfScheduled.class);
+        Collections.addAll(allSelfScheduledEntities, generators);
+        return allSelfScheduledEntities;
 
     }
 

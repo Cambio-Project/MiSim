@@ -15,6 +15,8 @@ import desmoj.core.simulator.Model;
 import org.jetbrains.annotations.NotNull;
 
 /**
+ * Adapter for parsing patterns owned by {@link cambio.simulator.entities.microservice.Microservice}s.
+ *
  * @author Lion Wagner
  */
 public class ServiceOwnedPatternAdapter extends TypeAdapter<ServiceOwnedPattern> {

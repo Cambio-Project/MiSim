@@ -22,6 +22,9 @@ public final class LoadBalancer extends Entity {
     private final ILoadBalancingStrategy loadBalancingStrategy;
     private MicroserviceInstance lastChosenInstance = null;
 
+    /**
+     * Creates a new instance of a loadbalancer that will use the given strategy.
+     */
     public LoadBalancer(Model model, String name, boolean showInTrace, ILoadBalancingStrategy loadBalancingStrategy) {
         super(model, name, showInTrace);
         if (loadBalancingStrategy != null) {

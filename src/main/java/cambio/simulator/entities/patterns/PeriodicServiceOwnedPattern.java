@@ -1,6 +1,7 @@
 package cambio.simulator.entities.patterns;
 
 import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 
@@ -9,9 +10,10 @@ import desmoj.core.simulator.TimeInstant;
  *
  * @author Lion Wagner
  */
-public abstract class PeriodicServiceOwnedPattern extends ServiceOwnedPattern implements IPeriodicServiceOwnedPattern {
+public abstract class PeriodicServiceOwnedPattern extends ServiceOwnedPattern implements IPeriodicPattern {
 
     @Expose
+    @SerializedName(value = "interval", alternate = {"period"})
     private double period = 1;
     @Expose
     private double start = 0;

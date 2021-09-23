@@ -32,6 +32,10 @@ public final class GsonHelper {
         return getGsonBuilder().create();
     }
 
+    /**
+     * Creates a {@link GsonBuilder} that should contain all common adapters, such as a {@link FileAdapter} and {@link
+     * TimeInstantAdapter}.
+     */
     public GsonBuilder getGsonBuilder() {
         return new GsonBuilder()
             .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)

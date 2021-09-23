@@ -7,9 +7,7 @@ import java.util.stream.Collectors;
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.entities.microservice.Operation;
 import cambio.simulator.entities.networking.DependencyDescription;
-import cambio.simulator.models.ExperimentMetaData;
 import cambio.simulator.models.MiSimModel;
-import desmoj.core.simulator.Model;
 
 /**
  * The <code>DependencyGraph</code> class is used in order to create the graph that displays the dependencies between
@@ -42,7 +40,8 @@ public class DependencyGraph {
         String nodes = printNodes();
         String links = printLinks();
         String html =
-            "var graphMinimalistic = '" + model.getExperimentMetaData().getReportType() + "';\n" + "var graph = {nodes:[";
+            "var graphMinimalistic = '" + model.getExperimentMetaData().getReportType() + "';\n"
+                + "var graph = {nodes:[";
         if (nodes.length() > 2) {
             html += nodes.substring(0, nodes.length() - 1) + "], ";
         } else {

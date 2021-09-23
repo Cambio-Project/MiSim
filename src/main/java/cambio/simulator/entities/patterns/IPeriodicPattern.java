@@ -2,7 +2,12 @@ package cambio.simulator.entities.patterns;
 
 import co.paralleluniverse.fibers.SuspendExecution;
 
-public interface IPeriodicServiceOwnedPattern extends IPatternLifeCycleHooks {
+/**
+ * Marks a periodically appearing service owned pattern.
+ *
+ * @author Lion Wagner
+ */
+public interface IPeriodicPattern extends IPatternLifeCycleHooks {
 
     @Override
     void onInitializedCompleted();

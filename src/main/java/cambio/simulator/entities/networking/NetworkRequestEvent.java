@@ -4,7 +4,6 @@ import java.util.Collection;
 
 import cambio.simulator.entities.NamedExternalEvent;
 import co.paralleluniverse.fibers.SuspendExecution;
-import desmoj.core.simulator.ExternalEvent;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 

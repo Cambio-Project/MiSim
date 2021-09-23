@@ -45,6 +45,9 @@ public class CollectorImpl<T, A, R> implements Collector<T, A, R> {
     private final Function<A, R> finisher;
     private final Set<Characteristics> characteristics;
 
+    /**
+     * This is a copy of the non-public utility class {@code java.util.stream.Collector.CollectorImpl}.
+     */
     public CollectorImpl(Supplier<A> supplier,
                          BiConsumer<A, T> accumulator,
                          BinaryOperator<A> combiner,
@@ -57,6 +60,9 @@ public class CollectorImpl<T, A, R> implements Collector<T, A, R> {
         this.characteristics = characteristics;
     }
 
+    /**
+     * This is a copy of the non-public utility class {@code java.util.stream.Collector.CollectorImpl}.
+     */
     @SuppressWarnings("unchecked")
     public CollectorImpl(Supplier<A> supplier,
                          BiConsumer<A, T> accumulator,

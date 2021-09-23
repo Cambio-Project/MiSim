@@ -23,6 +23,8 @@ import com.google.gson.stream.JsonWriter;
 import desmoj.core.dist.ContDistNormal;
 
 /**
+ * Adapter for parsing {@link Operation}s from JSON.
+ *
  * @author Lion Wagner
  */
 class OperationAdapter extends TypeAdapter<Operation> {
@@ -79,7 +81,6 @@ class OperationAdapter extends TypeAdapter<Operation> {
             throw new ParsingException("Failed to parse a dependency.", e);
         }
 
-
         return operation;
     }
 
@@ -126,6 +127,4 @@ class OperationAdapter extends TypeAdapter<Operation> {
             }
         }
     }
-
-
 }

@@ -19,7 +19,24 @@ import com.google.gson.stream.JsonWriter;
 import org.jetbrains.annotations.NotNull;
 
 /**
+ * Adapter so Gson can parse experiment action descriptions from json into object instances.
+ *
+ * <p>
+ * An experiment action description should have the following form:
+ * <pre>
+ *     {
+ *         "type": "&lt;jsonTypeName&gt;",
+ *         "config": {
+ *             &lt;globalActionConfig&gt;
+ *         }
+ *     }
+ * </pre>
+ * Note that these do not yet support the strategy pattern.
+ *
+ * </p>
+ *
  * @author Lion Wagner
+ * @see ExperimentModelAdapter
  */
 public class ExperimentActionAdapter extends TypeAdapter<ExperimentAction> {
 

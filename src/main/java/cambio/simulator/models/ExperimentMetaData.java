@@ -1,21 +1,11 @@
 package cambio.simulator.models;
 
-import static cambio.simulator.parsing.adapter.experiement.ExperimentMetaDataAdapter.SIMULATION_METADATA_KEY;
-
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.time.LocalDateTime;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-import cambio.simulator.parsing.GsonHelper;
-import cambio.simulator.parsing.ParsingException;
-import cambio.simulator.parsing.ScenarioDescription;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
-import com.google.gson.stream.JsonReader;
 
 /**
  * Class that contains the architectural information provided by the architecture file.

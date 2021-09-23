@@ -4,6 +4,11 @@ import cambio.simulator.parsing.adapter.JsonTypeName;
 import com.google.gson.annotations.SerializedName;
 
 /**
+ * Adds properties to a {@link LoadGeneratorDescription} for describing an interval-based load generator.
+ *
+ * <p>
+ * A generator of this type sends requests in intervals, either evenly distributed or in reoccurring spikes.
+ *
  * @author Lion Wagner
  */
 @JsonTypeName("interval")

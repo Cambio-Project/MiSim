@@ -2,22 +2,22 @@ package cambio.simulator.entities.generator;
 
 import cambio.simulator.entities.microservice.Operation;
 import cambio.simulator.events.ISelfScheduled;
-import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import desmoj.core.simulator.TimeInstant;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 /**
+ * This class represents the description of a load generator.
+ *
  * @author Lion Wagner
  */
 public abstract class LoadGeneratorDescription implements ISelfScheduled {
 
-//    potential later addition
-//    @SerializedName(value = "stop", alternate = "stop_timestamp")
-//    protected double stop = Double.POSITIVE_INFINITY;
+    //    potential later addition
+    //    @SerializedName(value = "stop", alternate = "stop_timestamp")
+    //    protected double stop = Double.POSITIVE_INFINITY;
 
-    @Expose
     @SerializedName(value = "start", alternate = {"initial_arrival_time", "arrival_time"})
     protected double initialArrivalTime = 0;
 
@@ -43,8 +43,21 @@ public abstract class LoadGeneratorDescription implements ISelfScheduled {
     public LoadGeneratorDescription() {
     }
 
+    /**
+     * Should create an {@link ArrivalRateModel} to describe when the load generator generates new requests.
+     *
+     * @return the arrival rate description in form of an {@link ArrivalRateModel}
+     */
     protected abstract ArrivalRateModel createArrivalRateModel();
 
+    /**
+     * Tries to initialize the underlying {@link ArrivalRateModel}.
+     *
+     * <p>
+     * This method has to be called before an {@link LoadGeneratorDescriptionExecutor} can execute this description.
+     *
+     * @throws IllegalStateException if the arrival rate model was initialized already.
+     */
     public final void initializeArrivalRateModel() {
         if (arrivalRateModel != null) {
             throw new IllegalStateException("Arrival rate model was already initialized");
@@ -52,6 +65,13 @@ public abstract class LoadGeneratorDescription implements ISelfScheduled {
         arrivalRateModel = createArrivalRateModel();
     }
 
+    /**
+     * Grabs the next target time for when a new request should be sent.
+     *
+     * @return the target time when the next request should be sent.
+     * @throws LoadGeneratorStopException if max repetitions are reached, or the underlying {@link ArrivalRateModel}
+     *                                    does not describe any further arrival times.
+     */
     @NotNull
     @Contract("->!null")
     public final TimeInstant getNextTimeInstant() throws LoadGeneratorStopException {
@@ -67,7 +87,7 @@ public abstract class LoadGeneratorDescription implements ISelfScheduled {
         } else if (repeating) {
             repetitions++;
             if (repetitions == maxRepetitions) {
-                throw new LoadGeneratorStopException(String.format("Max Repitions Reached (%s)", maxRepetitions));
+                throw new LoadGeneratorStopException(String.format("Max Repetitions Reached (%s)", maxRepetitions));
             }
             arrivalRateModel.reset();
             return getNextTimeInstant();

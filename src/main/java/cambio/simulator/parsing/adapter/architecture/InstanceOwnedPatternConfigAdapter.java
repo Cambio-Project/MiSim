@@ -10,6 +10,10 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
 /**
+ * Adapter for parsing pattern configurations written in json into {@link InstanceOwnedPatternConfiguration}s. These
+ * will later be used by the {@link cambio.simulator.entities.microservice.Microservice} class to instantiate a new
+ * instance of the target pattern.
+ *
  * @author Lion Wagner
  */
 class InstanceOwnedPatternConfigAdapter extends TypeAdapter<InstanceOwnedPatternConfiguration> {

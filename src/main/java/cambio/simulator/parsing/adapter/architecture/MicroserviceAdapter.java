@@ -24,6 +24,8 @@ import com.google.gson.stream.JsonWriter;
 import desmoj.core.dist.ContDistNormal;
 
 /**
+ * Adapter for parsing JSON-data into {@link Microservice} object.
+ *
  * @author Lion Wagner
  */
 class MicroserviceAdapter extends TypeAdapter<Microservice> {

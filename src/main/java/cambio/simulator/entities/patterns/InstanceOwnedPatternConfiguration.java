@@ -8,8 +8,8 @@ import cambio.simulator.parsing.adapter.PatternConfigurationParser;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Can store the configuration of an {@link InstanceOwnedPattern}.
- * Has the ability to create an instance of this pattern based on the stored configuration.
+ * Can store the configuration of an {@link InstanceOwnedPattern}. Has the ability to create an instance of this pattern
+ * based on the stored configuration.
  *
  * @author Lion Wagner
  * @see InstanceOwnedPatternConfiguration#getPatternInstance(MicroserviceInstance)
@@ -25,6 +25,12 @@ public class InstanceOwnedPatternConfiguration extends TypeNameAssociatedConfigu
         super(type, config, strategyConfiguration);
     }
 
+    /**
+     * Parses this configuration into a pattern instance.
+     *
+     * @param owner {@link MicroserviceInstance} that will own the created pattern.
+     * @return an instance of pattern that is defined in the given config.
+     */
     public InstanceOwnedPattern getPatternInstance(@NotNull MicroserviceInstance owner) {
         InstanceOwnedPattern patternInstance =
             PatternConfigurationParser.getPatternInstance(owner.getModel(), owner.getName(), this,
