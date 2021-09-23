@@ -4,6 +4,7 @@ import java.util.Map;
 
 import cambio.simulator.entities.microservice.MicroserviceInstance;
 import cambio.simulator.parsing.TypeNameAssociatedConfigurationData;
+import cambio.simulator.parsing.adapter.JsonTypeNameResolver;
 import cambio.simulator.parsing.adapter.PatternConfigurationParser;
 import org.jetbrains.annotations.NotNull;
 
@@ -47,5 +48,11 @@ public class InstanceOwnedPatternConfiguration extends TypeNameAssociatedConfigu
         return patternInstance;
     }
 
-
+    /**
+     * Triggers the {@link JsonTypeNameResolver} to build a cache for all subtypes of {@link InstanceOwnedPattern}.
+     * Calling this method speeds up simulation time, but slows down parsing by an equal amount.
+     */
+    public void preCacheData() {
+        JsonTypeNameResolver.resolveFromJsonTypeName(type, InstanceOwnedPattern.class);
+    }
 }
