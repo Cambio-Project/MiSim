@@ -173,7 +173,7 @@ public class DependencyDescription {
         }
 
 
-        String fullyQualifiedName = NameResolver.resolveFullyQualifiedName(targetServiceName, targetOperationName);
+        String fullyQualifiedName = NameResolver.combineToFullyQualifiedName(targetServiceName, targetOperationName);
 
         Operation targetOperation = NameResolver.resolveOperationName(model, fullyQualifiedName);
 

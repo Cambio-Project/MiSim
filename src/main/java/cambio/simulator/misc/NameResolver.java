@@ -105,13 +105,13 @@ public final class NameResolver {
      *                                            match.
      */
 
-    public static String resolveFullyQualifiedName(String serviceName, String operationName)
+    public static String combineToFullyQualifiedName(String serviceName, String operationName)
         throws java.lang.IllegalStateException {
         String fullyQualifiedName;
         if (serviceName != null && !operationName.startsWith(serviceName)) {
 
             if (operationName.contains(".")) {
-                throw new IllegalStateException(
+                throw new IllegalArgumentException(
                     "Inconsistent Operation description. (Service name and fully qualified name do not match.)");
             }
             fullyQualifiedName = serviceName + "." + operationName;
