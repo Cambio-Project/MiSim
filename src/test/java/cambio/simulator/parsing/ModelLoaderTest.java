@@ -77,7 +77,8 @@ class ModelLoaderTest {
         Experiment expDummy = new Experiment("TestExperiment");
         model.connectToExperiment(expDummy);
         expDummy.stop(new TimeInstant(0.000001));//lets the experiment start itself for a very short amount of time
-
+        expDummy.setShowProgressBar(false);
+        
         expDummy.start();
         expDummy.finish();
 
