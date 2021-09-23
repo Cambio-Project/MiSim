@@ -18,7 +18,7 @@ public class ChaosMonkeyExperimentTest {
         File architecture = FileLoaderUtil.loadFromExampleResources("example_architecture_model.json");
         File experiment = FileLoaderUtil.loadFromExampleResources("example_experiment_chaosmonkey.json");
         String[] args = new String[] {"-a", architecture.getAbsolutePath(), "-e", experiment.getAbsolutePath(), "-d"
-            ,"-p"};
+            , "-p"};
         MainModel.main(args);
     }
 }

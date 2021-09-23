@@ -2,6 +2,7 @@ package testutils;
 
 import static testutils.TestUtils.nextNonNegative;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -14,6 +15,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import cambio.simulator.entities.generator.IntervalLoadGeneratorDescription;
+import cambio.simulator.entities.generator.LoadGeneratorDescription;
 import cambio.simulator.entities.generator.LoadGeneratorDescriptionExecutor;
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.entities.microservice.Operation;
@@ -50,7 +53,7 @@ public class RandomTieredModel extends Model {
         for (Microservice microservice : all_microservices) {
             microservice.start();
         }
-        createGenerators(generator_count, generator_interval);
+        createGenerators(generator_count, generator_interval, this);
         all_generators.forEach(LoadGeneratorDescriptionExecutor::doInitialSelfSchedule);
     }
 
@@ -106,7 +109,7 @@ public class RandomTieredModel extends Model {
                     }
                     dependencies.add(new DependencyDescription(operation, targetOP));
                 }
-//                operation.setDependencies(dependencies.toArray(new DependencyDescription[0]));
+                //                operation.setDependencies(dependencies.toArray(new DependencyDescription[0]));
             }
         }
 
@@ -138,11 +141,24 @@ public class RandomTieredModel extends Model {
         this.generator_interval = generator_interval;
     }
 
-    private void createGenerators(int generator_count, double interval) {
+    private void createGenerators(int generator_count, double interval, Model model) {
         List<Operation> tier1Operations = new ArrayList<>();
         tiers.get(1).forEach(microservice -> tier1Operations.addAll(Arrays.asList(microservice.getOperations())));
+
         all_generators.addAll(IntStream.range(0, generator_count)
-            .mapToObj(operand -> (LoadGeneratorDescriptionExecutor) null)
+            .mapToObj(i -> {
+                IntervalLoadGeneratorDescription loadGeneratorDescription = new IntervalLoadGeneratorDescription();
+                try {
+                    Field targetOperation = LoadGeneratorDescription.class.getDeclaredField("targetOperation");
+                    targetOperation.setAccessible(true);
+                    targetOperation.set(loadGeneratorDescription, getRandomFromList(tier1Operations));
+                } catch (NoSuchFieldException | IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+                loadGeneratorDescription.initializeArrivalRateModel();
+                return new LoadGeneratorDescriptionExecutor(model,
+                    loadGeneratorDescription);
+            })
             .collect(Collectors.toList()));
     }
 
@@ -152,6 +168,10 @@ public class RandomTieredModel extends Model {
 
     public ArrayList<Operation> getAllOperations() {
         return all_operations;
+    }
+
+    private static Operation getRandomFromList(List<Operation> operations) {
+        return operations.get(new Random().nextInt(operations.size()));
     }
 }
 

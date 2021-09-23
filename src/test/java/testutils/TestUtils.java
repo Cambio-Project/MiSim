@@ -1,8 +1,5 @@
 package testutils;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
@@ -10,8 +7,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -24,7 +19,6 @@ import cambio.simulator.export.ReportCollector;
 import desmoj.core.simulator.Experiment;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
-import org.apache.commons.math3.stat.descriptive.rank.Percentile;
 import org.mockito.Mockito;
 
 /**
@@ -52,26 +46,26 @@ public class TestUtils {
         return currentExperiment;
     }
 
-//    public static InstanceOwnedPatternConfiguration getRetryPatternMock(Model model) {
-//        InstanceOwnedPatternConfiguration data = mock(InstanceOwnedPatternConfiguration.class);
-//        Mockito.when(data.getPatternInstance(any(MicroserviceInstance.class)))
-//            .thenAnswer(invocationOnMock -> new Retry(model, "Retry", true));
-//        return data;
-//    }
-//
-//    public static InstanceOwnedPatternConfiguration getCircuitBreaker(Model model) {
-//        InstanceOwnedPatternConfiguration data = mock(InstanceOwnedPatternConfiguration.class);
-//        Mockito.when(data.getPatternInstance(any(MicroserviceInstance.class)))
-//            .thenAnswer(invocationOnMock -> new CircuitBreaker(model, "CircuitBreaker", true));
-//        return data;
-//    }
-//
-//    public static ServiceOwnedPattern getAutoscaler(Model model) {
-//        InstanceOwnedPatternConfiguration data = mock(InstanceOwnedPatternConfiguration.class);
-//        Mockito.when(data.getPatternInstance(any(Microservice.class)))
-//            .thenAnswer(invocationOnMock -> new BasicAutoscalingStrategyProxy(model, "AutoScaler", true));
-//        return data;
-//    }
+    //    public static InstanceOwnedPatternConfiguration getRetryPatternMock(Model model) {
+    //        InstanceOwnedPatternConfiguration data = mock(InstanceOwnedPatternConfiguration.class);
+    //        Mockito.when(data.getPatternInstance(any(MicroserviceInstance.class)))
+    //            .thenAnswer(invocationOnMock -> new Retry(model, "Retry", true));
+    //        return data;
+    //    }
+    //
+    //    public static InstanceOwnedPatternConfiguration getCircuitBreaker(Model model) {
+    //        InstanceOwnedPatternConfiguration data = mock(InstanceOwnedPatternConfiguration.class);
+    //        Mockito.when(data.getPatternInstance(any(MicroserviceInstance.class)))
+    //            .thenAnswer(invocationOnMock -> new CircuitBreaker(model, "CircuitBreaker", true));
+    //        return data;
+    //    }
+    //
+    //    public static ServiceOwnedPattern getAutoscaler(Model model) {
+    //        InstanceOwnedPatternConfiguration data = mock(InstanceOwnedPatternConfiguration.class);
+    //        Mockito.when(data.getPatternInstance(any(Microservice.class)))
+    //            .thenAnswer(invocationOnMock -> new BasicAutoscalingStrategyProxy(model, "AutoScaler", true));
+    //        return data;
+    //    }
 
     public static void resetModel(RandomTieredModel model) {
         ReportCollector.getInstance().reset(); //resetting static data point collection framework
@@ -119,7 +113,6 @@ public class TestUtils {
             e.printStackTrace();
         }
     }
-
 
 
 }

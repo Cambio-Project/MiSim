@@ -51,15 +51,15 @@ public class PerformanceTests {
                             Field f2 = NameCatalog.class.getDeclaredField("_catalog");
                             f2.setAccessible(true);
                             f2.set(nameCatalog, new HashMap<String, Integer>());
-//                            HashMap<String, Integer> catalog = (HashMap<String, Integer>) f2.get(nameCatalog);
-//                            List<String> toRemove = new LinkedList<>();
-//                            for (Map.Entry<String, Integer> entry : catalog.entrySet()) {
-//                                if (entry.getValue() == 1) {
-//                                    toRemove.add(entry.getKey());
-//                                }
-//                            }
-//                            toRemove.forEach(catalog::remove);
-//                            System.out.println(catalog.size());
+                            //                            HashMap<String, Integer> catalog = (HashMap<String, Integer>) f2.get(nameCatalog);
+                            //                            List<String> toRemove = new LinkedList<>();
+                            //                            for (Map.Entry<String, Integer> entry : catalog.entrySet()) {
+                            //                                if (entry.getValue() == 1) {
+                            //                                    toRemove.add(entry.getKey());
+                            //                                }
+                            //                            }
+                            //                            toRemove.forEach(catalog::remove);
+                            //                            System.out.println(catalog.size());
 
                         } catch (NoSuchFieldException | IllegalAccessException e) {
                             e.printStackTrace();
@@ -87,7 +87,7 @@ public class PerformanceTests {
             testResults.add(result);
             TestUtils.resetModel(model);
         }
-//        System.out.println(times);
+        //        System.out.println(times);
         return testResults;
     }
 

@@ -11,23 +11,27 @@ import desmoj.core.simulator.Experiment;
 import desmoj.core.simulator.TimeInstant;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import testutils.FileLoaderUtil;
 
 class ModelLoaderTest {
 
 
     @Test
     void loads_MetaDataFromScenario() {
-        testMetaDataParsing(new File("src/test/resources/test_metadata_scenario.json"));
+        File scenarioFile = FileLoaderUtil.loadFromTestResources("test_metadata_scenario.json");
+        testMetaDataParsing(scenarioFile);
     }
 
     @Test
     void loads_MetaDataFromExperimentNested() {
-        testMetaDataParsing(new File("src/test/resources/test_metadata_experiment_nested.json"));
+        File experimentFile = FileLoaderUtil.loadFromTestResources("test_metadata_experiment_nested.json");
+        testMetaDataParsing(experimentFile);
     }
 
     @Test
     void loads_MetaDataFromExperiment() {
-        testMetaDataParsing(new File("src/test/resources/test_metadata_experiment.json"));
+        File experimentFile = FileLoaderUtil.loadFromTestResources("test_metadata_experiment.json");
+        testMetaDataParsing(experimentFile);
     }
 
     private void testMetaDataParsing(File experimentFileLocation) {
@@ -65,14 +69,14 @@ class ModelLoaderTest {
 
 
     @Test
-    void parsesModels_Test() {
-        File test_experiment = new File("src/test/resources/test_experiment.json");
-        File test_architecture = new File("src/test/resources/test_architecture.json");
+    void parsesTestModels() {
+        File test_experiment = FileLoaderUtil.loadFromTestResources("test_experiment.json");
+        File test_architecture = FileLoaderUtil.loadFromTestResources("test_architecture.json");
+
         MiSimModel model = new MiSimModel(test_architecture, test_experiment);
         Experiment expDummy = new Experiment("TestExperiment");
-        expDummy.setShowProgressBar(true);
         model.connectToExperiment(expDummy);
-        expDummy.stop(new TimeInstant(0.1));
+        expDummy.stop(new TimeInstant(0.000001));//lets the experiment start itself for a very short amount of time
 
         expDummy.start();
         expDummy.finish();

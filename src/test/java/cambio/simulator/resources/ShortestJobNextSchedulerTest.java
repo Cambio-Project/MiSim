@@ -25,7 +25,7 @@ public class ShortestJobNextSchedulerTest extends CPUProcessSchedulerTest<Shorte
         processList.add(new CPUProcess(30));
         processList.add(new CPUProcess(40));
 
-//        Collections.shuffle(processList);
+        //        Collections.shuffle(processList);
 
         List<Pair<CPUProcess, Integer>> results = retrieveSchedulingOrder(processList);
 
