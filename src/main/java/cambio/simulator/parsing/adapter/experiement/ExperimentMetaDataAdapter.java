@@ -18,9 +18,8 @@ import com.google.gson.stream.JsonWriter;
  * Adapter for parsing the metadata within an experiment description into a {@link ExperimentMetaData } object.
  *
  * <p>
- * Looks for the keys found in {@link cambio.simulator.parsing.adapter.experiement.ExperimentMetaDataAdapter#SIMULATION_METADATA_KEYS}
- * within the description. If found, the {@link JsonObject} with an equal name will be parsed, otherwise the description
- * will be directly parsed.
+ * Looks for the keys found in {@link ExperimentMetaDataAdapter#SIMULATION_METADATA_KEYS} within the description. If
+ * found, the {@link JsonObject} with an equal name will be parsed, otherwise the description will be directly parsed.
  *
  * @author Lion Wagner
  */
