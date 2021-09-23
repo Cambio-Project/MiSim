@@ -33,18 +33,21 @@ public class InstanceOwnedPatternConfiguration extends TypeNameAssociatedConfigu
      * @return an instance of pattern that is defined in the given config.
      */
     public InstanceOwnedPattern getPatternInstance(@NotNull MicroserviceInstance owner) {
-        InstanceOwnedPattern patternInstance =
-            PatternConfigurationParser.getPatternInstance(owner.getModel(), owner.getName(), this,
-                InstanceOwnedPattern.class);
+        InstanceOwnedPattern patternInstance = null;
 
         try {
-            if (patternInstance != null) {
-                PatternConfigurationParser.injectOwnerProperty(patternInstance, owner);
-            }
-        } catch (NoSuchFieldException | IllegalAccessException e) {
+            patternInstance = PatternConfigurationParser.getPatternInstance(owner.getModel(), owner.getName(), this,
+                InstanceOwnedPattern.class);
+            PatternConfigurationParser.injectOwnerProperty(patternInstance, owner);
+        } catch (NoSuchFieldException e) {
+            //this case should never be happening, since InstanceOwnedPattern does have an owner field.
+            //if it does the class structure behind the InstanceOwnedPattern is not correct anymore.
+            e.printStackTrace();
+        } catch (ReflectiveOperationException e) {
+            System.out.printf("[Warning] Could not create a new instance of type name '%s'. Pattern will be ignored.%n",
+                this.type);
             e.printStackTrace();
         }
-
         return patternInstance;
     }
 

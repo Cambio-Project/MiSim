@@ -50,15 +50,17 @@ public class PatternConfigurationParser {
         Model model,
         String ownerName,
         @NotNull TypeNameAssociatedConfigurationData configurationData,
-                       Class<T> patternBaseType) {
+        Class<T> patternBaseType) throws ClassNotFoundException {
 
         Class<? extends T> concreteTargetClass =
             JsonTypeNameResolver.resolveFromJsonTypeName(configurationData.type, patternBaseType);
 
         if (concreteTargetClass == null) {
-            System.out.printf("Could not find class that inherits from '%s' and is annotated with type '%s'.%n",
-                patternBaseType.getName(), configurationData.type);
-            return null;
+            String msg =
+                String.format("Could not find class that inherits from '%s' and is annotated with type '%s'.%n",
+                    patternBaseType.getName(), configurationData.type);
+            System.out.println(msg);
+            throw new ClassNotFoundException(msg);
         }
 
         String name = concreteTargetClass.getSimpleName() + " of " + ownerName;
@@ -84,8 +86,8 @@ public class PatternConfigurationParser {
             }
 
             if (strategyBaseType == null) {
-                throw new RuntimeException(
-                    String.format("[Error] Could not find %s type parameter. Could not determine concrete "
+                throw new ClassCastException(
+                    String.format("[Error] Could not find %s generic type parameter. Could not determine concrete "
                         + "type of strategy.", IStrategy.class));
             }
 
@@ -95,7 +97,7 @@ public class PatternConfigurationParser {
                 Class<? extends IStrategy> strategyConcreteType =
                     JsonTypeNameResolver.resolveFromJsonTypeName(strategyTypeName, strategyBaseType);
                 if (strategyConcreteType == null) {
-                    throw new RuntimeException(
+                    throw new StrategyNotFoundException(
                         String.format("[Error] Could not find '%s' as a JsonTypeName inheriting from %s",
                             strategyTypeName,
                             strategyBaseType.getName()));
@@ -111,7 +113,7 @@ public class PatternConfigurationParser {
 
             } else {
                 System.out.printf("[Warning] No strategy information was given for a %s configuration. If no default"
-                        + " strategy is specified this run will most likely run into errors.%n",
+                        + " strategy is specified this run will most likely fail.%n",
                     concreteTargetClass.getName());
             }
         }

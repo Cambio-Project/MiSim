@@ -3,6 +3,7 @@ package cambio.simulator.parsing.adapter.architecture;
 import java.io.IOException;
 
 import cambio.simulator.entities.patterns.ServiceOwnedPattern;
+import cambio.simulator.parsing.ParsingException;
 import cambio.simulator.parsing.TypeNameAssociatedConfigurationData;
 import cambio.simulator.parsing.adapter.PatternConfigurationParser;
 import com.google.gson.Gson;
@@ -42,8 +43,16 @@ public class ServiceOwnedPatternAdapter extends TypeAdapter<ServiceOwnedPattern>
         if (in.peek() == JsonToken.BEGIN_OBJECT) {
             TypeNameAssociatedConfigurationData configData =
                 gson.fromJson(in, TypeNameAssociatedConfigurationData.class);
-            ServiceOwnedPattern patternInstance = PatternConfigurationParser
-                .getPatternInstance(model, msName, configData, ServiceOwnedPattern.class);
+
+            ServiceOwnedPattern patternInstance = null;
+            try {
+                patternInstance =
+                    PatternConfigurationParser.getPatternInstance(model, msName, configData, ServiceOwnedPattern.class);
+            } catch (ClassNotFoundException | ClassCastException e) {
+                throw new ParsingException(String.format("Could not create a service owned pattern with type %s.",
+                    configData.type), e);
+            }
+
             return patternInstance;
         }
         return null;
