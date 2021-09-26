@@ -44,6 +44,7 @@ jobs:
    
         
   push_documentation_to_gh-pages:
+    needs: build_documentation
   
     runs-on: ubuntu-latest
   
