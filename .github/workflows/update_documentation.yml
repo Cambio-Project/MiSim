@@ -31,12 +31,11 @@ jobs:
     - name: test
       run: cd target/site/apidocs && ls
     
-    - name: Cache Site
-      
+    - name: Cache Site      
       uses: actions/cache@v2
       with:
        path: .
-       key: newjavadoc
+       key: newjavadoc2
    
         
   push_documentation_to_gh-pages:
@@ -48,11 +47,11 @@ jobs:
     - name: Load Site Cache
       uses: actions/cache@v2
       with:
-       path: ~/docs
-       key: newjavadoc
+       path: .
+       key: newjavadoc2
     
     - name: test
-      run: cd ~/docs/ && ls && exit
+      run: ls && exit
          
     - uses: actions/checkout@v2
       with:
