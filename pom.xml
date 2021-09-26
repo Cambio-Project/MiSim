@@ -10,6 +10,8 @@
 
     <properties>
         <mockito.version>3.9.0</mockito.version>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>1.8</maven.compiler.source>
     </properties>
 
     <!--Project local maven repository, containing external jars-->
@@ -173,8 +175,6 @@
                 <version>3.8.1</version>
                 <configuration>
                     <encoding>UTF-8</encoding>
-                    <source>1.8</source>
-                    <target>1.8</target>
                 </configuration>
             </plugin>
 
