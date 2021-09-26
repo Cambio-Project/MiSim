@@ -28,14 +28,11 @@ jobs:
     - name: Build JavaDoc with Maven
       run:  mvn -B javadoc:javadoc "-Dnotimestamp=true" "-Dcheckstyle.skipExec=true"
     
-    - name: test
-      run: cd target/site/apidocs && ls
-    
-    - name: Cache Site      
-      uses: actions/cache@v2
+    - name: Upload Artifact
+    - uses: actions/upload-artifact@v2
       with:
-       path: .
-       key: newjavadoc2
+        name: JavaDoc
+        path: ./target/site/apidocs
    
         
   push_documentation_to_gh-pages:
@@ -44,15 +41,13 @@ jobs:
     runs-on: ubuntu-latest
   
     steps:
-    - name: Load Site Cache
-      uses: actions/cache@v2
+    - uses: actions/download-artifact@v2
       with:
-       path: .
-       key: newjavadoc2
-    
+        name: JavaDoc
+        
     - name: test
       run: ls && exit
-         
+   
     - uses: actions/checkout@v2
       with:
         fetch-depth: 0
