@@ -33,8 +33,6 @@ import org.jetbrains.annotations.NotNull;
  * </pre>
  * Note that these do not yet support the strategy pattern.
  *
- * </p>
- *
  * @author Lion Wagner
  * @see ExperimentModelAdapter
  */

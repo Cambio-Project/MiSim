@@ -51,6 +51,7 @@ import org.jetbrains.annotations.NotNull;
  * </pre>
  * Names can also be given to actions by providing the {@code action_name} property. Also, actions can also be nested in
  * an array for grouping.
+ *
  * <p>
  * This would look like the following:
  * <pre>
@@ -75,8 +76,6 @@ import org.jetbrains.annotations.NotNull;
  *             ...
  *         } *
  * </pre>
- *
- * </p>
  *
  * @author Lion Wagner
  */

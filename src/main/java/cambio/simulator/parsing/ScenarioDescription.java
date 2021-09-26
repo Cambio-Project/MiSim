@@ -22,8 +22,8 @@ import cambio.simulator.models.MiSimModel;
 import desmoj.core.simulator.TimeInstant;
 
 /**
- * Represents an scenario description input. Can be parsed to an set, containing the experiment events such as {@link
- * ChaosMonkeyEvent}s or {@link Generator}s.
+ * Represents a scenario description input. Can be parsed to a set, containing the experiment events such as {@link
+ * ChaosMonkeyEvent}s or {@link LoadGeneratorDescription}s.
  *
  * @author Lion Wagner
  */

@@ -13,7 +13,6 @@ import com.google.gson.stream.JsonWriter;
  *
  * <p>
  * This adapter is mandatory since Javas' stricter reflection rules.
- * </p>
  * This adapter converts {@link File}s to {@link String}s and vise-versa using the files' absolut path.
  *
  * @author Lion Wagner
