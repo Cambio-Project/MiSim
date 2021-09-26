@@ -35,14 +35,12 @@ jobs:
       run:  mvn -B javadoc:javadoc "-Dnotimestamp=true" "-Dcheckstyle.skipExec=true"
     
     - name: test
-      run: ls
+      run: cd target/site/apidocs && ls
     
     - name: Cache Site
       uses: actions/cache@v2
-      env:
-        cache-name: cache-javadoc-site
       with:
-       path: ./target/site/apidocs
+       path: target/site/apidocs
        key: ${{ runner.os }}-newJavaDoc
    
         
@@ -54,14 +52,12 @@ jobs:
     steps:
     - name: Load Site Cache
       uses: actions/cache@v2
-      env:
-        cache-name: cache-javadoc-site
       with:
        path: ~/docs
        key: ${{ runner.os }}-newJavaDoc
     
     - name: test
-      run: cd ~/docs/ && ls
+      run: cd ~/docs/ && ls && exit
          
     - uses: actions/checkout@v2
       with:
