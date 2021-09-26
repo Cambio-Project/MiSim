@@ -36,7 +36,7 @@ jobs:
       uses: actions/cache@v2
       with:
        path: .
-       key: newJavaDoc
+       key: newjavadoc
    
         
   push_documentation_to_gh-pages:
@@ -49,7 +49,7 @@ jobs:
       uses: actions/cache@v2
       with:
        path: ~/docs
-       key: newJavaDoc
+       key: newjavadoc
     
     - name: test
       run: cd ~/docs/ && ls && exit
