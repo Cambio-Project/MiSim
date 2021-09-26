@@ -28,7 +28,7 @@ jobs:
     - name: Build JavaDoc with Maven
       run:  mvn -B javadoc:javadoc "-Dnotimestamp=true" "-Dcheckstyle.skipExec=true"
     
-    - name: Upload Artifact
+    - name: Upload JavaDoc as Artifact
       uses: actions/upload-artifact@v2
       with:
         name: JavaDoc
@@ -41,12 +41,11 @@ jobs:
     runs-on: ubuntu-latest
   
     steps:
-    - uses: actions/download-artifact@v2
+    - name: Download JavaDoc Artifact
+      uses: actions/download-artifact@v2
       with:
         name: JavaDoc
-        
-    - name: test
-      run: ls && exit
+        path: ~/docs/
    
     - uses: actions/checkout@v2
       with:
@@ -60,7 +59,7 @@ jobs:
         git pull
         cp -rpv ~/docs/. .
         git add .
-        git commit -m "Updated documentation" --allow-empty
+        git commit -m "Updated documentation" --allow-empty --dry-run
         
     - name: Push changes
       uses: ad-m/github-push-action@master
