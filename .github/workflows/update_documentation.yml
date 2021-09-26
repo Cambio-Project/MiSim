@@ -34,6 +34,9 @@ jobs:
     - name: Build JavaDoc with Maven
       run:  mvn -B javadoc:javadoc "-Dnotimestamp=true" "-Dcheckstyle.skipExec=true"
     
+    - name: test
+      run: ls
+    
     - name: Cache Site
       uses: actions/cache@v2
       env:
