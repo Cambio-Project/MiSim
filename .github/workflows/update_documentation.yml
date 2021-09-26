@@ -9,8 +9,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  update_documentation:
-
+  build_documentation:
+  
     runs-on: ubuntu-latest
 
     steps:
@@ -18,26 +18,48 @@ jobs:
       with:
         fetch-depth: 0
         
-    - name: Set up Java 15
+    - name: Set up Java 16
       uses: actions/setup-java@v2
       with:
-        java-version: '15'
+        java-version: '16'
         distribution: 'adopt'
-    
-    - name: Cache Maven Dependencies
-      uses: actions/cache@v2
-      with:
-        path: ~/.m2
-        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-        restore-keys: ${{ runner.os }}-m2
+        cache: 'maven'
 
     - name: Build JavaDoc with Maven
-      run:  mvn javadoc:javadoc "-Dnotimestamp=true" "-Dcheckstyle.skipExec=true"
+      run: |
+       mvn -B javadoc:javadoc "-Dnotimestamp=true" "-Dcheckstyle.skipExec=true"
+       mvn -B javadoc:jar  "-Dcheckstyle.skipExec=true"
       
-    - name: Move Website to /docs
-      run: | 
-        cp -rpv ./target/site/apidocs/. ~/docs/
+    
+    - name: Upload JavaDoc as HTML
+      uses: actions/upload-artifact@v2
+      with:
+        name: JavaDoc
+        path: ./target/site/apidocs
+    
+    - name: Upload JavaDoc as JAR
+      uses: actions/upload-artifact@v2
+      with:
+        name: JavaDocJar
+        path: ./target/misim-javadoc.jar
+   
         
+  push_documentation_to_gh-pages:
+    needs: build_documentation
+  
+    runs-on: ubuntu-latest
+  
+    steps:
+    - name: Download JavaDoc Artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: JavaDoc
+        path: ~/docs/
+   
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+   
     - name: Commit Files
       run: |
         git config --local user.email "st148345@stud.uni-stuttgart.de"
@@ -45,10 +67,27 @@ jobs:
         git checkout gh-pages
         git pull
         cp -rpv ~/docs/. .
+        
+    - name: Check for changes
+      run: |
+        if git diff --quiet; then
+          echo "CHANGES_EXIST=false" >> $GITHUB_ENV
+        else
+          echo "CHANGES_EXIST=true" >> $GITHUB_ENV
+        fi
+    - name: Output Changes check result
+      run: |
+        echo "Changes exist:"
+        echo $CHANGES_EXIST
+    
+    - name: Add Files
+      if: env.CHANGES_EXIST == 'true'
+      run: |
         git add .
         git commit -m "Updated documentation" --allow-empty
         
     - name: Push changes
+      if: env.changes_exist == 'true'
       uses: ad-m/github-push-action@master
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
