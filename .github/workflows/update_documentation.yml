@@ -26,13 +26,22 @@ jobs:
         cache: 'maven'
 
     - name: Build JavaDoc with Maven
-      run:  mvn -B javadoc:javadoc "-Dnotimestamp=true" "-Dcheckstyle.skipExec=true"
+      run: |
+       mvn -B javadoc:javadoc "-Dnotimestamp=true" "-Dcheckstyle.skipExec=true"
+       mvn -B javadoc:jar  "-Dcheckstyle.skipExec=true"
+      
     
-    - name: Upload JavaDoc as Artifact
+    - name: Upload JavaDoc as HTML
       uses: actions/upload-artifact@v2
       with:
         name: JavaDoc
         path: ./target/site/apidocs
+    
+    - name: Upload JavaDoc as JAR
+      uses: actions/upload-artifact@v2
+      with:
+        name: JavaDocJar
+        path: ./target/misim-javadoc.jar
    
         
   push_documentation_to_gh-pages:
@@ -58,10 +67,23 @@ jobs:
         git checkout gh-pages
         git pull
         cp -rpv ~/docs/. .
+        
+    - name: Check for changes
+      run: |
+        if git diff --exit-code; then
+          echo "::set-env name=changes_exist::false"
+        else
+          echo "::set-env name=changes_exist::true"
+        fi
+    
+    - name: Add Files
+      if: env.changes_exist == 'true'
+      run: |
         git add .
-        git commit -m "Updated documentation" --allow-empty --dry-run
+        git commit -m "Updated documentation" --allow-empty
         
     - name: Push changes
+      if: env.changes_exist == 'true'
       uses: ad-m/github-push-action@master
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
