@@ -4,11 +4,7 @@
 name: Run Checkstyle
 
 on:
-  pull_request:
-    branches: [master, Version3 ]    
-  workflow_dispatch:
-  push:
-    
+  push:    
   
 jobs:
   run_checkstyle:
@@ -18,19 +14,13 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     
-    - name: Set up Java 15
+    - name: Set up Java 16
       uses: actions/setup-java@v2
       with:
-        java-version: '15'
+        java-version: '16'
         distribution: 'adopt'
+        cache: 'maven'
     
-    - name: Cache Maven Dependencies
-      uses: actions/cache@v2
-      with:
-        path: ~/.m2
-        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-        restore-keys: ${{ runner.os }}-m2
-
     - name: Run Checkstyle
       run: mvn checkstyle:check
 
