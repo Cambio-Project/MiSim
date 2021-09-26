@@ -75,6 +75,8 @@ jobs:
         else
           echo "CHANGES_EXIST=true" >> $GITHUB_ENV
         fi
+    - name: Output Changes check result
+      run: |
         echo "Changes exist:"
         echo $CHANGES_EXIST
     
