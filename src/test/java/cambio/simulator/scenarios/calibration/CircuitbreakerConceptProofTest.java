@@ -1,4 +1,4 @@
-package scenarios.calibration;
+package cambio.simulator.scenarios.calibration;
 
 import java.io.File;
 
@@ -10,12 +10,12 @@ import org.junit.jupiter.api.Test;
  * @author Lion Wagner
  */
 @Disabled
-public class AutoscalingConceptProofTest {
+public class CircuitbreakerConceptProofTest {
 
     @Test
     void ExampleExecutionRun() {
-        File f = new File("./Examples/Calibration/autoscale_isolation_architecture.json");
-        File f2 = new File("./Examples/Calibration/autoscale_experiement.json");
+        File f = new File("./Examples/Calibration/circuitbreaker_isolation_architecture.json");
+        File f2 = new File("./Examples/Calibration/circuitbreaker_experiement.json");
         String[] args = new String[] {"-a", f.getAbsolutePath(), "-e", f2.getAbsolutePath(), "-d", "-p"};
         MainModel.main(args);
     }

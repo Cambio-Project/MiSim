@@ -23,8 +23,8 @@ import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
-import testutils.TestExperiment;
-import testutils.TestModel;
+import cambio.simulator.testutils.TestExperiment;
+import cambio.simulator.testutils.TestModel;
 
 class CPUProcessSchedulerTest<T extends CPUProcessScheduler> {
 

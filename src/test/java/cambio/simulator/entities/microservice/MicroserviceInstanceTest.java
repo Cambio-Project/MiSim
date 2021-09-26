@@ -11,8 +11,8 @@ import desmoj.core.simulator.ExternalEvent;
 import desmoj.core.simulator.TimeInstant;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import testutils.RandomTieredModel;
-import testutils.TestUtils;
+import cambio.simulator.testutils.RandomTieredModel;
+import cambio.simulator.testutils.TestUtils;
 
 class MicroserviceInstanceTest {
 

@@ -11,7 +11,7 @@ import desmoj.core.simulator.Experiment;
 import desmoj.core.simulator.TimeInstant;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import testutils.FileLoaderUtil;
+import cambio.simulator.testutils.FileLoaderUtil;
 
 class ModelLoaderTest {
 

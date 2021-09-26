@@ -8,9 +8,9 @@ import cambio.simulator.entities.microservice.MicroserviceInstance;
 import desmoj.core.simulator.Experiment;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import testutils.RandomTieredModel;
-import testutils.TestExperiment;
-import testutils.TestUtils;
+import cambio.simulator.testutils.RandomTieredModel;
+import cambio.simulator.testutils.TestExperiment;
+import cambio.simulator.testutils.TestUtils;
 
 class CircuitBreakerTest {
 
