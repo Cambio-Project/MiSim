@@ -75,7 +75,7 @@ jobs:
         else
           echo "changes_exist=true" >> $GITHUB_ENV
         fi
-        echo "Changes exist: ${{ env.changes_exist }}"
+        echo "Changes exist: $changes_exist"
     
     - name: Add Files
       if: env.changes_exist == 'true'
