@@ -71,14 +71,15 @@ jobs:
     - name: Check for changes
       run: |
         if git diff --quiet; then
-          echo "changes_exist=false" >> $GITHUB_ENV
+          echo "CHANGES_EXIST=false" >> $GITHUB_ENV
         else
-          echo "changes_exist=true" >> $GITHUB_ENV
+          echo "CHANGES_EXIST=true" >> $GITHUB_ENV
         fi
-        echo "Changes exist: $changes_exist"
+        echo "Changes exist:"
+        echo $CHANGES_EXIST
     
     - name: Add Files
-      if: env.changes_exist == 'true'
+      if: env.CHANGES_EXIST == 'true'
       run: |
         git add .
         git commit -m "Updated documentation" --allow-empty
