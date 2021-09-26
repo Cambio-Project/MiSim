@@ -9,8 +9,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  update_documentation:
-
+  build_documentation:
+  
     runs-on: ubuntu-latest
 
     steps:
@@ -32,12 +32,37 @@ jobs:
         restore-keys: ${{ runner.os }}-m2
 
     - name: Build JavaDoc with Maven
-      run:  mvn javadoc:javadoc "-Dnotimestamp=true" "-Dcheckstyle.skipExec=true"
-      
-    - name: Move Website to /docs
-      run: | 
-        cp -rpv ./target/site/apidocs/. ~/docs/
+      run:  mvn -B javadoc:javadoc "-Dnotimestamp=true" "-Dcheckstyle.skipExec=true"
+    
+    - name: Cache Site
+      uses: actions/cache@v2
+      env:
+        cache-name: cache-javadoc-site
+      with:
+       path: ./target/site/apidocs
+       key: ${{ runner.os }}-newJavaDoc
+   
         
+  push_documentation_to_gh-pages:
+  
+    runs-on: ubuntu-latest
+  
+    steps:
+    - name: Load Site Cache
+      uses: actions/cache@v2
+      env:
+        cache-name: cache-javadoc-site
+      with:
+       path: ~/docs
+       key: ${{ runner.os }}-newJavaDoc
+    
+    - name: test
+      run: cd ~/docs/ && ls
+         
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+   
     - name: Commit Files
       run: |
         git config --local user.email "st148345@stud.uni-stuttgart.de"
