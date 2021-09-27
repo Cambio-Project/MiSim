@@ -5,8 +5,9 @@ name: Update Documentation
 
 on:
   push: 
-    branches: [master]
-  workflow_dispatch:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
 
 jobs:
   build_documentation:
@@ -45,9 +46,10 @@ jobs:
    
         
   push_documentation_to_gh-pages:
-    needs: build_documentation
-  
+    if: github.event_name == 'push'
+    needs: build_documentation  
     runs-on: ubuntu-latest
+    
   
     steps:
     - name: Download JavaDoc Artifact
