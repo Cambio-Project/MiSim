@@ -17,12 +17,12 @@ import cambio.simulator.events.ExperimentAction;
 import cambio.simulator.models.ExperimentModel;
 import cambio.simulator.models.MiSimModel;
 import cambio.simulator.parsing.GsonHelper;
+import cambio.simulator.parsing.adapter.MiSimModelReferencingTypeAdapter;
 import cambio.simulator.parsing.adapter.NormalDistributionAdapter;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
-import com.google.gson.TypeAdapter;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
@@ -79,7 +79,7 @@ import org.jetbrains.annotations.NotNull;
  *
  * @author Lion Wagner
  */
-public class ExperimentModelAdapter extends TypeAdapter<ExperimentModel> {
+public class ExperimentModelAdapter extends MiSimModelReferencingTypeAdapter<ExperimentModel> {
     public static final String CURRENT_JSON_OBJECT_NAME_KEY = "action_name";
 
     /**
@@ -106,10 +106,8 @@ public class ExperimentModelAdapter extends TypeAdapter<ExperimentModel> {
         generatorNames = Collections.unmodifiableList(names);
     }
 
-    private final MiSimModel baseModel;
-
     public ExperimentModelAdapter(MiSimModel baseModel) {
-        this.baseModel = baseModel;
+        super(baseModel);
     }
 
     @Override

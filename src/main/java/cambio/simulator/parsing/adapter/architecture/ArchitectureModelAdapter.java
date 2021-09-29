@@ -8,11 +8,11 @@ import cambio.simulator.entities.networking.DependencyDescription;
 import cambio.simulator.models.ArchitectureModel;
 import cambio.simulator.models.MiSimModel;
 import cambio.simulator.parsing.GsonHelper;
+import cambio.simulator.parsing.adapter.MiSimModelReferencingTypeAdapter;
 import cambio.simulator.parsing.adapter.NormalDistributionAdapter;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import desmoj.core.dist.ContDistNormal;
@@ -25,13 +25,12 @@ import desmoj.core.dist.ContDistNormal;
  *
  * @author Lion Wagner
  */
-public class ArchitectureModelAdapter extends TypeAdapter<ArchitectureModel> {
-    private final MiSimModel baseModel;
+public class ArchitectureModelAdapter extends MiSimModelReferencingTypeAdapter<ArchitectureModel> {
 
     private final LinkedList<DependencyDescription> dependencies = new LinkedList<>();
 
     public ArchitectureModelAdapter(MiSimModel baseModel) {
-        this.baseModel = baseModel;
+        super(baseModel);
     }
 
     @Override
