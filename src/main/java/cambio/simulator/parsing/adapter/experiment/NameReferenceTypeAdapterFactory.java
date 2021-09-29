@@ -1,4 +1,4 @@
-package cambio.simulator.parsing.adapter.experiement;
+package cambio.simulator.parsing.adapter.experiment;
 
 import java.io.IOException;
 

@@ -1,6 +1,6 @@
-package cambio.simulator.parsing.adapter.experiement;
+package cambio.simulator.parsing.adapter.experiment;
 
-import static cambio.simulator.parsing.adapter.experiement.ExperimentModelAdapter.CURRENT_JSON_OBJECT_NAME_KEY;
+import static cambio.simulator.parsing.adapter.experiment.ExperimentModelAdapter.CURRENT_JSON_OBJECT_NAME_KEY;
 
 import java.io.IOException;
 

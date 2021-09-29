@@ -1,6 +1,6 @@
-package cambio.simulator.parsing.adapter.experiement;
+package cambio.simulator.parsing.adapter.experiment;
 
-import static cambio.simulator.parsing.adapter.experiement.ExperimentMetaDataAdapter.SIMULATION_METADATA_KEYS;
+import static cambio.simulator.parsing.adapter.experiment.ExperimentMetaDataAdapter.SIMULATION_METADATA_KEYS;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
