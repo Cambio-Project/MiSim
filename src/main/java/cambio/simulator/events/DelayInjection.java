@@ -6,7 +6,7 @@ import java.util.Objects;
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.entities.microservice.Operation;
 import cambio.simulator.entities.networking.InternalRequest;
-import cambio.simulator.parsing.adapter.JsonTypeName;
+import cambio.simulator.parsing.JsonTypeName;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import desmoj.core.dist.ContDistNormal;

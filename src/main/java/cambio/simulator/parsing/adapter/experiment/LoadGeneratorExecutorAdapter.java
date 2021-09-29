@@ -6,6 +6,7 @@ import cambio.simulator.entities.generator.LoadGeneratorDescription;
 import cambio.simulator.entities.generator.LoadGeneratorDescriptionExecutor;
 import cambio.simulator.models.MiSimModel;
 import cambio.simulator.parsing.adapter.ConfigurableNamedTypeAdapter;
+import cambio.simulator.parsing.adapter.MiSimModelReferencingTypeAdapter;
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
@@ -16,14 +17,12 @@ import com.google.gson.stream.JsonWriter;
  *
  * @author Lion Wagner
  */
-public class LoadGeneratorExecutorAdapter extends TypeAdapter<LoadGeneratorDescriptionExecutor> {
-
-    private final MiSimModel model;
+public class LoadGeneratorExecutorAdapter extends MiSimModelReferencingTypeAdapter<LoadGeneratorDescriptionExecutor> {
 
     private Gson parser;
 
     public LoadGeneratorExecutorAdapter(MiSimModel model) {
-        this.model = model;
+        super(model);
     }
 
     public void setParser(Gson parser) {
@@ -48,6 +47,6 @@ public class LoadGeneratorExecutorAdapter extends TypeAdapter<LoadGeneratorDescr
             return null;
         }
         description.initializeArrivalRateModel();
-        return new LoadGeneratorDescriptionExecutor(model, description);
+        return new LoadGeneratorDescriptionExecutor(baseModel, description);
     }
 }

@@ -2,7 +2,7 @@ package cambio.simulator.entities.patterns;
 
 import java.util.Random;
 
-import cambio.simulator.parsing.adapter.JsonTypeName;
+import cambio.simulator.parsing.JsonTypeName;
 
 /**
  * Represents a jittering exponential retry backoff strategy. Generates doubles based on the formula  {@code

@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import cambio.simulator.entities.patterns.IStrategyAcceptor;
-import cambio.simulator.parsing.adapter.JsonTypeName;
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 

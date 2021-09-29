@@ -1,4 +1,4 @@
-package cambio.simulator.parsing.adapter;
+package cambio.simulator.parsing;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

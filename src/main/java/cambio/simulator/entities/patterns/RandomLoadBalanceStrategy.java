@@ -6,7 +6,7 @@ import java.util.List;
 
 import cambio.simulator.entities.microservice.MicroserviceInstance;
 import cambio.simulator.entities.microservice.NoInstanceAvailableException;
-import cambio.simulator.parsing.adapter.JsonTypeName;
+import cambio.simulator.parsing.JsonTypeName;
 
 @JsonTypeName("random")
 final class RandomLoadBalanceStrategy implements ILoadBalancingStrategy {

@@ -1,6 +1,6 @@
 package cambio.simulator.entities.generator;
 
-import cambio.simulator.parsing.adapter.JsonTypeName;
+import cambio.simulator.parsing.JsonTypeName;
 import com.google.gson.annotations.SerializedName;
 
 /**

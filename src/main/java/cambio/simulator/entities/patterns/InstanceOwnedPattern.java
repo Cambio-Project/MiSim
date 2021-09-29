@@ -3,7 +3,7 @@ package cambio.simulator.entities.patterns;
 import cambio.simulator.entities.NamedEntity;
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.entities.microservice.MicroserviceInstance;
-import cambio.simulator.parsing.adapter.JsonTypeName;
+import cambio.simulator.parsing.JsonTypeName;
 import desmoj.core.simulator.Model;
 
 /**

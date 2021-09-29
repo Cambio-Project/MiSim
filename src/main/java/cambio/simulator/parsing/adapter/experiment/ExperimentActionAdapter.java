@@ -9,11 +9,11 @@ import cambio.simulator.models.MiSimModel;
 import cambio.simulator.parsing.EntityCreator;
 import cambio.simulator.parsing.ParsingException;
 import cambio.simulator.parsing.TypeNameAssociatedConfigurationData;
-import cambio.simulator.parsing.adapter.JsonTypeNameResolver;
+import cambio.simulator.parsing.JsonTypeNameResolver;
+import cambio.simulator.parsing.adapter.MiSimModelReferencingTypeAdapter;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import org.jetbrains.annotations.NotNull;
@@ -36,14 +36,12 @@ import org.jetbrains.annotations.NotNull;
  * @author Lion Wagner
  * @see ExperimentModelAdapter
  */
-public class ExperimentActionAdapter extends TypeAdapter<ExperimentAction> {
-
-    private final MiSimModel model;
+public class ExperimentActionAdapter extends MiSimModelReferencingTypeAdapter<ExperimentAction> {
 
     private Gson parser;
 
     public ExperimentActionAdapter(MiSimModel model) {
-        this.model = model;
+        super(model);
     }
 
 

@@ -1,6 +1,6 @@
 package cambio.simulator.entities.patterns;
 
-import cambio.simulator.parsing.adapter.JsonTypeName;
+import cambio.simulator.parsing.JsonTypeName;
 
 /**
  * Represents a linear retry backoff strategy. Generates doubles based on the formula  {@code baseBackoff + base*tries

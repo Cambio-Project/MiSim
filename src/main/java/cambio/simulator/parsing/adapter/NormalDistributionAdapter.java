@@ -23,13 +23,11 @@ import desmoj.core.dist.ContDistNormal;
  *
  * @author Lion Wagner
  */
-public class NormalDistributionAdapter extends TypeAdapter<ContDistNormal> {
+public class NormalDistributionAdapter extends MiSimModelReferencingTypeAdapter<ContDistNormal> {
 
-    private final MiSimModel model;
 
     public NormalDistributionAdapter(MiSimModel model) {
-
-        this.model = model;
+        super(model);
     }
 
     @Override
@@ -75,10 +73,10 @@ public class NormalDistributionAdapter extends TypeAdapter<ContDistNormal> {
                         untrimmedValue), e);
             }
 
-            return new ContDistNormal(model, "NormalDist", mean, deviationLeft, deviationRight, false, false);
+            return new ContDistNormal(baseModel, "NormalDist", mean, deviationLeft, deviationRight, false, false);
 
         } else if (peeked == JsonToken.NUMBER) {
-            return new ContDistNormal(model, "NormalDist", in.nextDouble(), 0, false, false);
+            return new ContDistNormal(baseModel, "NormalDist", in.nextDouble(), 0, false, false);
         }
         return null;
     }

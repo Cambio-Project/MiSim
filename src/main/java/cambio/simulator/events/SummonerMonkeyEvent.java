@@ -2,7 +2,7 @@ package cambio.simulator.events;
 
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.misc.Priority;
-import cambio.simulator.parsing.adapter.JsonTypeName;
+import cambio.simulator.parsing.JsonTypeName;
 import co.paralleluniverse.fibers.SuspendExecution;
 import com.google.gson.annotations.Expose;
 import desmoj.core.simulator.Model;

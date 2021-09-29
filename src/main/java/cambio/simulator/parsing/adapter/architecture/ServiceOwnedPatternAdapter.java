@@ -3,16 +3,16 @@ package cambio.simulator.parsing.adapter.architecture;
 import java.io.IOException;
 
 import cambio.simulator.entities.patterns.ServiceOwnedPattern;
+import cambio.simulator.models.MiSimModel;
 import cambio.simulator.parsing.ParsingException;
 import cambio.simulator.parsing.TypeNameAssociatedConfigurationData;
-import cambio.simulator.parsing.adapter.PatternConfigurationParser;
+import cambio.simulator.parsing.adapter.MiSimModelReferencingTypeAdapter;
+import cambio.simulator.parsing.PatternConfigurationParser;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-import desmoj.core.simulator.Model;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -20,15 +20,13 @@ import org.jetbrains.annotations.NotNull;
  *
  * @author Lion Wagner
  */
-public class ServiceOwnedPatternAdapter extends TypeAdapter<ServiceOwnedPattern> {
-
+public class ServiceOwnedPatternAdapter extends MiSimModelReferencingTypeAdapter<ServiceOwnedPattern> {
 
     private final String msName;
-    private final Model model;
 
-    public ServiceOwnedPatternAdapter(Model model, String msName) {
+    public ServiceOwnedPatternAdapter(MiSimModel model, String msName) {
+        super(model);
         this.msName = msName;
-        this.model = model;
     }
 
     @Override
@@ -47,7 +45,8 @@ public class ServiceOwnedPatternAdapter extends TypeAdapter<ServiceOwnedPattern>
             ServiceOwnedPattern patternInstance = null;
             try {
                 patternInstance =
-                    PatternConfigurationParser.getPatternInstance(model, msName, configData, ServiceOwnedPattern.class);
+                    PatternConfigurationParser.getPatternInstance(baseModel, msName, configData,
+                        ServiceOwnedPattern.class);
             } catch (ClassNotFoundException | ClassCastException e) {
                 throw new ParsingException(String.format("Could not create a service owned pattern with type %s.",
                     configData.type), e);

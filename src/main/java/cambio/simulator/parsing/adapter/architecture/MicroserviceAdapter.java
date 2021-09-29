@@ -13,12 +13,12 @@ import cambio.simulator.entities.patterns.LoadBalancer;
 import cambio.simulator.entities.patterns.ServiceOwnedPattern;
 import cambio.simulator.models.MiSimModel;
 import cambio.simulator.parsing.GsonHelper;
+import cambio.simulator.parsing.adapter.MiSimModelReferencingTypeAdapter;
 import cambio.simulator.parsing.adapter.NormalDistributionAdapter;
 import com.google.gson.Gson;
 import com.google.gson.InstanceCreator;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import desmoj.core.dist.ContDistNormal;
@@ -28,13 +28,13 @@ import desmoj.core.dist.ContDistNormal;
  *
  * @author Lion Wagner
  */
-class MicroserviceAdapter extends TypeAdapter<Microservice> {
-    private final MiSimModel baseModel;
+class MicroserviceAdapter extends MiSimModelReferencingTypeAdapter<Microservice> {
+
     private final LinkedList<DependencyDescription> dependencies;
 
     public MicroserviceAdapter(MiSimModel baseModel,
                                LinkedList<DependencyDescription> dependencies) {
-        this.baseModel = baseModel;
+        super(baseModel);
         this.dependencies = dependencies;
     }
 

@@ -1,4 +1,4 @@
-package cambio.simulator.parsing.adapter;
+package cambio.simulator.parsing;
 
 import java.util.Arrays;
 import java.util.HashMap;

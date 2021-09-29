@@ -16,7 +16,7 @@ import cambio.simulator.entities.networking.Request;
 import cambio.simulator.entities.networking.RequestFailedReason;
 import cambio.simulator.export.MultiDataPointReporter;
 import cambio.simulator.misc.Priority;
-import cambio.simulator.parsing.adapter.JsonTypeName;
+import cambio.simulator.parsing.JsonTypeName;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import desmoj.core.simulator.Model;

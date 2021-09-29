@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.Collections;
 
 import cambio.simulator.parsing.GsonHelper;
+import cambio.simulator.parsing.JsonTypeName;
+import cambio.simulator.parsing.JsonTypeNameResolver;
 import cambio.simulator.parsing.ParsingException;
 import cambio.simulator.parsing.TypeNameAssociatedConfigurationData;
 import com.google.gson.Gson;

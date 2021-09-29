@@ -7,7 +7,7 @@ import java.util.Map;
 
 import cambio.simulator.entities.microservice.MicroserviceInstance;
 import cambio.simulator.entities.microservice.NoInstanceAvailableException;
-import cambio.simulator.parsing.adapter.JsonTypeName;
+import cambio.simulator.parsing.JsonTypeName;
 
 /**
  * Strategy that balances the amount of requests evenly between instances. Does not care about internal demand of the

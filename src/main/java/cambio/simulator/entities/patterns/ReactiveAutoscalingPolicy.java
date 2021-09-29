@@ -4,7 +4,7 @@ import java.util.List;
 
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.export.MultiDataPointReporter;
-import cambio.simulator.parsing.adapter.JsonTypeName;
+import cambio.simulator.parsing.JsonTypeName;
 import desmoj.core.simulator.TimeInstant;
 
 /**

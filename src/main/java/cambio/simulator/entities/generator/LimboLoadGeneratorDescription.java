@@ -12,7 +12,7 @@ import java.util.Objects;
 import java.util.stream.Collector;
 
 import cambio.simulator.misc.CollectorImpl;
-import cambio.simulator.parsing.adapter.JsonTypeName;
+import cambio.simulator.parsing.JsonTypeName;
 import com.google.common.base.Strings;
 import com.google.gson.annotations.SerializedName;
 import org.javatuples.Pair;

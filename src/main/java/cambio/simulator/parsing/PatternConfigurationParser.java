@@ -1,4 +1,4 @@
-package cambio.simulator.parsing.adapter;
+package cambio.simulator.parsing;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -10,16 +10,12 @@ import cambio.simulator.entities.patterns.IStrategy;
 import cambio.simulator.entities.patterns.IStrategyAcceptor;
 import cambio.simulator.entities.patterns.InstanceOwnedPattern;
 import cambio.simulator.entities.patterns.ServiceOwnedPattern;
-import cambio.simulator.parsing.EntityCreator;
-import cambio.simulator.parsing.GsonHelper;
-import cambio.simulator.parsing.StrategyNotFoundException;
-import cambio.simulator.parsing.TypeNameAssociatedConfigurationData;
 import com.google.gson.Gson;
 import desmoj.core.simulator.Model;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Utitily class for parsing {@link TypeNameAssociatedConfigurationData} into a pattern.
+ * Utility class for parsing {@link TypeNameAssociatedConfigurationData} into a pattern.
  *
  * @author Lion Wagner
  */

@@ -11,6 +11,7 @@ import cambio.simulator.entities.networking.DependencyDescription;
 import cambio.simulator.models.MiSimModel;
 import cambio.simulator.parsing.GsonHelper;
 import cambio.simulator.parsing.ParsingException;
+import cambio.simulator.parsing.adapter.MiSimModelReferencingTypeAdapter;
 import cambio.simulator.parsing.adapter.NormalDistributionAdapter;
 import com.google.gson.Gson;
 import com.google.gson.InstanceCreator;
@@ -27,15 +28,14 @@ import desmoj.core.dist.ContDistNormal;
  *
  * @author Lion Wagner
  */
-class OperationAdapter extends TypeAdapter<Operation> {
+class OperationAdapter extends MiSimModelReferencingTypeAdapter<Operation> {
 
-    private final MiSimModel baseModel;
     private final String parentMicroserviceName;
     private final List<DependencyDescription> dependencies;
 
     public OperationAdapter(MiSimModel baseModel, String name,
                             List<DependencyDescription> dependencies) {
-        this.baseModel = baseModel;
+        super(baseModel);
         parentMicroserviceName = name;
         this.dependencies = dependencies;
     }
