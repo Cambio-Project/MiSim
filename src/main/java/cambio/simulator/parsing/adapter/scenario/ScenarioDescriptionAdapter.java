@@ -17,7 +17,6 @@ import com.google.gson.stream.JsonWriter;
  * <p>
  * These descriptions should at least define a stimulus, artifact and component to be parsable.
  *
- *
  * @author Lion Wagner
  * @see ScenarioDescription
  */
