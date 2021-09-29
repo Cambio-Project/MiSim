@@ -2,6 +2,8 @@ package cambio.simulator.misc;
 
 import java.lang.reflect.Field;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * Class that holds static utility methods.
  *
@@ -111,16 +113,33 @@ public class Util {
 
 
     /**
-     * Tries to inject a value into the field of an object via reflection.
+     * Tries to inject a value into the field of an object via reflection. Checks declared fields of the objects class
+     * and all its superclasses.
      *
      * @param fieldName name of the field
      * @param object    object that should be modified
      * @param newValue  value that should be injected
      */
-    public static void injectField(String fieldName, Object object, Object newValue) {
+    public static void injectField(String fieldName, @NotNull Object object, Object newValue) {
         try {
             Class<?> clazz = object.getClass();
-            Field field = clazz.getDeclaredField(fieldName);
+
+            Field field = null;
+
+            while (field == null && !(clazz == null)) {
+                try {
+                    field = clazz.getDeclaredField(fieldName);
+                } catch (NoSuchFieldException e) {
+                    clazz = clazz.getSuperclass();
+                }
+            }
+            if (field == null) {
+                assert object.getClass() != null;
+                throw new NoSuchFieldException(
+                    String.format("Could not find find field %s on type %s or its super-classes.", fieldName,
+                        object.getClass().getName()));
+            }
+
             field.setAccessible(true);
             field.set(object, newValue);
         } catch (NoSuchFieldException | IllegalAccessException e) {

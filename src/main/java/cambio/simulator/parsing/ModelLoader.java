@@ -3,6 +3,7 @@ package cambio.simulator.parsing;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.util.function.Function;
 
 import cambio.simulator.models.ArchitectureModel;
 import cambio.simulator.models.ExperimentMetaData;
@@ -11,6 +12,7 @@ import cambio.simulator.models.MiSimModel;
 import cambio.simulator.parsing.adapter.architecture.ArchitectureModelAdapter;
 import cambio.simulator.parsing.adapter.experiment.ExperimentMetaDataAdapter;
 import cambio.simulator.parsing.adapter.experiment.ExperimentModelAdapter;
+import cambio.simulator.parsing.adapter.scenario.ScenarioDescriptionAdapter;
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
@@ -78,11 +80,20 @@ public final class ModelLoader {
      *     ExperimentModelAdapter}.
      */
     public static ExperimentModel loadExperimentModel(MiSimModel baseModel) {
-        return loadModel(
-            baseModel.getExperimentMetaData().getExpFileLocation(),
-            ExperimentModel.class,
-            new ExperimentModelAdapter(baseModel)
-        );
+        File modelLocation = baseModel.getExperimentMetaData().getExpFileLocation();
+        Function<TypeAdapter<ExperimentModel>, ExperimentModel> loadFunction = adapter ->
+            loadModel(modelLocation, ExperimentModel.class, adapter);
+
+        try {
+            //try parsing from scenario description
+            return loadFunction.apply(new ScenarioDescriptionAdapter(baseModel));
+        } catch (ParsingException e) {
+            System.out.printf("[Info] Could not detect %s as scenario. Trying to detect an experiment.%n",
+                modelLocation);
+
+            //try to parse into experiment
+            return loadFunction.apply(new ExperimentModelAdapter(baseModel));
+        }
     }
 
     private static <T> T loadModel(File targetFile, Class<T> targetType, TypeAdapter<T> adapter) {

@@ -70,17 +70,37 @@ class ModelLoaderTest {
 
     @Test
     void parsesTestModels() {
-        File test_experiment = FileLoaderUtil.loadFromTestResources("test_experiment.json");
         File test_architecture = FileLoaderUtil.loadFromTestResources("test_architecture.json");
+        File test_experiment = FileLoaderUtil.loadFromTestResources("test_experiment.json");
+
+        MiSimModel model = new MiSimModel(test_architecture, test_experiment);
+        Experiment expDummy = new Experiment("TestExperiment");
+        model.connectToExperiment(expDummy);
+        expDummy.stop(new TimeInstant(0.000001));//lets the experiment start itself for a very short amount of time
+        expDummy.setShowProgressBar(false); //enforces headless mode
+        
+        expDummy.start();
+        expDummy.finish();
+
+        assertEquals(5, model.getExperimentModel().getAllSelfSchedulesEntities().size());
+    }
+
+    @Test
+    void parsesTestModelsWithScenario() {
+        File test_architecture = FileLoaderUtil.loadFromTestResources("test_architecture.json");
+        File test_experiment = FileLoaderUtil.loadFromTestResources("test_scenario.json");
 
         MiSimModel model = new MiSimModel(test_architecture, test_experiment);
         Experiment expDummy = new Experiment("TestExperiment");
         model.connectToExperiment(expDummy);
         expDummy.stop(new TimeInstant(0.000001));//lets the experiment start itself for a very short amount of time
         expDummy.setShowProgressBar(false);
-        
+
         expDummy.start();
         expDummy.finish();
+
+
+        assertEquals(7, model.getExperimentModel().getAllSelfSchedulesEntities().size());
 
     }
 }
