@@ -34,7 +34,7 @@ class LimboLoadGeneratorDescriptionTest {
     }
 
     @RepeatedTest(10)
-    @Timeout(value = 500, unit = TimeUnit.MILLISECONDS)
+    @Timeout(value = 1000, unit = TimeUnit.MILLISECONDS)
     void readsHugeFileInTime() {
         File profile = new File("src/test/resources/limbo_model_huge.csv");
 
