@@ -9,9 +9,9 @@ import com.google.gson.TypeAdapter;
  * @author Lion Wagner
  */
 public abstract class MiSimModelReferencingTypeAdapter<T> extends TypeAdapter<T> {
-    protected final MiSimModel baseModel;
+    protected final MiSimModel model;
 
-    public MiSimModelReferencingTypeAdapter(MiSimModel baseModel) {
-        this.baseModel = baseModel;
+    public MiSimModelReferencingTypeAdapter(MiSimModel model) {
+        this.model = model;
     }
 }

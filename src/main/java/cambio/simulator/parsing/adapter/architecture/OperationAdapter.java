@@ -17,7 +17,6 @@ import com.google.gson.Gson;
 import com.google.gson.InstanceCreator;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.TypeAdapter;
 import com.google.gson.internal.UnsafeAllocator;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
@@ -63,9 +62,9 @@ class OperationAdapter extends MiSimModelReferencingTypeAdapter<Operation> {
 
         Gson gson = GsonHelper.getGsonBuilder()
             .excludeFieldsWithoutExposeAnnotation()
-            .registerTypeAdapter(Operation.class, new OperationInstanceCreator(baseModel, name))
-            .registerTypeAdapter(ContDistNormal.class, new NormalDistributionAdapter(baseModel))
-            .registerTypeAdapter(DependencyDescription.class, new DependencyDescriptionCreator(baseModel))
+            .registerTypeAdapter(Operation.class, new OperationInstanceCreator(model, name))
+            .registerTypeAdapter(ContDistNormal.class, new NormalDistributionAdapter(model))
+            .registerTypeAdapter(DependencyDescription.class, new DependencyDescriptionCreator(model))
             .create();
 
         Operation operation = gson.fromJson(root, Operation.class);

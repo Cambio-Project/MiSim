@@ -6,7 +6,6 @@ import java.util.regex.Pattern;
 
 import cambio.simulator.models.MiSimModel;
 import cambio.simulator.parsing.ParsingException;
-import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
@@ -73,10 +72,10 @@ public class NormalDistributionAdapter extends MiSimModelReferencingTypeAdapter<
                         untrimmedValue), e);
             }
 
-            return new ContDistNormal(baseModel, "NormalDist", mean, deviationLeft, deviationRight, false, false);
+            return new ContDistNormal(model, "NormalDist", mean, deviationLeft, deviationRight, false, false);
 
         } else if (peeked == JsonToken.NUMBER) {
-            return new ContDistNormal(baseModel, "NormalDist", in.nextDouble(), 0, false, false);
+            return new ContDistNormal(model, "NormalDist", in.nextDouble(), 0, false, false);
         }
         return null;
     }

@@ -51,12 +51,12 @@ class MicroserviceAdapter extends MiSimModelReferencingTypeAdapter<Microservice>
         Gson gson = GsonHelper
             .getGsonBuilder()
             .excludeFieldsWithoutExposeAnnotation()
-            .registerTypeAdapter(Microservice.class, new MicroserviceInstanceCreator(baseModel, microserviceName))
-            .registerTypeAdapter(ContDistNormal.class, new NormalDistributionAdapter(baseModel))
-            .registerTypeAdapter(LoadBalancer.class, new LoadBalancerAdapter(baseModel))
-            .registerTypeAdapter(Operation.class, new OperationAdapter(baseModel, microserviceName, dependencies))
+            .registerTypeAdapter(Microservice.class, new MicroserviceInstanceCreator(model, microserviceName))
+            .registerTypeAdapter(ContDistNormal.class, new NormalDistributionAdapter(model))
+            .registerTypeAdapter(LoadBalancer.class, new LoadBalancerAdapter(model))
+            .registerTypeAdapter(Operation.class, new OperationAdapter(model, microserviceName, dependencies))
             .registerTypeAdapter(InstanceOwnedPatternConfiguration.class, new InstanceOwnedPatternConfigAdapter())
-            .registerTypeAdapter(ServiceOwnedPattern.class, new ServiceOwnedPatternAdapter(baseModel, microserviceName))
+            .registerTypeAdapter(ServiceOwnedPattern.class, new ServiceOwnedPatternAdapter(model, microserviceName))
             .create();
 
         Microservice microservice = gson.fromJson(root, Microservice.class);

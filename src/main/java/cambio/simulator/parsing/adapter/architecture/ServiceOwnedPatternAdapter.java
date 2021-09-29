@@ -45,7 +45,7 @@ public class ServiceOwnedPatternAdapter extends MiSimModelReferencingTypeAdapter
             ServiceOwnedPattern patternInstance = null;
             try {
                 patternInstance =
-                    PatternConfigurationParser.getPatternInstance(baseModel, msName, configData,
+                    PatternConfigurationParser.getPatternInstance(model, msName, configData,
                         ServiceOwnedPattern.class);
             } catch (ClassNotFoundException | ClassCastException e) {
                 throw new ParsingException(String.format("Could not create a service owned pattern with type %s.",

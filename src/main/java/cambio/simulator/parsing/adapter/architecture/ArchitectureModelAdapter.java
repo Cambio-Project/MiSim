@@ -44,8 +44,8 @@ public class ArchitectureModelAdapter extends MiSimModelReferencingTypeAdapter<A
         Gson gson = GsonHelper
             .getGsonBuilder()
             .excludeFieldsWithoutExposeAnnotation()
-            .registerTypeAdapter(ContDistNormal.class, new NormalDistributionAdapter(baseModel))
-            .registerTypeAdapter(Microservice.class, new MicroserviceAdapter(baseModel, dependencies))
+            .registerTypeAdapter(ContDistNormal.class, new NormalDistributionAdapter(model))
+            .registerTypeAdapter(Microservice.class, new MicroserviceAdapter(model, dependencies))
             .create();
 
         ArchitectureModel architectureModel = gson.fromJson(root, ArchitectureModel.class);

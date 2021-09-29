@@ -41,7 +41,7 @@ public class ScenarioDescriptionAdapter extends MiSimModelReferencingTypeAdapter
 
         ExperimentModel parse;
         try {
-            parse = scenarioDescription.parse(baseModel);
+            parse = scenarioDescription.parse(model);
         } catch (Exception e) {
             throw new ParsingException("Could not parse into Scenario.");
         }

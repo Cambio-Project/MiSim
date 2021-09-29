@@ -8,7 +8,6 @@ import cambio.simulator.models.MiSimModel;
 import cambio.simulator.parsing.adapter.ConfigurableNamedTypeAdapter;
 import cambio.simulator.parsing.adapter.MiSimModelReferencingTypeAdapter;
 import com.google.gson.Gson;
-import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
@@ -47,6 +46,6 @@ public class LoadGeneratorExecutorAdapter extends MiSimModelReferencingTypeAdapt
             return null;
         }
         description.initializeArrivalRateModel();
-        return new LoadGeneratorDescriptionExecutor(baseModel, description);
+        return new LoadGeneratorDescriptionExecutor(model, description);
     }
 }
