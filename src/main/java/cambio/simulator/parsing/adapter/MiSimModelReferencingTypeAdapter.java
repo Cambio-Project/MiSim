@@ -1,10 +1,11 @@
 package cambio.simulator.parsing.adapter;
 
-import cambio.simulator.models.ExperimentModel;
 import cambio.simulator.models.MiSimModel;
 import com.google.gson.TypeAdapter;
 
 /**
+ * Collection class to mark Adapters that need a {@link MiSimModel} for parsing.
+ *
  * @author Lion Wagner
  */
 public abstract class MiSimModelReferencingTypeAdapter<T> extends TypeAdapter<T> {

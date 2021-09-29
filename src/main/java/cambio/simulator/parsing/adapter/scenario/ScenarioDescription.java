@@ -47,6 +47,7 @@ public final class ScenarioDescription {
 
     /**
      * Checks state to the descriptions.
+     *
      * <p>
      * Sends warnings if properties are empty.
      *

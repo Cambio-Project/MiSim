@@ -43,6 +43,10 @@ public class RandomTieredModel extends Model {
         this.tierCount = tierCount;
     }
 
+    private static Operation getRandomFromList(List<Operation> operations) {
+        return operations.get(new Random().nextInt(operations.size()));
+    }
+
     @Override
     public String description() {
         return null;
@@ -168,10 +172,6 @@ public class RandomTieredModel extends Model {
 
     public ArrayList<Operation> getAllOperations() {
         return all_operations;
-    }
-
-    private static Operation getRandomFromList(List<Operation> operations) {
-        return operations.get(new Random().nextInt(operations.size()));
     }
 }
 

@@ -5,14 +5,14 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+import cambio.simulator.testutils.RandomTieredModel;
+import cambio.simulator.testutils.TestUtils;
 import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.Experiment;
 import desmoj.core.simulator.ExternalEvent;
 import desmoj.core.simulator.TimeInstant;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import cambio.simulator.testutils.RandomTieredModel;
-import cambio.simulator.testutils.TestUtils;
 
 class MicroserviceInstanceTest {
 

@@ -32,6 +32,33 @@ public class ExperimentModel {
         this.otherExperimentActions = experimentActions;
     }
 
+    /**
+     * Creates a new Experimentmodel based on the given set of ISelfScheduled objects.
+     *
+     * <p>
+     * Looks for {@link LoadGeneratorDescription}s and {@link ExperimentAction}s within the set and adds them to a new
+     * Experiment model.
+     *
+     * @param baseModel      parent model of the resulting ExperimentModel and potentially created {@link
+     *                       ExperimentAction}s
+     * @param selfSchedulers entities that should be part of the new ExperimentModel
+     * @return a new experiment model always. It may be empty if no selfSchedulers or wrongly typed ones are given.
+     */
+    @Contract("_, _ -> new")
+    public static @NotNull ExperimentModel fromScheduleEntities(MiSimModel baseModel,
+                                                                @NotNull Iterable<ISelfScheduled> selfSchedulers) {
+        Set<LoadGeneratorDescriptionExecutor> executors = new HashSet<>();
+        Set<ExperimentAction> actions = new HashSet<>();
+        selfSchedulers.forEach(iSelfScheduled -> {
+            if (iSelfScheduled instanceof LoadGeneratorDescription) {
+                executors.add(
+                    new LoadGeneratorDescriptionExecutor(baseModel, (LoadGeneratorDescription) iSelfScheduled));
+            } else if (iSelfScheduled instanceof ExperimentAction) {
+                actions.add((ExperimentAction) iSelfScheduled);
+            }
+        });
+        return new ExperimentModel(executors.toArray(new LoadGeneratorDescriptionExecutor[0]), actions);
+    }
 
     /**
      * Collects all self scheduling entities from the experiment, so they can be scheduled during the inital scheduling
@@ -50,22 +77,6 @@ public class ExperimentModel {
     public <T> Set<T> getAllObjectsOfType(Class<T> clazz) {
         return otherExperimentActions.stream().filter(o -> clazz.isAssignableFrom(o.getClass())).map(clazz::cast)
             .collect(Collectors.toSet());
-    }
-
-    @Contract("_, _ -> new")
-    public static @NotNull ExperimentModel fromScheduleEntities(MiSimModel baseModel,
-                                                                @NotNull Iterable<ISelfScheduled> selfSchedulers) {
-        Set<LoadGeneratorDescriptionExecutor> executors = new HashSet<>();
-        Set<ExperimentAction> actions = new HashSet<>();
-        selfSchedulers.forEach(iSelfScheduled -> {
-            if (iSelfScheduled instanceof LoadGeneratorDescription) {
-                executors.add(
-                    new LoadGeneratorDescriptionExecutor(baseModel, (LoadGeneratorDescription) iSelfScheduled));
-            } else if (iSelfScheduled instanceof ExperimentAction) {
-                actions.add((ExperimentAction) iSelfScheduled);
-            }
-        });
-        return new ExperimentModel(executors.toArray(new LoadGeneratorDescriptionExecutor[0]), actions);
     }
 
 }

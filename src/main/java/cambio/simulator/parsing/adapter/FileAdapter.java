@@ -12,8 +12,8 @@ import com.google.gson.stream.JsonWriter;
  * Gson {@link TypeAdapter} for the {@link File} type.
  *
  * <p>
- * This adapter is mandatory since Javas' stricter reflection rules.
- * This adapter converts {@link File}s to {@link String}s and vise-versa using the files' absolut path.
+ * This adapter is mandatory since Javas' stricter reflection rules. This adapter converts {@link File}s to {@link
+ * String}s and vise-versa using the files' absolut path.
  *
  * @author Lion Wagner
  */

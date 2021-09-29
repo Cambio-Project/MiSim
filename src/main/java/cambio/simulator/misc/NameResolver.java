@@ -96,6 +96,7 @@ public final class NameResolver {
         }
         return null;
     }
+
     /**
      * Tries to combine a service name and an operation name into a fully qualified name.
      *

@@ -7,11 +7,11 @@ import java.io.File;
 
 import cambio.simulator.models.ExperimentMetaData;
 import cambio.simulator.models.MiSimModel;
+import cambio.simulator.testutils.FileLoaderUtil;
 import desmoj.core.simulator.Experiment;
 import desmoj.core.simulator.TimeInstant;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import cambio.simulator.testutils.FileLoaderUtil;
 
 class ModelLoaderTest {
 
@@ -78,7 +78,7 @@ class ModelLoaderTest {
         model.connectToExperiment(expDummy);
         expDummy.stop(new TimeInstant(0.000001));//lets the experiment start itself for a very short amount of time
         expDummy.setShowProgressBar(false); //enforces headless mode
-        
+
         expDummy.start();
         expDummy.finish();
 

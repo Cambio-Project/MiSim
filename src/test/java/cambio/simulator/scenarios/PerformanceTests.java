@@ -8,6 +8,8 @@ import java.util.concurrent.TimeUnit;
 
 import cambio.simulator.entities.networking.NetworkRequestSendEvent;
 import cambio.simulator.export.CSVData;
+import cambio.simulator.testutils.RandomTieredModel;
+import cambio.simulator.testutils.TestUtils;
 import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.Experiment;
 import desmoj.core.simulator.NameCatalog;
@@ -16,8 +18,6 @@ import desmoj.core.simulator.TimeInstant;
 import desmoj.core.simulator.TimeSpan;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import cambio.simulator.testutils.RandomTieredModel;
-import cambio.simulator.testutils.TestUtils;
 
 /**
  * @author Lion Wagner

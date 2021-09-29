@@ -3,9 +3,9 @@ package cambio.simulator.scenarios;
 import java.io.File;
 
 import cambio.simulator.models.MainModel;
+import cambio.simulator.testutils.FileLoaderUtil;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import cambio.simulator.testutils.FileLoaderUtil;
 
 /**
  * @author Lion Wagner
