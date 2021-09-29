@@ -61,7 +61,7 @@ class OperationAdapter extends TypeAdapter<Operation> {
             name = opName;
         }
 
-        Gson gson = new GsonHelper().getGsonBuilder()
+        Gson gson = GsonHelper.getGsonBuilder()
             .excludeFieldsWithoutExposeAnnotation()
             .registerTypeAdapter(Operation.class, new OperationInstanceCreator(baseModel, name))
             .registerTypeAdapter(ContDistNormal.class, new NormalDistributionAdapter(baseModel))

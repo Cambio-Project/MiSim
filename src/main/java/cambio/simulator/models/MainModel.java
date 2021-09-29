@@ -173,7 +173,7 @@ public class MainModel {
     private static void generateReport(MiSimModel model) {
         ExperimentMetaData metaData = model.getExperimentMetaData();
         Path reportLocation = Paths.get(".", "Report_" + metaData.getExperimentName());
-        Gson gson = new GsonHelper().getGson();
+        Gson gson = GsonHelper.getGson();
         try {
             FileUtils.deleteDirectory(reportLocation.toFile());
             reportLocation.toFile().mkdirs();

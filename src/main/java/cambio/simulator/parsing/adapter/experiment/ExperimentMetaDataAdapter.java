@@ -41,7 +41,7 @@ public class ExperimentMetaDataAdapter extends TypeAdapter<ExperimentMetaData> {
     @Override
     public ExperimentMetaData read(JsonReader in) throws IOException {
         if (in.peek() == JsonToken.BEGIN_OBJECT) {
-            Gson gson = new GsonHelper().getGson();
+            Gson gson = GsonHelper.getGson();
             JsonObject root = JsonParser.parseReader(in).getAsJsonObject();
 
             // if contains a member name from "SIMULATION_METADATA_KEYS" ->

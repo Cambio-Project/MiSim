@@ -48,7 +48,7 @@ class MicroserviceAdapter extends TypeAdapter<Microservice> {
         JsonObject root = JsonParser.parseReader(in).getAsJsonObject();
         String microserviceName = root.get("name").getAsString();
 
-        Gson gson = new GsonHelper()
+        Gson gson = GsonHelper
             .getGsonBuilder()
             .excludeFieldsWithoutExposeAnnotation()
             .registerTypeAdapter(Microservice.class, new MicroserviceInstanceCreator(baseModel, microserviceName))

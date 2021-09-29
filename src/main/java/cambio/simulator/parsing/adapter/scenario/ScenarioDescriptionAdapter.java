@@ -28,7 +28,7 @@ public class ScenarioDescriptionAdapter extends MiSimModelReferencingTypeAdapter
 
     @Override
     public ExperimentModel read(JsonReader in) throws IOException {
-        Gson gson = new GsonHelper().getGsonBuilder().create();
+        Gson gson = GsonHelper.getGsonBuilder().create();
         ScenarioDescription scenarioDescription = gson.fromJson(in, ScenarioDescription.class);
 
         ExperimentModel parse;

@@ -41,7 +41,7 @@ public class ArchitectureModelAdapter extends MiSimModelReferencingTypeAdapter<A
     public ArchitectureModel read(JsonReader in) throws IOException {
         JsonObject root = JsonParser.parseReader(in).getAsJsonObject();
 
-        Gson gson = new GsonHelper()
+        Gson gson = GsonHelper
             .getGsonBuilder()
             .excludeFieldsWithoutExposeAnnotation()
             .registerTypeAdapter(ContDistNormal.class, new NormalDistributionAdapter(baseModel))

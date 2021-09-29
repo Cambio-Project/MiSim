@@ -99,7 +99,7 @@ public final class ModelLoader {
     private static <T> T loadModel(File targetFile, Class<T> targetType, TypeAdapter<T> adapter) {
         checkFileExistence(targetFile);
         try {
-            Gson gson = new GsonHelper()
+            Gson gson = GsonHelper
                 .getGsonBuilder()
                 .registerTypeAdapter(targetType, adapter)
                 .create();

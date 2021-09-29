@@ -119,7 +119,7 @@ public class ExperimentModelAdapter extends MiSimModelReferencingTypeAdapter<Exp
     public ExperimentModel read(@NotNull JsonReader in) throws IOException {
         LoadGeneratorExecutorAdapter generatorExecutorAdapter = new LoadGeneratorExecutorAdapter(baseModel);
         ExperimentActionAdapter experimentActionAdapter = new ExperimentActionAdapter(baseModel);
-        Gson gson = new GsonHelper().getGsonBuilder()
+        Gson gson = GsonHelper.getGsonBuilder()
             .registerTypeAdapter(LoadGeneratorDescriptionExecutor.class, generatorExecutorAdapter)
             .registerTypeAdapter(ExperimentAction.class, experimentActionAdapter)
             .registerTypeAdapter(ContDistNormal.class, new NormalDistributionAdapter(baseModel))

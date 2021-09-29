@@ -24,7 +24,7 @@ class InstanceOwnedPatternConfigAdapter extends TypeAdapter<InstanceOwnedPattern
 
     @Override
     public InstanceOwnedPatternConfiguration read(JsonReader in) throws IOException {
-        Gson gson = new GsonHelper().getGson(); //todo: other adapters might need to get injected here in the future
+        Gson gson = GsonHelper.getGson(); //todo: other adapters might need to get injected here in the future
         InstanceOwnedPatternConfiguration instanceOwnedPatternConfiguration =
             gson.fromJson(in, InstanceOwnedPatternConfiguration.class);
         instanceOwnedPatternConfiguration.preCacheData();

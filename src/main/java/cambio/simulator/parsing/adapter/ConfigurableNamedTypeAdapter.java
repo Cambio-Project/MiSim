@@ -49,8 +49,8 @@ public class ConfigurableNamedTypeAdapter<T> extends TypeAdapter<T> {
                                         @Nullable TypeAdapterFactory typeAdapterFactory) {
         this(superClassType,
             typeAdapterFactory != null
-                ? new GsonHelper().getGsonBuilder().registerTypeAdapterFactory(typeAdapterFactory).create()
-                : new GsonHelper().getGsonBuilder().create()
+                ? GsonHelper.getGsonBuilder().registerTypeAdapterFactory(typeAdapterFactory).create()
+                : GsonHelper.getGsonBuilder().create()
         );
     }
 

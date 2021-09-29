@@ -65,7 +65,7 @@ public class PatternConfigurationParser {
 
         String name = concreteTargetClass.getSimpleName() + " of " + ownerName;
 
-        Gson gson = new GsonHelper().getGsonBuilder()
+        Gson gson = GsonHelper.getGsonBuilder()
             .registerTypeAdapter(concreteTargetClass,
                 EntityCreator.getCreator(model, name, concreteTargetClass))
             .excludeFieldsWithoutExposeAnnotation()
@@ -103,7 +103,7 @@ public class PatternConfigurationParser {
                             strategyBaseType.getName()));
                 }
 
-                Gson strategyGson = new GsonHelper().getGsonBuilder().create();
+                Gson strategyGson = GsonHelper.getGsonBuilder().create();
                 IStrategy strategyObject =
                     strategyGson.fromJson(configurationData.getStrategyConfigurationAsJsonString(),
                         strategyConcreteType);

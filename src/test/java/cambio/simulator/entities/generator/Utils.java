@@ -16,17 +16,16 @@ public class Utils {
 
     public static <T extends LoadGeneratorDescription> T getLoadGeneratorDescription(String configJson,
                                                                                      Class<T> clazz) {
-        Gson gson = new GsonHelper()
-            .getGsonBuilder().registerTypeAdapter(Operation.class, new TypeAdapter<Operation>() {
-                @Override
-                public void write(JsonWriter out, Operation value) throws IOException {
-                }
+        Gson gson = GsonHelper.getGsonBuilder().registerTypeAdapter(Operation.class, new TypeAdapter<Operation>() {
+            @Override
+            public void write(JsonWriter out, Operation value) throws IOException {
+            }
 
-                @Override
-                public Operation read(JsonReader in) throws IOException {
-                    return null;
-                }
-            }).create();
+            @Override
+            public Operation read(JsonReader in) throws IOException {
+                return null;
+            }
+        }).create();
 
         T descriptionInstance = gson.fromJson(configJson, clazz);
         descriptionInstance.initializeArrivalRateModel();

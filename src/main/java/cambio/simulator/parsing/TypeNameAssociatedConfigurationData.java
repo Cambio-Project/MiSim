@@ -40,7 +40,7 @@ public class TypeNameAssociatedConfigurationData {
      * @return the configuration data  as JSON
      */
     public String getConfigAsJsonString() {
-        Gson gson = new GsonHelper().getGson();
+        Gson gson = GsonHelper.getGson();
         if (config == null) {
             return gson.toJson(new HashMap<String, Object>());
         }

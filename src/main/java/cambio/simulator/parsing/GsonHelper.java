@@ -13,9 +13,11 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import desmoj.core.simulator.TimeInstant;
 import desmoj.core.simulator.TimeSpan;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 /**
- * Utility class to create a GsonParser that has appropriate type adapters.
+ * Utility class to create a Gson with a default set of {@link com.google.gson.TypeAdapter}s.
  *
  * @author Lion Wagner
  * @see com.google.gson.TypeAdapter
@@ -28,7 +30,8 @@ public final class GsonHelper {
      *
      * @return a default {@link Gson}.
      */
-    public Gson getGson() {
+    @Contract(" -> new")
+    public static @NotNull Gson getGson() {
         return getGsonBuilder().create();
     }
 
@@ -36,7 +39,8 @@ public final class GsonHelper {
      * Creates a {@link GsonBuilder} that should contain all common adapters, such as a {@link FileAdapter} and {@link
      * TimeInstantAdapter}.
      */
-    public GsonBuilder getGsonBuilder() {
+    @Contract(" -> new")
+    public static @NotNull GsonBuilder getGsonBuilder() {
         return new GsonBuilder()
             .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
             .registerTypeAdapter(File.class, new FileAdapter())
@@ -44,6 +48,4 @@ public final class GsonHelper {
             .registerTypeAdapter(TimeInstant.class, new TimeInstantAdapter())
             .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter());
     }
-
-
 }
