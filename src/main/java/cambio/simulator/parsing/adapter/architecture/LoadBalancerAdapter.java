@@ -12,7 +12,10 @@ import cambio.simulator.parsing.adapter.StrategyWrapperTypeAdapter;
  */
 //This class could be replaced by inlining the constructor call below.
 //However, this would decrease readability by quite a bit.
-class LoadBalancerAdapter extends StrategyWrapperTypeAdapter<LoadBalancer, ILoadBalancingStrategy> {
+public class LoadBalancerAdapter extends StrategyWrapperTypeAdapter<LoadBalancer, ILoadBalancingStrategy> {
+    /**
+     * Constructs a new Adapter for Creating a {@link LoadBalancer} from a {@link ILoadBalancingStrategy}.
+     */
     public LoadBalancerAdapter(MiSimModel baseModel) {
         super(ILoadBalancingStrategy.class,
             iLoadBalancingStrategy -> new LoadBalancer(baseModel, "Loadbalancer", true, iLoadBalancingStrategy));

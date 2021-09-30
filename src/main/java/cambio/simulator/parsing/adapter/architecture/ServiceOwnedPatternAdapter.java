@@ -42,7 +42,7 @@ public class ServiceOwnedPatternAdapter extends MiSimModelReferencingTypeAdapter
             TypeNameAssociatedConfigurationData configData =
                 gson.fromJson(in, TypeNameAssociatedConfigurationData.class);
 
-            ServiceOwnedPattern patternInstance = null;
+            ServiceOwnedPattern patternInstance;
             try {
                 patternInstance =
                     PatternConfigurationParser.getPatternInstance(model, msName, configData,
