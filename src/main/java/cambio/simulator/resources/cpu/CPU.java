@@ -4,12 +4,12 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+import cambio.simulator.entities.NamedExternalEvent;
 import cambio.simulator.entities.microservice.MicroserviceInstance;
 import cambio.simulator.export.MultiDataPointReporter;
 import cambio.simulator.resources.cpu.scheduling.CPUProcessScheduler;
 import cambio.simulator.resources.cpu.scheduling.RoundRobinScheduler;
 import co.paralleluniverse.fibers.SuspendExecution;
-import desmoj.core.simulator.ExternalEvent;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeSpan;
 import org.javatuples.Pair;
@@ -26,7 +26,7 @@ import org.javatuples.Pair;
  * @see CPUProcessScheduler
  * @see CPU#CPU(Model, String, boolean, MicroserviceInstance, int, CPUProcessScheduler, int)
  */
-public class CPU extends ExternalEvent {
+public class CPU extends NamedExternalEvent {
 
     private static final int DEFAULT_THREADPOOLSIZE = 100;
 

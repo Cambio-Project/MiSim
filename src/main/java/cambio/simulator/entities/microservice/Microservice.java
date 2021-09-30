@@ -4,20 +4,21 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import cambio.simulator.entities.NamedEntity;
 import cambio.simulator.entities.networking.InternalRequest;
+import cambio.simulator.entities.patterns.ILoadBalancingStrategy;
 import cambio.simulator.entities.patterns.InstanceOwnedPattern;
+import cambio.simulator.entities.patterns.InstanceOwnedPatternConfiguration;
 import cambio.simulator.entities.patterns.LoadBalancer;
-import cambio.simulator.entities.patterns.LoadBalancingStrategy;
 import cambio.simulator.entities.patterns.ServiceOwnedPattern;
 import cambio.simulator.export.ContinuousMultiDataPointReporter;
 import cambio.simulator.export.MultiDataPointReporter;
-import cambio.simulator.parsing.PatternData;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 import desmoj.core.dist.NumericalDist;
 import desmoj.core.simulator.Event;
 import desmoj.core.simulator.Model;
@@ -41,31 +42,49 @@ import desmoj.core.simulator.Model;
  *
  * @author Lion Wagner
  * @see MicroserviceInstance
- * @see LoadBalancingStrategy
+ * @see ILoadBalancingStrategy
  * @see ServiceOwnedPattern
  * @see InstanceOwnedPattern
  */
 public class Microservice extends NamedEntity {
-    private final Set<MicroserviceInstance> instancesSet = new HashSet<>();
+    private final transient Set<MicroserviceInstance> instancesSet = new HashSet<>();
+    private final transient MultiDataPointReporter reporter;
+    @Expose
+    @SerializedName(value = "loadbalancer_strategy", alternate = "load_balancer")
     private final LoadBalancer loadBalancer;
-    private final MultiDataPointReporter reporter;
-    private boolean started = false;
-    private String name = "";
-    private int capacity = 0;
-    private int targetInstanceCount = 0;
-    private int instanceSpawnCounter = 0; // running counter to create instance ID's
-    private Operation[] operations;
-    private PatternData[] patternsData;
-    private ServiceOwnedPattern[] serviceOwnedPatterns;
+    private transient boolean started = false;
+    private transient int instanceSpawnCounter = 0; // running counter to create instance ID's
+
+    @Expose
+    @SerializedName(value = "name")
+    private String plainName = ""; //TODO: fix this whole naming confusion thing
+    @Expose
+    private int capacity = 1;
+    @Expose
+    @SerializedName(value = "instances", alternate = {"starting_instance_count", "starting_instances"})
+    private int startingInstanceCount = 1;
+
+    @Expose
+    private Operation[] operations = new Operation[0];
+
+    @Expose
+    @SerializedName(value = "i_patterns",
+        alternate = {"instance_patterns", "patterns", "i_pattern", "instance_pattern"})
+    private InstanceOwnedPatternConfiguration[] instanceOwnedPatternConfigurations =
+        new InstanceOwnedPatternConfiguration[0];
+
+    @Expose
+    @SerializedName(value = "s_patterns", alternate = {"service_patterns", "s_pattern", "service_pattern"})
+    private ServiceOwnedPattern[] serviceOwnedPatterns = new ServiceOwnedPattern[0];
+
 
     /**
      * Creates a new instance of a {@link Microservice}.
      */
     public Microservice(Model model, String name, boolean showInTrace) {
         super(model, name, showInTrace);
-        setName(name);
-        loadBalancer = new LoadBalancer(model, "Loadbalancer of " + this.getQuotedName(), traceIsOn(), instancesSet);
-        setLoadBalancingStrategy("random"); //defaulting to random lb
+        //default load balancer
+        loadBalancer = new LoadBalancer(model, "Loadbalancer", traceIsOn(), null);
         reporter = new ContinuousMultiDataPointReporter(String.format("S[%s]_", name));
     }
 
@@ -75,19 +94,17 @@ public class Microservice extends NamedEntity {
      */
     public synchronized void start() {
         started = true;
-        scaleToInstancesCount(targetInstanceCount);
-        serviceOwnedPatterns = Arrays.stream(patternsData)
-            .map(patternData -> patternData.tryGetServiceOwnedPatternOrNull(this))
-            .filter(Objects::nonNull)
-            .toArray(ServiceOwnedPattern[]::new);
+        scaleToInstancesCount(startingInstanceCount);
     }
 
-    public String getName() {
-        return name;
+    @Override
+    public String toString() {
+        return this.getName();
     }
 
-    public void setName(String name) {
-        this.name = name;
+    @Override
+    public String getQuotedName() {
+        return "'" + this.getName() + "'";
     }
 
     public int getCapacity() {
@@ -98,9 +115,6 @@ public class Microservice extends NamedEntity {
         this.capacity = capacity;
     }
 
-    public void setPatternData(PatternData[] patterns) {
-        this.patternsData = patterns;
-    }
 
     public int getInstancesCount() {
         return instancesSet.size();
@@ -113,7 +127,7 @@ public class Microservice extends NamedEntity {
      * @param numberOfInstances amount of instance that this service should target.
      */
     public synchronized void setInstancesCount(final int numberOfInstances) {
-        targetInstanceCount = numberOfInstances;
+        startingInstanceCount = numberOfInstances;
         if (started) {
             scaleToInstancesCount(numberOfInstances);
         }
@@ -142,7 +156,7 @@ public class Microservice extends NamedEntity {
                 changedInstance =
                     new MicroserviceInstance(getModel(), String.format("[%s]_I%d", getName(), instanceSpawnCounter),
                         this.traceIsOn(), this, instanceSpawnCounter);
-                changedInstance.activatePatterns(patternsData);
+                changedInstance.activatePatterns(instanceOwnedPatternConfigurations);
                 instanceSpawnCounter++;
                 changeEvent =
                     new InstanceStartupEvent(getModel(), "Instance Startup of " + changedInstance.getQuotedName(),
@@ -219,29 +233,9 @@ public class Microservice extends NamedEntity {
             .orElse(null);
     }
 
-    /**
-     * Injector for load balancing strategy for easier json parsing.
-     *
-     * @param loadBalancingStrategy name of the strategy that is to be applied
-     */
-    public void setLoadBalancingStrategy(String loadBalancingStrategy) {
-        loadBalancer.setLoadBalancingStrategy(LoadBalancingStrategy.fromName(this, loadBalancingStrategy));
-    }
-
-
-    @Override
-    public String toString() {
-        return this.getName();
-    }
-
-    @Override
-    public String getQuotedName() {
-        return "'" + this.getName() + "'";
-    }
-
 
     public MicroserviceInstance getNextAvailableInstance() throws NoInstanceAvailableException {
-        return loadBalancer.getNextInstance();
+        return loadBalancer.getNextInstance(instancesSet);
     }
 
 
@@ -286,5 +280,4 @@ public class Microservice extends NamedEntity {
     public double getAverageUtilization() {
         return getUtilizationOfInstances().stream().mapToDouble(value -> value).average().orElse(0);
     }
-
 }

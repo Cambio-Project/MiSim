@@ -1,7 +1,7 @@
 package cambio.simulator.entities.microservice;
 
+import cambio.simulator.entities.NamedExternalEvent;
 import co.paralleluniverse.fibers.SuspendExecution;
-import desmoj.core.simulator.ExternalEvent;
 import desmoj.core.simulator.Model;
 
 /**
@@ -9,7 +9,7 @@ import desmoj.core.simulator.Model;
  *
  * @author Lion Wagner
  */
-public class MicroserviceScaleEvent extends ExternalEvent {
+public class MicroserviceScaleEvent extends NamedExternalEvent {
 
     private final Microservice microservice;
     private final int targetInstanceCount;

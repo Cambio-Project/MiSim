@@ -1,59 +1,77 @@
 {
-  "simulation_meta_data": {
+  "simulation_metadata": {
     "experiment_name": "Example-ChaosMonkey-Test",
     "model_name": "Scenario ChaosMonkey",
-    "duration": 200,
-    "report": "",
-    "datapoints": 200,
-    "seed": 1337
+    "duration": 200
   },
   "request_generators": [
     {
-      "microservice": "gateway",
-      "operation": "gateway.PING",
-      "interval": 0
+      "type": "interval",
+      "config": {
+        "microservice": "gateway",
+        "operation": "INTERNAL_DEP"
+      }
     },
     {
-      "microservice": "gateway",
-      "operation": "INTERNAL_DEP",
-      "limbo_model": "./Examples/example_arrival_rates.csv",
-      "repeating": true,
-      "repetition_skip": 5
-
+      "type": "interval",
+      "config": {
+        "microservice": "gateway",
+        "operation": "INTERNAL_DEP"
+      }
     },
     {
-      "microservice": "gateway",
-      "operation": "gateway.DB_READ",
-      "interval": 0
+      "type": "interval",
+      "config": {
+        "microservice": "gateway",
+        "operation": "DB_WRITE"
+      }
     },
     {
-      "microservice": "gateway",
-      "operation": "UNAFFECTED_SERVICE",
-      "interval": 0
+      "type": "interval",
+      "config": {
+        "microservice": "gateway",
+        "operation": "DB_READ"
+      }
+    },
+    {
+      "type": "interval",
+      "config": {
+        "operation": "gateway.UNAFFECTED_SERVICE"
+      }
     }
   ],
-  "chaosmonkeys": [
+  "chaos_monkeys": [
     {
+      "type": "monkey",
+      "config": {
+        "microservice": "example-service",
+        "instances": 1,
+        "time": 30
+      }
+    },
+    {
+      "type": "monkey",
+      "config": {
+        "microservice": "example-service",
+        "instances": 1,
+        "time": 60
+      }
+    },
+    {
+      "type": "monkey",
+      "config": {
+        "microservice": "example-service",
+        "instances": 2,
+        "time": 120
+      }
+    }
+  ],
+  "named_summoner": {
+    "type": "summoner",
+    "config": {
       "microservice": "example-service",
-      "instances": 0,
-      "time": 30
-    },
-    {
-      "microservice": "example-service2",
       "instances": 2,
-      "time": 60
-    },
-    {
-      "microservice": "gateway",
-      "instances": 3,
-      "time": 210
+      "time": 150
     }
-  ],
-  "summonermonkeys": [
-    {
-      "microservice": "example-service2",
-      "instances": 2,
-      "time": 100
-    }
-  ]
+  }
 }

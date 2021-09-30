@@ -25,11 +25,11 @@ class MultiDataPointReporterTest {
     @Test
     @Disabled
     void sorts_dataset_correctly() {
-//        reporter.addDatapoint("Test", new TimeInstant(1), "World");
-//        reporter.addDatapoint("Test", new TimeInstant(0), "Hello");
-//        HashMap<Double, ?> dataset = reporter.getDataSets().get("Test");
-//        Assertions.assertEquals(dataset.pollFirstEntry().getKey(), 0.0, 0.0000001);
-//        Assertions.assertEquals(dataset.pollFirstEntry().getKey(), 1.0, 0.0000001);
+        //        reporter.addDatapoint("Test", new TimeInstant(1), "World");
+        //        reporter.addDatapoint("Test", new TimeInstant(0), "Hello");
+        //        HashMap<Double, ?> dataset = reporter.getDataSets().get("Test");
+        //        Assertions.assertEquals(dataset.pollFirstEntry().getKey(), 0.0, 0.0000001);
+        //        Assertions.assertEquals(dataset.pollFirstEntry().getKey(), 1.0, 0.0000001);
     }
 
     @Test

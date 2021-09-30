@@ -2,8 +2,8 @@ package cambio.simulator.entities.networking;
 
 import java.util.Collection;
 
+import cambio.simulator.entities.NamedExternalEvent;
 import co.paralleluniverse.fibers.SuspendExecution;
-import desmoj.core.simulator.ExternalEvent;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 
@@ -16,7 +16,7 @@ import desmoj.core.simulator.TimeInstant;
  * @see NetworkRequestReceiveEvent
  * @see NetworkRequestCanceledEvent
  */
-public abstract class NetworkRequestEvent extends ExternalEvent {
+public abstract class NetworkRequestEvent extends NamedExternalEvent {
 
     protected final Request travelingRequest;
     protected final IRequestUpdateListener updateListener;

@@ -3,9 +3,9 @@ package cambio.simulator.entities.microservice;
 import java.util.Arrays;
 
 import cambio.simulator.entities.NamedEntity;
-import cambio.simulator.entities.networking.Dependency;
+import cambio.simulator.entities.networking.DependencyDescription;
 import cambio.simulator.entities.networking.NetworkDependency;
-import cambio.simulator.parsing.DependencyParser;
+import com.google.gson.annotations.Expose;
 import desmoj.core.dist.NumericalDist;
 import desmoj.core.simulator.Model;
 
@@ -14,11 +14,14 @@ import desmoj.core.simulator.Model;
  * dependencies.
  */
 public class Operation extends NamedEntity {
-    private final int demand;
-    private final Microservice ownerMS;
-    private Dependency[] dependencies = new Dependency[0];
-    //POJOs that hold the (json) data of the dependencies, used for parsing
-    private DependencyParser[] dependenciesData = new DependencyParser[0];
+
+    private final transient Microservice ownerMS;
+
+    @Expose
+    private int demand;
+
+    @Expose
+    private DependencyDescription[] dependencies = new DependencyDescription[0];
 
     /**
      * Constructs a new endpoint for a microservice.
@@ -27,21 +30,13 @@ public class Operation extends NamedEntity {
      * @param demand  CPU demand of this operation.
      */
     public Operation(Model model, String name, boolean showInTrace, Microservice ownerMS, int demand) {
-        super(model, name, showInTrace);
+        super(model, (ownerMS == null ? "" : ownerMS.getPlainName() + ".") + name, showInTrace);
         this.demand = demand;
         this.ownerMS = ownerMS;
     }
 
-    public void setDependenciesData(DependencyParser[] dependenciesData) {
-        this.dependenciesData = dependenciesData;
-    }
-
-    public Dependency[] getDependencies() {
+    public DependencyDescription[] getDependencyDescriptions() {
         return dependencies;
-    }
-
-    public void setDependencies(Dependency[] operations) {
-        this.dependencies = operations;
     }
 
     public int getDemand() {
@@ -54,24 +49,24 @@ public class Operation extends NamedEntity {
 
     @Override
     public String getQuotedName() {
-        return "'" + getName() + "'";
+        return "'" + getPlainName() + "'";
     }
 
     @Override
     public String toString() {
-        return getName();
+        return getFullyQualifiedName();
     }
 
-    /**
-     * A call of this method is needed for proper usage.<br> Parses the set {@link DependencyParser}s into {@link
-     * Dependency} objects.
-     */
-    public void initializeDependencies() {
-        dependencies = new Dependency[dependenciesData.length];
-        for (int i = 0; i < dependenciesData.length; i++) {
-            dependenciesData[i].setOwningOperation(this);
-            dependencies[i] = this.dependenciesData[i].convertToObject(getModel());
-        }
+    public String getFullyQualifiedName() {
+        return ownerMS.getPlainName() + "." + getName();
+    }
+
+    public String getFullyQualifiedPlainName() {
+        return ownerMS.getPlainName() + "." + getPlainName();
+    }
+
+    public String getQuotedFullyQualifiedName() {
+        return "'" + getFullyQualifiedName() + "'";
     }
 
     /**
@@ -83,11 +78,11 @@ public class Operation extends NamedEntity {
      */
     public void applyExtraDelay(NumericalDist<Double> dist, Operation operationTrg) {
         if (operationTrg == null) {
-            for (Dependency dependency : dependencies) {
-                dependency.setExtraDelay(dist);
+            for (DependencyDescription dependencyDescription : dependencies) {
+                dependencyDescription.setExtraDelay(dist);
             }
         } else {
-            Dependency targetDependency =
+            DependencyDescription targetDependency =
                 Arrays.stream(dependencies).filter(dependency -> dependency.getTargetOperation() == operationTrg)
                     .findAny().orElse(null);
             if (targetDependency == null) {
@@ -107,4 +102,5 @@ public class Operation extends NamedEntity {
     public void applyExtraDelay(NumericalDist<Double> dist) {
         applyExtraDelay(dist, null);
     }
+
 }

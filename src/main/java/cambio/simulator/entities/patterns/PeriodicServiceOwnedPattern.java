@@ -1,83 +1,40 @@
 package cambio.simulator.entities.patterns;
 
-import cambio.simulator.entities.microservice.Microservice;
-import cambio.simulator.misc.Priority;
-import cambio.simulator.parsing.FromJson;
-import co.paralleluniverse.fibers.SuspendExecution;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 import desmoj.core.simulator.Model;
-import desmoj.core.simulator.SimProcess;
 import desmoj.core.simulator.TimeInstant;
-import desmoj.core.simulator.TimeSpan;
 
 /**
  * A service owned pattern that is automatically triggered periodically.
  *
  * @author Lion Wagner
  */
-public abstract class PeriodicServiceOwnedPattern extends ServiceOwnedPattern {
+public abstract class PeriodicServiceOwnedPattern extends ServiceOwnedPattern implements IPeriodicPattern {
 
-    @FromJson
-    @SuppressWarnings({"FieldMayBeFinal", "FieldCanBeLocal"})
+    @Expose
+    @SerializedName(value = "interval", alternate = {"period"})
     private double period = 1;
-    @FromJson
-    @SuppressWarnings({"FieldMayBeFinal", "FieldCanBeLocal"})
+    @Expose
     private double start = 0;
-    @FromJson
-    @SuppressWarnings({"FieldMayBeFinal", "FieldCanBeLocal"})
+    @Expose
     private double stop = Double.MAX_VALUE;
 
-    private TimeSpan periodSpan;
-    private PatternScheduler scheduler;
+    private transient PeriodicPatternScheduler scheduler;
 
-    public PeriodicServiceOwnedPattern(Model model, String name, boolean showInTrace, Microservice owner) {
-        super(model, name, showInTrace, owner);
+    public PeriodicServiceOwnedPattern(Model model, String name, boolean showInTrace) {
+        super(model, name, showInTrace);
     }
 
     @Override
-    protected void onFieldInitCompleted() {
-        periodSpan = new TimeSpan(period, getModel().getExperiment().getReferenceUnit());
-        scheduler = new PatternScheduler(getModel(), this);
+    public void onInitializedCompleted() {
+        scheduler = new PeriodicPatternScheduler(getModel(), this, start, stop, period);
         scheduler.activate(new TimeInstant(start));
     }
 
-    /**
-     * Manually triggers this patterns' routine.
-     */
-    public void trigger() {
-        onTriggered();
-    }
-
-    protected abstract void onTriggered();
-
     @Override
-    public void shutdown() {
-        try {
-            if (scheduler.isScheduled()) {
-                scheduler.cancel();
-            }
-            scheduler.passivate();
-        } catch (SuspendExecution suspendExecution) {
-            suspendExecution.printStackTrace();
-        }
+    public final PeriodicPatternScheduler getScheduler() {
+        return scheduler;
     }
 
-    private class PatternScheduler extends SimProcess {
-        private final PeriodicServiceOwnedPattern owner;
-
-        public PatternScheduler(Model model, PeriodicServiceOwnedPattern owner) {
-            super(model, null, true, false);
-            this.owner = owner;
-            setSchedulingPriority(Priority.HIGH);
-        }
-
-        @Override
-        public void lifeCycle() throws SuspendExecution {
-            owner.onTriggered();
-            if (presentTime().getTimeAsDouble(getModel().getExperiment().getReferenceUnit()) + start >= stop) {
-                passivate();
-                return;
-            }
-            this.hold(owner.periodSpan);
-        }
-    }
 }

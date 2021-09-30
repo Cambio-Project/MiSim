@@ -17,14 +17,14 @@ import java.util.Random;
 
 import cambio.simulator.resources.cpu.CPUProcess;
 import cambio.simulator.resources.cpu.scheduling.CPUProcessScheduler;
+import cambio.simulator.testutils.TestExperiment;
+import cambio.simulator.testutils.TestModel;
 import org.javatuples.Pair;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
-import testutils.TestExperiment;
-import testutils.TestModel;
 
 class CPUProcessSchedulerTest<T extends CPUProcessScheduler> {
 

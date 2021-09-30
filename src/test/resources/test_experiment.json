@@ -1,0 +1,65 @@
+{
+  "simulation_metadata": {
+    "version": 3.1,
+    "name": "New Experiment",
+    "description": "Contains examples for the new Experiment format",
+    "report_type": "continuous",
+    "report_location": "/Report_42/",
+    "duration": 180,
+    "seed": 42
+  },
+  "generators": [
+    {
+      "type": "limbo",
+      "config": {
+        "arrival_time": 0,
+        "model": "./Examples/Evaluation/Scenario1ArrivalRates.csv",
+        "repeating": true,
+        "repetition_skip": 10,
+        "target_operation": "gateway.PING"
+      }
+    },
+    {
+      "type": "interval",
+      "config": {
+        "arrival_time": 0,
+        "termination_time": 10,
+        "interval": 5,
+        "target_operation": "gateway.PING"
+      }
+    },
+    {
+      "type": "interval",
+      "config": {
+        "arrival_time": 0,
+        "duration": 20,
+        "interval": 3
+      }
+    }
+  ],
+  "monkey_number_one": {
+    "type": "chaos_monkey",
+    "config": {
+      "microservice": "gateway",
+      "instances": "4"
+    }
+  },
+  "delayers": [
+    {
+      "type": "delay",
+      "config": {
+        "microservice": "gateway",
+        "delay": "1337+42-13",
+        "start": 404
+      }
+    },
+    {
+      "type": "delay_injection",
+      "config": {
+        "microservice": "gateway",
+        "delay": 1337,
+        "start": 200
+      }
+    }
+  ]
+}

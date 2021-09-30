@@ -1,8 +1,8 @@
 package cambio.simulator.misc;
 
-import java.util.Random;
+import java.lang.reflect.Field;
 
-import cambio.simulator.models.ExperimentMetaData;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Class that holds static utility methods.
@@ -111,18 +111,39 @@ public class Util {
         return String.format("%dms", ms);
     }
 
+
     /**
-     * Creates a {@link Random} instance based on the experiment seed.
+     * Tries to inject a value into the field of an object via reflection. Checks declared fields of the objects class
+     * and all its superclasses.
      *
-     * @return a new Random object, based on the experiment seed.
+     * @param fieldName name of the field
+     * @param object    object that should be modified
+     * @param newValue  value that should be injected
      */
-    public static Random tryGetRandomFromExperimentSeed() {
-        Random prob;
+    public static void injectField(String fieldName, @NotNull Object object, Object newValue) {
         try {
-            prob = new Random(ExperimentMetaData.get().getSeed());
-        } catch (Exception e) {
-            prob = new Random();
+            Class<?> clazz = object.getClass();
+
+            Field field = null;
+
+            while (field == null && !(clazz == null)) {
+                try {
+                    field = clazz.getDeclaredField(fieldName);
+                } catch (NoSuchFieldException e) {
+                    clazz = clazz.getSuperclass();
+                }
+            }
+            if (field == null) {
+                assert object.getClass() != null;
+                throw new NoSuchFieldException(
+                    String.format("Could not find find field %s on type %s or its super-classes.", fieldName,
+                        object.getClass().getName()));
+            }
+
+            field.setAccessible(true);
+            field.set(object, newValue);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            e.printStackTrace();
         }
-        return prob;
     }
 }

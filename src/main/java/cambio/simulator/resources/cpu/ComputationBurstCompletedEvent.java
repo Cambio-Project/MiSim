@@ -1,8 +1,8 @@
 package cambio.simulator.resources.cpu;
 
+import cambio.simulator.entities.NamedExternalEvent;
 import cambio.simulator.entities.networking.Request;
 import co.paralleluniverse.fibers.SuspendExecution;
-import desmoj.core.simulator.ExternalEvent;
 import desmoj.core.simulator.Model;
 
 /**
@@ -17,7 +17,7 @@ import desmoj.core.simulator.Model;
  *
  * @author Lion Wagner
  */
-public class ComputationBurstCompletedEvent extends ExternalEvent {
+public class ComputationBurstCompletedEvent extends NamedExternalEvent {
     private final CPUProcess endingProcess;
     private final CPU owner;
     private final int completedDemand;

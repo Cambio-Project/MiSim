@@ -2,7 +2,10 @@ package cambio.simulator.events;
 
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.misc.Priority;
+import cambio.simulator.parsing.JsonTypeName;
 import co.paralleluniverse.fibers.SuspendExecution;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 import desmoj.core.simulator.Model;
 
 /**
@@ -11,9 +14,18 @@ import desmoj.core.simulator.Model;
  * its
  * <code>eventRoutine</code> method.
  */
-public class ChaosMonkeyEvent extends SelfScheduledEvent {
-    private final int instances;
-    private final Microservice microservice;
+@JsonTypeName(value = "chaosmonkey", alternativeNames = {"chaos_monkey", "monkey"})
+public class ChaosMonkeyEvent extends SelfScheduledExperimentAction {
+    @Expose
+    @SerializedName(value = "instances", alternate = {"instance_count", "killed_instance_count", "killed_instances"})
+    private int instances;
+
+    @Expose
+    private Microservice microservice;
+
+    public ChaosMonkeyEvent(Model model, String name, boolean showInTrace) {
+        super(model, name, showInTrace);
+    }
 
     /**
      * Instantiate a <code>ChaosMonkeyEvent</code>.

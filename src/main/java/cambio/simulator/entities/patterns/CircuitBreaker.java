@@ -16,7 +16,9 @@ import cambio.simulator.entities.networking.Request;
 import cambio.simulator.entities.networking.RequestFailedReason;
 import cambio.simulator.export.MultiDataPointReporter;
 import cambio.simulator.misc.Priority;
-import cambio.simulator.parsing.FromJson;
+import cambio.simulator.parsing.JsonTypeName;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 
@@ -36,31 +38,28 @@ import desmoj.core.simulator.TimeInstant;
  * @see Microservice
  * @see MicroserviceInstance
  */
-public final class CircuitBreaker extends NetworkPattern implements IRequestUpdateListener {
+@JsonTypeName("circuitbreaker")
+public final class CircuitBreaker extends InstanceOwnedPattern implements IRequestUpdateListener {
 
     private final Set<NetworkDependency> activeConnections = new HashSet<>();
     private final Map<Microservice, CircuitBreakerState> breakerStates = new HashMap<>();
     private final Map<Microservice, Integer> activeConnectionCount = new HashMap<>();
     private final MultiDataPointReporter reporter;
-    @FromJson
-    @SuppressWarnings("FieldMayBeFinal")
+
+    @Expose
     private int requestVolumeThreshold = Integer.MAX_VALUE;
-    @FromJson
-    @SuppressWarnings("FieldMayBeFinal")
+    @Expose
+    @SerializedName(value = "error_threshold_percentage", alternate = "threshold")
     private double errorThresholdPercentage = Double.POSITIVE_INFINITY;
-    @FromJson
-    @SuppressWarnings("FieldMayBeFinal")
+    @Expose
     private double sleepWindow = 0.500;
-    @FromJson
-    @SuppressWarnings("FieldMayBeFinal")
+    @Expose
     private int timeout = Integer.MAX_VALUE;
-    @FromJson
-    @SuppressWarnings("FieldMayBeFinal")
+    @Expose
     private int rollingWindow = 20; //window over which error rates are collected
 
-
-    public CircuitBreaker(Model model, String name, boolean showInTrace, MicroserviceInstance owner) {
-        super(model, name, showInTrace, owner);
+    public CircuitBreaker(Model model, String name, boolean showInTrace) {
+        super(model, name, showInTrace);
         reporter = new MultiDataPointReporter(String.format("CB[%s]_", name));
     }
 

@@ -1,10 +1,10 @@
 package cambio.simulator.events;
 
+import cambio.simulator.entities.NamedExternalEvent;
 import cambio.simulator.entities.microservice.Microservice;
-import cambio.simulator.models.ArchitectureModel;
+import cambio.simulator.models.MiSimModel;
 import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.ExternalEvent;
-import desmoj.core.simulator.Model;
 
 /**
  * A {@link FinishEvent} is an {@link ExternalEvent} that is called upon the end of the simulation.
@@ -12,15 +12,18 @@ import desmoj.core.simulator.Model;
  * <p>
  * Its used for cleanup and finalizing statistics.
  */
-public class FinishEvent extends ExternalEvent {
+public class FinishEvent extends NamedExternalEvent {
 
-    public FinishEvent(Model owner, String name, boolean showInTraceMode) {
-        super(owner, name, showInTraceMode);
+    private final MiSimModel model;
+
+    public FinishEvent(MiSimModel model, String name, boolean showInTrace) {
+        super(model, name, showInTrace);
+        this.model = model;
     }
 
     @Override
     public void eventRoutine() throws SuspendExecution {
-        ArchitectureModel.get().getMicroservices().forEach(Microservice::finalizeStatistics);
+        model.getArchitectureModel().getMicroservices().forEach(Microservice::finalizeStatistics);
 
     }
 }

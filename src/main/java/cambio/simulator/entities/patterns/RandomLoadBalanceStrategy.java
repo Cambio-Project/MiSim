@@ -1,28 +1,47 @@
 package cambio.simulator.entities.patterns;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import cambio.simulator.entities.microservice.MicroserviceInstance;
+import cambio.simulator.entities.microservice.NoInstanceAvailableException;
+import cambio.simulator.parsing.JsonTypeName;
 
-class RandomLoadBalanceStrategy implements LoadBalancingStrategy {
+@JsonTypeName("random")
+final class RandomLoadBalanceStrategy implements ILoadBalancingStrategy {
 
     //TODO: inject random seed
 
     /**
      * Returns a random Microservice Instance of given Collection.
+     *
+     * @throws NoInstanceAvailableException if the provided collection is empty or null
      */
     @Override
-    public MicroserviceInstance getNextInstance(Collection<MicroserviceInstance> runningInstances) {
-        if (runningInstances.size() < 1) {
-            return null;
+    public MicroserviceInstance getNextInstance(Collection<MicroserviceInstance> runningInstances)
+        throws NoInstanceAvailableException {
+
+        if (runningInstances == null || runningInstances.size() == 0) {
+            throw new NoInstanceAvailableException();
         }
 
-        int size = (int) (Math.random() * runningInstances.size());
+        int targetIndex = (int) (Math.random() * runningInstances.size());
+
+
+        //use (hopefully) optimized implementation of get
+        if (runningInstances instanceof List) {
+            return ((ArrayList<MicroserviceInstance>) runningInstances).get(targetIndex);
+        }
+
+        //otherwise, we iterate to the searched index
         for (MicroserviceInstance existingInstance : runningInstances) {
-            if (--size < 0) {
+            if (--targetIndex < 0) {
                 return existingInstance;
             }
         }
+
+        //this case can never be reached
         throw new AssertionError();
     }
 }

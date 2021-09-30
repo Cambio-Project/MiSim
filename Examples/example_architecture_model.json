@@ -1,4 +1,5 @@
 {
+  "network_latency": ".0020+.0010-.0005",
   "microservices": [
     {
       "name": "gateway",
@@ -83,7 +84,7 @@
     },
     {
       "name": "example-service",
-      "instances": 1,
+      "instances": 2,
       "patterns": [],
       "capacity": 15000,
       "operations": [

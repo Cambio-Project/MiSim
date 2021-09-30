@@ -4,17 +4,17 @@ import desmoj.core.simulator.Entity;
 import desmoj.core.simulator.Model;
 
 /**
- * Class that adds further options for the retrieving of names of entities.
- * Specifically it provides a plain name for each entity that does not contain the number assinged by DesmoJ.
- * However, these plain names are not guaranteed to be unique.
+ * Class that adds further options for the retrieving of names of {@link Entity}s. Specifically, it provides a plain
+ * name for each entity, that does not contain the number assigned by DESMO-J. However, these plain names are not
+ * guaranteed to be unique.
  *
  * <p>
- * Plain names should be used when it comes to generating new entity names based on other entity names to prevent
- * chains of unique identifiers.
+ * Plain names should be used when it comes to generating new entity names based on other entity names to prevent chains
+ * of unique identifiers.
  *
  * @author Lion Wagner
  */
-public class NamedEntity extends Entity {
+public abstract class NamedEntity extends Entity {
 
     private String plainName;
 

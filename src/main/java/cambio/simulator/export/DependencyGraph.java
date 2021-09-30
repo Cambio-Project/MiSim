@@ -6,9 +6,8 @@ import java.util.stream.Collectors;
 
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.entities.microservice.Operation;
-import cambio.simulator.entities.networking.Dependency;
-import cambio.simulator.models.ExperimentMetaData;
-import cambio.simulator.models.MainModel;
+import cambio.simulator.entities.networking.DependencyDescription;
+import cambio.simulator.models.MiSimModel;
 
 /**
  * The <code>DependencyGraph</code> class is used in order to create the graph that displays the dependencies between
@@ -18,7 +17,7 @@ public class DependencyGraph {
     private static final int hashMultiplier = 11;
 
 
-    private final MainModel model;
+    private final MiSimModel model;
     private final Collection<Microservice> microservices;
 
     /**
@@ -27,7 +26,7 @@ public class DependencyGraph {
      * @param model         MainModel: The model which owns this DependencyGraph
      * @param microservices all known services
      */
-    public DependencyGraph(MainModel model, Collection<Microservice> microservices) {
+    public DependencyGraph(MiSimModel model, Collection<Microservice> microservices) {
         this.model = model;
         this.microservices = microservices;
     }
@@ -41,7 +40,8 @@ public class DependencyGraph {
         String nodes = printNodes();
         String links = printLinks();
         String html =
-            "var graphMinimalistic = '" + ExperimentMetaData.get().getReportType() + "';\n" + "var graph = {nodes:[";
+            "var graphMinimalistic = '" + model.getExperimentMetaData().getReportType() + "';\n"
+                + "var graph = {nodes:[";
         if (nodes.length() > 2) {
             html += nodes.substring(0, nodes.length() - 1) + "], ";
         } else {
@@ -68,11 +68,11 @@ public class DependencyGraph {
             String labels = String
                 .join(",", Arrays.stream(ms.getOperations()).map(Operation::getQuotedName).collect(Collectors.toSet()));
             int instanceLimit =
-                !ExperimentMetaData.get().getReportType().equals("minimalistic") ? ms.getInstancesCount() :
+                !model.getExperimentMetaData().getReportType().equals("minimalistic") ? ms.getInstancesCount() :
                     Math.min(ms.getInstancesCount(), 10);
 
             for (int i = 0; i < instanceLimit; ++i) {
-                long instanceIdentifier = ms.hashCode() * hashMultiplier + i;
+                long instanceIdentifier = (long) ms.hashCode() * hashMultiplier + i;
                 json.append("{name:").append(ms.getQuotedName())
                     .append(",id:")
                     .append(instanceIdentifier)
@@ -97,13 +97,13 @@ public class DependencyGraph {
         for (Microservice ms : microservices) {
 
             int instanceLimit =
-                !ExperimentMetaData.get().getReportType().equals("minimalistic") ? ms.getInstancesCount() :
+                !model.getExperimentMetaData().getReportType().equals("minimalistic") ? ms.getInstancesCount() :
                     Math.min(ms.getInstancesCount(), 10);
 
             StringBuilder labels = new StringBuilder();
             for (Operation op : ms.getOperations()) {
                 labels.append("'").append(op.getName()).append("',");
-                for (Dependency depService : op.getDependencies()) {
+                for (DependencyDescription depService : op.getDependencyDescriptions()) {
                     long depId = depService.getTargetMicroservice().getIdentNumber();
                     json.append("{source:").append(ms.getIdentNumber())
                         .append(",target:").append(depId)

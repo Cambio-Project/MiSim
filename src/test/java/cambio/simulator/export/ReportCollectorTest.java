@@ -13,15 +13,6 @@ import org.junit.jupiter.api.Test;
 
 class ReportCollectorTest {
 
-    private static class TestReporter extends MultiDataPointReporter {
-        public TestReporter(int id) {
-            super();
-            addDatapoint("dataset" + id, new TimeInstant(0), 42);
-            addDatapoint("dataset" + id, new TimeInstant(1), 81);
-        }
-    }
-
-
     @BeforeEach
     void setUp() {
         ReportCollector.getInstance().elements().forEach(reporter ->
@@ -58,5 +49,13 @@ class ReportCollectorTest {
         HashMap<String, TreeMap<Double, Object>> out = ReportCollector.getInstance().collectData();
         Map<Double, Object> dataset2 = out.get("dataset2");
         assertEquals(3, dataset2.size());
+    }
+
+    private static class TestReporter extends MultiDataPointReporter {
+        public TestReporter(int id) {
+            super();
+            addDatapoint("dataset" + id, new TimeInstant(0), 42);
+            addDatapoint("dataset" + id, new TimeInstant(1), 81);
+        }
     }
 }

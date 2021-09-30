@@ -4,11 +4,13 @@ import java.util.Collection;
 import java.util.Comparator;
 
 import cambio.simulator.entities.microservice.MicroserviceInstance;
+import cambio.simulator.parsing.JsonTypeName;
 
 /**
  * Strategy that chooses the least utilized Microservice Instance by current relative Queue demand.
  */
-class UtilizationBalanceStrategy implements LoadBalancingStrategy {
+@JsonTypeName("util")
+class UtilizationBalanceStrategy implements ILoadBalancingStrategy {
 
     /**
      * Returns a the instance of the list, which currently has the lowest demand left.

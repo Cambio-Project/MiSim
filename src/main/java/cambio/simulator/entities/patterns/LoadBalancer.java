@@ -12,31 +12,39 @@ import desmoj.core.simulator.Entity;
 import desmoj.core.simulator.Model;
 
 /**
- * Wrapper Class for {@link LoadBalancingStrategy} to encapsulate common behavior around it. E.g. capture last chosen
+ * Wrapper Class for {@link ILoadBalancingStrategy} to encapsulate common behavior around it. E.g. capture last chosen
  * MicroserviceInstance or distribution of messages
  *
  * @author Lion Wagner
  */
 public final class LoadBalancer extends Entity {
-    private final Collection<MicroserviceInstance> instances;
     private final Map<MicroserviceInstance, Integer> distribution = new HashMap<>();
-    private LoadBalancingStrategy loadBalancingStrategy;
+    private final ILoadBalancingStrategy loadBalancingStrategy;
     private MicroserviceInstance lastChosenInstance = null;
 
-    public LoadBalancer(Model model, String name, boolean showInTrace, Collection<MicroserviceInstance> instances) {
+    /**
+     * Creates a new instance of a loadbalancer that will use the given strategy.
+     */
+    public LoadBalancer(Model model, String name, boolean showInTrace, ILoadBalancingStrategy loadBalancingStrategy) {
         super(model, name, showInTrace);
-        this.instances = instances;
+        if (loadBalancingStrategy != null) {
+            this.loadBalancingStrategy = loadBalancingStrategy;
+        } else {
+            System.out.println("[Warning] No load balancing strategy given, defaulting to randomized load balancing.");
+            this.loadBalancingStrategy = new RandomLoadBalanceStrategy();
+        }
     }
 
     /**
-     * Retrieves the next candidate for receiving a request, consulting its {@link LoadBalancingStrategy}.
+     * Retrieves the next candidate for receiving a request, consulting its {@link ILoadBalancingStrategy}.
      *
      * @return a potentially reachable {@link MicroserviceInstance}
      * @throws NoInstanceAvailableException if no {@link MicroserviceInstance} is available to send requests to.
      */
-    public MicroserviceInstance getNextInstance() throws NoInstanceAvailableException {
+    public MicroserviceInstance getNextInstance(Collection<MicroserviceInstance> instances)
+        throws NoInstanceAvailableException {
         //filter for all running Instances
-        Collection<MicroserviceInstance> runningInstances = this.instances
+        Collection<MicroserviceInstance> runningInstances = instances
             .stream()
             .filter(microserviceInstance -> microserviceInstance.getState() == InstanceState.RUNNING)
             .collect(Collectors.toList());
@@ -51,13 +59,11 @@ public final class LoadBalancer extends Entity {
         return next;
     }
 
-
-    public void setLoadBalancingStrategy(LoadBalancingStrategy loadBalancingStrategy) {
-        this.loadBalancingStrategy = loadBalancingStrategy;
-    }
-
     public MicroserviceInstance getLastChosenInstance() {
         return lastChosenInstance;
     }
 
+    public ILoadBalancingStrategy getLoadBalancingStrategy() {
+        return loadBalancingStrategy;
+    }
 }

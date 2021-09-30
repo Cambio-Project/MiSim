@@ -21,10 +21,9 @@ import cambio.simulator.entities.networking.RequestFailedReason;
 import cambio.simulator.entities.networking.RequestSender;
 import cambio.simulator.entities.patterns.CircuitBreaker;
 import cambio.simulator.entities.patterns.InstanceOwnedPattern;
-import cambio.simulator.entities.patterns.NetworkPattern;
-import cambio.simulator.entities.patterns.RetryManager;
+import cambio.simulator.entities.patterns.InstanceOwnedPatternConfiguration;
+import cambio.simulator.entities.patterns.Retry;
 import cambio.simulator.export.MultiDataPointReporter;
-import cambio.simulator.parsing.PatternData;
 import cambio.simulator.resources.cpu.CPU;
 import cambio.simulator.resources.cpu.CPUProcess;
 import cambio.simulator.resources.cpu.scheduling.FIFOScheduler;
@@ -89,14 +88,16 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
         this.addUpdateListener(this);
     }
 
-    void activatePatterns(PatternData[] patterns) {
+    void activatePatterns(InstanceOwnedPatternConfiguration[] patterns) {
         this.patterns = Arrays.stream(patterns)
-            .map(patternData -> patternData.tryGetInstanceOwnedPatternOrNull(this))
+            .map(patternData -> patternData.getPatternInstance(this))
             .filter(Objects::nonNull)
             .collect(Collectors.toSet());
         this.patterns.stream()
-            .filter(pattern -> pattern instanceof NetworkPattern)
-            .forEach(pattern -> addUpdateListener((NetworkPattern) pattern));
+            .filter(pattern -> pattern instanceof IRequestUpdateListener)
+            .map(pattern -> (IRequestUpdateListener) pattern)
+            .forEach(this::addUpdateListener);
+        this.patterns.forEach(InstanceOwnedPattern::start);
     }
 
     /**
@@ -296,6 +297,7 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
                 this.getQuotedName(), state.name()));
         }
         changeState(InstanceState.SHUTDOWN);
+        patterns.forEach(InstanceOwnedPattern::shutdown);
     }
 
     /**
@@ -370,7 +372,7 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
         }
 
 
-        if (patterns.stream().anyMatch(pattern -> pattern instanceof RetryManager)) {
+        if (patterns.stream().anyMatch(pattern -> pattern instanceof Retry)) {
             if (reason != RequestFailedReason.MAX_RETRIES_REACHED) {
                 return false;
             }

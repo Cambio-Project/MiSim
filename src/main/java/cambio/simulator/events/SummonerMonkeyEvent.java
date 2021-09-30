@@ -2,7 +2,9 @@ package cambio.simulator.events;
 
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.misc.Priority;
+import cambio.simulator.parsing.JsonTypeName;
 import co.paralleluniverse.fibers.SuspendExecution;
+import com.google.gson.annotations.Expose;
 import desmoj.core.simulator.Model;
 
 /**
@@ -10,9 +12,16 @@ import desmoj.core.simulator.Model;
  * starts a specified number of {@code MicroserviceInstance}s of a specified {@code Microservice} in its {@code
  * eventRoutine} method.
  */
-public class SummonerMonkeyEvent extends SelfScheduledEvent {
-    private final int instances;
-    private final Microservice microservice;
+@JsonTypeName(value = "summoner", alternativeNames = {"summoner_monkey"})
+public class SummonerMonkeyEvent extends SelfScheduledExperimentAction {
+    @Expose
+    private int instances;
+    @Expose
+    private Microservice microservice;
+
+    public SummonerMonkeyEvent(Model model, String name, boolean showInTrace) {
+        super(model, name, showInTrace);
+    }
 
     /**
      * Instantiate a {@code SummonerMonkeyEvent}.
