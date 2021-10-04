@@ -64,6 +64,12 @@ public final class CLI {
             .hasArg(false)
             .build();
 
+    public static final Option debugOutput =
+        Option.builder("d")
+            .desc("Turns on debug output of the simulator.")
+            .hasArg(false)
+            .build();
+
 
     static {
 
