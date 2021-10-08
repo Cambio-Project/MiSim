@@ -38,7 +38,7 @@ import java.util.stream.Collector;
  * <p>
  * Use this class to ease the initiation of Collector objects.
  */
-public class CollectorImpl<T, A, R> implements Collector<T, A, R> {
+public final class CollectorImpl<T, A, R> implements Collector<T, A, R> {
     private final Supplier<A> supplier;
     private final BiConsumer<A, T> accumulator;
     private final BinaryOperator<A> combiner;

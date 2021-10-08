@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
  *
  * @author Lion Wagner
  */
-public class Util {
+public final class Util {
 
     /**
      * Checks whether a number is greater than 0.

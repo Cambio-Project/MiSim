@@ -73,16 +73,8 @@ public class ExperimentMetaData {
         return expFileLocation;
     }
 
-    private void setExpFileLocation(File expFileLocation) {
-        this.expFileLocation = expFileLocation;
-    }
-
     public File getArchFileLocation() {
         return archFileLocation;
-    }
-
-    private void setArchFileLocation(File archFileLocation) {
-        this.archFileLocation = archFileLocation;
     }
 
     public void setDurationOfMetaDataLoading(long durationOfMetaDataLoading) {
@@ -103,10 +95,6 @@ public class ExperimentMetaData {
 
     public String getDescription() {
         return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     public long getDurationOfSetupMS() {
