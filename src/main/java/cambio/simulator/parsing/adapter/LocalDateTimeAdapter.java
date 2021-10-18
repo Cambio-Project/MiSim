@@ -22,6 +22,8 @@ public class LocalDateTimeAdapter extends TypeAdapter<LocalDateTime> {
         if (value != null) {
             long epochSec = value.toEpochSecond(ZoneOffset.UTC) * 1000;
             out.value(epochSec);
+        } else {
+            out.nullValue();
         }
     }
 
