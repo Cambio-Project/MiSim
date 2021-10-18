@@ -70,6 +70,14 @@ public final class CLI {
             .hasArg(false)
             .build();
 
+    public static final Option reportLocation =
+        Option.builder("o")
+            .longOpt("--out")
+            .desc("Report Location Directory. Creates a new directory with experiment name and start timestamp for "
+                + "each experiment.")
+            .hasArg()
+            .build();
+
 
     static {
 
