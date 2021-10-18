@@ -42,7 +42,7 @@ public final class ExportUtils {
         File reportLocation = Paths.get(reportLocationBaseDirectory.getAbsolutePath(),
             metaData.getExperimentName() + "_" + dateString).toFile();
 
-        Gson gson = GsonHelper.getGson();
+        Gson gson = GsonHelper.getGsonBuilder().serializeNulls().create();
 
         try {
             boolean ignored = reportLocation.mkdirs();
