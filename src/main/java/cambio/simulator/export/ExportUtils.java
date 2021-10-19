@@ -25,30 +25,29 @@ import com.google.gson.Gson;
  */
 public final class ExportUtils {
 
-
     public static Path prepareReportFolder(MiSimModel model) {
         return prepareReportFolder(model.getExperimentMetaData());
     }
 
     public static Path prepareReportFolder(ExperimentMetaData metaData) {
-        Path reportLocationBaseDirectory;
+        final Path reportLocationBaseDirectory;
         if (CLI.reportLocation.getValue() != null) {
             reportLocationBaseDirectory = Paths.get(CLI.reportLocation.getValue());
         } else {
             reportLocationBaseDirectory = metaData.getReportBaseFolder();
         }
 
-        DateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ssZ");
-        String dateString = format.format(new Date());
-        Path reportLocation = Paths.get(reportLocationBaseDirectory.toString(),
+        final DateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ssZ");
+        final String dateString = format.format(new Date());
+        final Path reportLocation = Paths.get(reportLocationBaseDirectory.toString(),
             metaData.getExperimentName() + "_" + dateString);
 
-        Gson gson = GsonHelper.getGsonBuilder().serializeNulls().create();
-
         try {
-            Files.createDirectory(reportLocation);
+            Files.createDirectories(reportLocation);
+
             //copy metadata, architecture and experiment
-            String json = gson.toJson(metaData);
+            final Gson gson = GsonHelper.getGsonBuilder().serializeNulls().create();
+            final String json = gson.toJson(metaData);
 
             Files.write(Paths.get(reportLocation.toString(), "meta.json"),
                 json.getBytes(StandardCharsets.UTF_8),
