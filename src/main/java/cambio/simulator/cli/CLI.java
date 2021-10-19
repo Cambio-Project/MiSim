@@ -111,6 +111,7 @@ public final class CLI {
                 "Please report any issues at "
                     + "https://github.com/Cambio-Project/resilience-simulator",
                 true);
+            throw e;
         }
         return cl;
     }
