@@ -1,5 +1,6 @@
 package cambio.simulator.misc;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -39,8 +40,8 @@ public final class JarUtil {
      *
      * @throws IOException if the target directory cannot be read properly.
      */
-    public static void copyFolderFromJar(String folderName, File destFolder) throws IOException {
-        copyFolderFromJar(folderName, destFolder, null, null);
+    public static void copyFolderFromJar(String jarFolderName, File destinationFolder) throws IOException {
+        copyFolderFromJar(jarFolderName, destinationFolder, null, null);
     }
 
 
@@ -49,8 +50,8 @@ public final class JarUtil {
      *
      * @throws IOException if the target directory cannot be read properly.
      */
-    public static void copyFolderFromJar(String folderName, File destFolder, CopyOption option) throws IOException {
-        copyFolderFromJar(folderName, destFolder, option, null);
+    public static void copyFolderFromJar(String jarFolderName, File destinationFolder, CopyOption option) throws IOException {
+        copyFolderFromJar(jarFolderName, destinationFolder, option, null);
     }
 
 
@@ -97,44 +98,29 @@ public final class JarUtil {
 
         byte[] buffer = new byte[1024];
 
-        ZipInputStream zis = new ZipInputStream(new FileInputStream(fullPath));
+        ZipInputStream zis = new ZipInputStream(new BufferedInputStream(new FileInputStream(fullPath)));
 
         ZipEntry entry;
         while ((entry = zis.getNextEntry()) != null) {
             if (!entry.getName().startsWith(folderName + JAR_SEPARATOR)) {
                 continue;
             }
+            if (entry.isDirectory()) {
+                continue;
+            }
 
-            String fileName = entry.getName();
+            String fileName = entry.getName().replace(folderName + JAR_SEPARATOR, "");
+            Path targetFile = Paths.get(destFolder.getAbsolutePath(), fileName);
+            Files.createDirectories(targetFile.getParent());
+            Files.createFile(targetFile);
 
-            if (fileName.charAt(fileName.length() - 1) == JAR_SEPARATOR) {
-                File file = new File(destFolder + File.separator + fileName);
-                if (file.isFile()) {
-                    file.delete();
+
+            try (FileOutputStream fos = new FileOutputStream(targetFile.toFile())) {
+                int len;
+                while ((len = zis.read(buffer)) > 0) {
+                    fos.write(buffer, 0, len);
                 }
-                file.mkdirs();
-                continue;
             }
-
-            File file = new File(destFolder + File.separator + fileName);
-            if (option == null && file.exists()) {
-                continue;
-            }
-
-            if (!file.getParentFile().exists()) {
-                file.getParentFile().mkdirs();
-            }
-
-            if (!file.exists()) {
-                file.createNewFile();
-            }
-            FileOutputStream fos = new FileOutputStream(file);
-
-            int len;
-            while ((len = zis.read(buffer)) > 0) {
-                fos.write(buffer, 0, len);
-            }
-            fos.close();
         }
 
         zis.closeEntry();
@@ -146,8 +132,14 @@ public final class JarUtil {
         Files.walkFileTree(Paths.get(fullPath.getPath(), folderName), new SimpleFileVisitor<Path>() {
             @Override
             public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
+                String abs1 = path.toAbsolutePath().toString();
+                String abs2 = Paths.get(fullPath.getAbsolutePath(), folderName).toString();
+                Path subdirAndFile = Paths.get(abs1.replace(abs2, ""));
+                //                String targetSubfolder = path.toAbsolutePath().toString().replaceFirst(fullPath.getAbsolutePath(), "");
+                Path targetPath = Paths.get(destFolder.getPath(), subdirAndFile.toString());
                 if (path.toFile().isFile()) {
-                    Files.copy(path, Paths.get(destFolder.getPath(), path.toFile().getName()), option);
+                    Files.createDirectories(targetPath.getParent());
+                    Files.copy(path, targetPath, option);
                 }
                 return FileVisitResult.CONTINUE;
             }
