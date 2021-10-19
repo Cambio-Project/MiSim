@@ -116,7 +116,7 @@
 
 
     <build>
-        <finalName>misim</finalName>
+        <finalName>${project.artifactId}</finalName>
 
         <!--execute checkstyle:check on validate-->
         <plugins>
