@@ -28,7 +28,7 @@ public final class CLI {
     /**
      * Current parsed command line arguments.
      */
-    private static CommandLine cli;
+    private static CommandLine cl;
 
 
     public static final Option archModelOpt =
@@ -118,7 +118,7 @@ public final class CLI {
         final HelpFormatter helpFormatter = new HelpFormatter();
 
         try {
-            cli = cliParser.parse(options, args, true);
+            cl = cliParser.parse(options, args, true);
         } catch (ParseException e) {
             System.out.println(e.getMessage());
             helpFormatter.printHelp("misim",
@@ -130,7 +130,7 @@ public final class CLI {
             throw e;
         }
 
-        return cli;
+        return cl;
     }
 
     /**
@@ -139,6 +139,6 @@ public final class CLI {
      * @return the parsed command line arguments or {@code null} if they are not parsed yet.
      */
     public static CommandLine getCommandLine() {
-        return cli;
+        return cl;
     }
 }
