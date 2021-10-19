@@ -3,6 +3,7 @@ package cambio.simulator.misc;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
@@ -13,35 +14,59 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 /**
- * Modified version of the JarUtil class of
- * <a href="https://github.com/TriggerReactor/TriggerReactor/">TriggerReactor</a>.
+ * Utility class for checking file existence.
  *
- * <p>
- * This modified version does support the loading of resourced from the /target/sources directory during tests or
- * debugging.
- *
- * <p>
- * This class is partially licenced under the GNU General Public License.
- *
- * @author <a href="https://github.com/wysohn">wysohn</a>
+ * @author Lion Wagner
  */
-
-public final class JarUtil {
+public final class FileUtilities {
     public static final char JAR_SEPARATOR = '/';
 
+    /**
+     * Tries to create a new {@link File} reference to the given path.
+     *
+     * @param filepath path to the file.
+     * @return the given path as existing {@link File}.
+     * @throws FileNotFoundException if the given path does not exist.
+     * @throws FileNotFoundException if the given path is a directory.
+     */
+    public static File tryLoadExistingFile(String filepath) throws FileNotFoundException {
+        if (filepath == null) {
+            throw new FileNotFoundException(null);
+        }
+        File f = new File(filepath);
+        if (!f.exists()) {
+            throw new FileNotFoundException(f.getAbsolutePath());
+        }
+        if (!f.isFile()) {
+            throw new FileNotFoundException(f.getAbsolutePath());
+        }
+        return f;
+    }
+
+    /**
+     * Tries to create a new {@link File} reference to the given path.
+     *
+     * @param filepath path to the file.
+     * @return the given path as existing {@link File}.
+     * @throws FileNotFoundException if the given path does not exist or is a directory.
+     */
+    public static File tryLoadExistingFile(Path filepath) throws FileNotFoundException {
+        return tryLoadExistingFile(filepath.toString());
+    }
 
     /**
      * Copies a resource directory form the jar to  the given destination.
      *
      * @throws IOException if the target directory cannot be read properly.
      */
-    public static void copyFolderFromJar(String jarFolderName, File destinationFolder) throws IOException {
-        copyFolderFromJar(jarFolderName, destinationFolder, null, null);
+    public static void copyFolderFromResources(String jarFolderName, File destinationFolder) throws IOException {
+        copyFolderFromResources(jarFolderName, destinationFolder, null);
     }
 
 
@@ -50,27 +75,15 @@ public final class JarUtil {
      *
      * @throws IOException if the target directory cannot be read properly.
      */
-    public static void copyFolderFromJar(String jarFolderName, File destinationFolder, CopyOption option) throws IOException {
-        copyFolderFromJar(jarFolderName, destinationFolder, option, null);
-    }
-
-
-    /**
-     * Copies a resource directory form the jar to  the given destination.
-     *
-     * @throws IOException if the target directory cannot be read properly.
-     */
-    public static void copyFolderFromJar(String folderName, File destFolder, CopyOption option, PathTrimmer trimmer)
+    public static void copyFolderFromResources(String folderName, File destFolder, CopyOption option)
         throws IOException {
         if (!destFolder.exists()) {
             boolean ignored = destFolder.mkdirs();
         }
 
         File fullPath = null;
-        String path = JarUtil.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-        if (trimmer != null) {
-            path = trimmer.trim(path);
-        }
+        String path = FileUtilities.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+
         try {
             if (!path.startsWith("file")) {
                 path = "file://" + path;
@@ -80,6 +93,7 @@ public final class JarUtil {
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
+
         try {
             copyFromJar(folderName, destFolder, option, fullPath);
         } catch (IOException e) {
@@ -112,6 +126,9 @@ public final class JarUtil {
             String fileName = entry.getName().replace(folderName + JAR_SEPARATOR, "");
             Path targetFile = Paths.get(destFolder.getAbsolutePath(), fileName);
             Files.createDirectories(targetFile.getParent());
+            if (Files.exists(targetFile) && option == StandardCopyOption.REPLACE_EXISTING) {
+                Files.delete(targetFile);
+            }
             Files.createFile(targetFile);
 
 
@@ -144,10 +161,5 @@ public final class JarUtil {
                 return FileVisitResult.CONTINUE;
             }
         });
-    }
-
-    @FunctionalInterface
-    public interface PathTrimmer {
-        String trim(String original);
     }
 }

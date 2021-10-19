@@ -12,7 +12,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import cambio.simulator.cli.CLI;
-import cambio.simulator.misc.JarUtil;
+import cambio.simulator.misc.FileUtilities;
 import cambio.simulator.models.ExperimentMetaData;
 import cambio.simulator.models.MiSimModel;
 import cambio.simulator.parsing.GsonHelper;
@@ -56,7 +56,7 @@ public final class ExportUtils {
                 Paths.get(reportLocation.toString(), "architecture.json"));
             Files.copy(metaData.getExperimentDescriptionLocation().toPath(),
                 Paths.get(reportLocation.toString(), "experiment.json"));
-            JarUtil.copyFolderFromJar("Report", reportLocation.toFile(), StandardCopyOption.REPLACE_EXISTING);
+            FileUtilities.copyFolderFromResources("Report", reportLocation.toFile(), StandardCopyOption.REPLACE_EXISTING);
 
         } catch (SecurityException e) {
             System.out.printf("[Error] No access to report location %s possible%n", reportLocationBaseDirectory);
