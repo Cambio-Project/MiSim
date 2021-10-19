@@ -25,5 +25,10 @@ public class FinishEvent extends NamedExternalEvent {
     public void eventRoutine() throws SuspendExecution {
         model.getArchitectureModel().getMicroservices().forEach(Microservice::finalizeStatistics);
 
+        triggerReport();
+    }
+
+    private void triggerReport(){
+
     }
 }
