@@ -23,7 +23,7 @@ public class DependencyGraph {
     /**
      * Instantiates a <code>DependencyGraph</code>.
      *
-     * @param model         MainModel: The model which owns this DependencyGraph
+     * @param model         The model which owns this DependencyGraph
      * @param microservices all known services
      */
     public DependencyGraph(MiSimModel model, Collection<Microservice> microservices) {

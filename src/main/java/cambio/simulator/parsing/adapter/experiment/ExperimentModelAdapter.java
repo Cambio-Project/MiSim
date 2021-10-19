@@ -49,8 +49,8 @@ import org.jetbrains.annotations.NotNull;
  *             ...
  *         }
  * </pre>
- * Actions can also be named by providing the {@code action_name} property. Also, actions can also be nested in
- * an array for grouping.
+ * Actions can also be named by providing the {@code action_name} property. Also, actions can also be nested in an array
+ * for grouping.
  *
  * <p>
  * This would look like the following:

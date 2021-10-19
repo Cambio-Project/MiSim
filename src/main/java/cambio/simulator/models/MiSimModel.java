@@ -4,8 +4,8 @@ import java.io.File;
 import java.time.LocalDateTime;
 
 import cambio.simulator.entities.microservice.Microservice;
-import cambio.simulator.events.SimulationEndEvent;
 import cambio.simulator.events.ISelfScheduled;
+import cambio.simulator.events.SimulationEndEvent;
 import cambio.simulator.export.MultiDataPointReporter;
 import cambio.simulator.parsing.ModelLoader;
 import desmoj.core.simulator.Model;

@@ -56,7 +56,8 @@ public final class ExportUtils {
                 Paths.get(reportLocation.toString(), "architecture.json"));
             Files.copy(metaData.getExperimentDescriptionLocation().toPath(),
                 Paths.get(reportLocation.toString(), "experiment.json"));
-            FileUtilities.copyFolderFromResources("Report", reportLocation.toFile(), StandardCopyOption.REPLACE_EXISTING);
+            FileUtilities.copyFolderFromResources("Report", reportLocation.toFile(),
+                StandardCopyOption.REPLACE_EXISTING);
 
         } catch (SecurityException e) {
             System.out.printf("[Error] No access to report location %s possible%n", reportLocationBaseDirectory);

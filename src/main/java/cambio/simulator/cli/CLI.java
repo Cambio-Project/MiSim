@@ -19,17 +19,6 @@ import org.apache.commons.cli.ParseException;
  */
 public final class CLI {
 
-    /**
-     * Variable to collect all available program argument {@link Option}s.
-     */
-    private static final Options options = new Options();
-
-    /**
-     * Current parsed command line arguments.
-     */
-    private static CommandLine cl;
-
-
     public static final Option archModelOpt =
         Option.builder("a")
             .longOpt("arch_desc")
@@ -37,24 +26,18 @@ public final class CLI {
             .hasArg()
             .required()
             .build();
-
-
     public static final Option expModelOpt =
         Option.builder("e")
             .longOpt("exp_desc")
             .desc("file path to an experiment description")
             .hasArg()
             .build();
-
-
     public static final Option scenarioOpt =
         Option.builder("s")
             .longOpt("scenario_desc")
             .desc("file path to a scenario description")
             .hasArg()
             .build();
-
-
     public static final Option showProgressBar =
         Option.builder("p")
             .longOpt("progress_bar")
@@ -62,13 +45,11 @@ public final class CLI {
                 + "headless mode anymore.")
             .hasArg(false)
             .build();
-
     public static final Option debugOutput =
         Option.builder("d")
             .desc("Turns on debug output of the simulator.")
             .hasArg(false)
             .build();
-
     public static final Option reportLocation =
         Option.builder("o")
             .longOpt("--out")
@@ -76,7 +57,14 @@ public final class CLI {
                 + "each experiment.")
             .hasArg()
             .build();
-
+    /**
+     * Variable to collect all available program argument {@link Option}s.
+     */
+    private static final Options options = new Options();
+    /**
+     * Current parsed command line arguments.
+     */
+    private static CommandLine cl;
 
     static {
 
