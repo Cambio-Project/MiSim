@@ -2,12 +2,11 @@ package cambio.simulator.parsing;
 
 
 import java.io.File;
-import java.nio.file.Path;
 import java.time.LocalDateTime;
 
 import cambio.simulator.parsing.adapter.FileAdapter;
 import cambio.simulator.parsing.adapter.LocalDateTimeAdapter;
-import cambio.simulator.parsing.adapter.PathAdapter;
+import cambio.simulator.parsing.adapter.PathAdapterFactory;
 import cambio.simulator.parsing.adapter.TimeInstantAdapter;
 import cambio.simulator.parsing.adapter.TimeSpanAdapter;
 import com.google.gson.FieldNamingPolicy;
@@ -46,9 +45,9 @@ public final class GsonHelper {
         return new GsonBuilder()
             .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
             .registerTypeAdapter(File.class, new FileAdapter())
-            .registerTypeAdapter(Path.class, new PathAdapter())
             .registerTypeAdapter(TimeSpan.class, new TimeSpanAdapter())
             .registerTypeAdapter(TimeInstant.class, new TimeInstantAdapter())
-            .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter());
+            .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
+            .registerTypeAdapterFactory(new PathAdapterFactory());
     }
 }
