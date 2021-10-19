@@ -46,7 +46,7 @@ public class MiSimModel extends Model {
         long startTime = System.currentTimeMillis();
         this.experimentMetaData =
             ModelLoader.loadExperimentMetaData(experimentModelOrScenarioLocation, architectureModelLocation);
-        experimentMetaData.setDurationOfMetaDataLoading(System.currentTimeMillis() - startTime);
+        this.experimentMetaData.markStartOfSetup(startTime);
     }
 
 
@@ -58,15 +58,14 @@ public class MiSimModel extends Model {
 
     @Override
     public void init() {
-        this.experimentMetaData.markStartOfSetup(System.currentTimeMillis());
         this.architectureModel = ModelLoader.loadArchitectureModel(this);
         this.experimentModel = ModelLoader.loadExperimentModel(this);
         this.experimentMetaData.setStartDate(LocalDateTime.now());
-        this.experimentMetaData.markEndOfSetup(System.currentTimeMillis());
     }
 
     @Override
     public void doInitialSchedules() {
+        this.experimentMetaData.markStartOfExperiment(System.currentTimeMillis());
         architectureModel.getMicroservices().forEach(Microservice::start);
 
         for (ISelfScheduled selfScheduledEvent : experimentModel.getAllSelfSchedulesEntities()) {

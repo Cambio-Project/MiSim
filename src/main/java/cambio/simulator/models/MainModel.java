@@ -141,47 +141,47 @@ public class MainModel {
             exp.debugOn(new TimeInstant(0, metaData.getTimeUnit()));
         }
 
-
-        final long experimentStartTime = System.nanoTime();
+        metaData.markStartOfExperiment(System.currentTimeMillis());
 
         //run experiment
         exp.start();
 
-        final long experimentTime = System.nanoTime() - experimentStartTime;
-        final long reportStartTime = System.nanoTime();
 
         //exp.report();
         exp.finish();
 
+        metaData.markStartOfReport(System.currentTimeMillis());
         //create report if wanted
         if (!metaData.getReportType().equals("none")) {
             generateReport(model);
         }
 
-        final long reportTime = System.nanoTime() - reportStartTime;
-        final long executionTime = reportTime + metaData.getDurationOfSetupMS() * 1000;
 
         System.out.println("\n*** Simulator ***");
         System.out.println("Simulation of Architecture: " + archModel);
         System.out.println("Executed Experiment:        " + metaData.getExperimentName());
-        System.out.println("Setup took:                 " + Util.timeFormat(metaData.getDurationOfSetupMS() * 1000));
-        System.out.println("Experiment took:            " + Util.timeFormat(experimentTime));
-        System.out.println("Report took:                " + Util.timeFormat(reportTime));
-        System.out.println("Execution took:             " + Util.timeFormat(executionTime));
+        System.out.println("Setup took:                 " + Util.timeFormat(metaData.getSetupDuration()));
+        System.out.println("Experiment took:            " + Util.timeFormat(metaData.getExperimentDuration()));
+        System.out.println("Report took:                " + Util.timeFormat(metaData.getReportDuration()));
+        System.out.println("Execution took:             " + Util.timeFormat(metaData.getExecutionDuration()));
     }
 
     private static void generateReport(MiSimModel model) {
         ExperimentMetaData metaData = model.getExperimentMetaData();
         Path reportLocation = Paths.get(".", "Report_" + metaData.getExperimentName());
-        Gson gson = GsonHelper.getGson();
+
         try {
             FileUtils.deleteDirectory(reportLocation.toFile());
             reportLocation.toFile().mkdirs();
+
+            Gson gson = GsonHelper.getGson();
             String json = gson.toJson(metaData);
             Files.write(Paths.get(String.valueOf(reportLocation), "meta.json"), json.getBytes(StandardCharsets.UTF_8),
                 StandardOpenOption.CREATE);
-            Files.copy(metaData.getArchFileLocation().toPath(), Paths.get(String.valueOf(reportLocation), "arch.json"));
-            Files.copy(metaData.getExpFileLocation().toPath(), Paths.get(String.valueOf(reportLocation), "exp.json"));
+            Files.copy(metaData.getArchitectureDescriptionLocation().toPath(),
+                Paths.get(String.valueOf(reportLocation), "arch.json"));
+            Files.copy(metaData.getExperimentDescriptionLocation().toPath(),
+                Paths.get(String.valueOf(reportLocation), "exp.json"));
 
             final PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher("glob:**/*.py");
 
