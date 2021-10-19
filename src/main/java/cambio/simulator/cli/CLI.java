@@ -4,7 +4,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
@@ -114,22 +113,17 @@ public final class CLI {
      * @throws ParseException when something goes wrong during parsing (e.g. missing required options or arguments)
      */
     public static CommandLine parseArguments(final String[] args) throws ParseException {
-        final CommandLineParser cliParser = new DefaultParser();
-        final HelpFormatter helpFormatter = new HelpFormatter();
-
         try {
-            cl = cliParser.parse(options, args, true);
+            cl = new DefaultParser().parse(options, args, true);
         } catch (ParseException e) {
             System.out.println(e.getMessage());
-            helpFormatter.printHelp("misim",
+            new HelpFormatter().printHelp("misim",
                 "Configure your simulation with the following options.",
                 options,
                 "Please report any issues at "
                     + "https://github.com/Cambio-Project/resilience-simulator",
                 true);
-            throw e;
         }
-
         return cl;
     }
 
