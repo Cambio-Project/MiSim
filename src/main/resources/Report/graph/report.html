@@ -1,24 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-		<meta charset="utf-8">
-		<title>Simluation Report</title>
-		<link rel="stylesheet" type="text/css" href="css/style.css"/>
-        <!-- jquery -->
-        <script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
-        <script type="text/javascript" src="js/jquery.tablesorter.min.js"></script>
+<head>
+    <meta charset="utf-8">
+    <title>Simluation Report</title>
+    <link href="css/style.css" rel="stylesheet" type="text/css"/>
+    <!-- jquery -->
+    <script src="js/jquery-3.2.1.min.js" type="text/javascript"></script>
+    <script src="js/jquery.tablesorter.min.js" type="text/javascript"></script>
 
-        <!-- d3 library -->
-		<script type="text/javascript" src="js/d3.min.js"></script>
-        <!-- highchart library -->
-        <script type="text/javascript" src="js/highcharts.min.js"></script>
-        <script type="text/javascript" src="js/highstock.min.js"></script>
-        <!-- chart -->
-        <script type="text/javascript" src="js/chart_script.js"></script>
-        <script type="text/javascript" src="js/chart_style.js"></script>
-        <!-- highchart script -->
-        <script type="text/javascript" src="js/highcharts_script.js"></script>
-        <script>
+    <!-- d3 library -->
+    <script src="js/d3.min.js" type="text/javascript"></script>
+    <!-- highchart library -->
+    <script src="js/highcharts.min.js" type="text/javascript"></script>
+    <script src="js/highstock.min.js" type="text/javascript"></script>
+    <!-- chart -->
+    <script src="js/chart_script.js" type="text/javascript"></script>
+    <script src="js/chart_style.js" type="text/javascript"></script>
+    <!-- highchart script -->
+    <script src="js/highcharts_script.js" type="text/javascript"></script>
+    <script>
             function toggleTable(element, id)
             {
                 var table = document.getElementById(id).getElementsByTagName('tbody')[0];
@@ -39,25 +39,26 @@
                     $('.tablesorter').tablesorter();
                 }
             );
-        </script>
-	</head>
-	<body>
-        <div id="warning">Report shows a cut down version of the actual architecture.</div>
-        <div id="info">One moment please ...</div>
 
-        <!-- Load Data and Scripts from the written files -->
+    </script>
+</head>
+<body>
+<div id="warning">Report shows a cut down version of the actual architecture.</div>
+<div id="info">One moment please ...</div>
 
-		<!-- charts -->
-        <div id="chart-container">
-            <!-- file containing the chart information -->
-            <script type="text/javascript" src="js/chart.js"></script>
-        </div>
+<!-- Load Data and Scripts from the written files -->
 
-        <!-- graph -->
-        <svg id="svg"></svg>
-        <!-- file containing the graph information -->
-        <script type="text/javascript" src="js/graph.js"></script>
-        <!-- d3 script -->
-        <script type="text/javascript" src="js/d3_script.js"></script>
-	</body>
+<!-- charts -->
+<div id="chart-container">
+    <!-- file containing the chart information -->
+    <script src="js/chart.js" type="text/javascript"></script>
+</div>
+
+<!-- graph -->
+<svg id="svg"></svg>
+<!-- file containing the graph information -->
+<script src="js/graph.js" type="text/javascript"></script>
+<!-- d3 script -->
+<script src="js/d3_script.js" type="text/javascript"></script>
+</body>
 </html>

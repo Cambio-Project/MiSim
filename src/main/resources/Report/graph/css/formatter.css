@@ -2,27 +2,23 @@
  *
  */
 
-body
-{
+body {
     margin: 0px;
 }
 
-#json
-{
+#json {
     height: 100%;
     width: 100%;
 }
 
-.jsontd
-{
+.jsontd {
     padding: 5px;
     min-width: 400px;
     vertical-align: middle;
     text-align: left;
 }
 
-table
-{
+table {
     padding: 0px;
     margin: 0;
     white-space: nowrap;
@@ -30,8 +26,7 @@ table
     border-collapse: collapse;
 }
 
-td, tr
-{
+td, tr {
     padding: 2px;
     margin: 0;
 }
@@ -40,28 +35,23 @@ td, tr
  *  Colors
  */
 
-.simulation-color
-{
+.simulation-color {
     background: rgba(100, 100, 100, 0.5);
 }
 
-.microservice-color
-{
+.microservice-color {
     background: rgba(150, 0, 255, 0.5);
 }
 
-.operation-color
-{
+.operation-color {
     background: rgba(0, 150, 255, 0.5);
 }
 
-.generator-color
-{
+.generator-color {
     background: rgba(200, 200, 0, 0.5);
 }
 
-.chaosmonkey-color
-{
+.chaosmonkey-color {
     background: rgba(255, 100, 0, 0.5);
 }
 
@@ -69,13 +59,11 @@ td, tr
  *  Properties
  */
 
-.input-table
-{
- border: 1px solid black;
+.input-table {
+    border: 1px solid black;
 }
 
-.simulation-table, .microservice-table, .operation-table, .generator-table, .chaosmonkey-table
-{
+.simulation-table, .microservice-table, .operation-table, .generator-table, .chaosmonkey-table {
     width: 100%;
     border: none;
 }
@@ -84,8 +72,7 @@ td, tr
  *  Input values
  */
 
-input
-{
+input {
     border: 1px solid transparent;
     background: #FFFFFF;
     border-bottom: 1px solid #999999;
@@ -94,32 +81,27 @@ input
     transition: 500ms;
 }
 
-input:hover
-{
+input:hover {
     border-bottom: 1px solid #000000;
 }
 
-input:focus
-{
+input:focus {
     border-bottom: 1px solid #555555;
 }
 
-input[type=number]
-{
+input[type=number] {
     max-width: 50px;
 }
 
 input[type=number]::-webkit-inner-spin-button,
-input[type=number]::-webkit-outer-spin-button
-{
+input[type=number]::-webkit-outer-spin-button {
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
     margin: 0;
 }
 
-button
-{
+button {
     border: 1px solid transparent;
     background: #DDDDDD;
     border: 1px solid #999999;
@@ -129,32 +111,27 @@ button
     transition: 500ms;
 }
 
-button:hover
-{
+button:hover {
     border: 1px solid #000000;
     background: #999999;
 }
 
-button:active
-{
+button:active {
     border: 1px solid #000000;
     background: #FFFFFF;
 }
 
-textarea
-{
+textarea {
     min-width: 400px;
     max-width: 400px;
     outline: 0;
 }
 
-.center
-{
+.center {
     vertical-align: middle;
     text-align: center;
 }
 
-.np
-{
+.np {
     padding: 0px;
 }

@@ -1,13 +1,9 @@
-import matplotlib.pyplot as plt
-import pandas as pd
-import os
 import glob
-import math
-import numpy as np
 import json
-
-from pandas.core.base import DataError
-from pandas.core.frame import DataFrame
+import matplotlib.pyplot as plt
+import numpy as np
+import os
+import pandas as pd
 
 
 def pull_data() -> None:
@@ -19,7 +15,7 @@ def pull_data() -> None:
         if (file.endswith("_ResponseTimes.csv")):
             data = pd.read_csv("./raw/" + file, sep=";", usecols=[0, 1])
 
-            data["Simulation Time"] = np.int32(data["Simulation Time"]-0.5)
+            data["Simulation Time"] = np.int32(data["Simulation Time"] - 0.5)
             groups = data.groupby("Simulation Time")
             mean = groups.mean().reset_index()
             std_mean = groups.sem().reset_index()
@@ -32,7 +28,7 @@ def pull_data() -> None:
 
             loadfile = file.replace("_ResponseTimes.csv", "")
             loadfile = loadfile[2:loadfile.rindex("]"):]
-            loadfile = glob.glob("./raw/*" + loadfile+"*Load.csv")[0]
+            loadfile = glob.glob("./raw/*" + loadfile + "*Load.csv")[0]
             load_data = pd.read_csv(loadfile, sep=";", usecols=[0, 1])
 
             # binning to seconds because pandas refuses to do it itself
@@ -52,10 +48,10 @@ def pull_data() -> None:
     plt.tight_layout()
 
     maxTime = duration
-    step = int(maxTime/10)
-    step = round(step/10)*10
+    step = int(maxTime / 10)
+    step = round(step / 10) * 10
     step = step if step > 1 else 1
-    xtickz = list(range(0, int(maxTime+step), step))
+    xtickz = list(range(0, int(maxTime + step), step))
 
     loc = 0
     for dataset in datasets:
@@ -64,7 +60,7 @@ def pull_data() -> None:
         ax.set_title(dataset[0])
         ax.set_ylim(ymin=0)
         ax.set_xticks(xtickz)
-        loc = loc+1
+        loc = loc + 1
 
     loc = 0
     for dataset in loadsets:
@@ -74,10 +70,10 @@ def pull_data() -> None:
         ax.set_title(dataset[0])
         ax.set_ylim(ymin=0)
         ax.set_xticks(xtickz)
-        loc = loc+1
+        loc = loc + 1
 
 
-while(True):
+while (True):
     pull_data()
     plt.show()
     plt.close()

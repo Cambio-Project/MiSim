@@ -1,23 +1,20 @@
-html
-{
-	margin: 0px; 
-	padding: 0px;
+html {
+    margin: 0px;
+    padding: 0px;
 }
 
-body
-{
-	margin: 0px;
-	padding: 0px;
-	background: white;
-	/*background: rgba(200, 200, 200, 50);*/
+body {
+    margin: 0px;
+    padding: 0px;
+    background: white;
+    /*background: rgba(200, 200, 200, 50);*/
 }
 
 /*
  * Graph
  */
 
-#info
-{
+#info {
     z-index: 1;
     position: absolute;
     top: calc(50% - 10px);
@@ -30,8 +27,7 @@ body
     font-size: 20px;
 }
 
-#warning
-{
+#warning {
     z-index: 1;
     position: fixed;
     display: none;
@@ -47,8 +43,7 @@ body
     background: rgba(255, 150, 0, 0.8);
 }
 
-#svg
-{
+#svg {
     position: absolute;
     top: 0px;
     left: 0px;
@@ -56,22 +51,19 @@ body
     height: 100%;
 }
 
-svg
-{
-	border: none;
+svg {
+    border: none;
 }
 
-.node
-{
-	fill: #ccc;
-	stroke: #ddd;
-	stroke-width: 1px;
+.node {
+    fill: #ccc;
+    stroke: #ddd;
+    stroke-width: 1px;
 }
 
-.node:hover
-{
-	stroke: #fff;
-	stroke-width: 2px;
+.node:hover {
+    stroke: #fff;
+    stroke-width: 2px;
 }
 
 div.tooltip {
@@ -83,18 +75,15 @@ div.tooltip {
     pointer-events: none;
 }
 
-.link
-{
-	stroke: #555;
+.link {
+    stroke: #555;
 }
 
-.link:hover
-{
+.link:hover {
     stroke: #f00;
 }
 
-.label
-{
+.label {
     fill: #444;
     stroke: #444;
     font-family: helvetica;
@@ -113,31 +102,26 @@ div.tooltip {
  * Chart
  */
 
-div.chartbar
-{
+div.chartbar {
     position: fixed;
 }
 
-#chart-container
-{
+#chart-container {
     position: absolute;
     top: 100%;
     width: 100%;
     text-align: center;
 }
 
-#chart-container div
-{
+#chart-container div {
     max-width: 100%;
 }
 
-#chart-container .stat-chart
-{
+#chart-container .stat-chart {
     margin: 50px 0 25px 0;
 }
 
-#chart-container button
-{
+#chart-container button {
     min-width: 100px;
     min-height: 30px;
     margin: 0px 5px 0px 5px;
@@ -148,13 +132,11 @@ div.chartbar
     background: linear-gradient(rgba(255, 255, 255, 255), rgba(200, 200, 200, 255));
 }
 
-#chart-container button:hover
-{
+#chart-container button:hover {
     background: linear-gradient(rgba(200, 200, 200, 255), rgba(255, 255, 255, 255));
 }
 
-#chart-container button:active
-{
+#chart-container button:active {
     border: 1px solid green;
 }
 
@@ -162,16 +144,14 @@ div.chartbar
  * Table
  */
 
-div.stat-table
-{
+div.stat-table {
     margin: 0 5% 0 5%;
     width: 90%;
     tex-align: center;
     transition: 500ms;
 }
 
-.stat-table table, table
-{
+.stat-table table, table {
     margin: 40px 5% 0 5% !important;
     width: 90%;
     min-width: 500px;
@@ -185,8 +165,7 @@ div.stat-table
     color: black;
 }
 
-.stat-table thead th
-{
+.stat-table thead th {
     padding: 5px 5px 5px 5px;
     border: 1px solid black;
     border-bottom: 2px solid black;
@@ -195,43 +174,35 @@ div.stat-table
     transition: 500ms;
 }
 
-.stat-table thead th:hover
-{
+.stat-table thead th:hover {
     background: rgba(180, 180, 180, 255);
 }
 
-.hidden
-{
+.hidden {
     display: none;
 }
 
-.stat-table tbody tr
-{
+.stat-table tbody tr {
     transition: 500ms;
 }
 
-.stat-table tbody tr:nth-child(odd)
-{
+.stat-table tbody tr:nth-child(odd) {
     background: rgba(255, 255, 255, 255);
 }
 
-.stat-table tbody tr:nth-child(even)
-{
+.stat-table tbody tr:nth-child(even) {
     background: rgba(220, 220, 220, 250);
 }
 
-.stat-table tbody tr:hover
-{
+.stat-table tbody tr:hover {
     background: rgba(0, 150, 255, 50);
 }
 
-.stat-table tbody td
-{
+.stat-table tbody td {
     border-bottom: 1px solid rgba(0, 0, 0, 255);
     transition: 500ms;
 }
 
-.stat-table tbody td:empty:before
-{
+.stat-table tbody td:empty:before {
     content: "\200b";
 }

@@ -1,10 +1,7 @@
+import glob
+import json
 import matplotlib.pyplot as plt
 import pandas as pd
-import os
-import glob
-import math
-import numpy as np
-import json
 
 
 def pull_data() -> None:
@@ -34,10 +31,10 @@ def pull_data() -> None:
     plt.tight_layout()
 
     maxTime = duration
-    step = int(maxTime/10)
-    step = round(step/10)*10
+    step = int(maxTime / 10)
+    step = round(step / 10) * 10
     step = step if step > 1 else 1
-    xtickz = list(range(0, int(maxTime+step), step))
+    xtickz = list(range(0, int(maxTime + step), step))
 
     loc = 0
     for dataset in datasets:
@@ -51,7 +48,7 @@ def pull_data() -> None:
         #                 dataset[1]["Value"], facecolor="blue",
         #                 label="Load")
         ax.fill_between(dataset[3]["Simulation Time"], 0, dataset[3]
-                        ["Value"], facecolor="red", label="Total Processes")
+        ["Value"], facecolor="red", label="Total Processes")
         ax.fill_between(dataset[2]["Simulation Time"], 0,
                         dataset[2]["Value"], facecolor="green",
                         label="ActiveProcesses")
@@ -59,10 +56,10 @@ def pull_data() -> None:
         ax.set_ylim(ymin=0)
         ax.set_xticks(xtickz)
         ax.legend()
-        loc = loc+1
+        loc = loc + 1
 
 
-while(True):
+while (True):
     pull_data()
     plt.show()
     plt.close()
