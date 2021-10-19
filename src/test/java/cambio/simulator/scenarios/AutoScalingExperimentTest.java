@@ -2,7 +2,7 @@ package cambio.simulator.scenarios;
 
 import java.io.File;
 
-import cambio.simulator.models.MainModel;
+import cambio.simulator.Main;
 import cambio.simulator.testutils.FileLoaderUtil;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -19,6 +19,6 @@ public class AutoScalingExperimentTest {
         File experiment = FileLoaderUtil.loadFromExampleResources("example_experiment_autoscale.json");
         String[] args = new String[] {"-a", architecture.getAbsolutePath(), "-e", experiment.getAbsolutePath(), "-d"
             , "-p"};
-        MainModel.main(args);
+        Main.main(args);
     }
 }

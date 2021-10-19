@@ -40,7 +40,8 @@ class ModelLoaderTest {
 
         assertNull(data.getStartTimestamp());
         assertEquals(archFileLocation.getAbsolutePath(), data.getArchitectureDescriptionLocation().getAbsolutePath());
-        assertEquals(experimentFileLocation.getAbsolutePath(), data.getExperimentDescriptionLocation().getAbsolutePath());
+        assertEquals(experimentFileLocation.getAbsolutePath(),
+            data.getExperimentDescriptionLocation().getAbsolutePath());
         assertEquals("New Experiment", data.getExperimentName());
         assertEquals("Contains examples for the new Experiment format", data.getDescription());
         assertEquals(42, data.getSeed());

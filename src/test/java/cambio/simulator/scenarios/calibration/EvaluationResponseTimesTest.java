@@ -2,7 +2,6 @@ package cambio.simulator.scenarios.calibration;
 
 import java.io.File;
 
-import cambio.simulator.models.MainModel;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -17,7 +16,7 @@ public class EvaluationResponseTimesTest {
         File f = new File("./Examples/Calibration/example_architecture_architecture.json");
         File f2 = new File("./Examples/Calibration/response_time_experiement.json");
         String[] args = new String[] {"-a", f.getAbsolutePath(), "-e", f2.getAbsolutePath(), "-d", "-p"};
-        MainModel.main(args);
+        cambio.simulator.Main.main(args);
     }
 
     @Test
@@ -25,6 +24,6 @@ public class EvaluationResponseTimesTest {
         File f = new File("./Examples/Calibration/example_architecture_architecture.json");
         File f2 = new File("./Examples/Calibration/response_time_calibration.json");
         String[] args = new String[] {"-a", f.getAbsolutePath(), "-e", f2.getAbsolutePath(), "-d", "-p"};
-        MainModel.main(args);
+        cambio.simulator.Main.main(args);
     }
 }

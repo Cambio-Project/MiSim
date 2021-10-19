@@ -2,7 +2,7 @@ package cambio.simulator.scenarios.calibration;
 
 import java.io.File;
 
-import cambio.simulator.models.MainModel;
+import cambio.simulator.Main;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -17,6 +17,6 @@ public class AutoscalingConceptProofTest {
         File f = new File("./Examples/Calibration/autoscale_isolation_architecture.json");
         File f2 = new File("./Examples/Calibration/autoscale_experiement.json");
         String[] args = new String[] {"-a", f.getAbsolutePath(), "-e", f2.getAbsolutePath(), "-d", "-p"};
-        MainModel.main(args);
+        Main.main(args);
     }
 }

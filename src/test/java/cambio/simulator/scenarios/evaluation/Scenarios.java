@@ -2,7 +2,6 @@ package cambio.simulator.scenarios.evaluation;
 
 import java.io.File;
 
-import cambio.simulator.models.MainModel;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -17,7 +16,7 @@ public class Scenarios {
         File f = new File("./Examples/Evaluation/calibrated_arch.json");
         File f2 = new File("./Examples/Evaluation/ExperimentScenario1.json");
         String[] args = new String[] {"-a", f.getAbsolutePath(), "-e", f2.getAbsolutePath(), "-d", "-p"};
-        MainModel.main(args);
+        cambio.simulator.Main.main(args);
     }
 
     @Test
@@ -25,7 +24,7 @@ public class Scenarios {
         File f = new File("./Examples/Evaluation/calibrated_arch.json");
         File f2 = new File("./Examples/Evaluation/scenario1.json");
         String[] args = new String[] {"-a", f.getAbsolutePath(), "-s", f2.getAbsolutePath(), "-d", "-p"};
-        MainModel.main(args);
+        cambio.simulator.Main.main(args);
     }
 
     @Test
@@ -33,7 +32,7 @@ public class Scenarios {
         File f = new File("./Examples/Evaluation/calibrated_arch.json");
         File f2 = new File("./Examples/Evaluation/ExperimentScenario2.json");
         String[] args = new String[] {"-a", f.getAbsolutePath(), "-e", f2.getAbsolutePath(), "-d", "-p"};
-        MainModel.main(args);
+        cambio.simulator.Main.main(args);
     }
 
     @Test
@@ -41,7 +40,7 @@ public class Scenarios {
         File f = new File("./Examples/Evaluation/calibrated_arch.json");
         File f2 = new File("./Examples/Evaluation/scenario2.json");
         String[] args = new String[] {"-a", f.getAbsolutePath(), "-s", f2.getAbsolutePath(), "-d", "-p"};
-        MainModel.main(args);
+        cambio.simulator.Main.main(args);
     }
 
     @Test
@@ -49,7 +48,7 @@ public class Scenarios {
         File f = new File("./Examples/Evaluation/calibrated_arch.json");
         File f2 = new File("./Examples/Evaluation/ExperimentScenario3.json");
         String[] args = new String[] {"-a", f.getAbsolutePath(), "-e", f2.getAbsolutePath(), "-d", "-p"};
-        MainModel.main(args);
+        cambio.simulator.Main.main(args);
     }
 
     @Test
@@ -57,7 +56,7 @@ public class Scenarios {
         File f = new File("./Examples/Evaluation/calibrated_arch.json");
         File f2 = new File("./Examples/Evaluation/scenario3.json");
         String[] args = new String[] {"-a", f.getAbsolutePath(), "-s", f2.getAbsolutePath(), "-d", "-p"};
-        MainModel.main(args);
+        cambio.simulator.Main.main(args);
     }
 
     @Test
@@ -65,7 +64,7 @@ public class Scenarios {
         File f = new File("./Examples/Calibration/example_architecture.json");
         File f2 = new File("./Examples/Evaluation/ExperimentScenario4.json");
         String[] args = new String[] {"-a", f.getAbsolutePath(), "-e", f2.getAbsolutePath(), "-d", "-p"};
-        MainModel.main(args);
+        cambio.simulator.Main.main(args);
     }
 
     @Test
@@ -73,6 +72,6 @@ public class Scenarios {
         File f = new File("./Examples/Calibration/example_architecture.json");
         File f2 = new File("./Examples/Evaluation/scenario4.json");
         String[] args = new String[] {"-a", f.getAbsolutePath(), "-s", f2.getAbsolutePath(), "-d", "-p"};
-        MainModel.main(args);
+        cambio.simulator.Main.main(args);
     }
 }

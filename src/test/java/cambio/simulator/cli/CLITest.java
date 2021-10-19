@@ -14,6 +14,37 @@ import org.junit.jupiter.api.Test;
 
 class CLITest {
 
+    private static void checkMissingRequiredArgument(String[] args, String expectedMissingArg) {
+        try {
+            CLI.parseArguments(args);
+        } catch (MissingOptionException e) {
+            for (Object missingOption : e.getMissingOptions()) {
+
+                if (missingOption instanceof String
+                    && expectedMissingArg.equals(missingOption)) {
+                    return;
+                }
+
+                List<Option> optionsToCheck = new LinkedList<>();
+                if (missingOption instanceof OptionGroup) {
+                    optionsToCheck.addAll(((OptionGroup) missingOption).getOptions());
+                }
+                for (Option option : optionsToCheck) {
+                    if (option.getOpt().equals(expectedMissingArg)
+                        || option.getLongOpt().equals(expectedMissingArg)) {
+                        return;
+                    }
+                }
+
+            }
+            Assertions.fail(
+                String.format("Expected missing argument '%s' was not detected missing.", expectedMissingArg));
+        } catch (ParseException e) {
+            e.printStackTrace();
+            Assertions.fail("Expected MissingArgumentException");
+        }
+    }
+
     @Test
     void setGlobalCLI() {
         String[] args =
@@ -54,7 +85,6 @@ class CLITest {
         checkMissingRequiredArgument(args, CLI.archModelOpt.getOpt());
     }
 
-
     @Test
     void properInput() {
         String[] args =
@@ -69,37 +99,6 @@ class CLITest {
         } catch (ParseException e) {
             e.printStackTrace();
             Assertions.fail();
-        }
-    }
-
-    private static void checkMissingRequiredArgument(String[] args, String expectedMissingArg) {
-        try {
-            CLI.parseArguments(args);
-        } catch (MissingOptionException e) {
-            for (Object missingOption : e.getMissingOptions()) {
-
-                if (missingOption instanceof String
-                    && expectedMissingArg.equals(missingOption)) {
-                    return;
-                }
-
-                List<Option> optionsToCheck = new LinkedList<>();
-                if (missingOption instanceof OptionGroup) {
-                    optionsToCheck.addAll(((OptionGroup) missingOption).getOptions());
-                }
-                for (Option option : optionsToCheck) {
-                    if (option.getOpt().equals(expectedMissingArg)
-                        || option.getLongOpt().equals(expectedMissingArg)) {
-                        return;
-                    }
-                }
-
-            }
-            Assertions.fail(
-                String.format("Expected missing argument '%s' was not detected missing.", expectedMissingArg));
-        } catch (ParseException e) {
-            e.printStackTrace();
-            Assertions.fail("Expected MissingArgumentException");
         }
     }
 }
