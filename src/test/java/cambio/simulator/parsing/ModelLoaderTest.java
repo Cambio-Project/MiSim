@@ -36,21 +36,16 @@ class ModelLoaderTest {
 
     private void testMetaDataParsing(File experimentFileLocation) {
         File archFileLocation = new File("derp/derp/derp");
-        long currTime = System.currentTimeMillis();
         ExperimentMetaData data = ModelLoader.loadExperimentMetaData(experimentFileLocation, archFileLocation);
-        data.markStartOfSetup(currTime);
-        long currTime2 = System.currentTimeMillis();
-        data.markEndOfSetup(currTime2);
 
         assertNull(data.getStartTimestamp());
-        assertEquals(archFileLocation.getAbsolutePath(), data.getArchFileLocation().getAbsolutePath());
-        assertEquals(experimentFileLocation.getAbsolutePath(), data.getExpFileLocation().getAbsolutePath());
+        assertEquals(archFileLocation.getAbsolutePath(), data.getArchitectureDescriptionLocation().getAbsolutePath());
+        assertEquals(experimentFileLocation.getAbsolutePath(), data.getExperimentDescriptionLocation().getAbsolutePath());
         assertEquals("New Experiment", data.getExperimentName());
         assertEquals("Contains examples for the new Experiment format", data.getDescription());
         assertEquals(42, data.getSeed());
         assertEquals(180, data.getDuration());
-        assertEquals(currTime2 - currTime, data.getDurationOfSetupMS());
-        assertEquals(new File("/Report_42/").getAbsolutePath(), data.getReportLocation().getAbsolutePath());
+        assertEquals(new File("/Report_42/").getAbsolutePath(), data.getReportBaseFolder().toAbsolutePath().toString());
         assertEquals("continuous", data.getReportType());
     }
 

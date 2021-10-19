@@ -65,7 +65,7 @@ public final class ModelLoader {
      */
     public static ArchitectureModel loadArchitectureModel(MiSimModel baseModel) {
         return loadModel(
-            baseModel.getExperimentMetaData().getArchFileLocation(),
+            baseModel.getExperimentMetaData().getArchitectureDescriptionLocation(),
             ArchitectureModel.class,
             new ArchitectureModelAdapter(baseModel)
         );
@@ -80,7 +80,7 @@ public final class ModelLoader {
      *     ExperimentModelAdapter}.
      */
     public static ExperimentModel loadExperimentModel(MiSimModel baseModel) {
-        File modelLocation = baseModel.getExperimentMetaData().getExpFileLocation();
+        File modelLocation = baseModel.getExperimentMetaData().getExperimentDescriptionLocation();
         Function<TypeAdapter<ExperimentModel>, ExperimentModel> loadFunction = adapter ->
             loadModel(modelLocation, ExperimentModel.class, adapter);
 

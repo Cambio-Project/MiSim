@@ -20,6 +20,6 @@ class ExportUtilsTest {
 
         ExportUtils.prepareReportFolder(model);
 
-        FileUtils.forceDeleteOnExit(model.getExperimentMetaData().getReportLocation());
+        FileUtils.forceDeleteOnExit(model.getExperimentMetaData().getReportBaseFolder().toFile());
     }
 }

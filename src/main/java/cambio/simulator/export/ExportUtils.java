@@ -1,9 +1,9 @@
 package cambio.simulator.export;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
@@ -26,45 +26,44 @@ import com.google.gson.Gson;
 public final class ExportUtils {
 
 
-    public static File prepareReportFolder(MiSimModel model) {
+    public static Path prepareReportFolder(MiSimModel model) {
         return prepareReportFolder(model.getExperimentMetaData());
     }
 
-    public static File prepareReportFolder(ExperimentMetaData metaData) {
-        File reportLocationBaseDirectory;
+    public static Path prepareReportFolder(ExperimentMetaData metaData) {
+        Path reportLocationBaseDirectory;
         if (CLI.reportLocation.getValue() != null) {
-            reportLocationBaseDirectory = new File(CLI.reportLocation.getValue());
+            reportLocationBaseDirectory = Paths.get(CLI.reportLocation.getValue());
         } else {
-            reportLocationBaseDirectory = metaData.getReportLocation();
+            reportLocationBaseDirectory = metaData.getReportBaseFolder();
         }
-        DateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss.SSSZ");
+
+        DateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ssZ");
         String dateString = format.format(new Date());
-        File reportLocation = Paths.get(reportLocationBaseDirectory.getAbsolutePath(),
-            metaData.getExperimentName() + "_" + dateString).toFile();
+        Path reportLocation = Paths.get(reportLocationBaseDirectory.toString(),
+            metaData.getExperimentName() + "_" + dateString);
 
         Gson gson = GsonHelper.getGsonBuilder().serializeNulls().create();
 
         try {
-            boolean ignored = reportLocation.mkdirs();
+            Files.createDirectory(reportLocation);
             //copy metadata, architecture and experiment
             String json = gson.toJson(metaData);
-            Files.write(Paths.get(reportLocation.getPath(), "meta.json"),
+
+            Files.write(Paths.get(reportLocation.toString(), "meta.json"),
                 json.getBytes(StandardCharsets.UTF_8),
                 StandardOpenOption.CREATE);
-            Files.copy(metaData.getArchFileLocation().toPath(),
-                Paths.get(reportLocation.getPath(), "architecture.json"));
-            Files.copy(metaData.getExpFileLocation().toPath(),
-                Paths.get(reportLocation.getPath(), "experiment.json"));
-            JarUtil.copyFolderFromJar("Report", reportLocation, StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(metaData.getArchitectureDescriptionLocation().toPath(),
+                Paths.get(reportLocation.toString(), "architecture.json"));
+            Files.copy(metaData.getExperimentDescriptionLocation().toPath(),
+                Paths.get(reportLocation.toString(), "experiment.json"));
+            JarUtil.copyFolderFromJar("Report", reportLocation.toFile(), StandardCopyOption.REPLACE_EXISTING);
 
         } catch (SecurityException e) {
-            System.out.println(
-                String.format("[Error] No access to report location %s possible",
-                    reportLocationBaseDirectory.getAbsolutePath()));
+            System.out.printf("[Error] No access to report location %s possible%n", reportLocationBaseDirectory);
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         return reportLocation;
     }
 }

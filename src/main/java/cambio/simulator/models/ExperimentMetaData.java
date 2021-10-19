@@ -30,9 +30,10 @@ public class ExperimentMetaData {
     private String modelName;
 
     private TimeUnit timeUnit = TimeUnit.SECONDS;
-    /*
-     * These are of type File, since java.nio.Path is not directly parsable by gson
-     */
+
+    @SerializedName(value = "report_directory", alternate = {"report_dir", "report_location", "report_folder"})
+    private Path reportBaseFolder = Paths.get(".", "Report");
+
     private File expFileLocation;
     private File archFileLocation;
     private File reportLocation;
@@ -69,24 +70,24 @@ public class ExperimentMetaData {
         return timeUnit;
     }
 
-    public File getExpFileLocation() {
+    public File getExperimentDescriptionLocation() {
         return expFileLocation;
     }
 
-    public File getArchFileLocation() {
+    public File getArchitectureDescriptionLocation() {
         return archFileLocation;
     }
 
-    public void setDurationOfMetaDataLoading(long durationOfMetaDataLoading) {
-        this.durationOfMetaDataLoading = durationOfMetaDataLoading;
+    public Path getReportBaseFolder() {
+        return reportBaseFolder;
     }
 
-    public void markStartOfSetup(long startTime) {
-        this.startOfSetup = startTime;
+    public Path getReportLocation() {
+        return reportLocation;
     }
 
-    public void markEndOfSetup(long endTime) {
-        this.durationOfSetupMS = endTime - startOfSetup;
+    public void setReportLocation(Path reportLocation) {
+        this.reportLocation = reportLocation;
     }
 
     public void setStartDate(LocalDateTime startTime) {

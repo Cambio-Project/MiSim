@@ -4,7 +4,7 @@ import java.io.File;
 import java.time.LocalDateTime;
 
 import cambio.simulator.entities.microservice.Microservice;
-import cambio.simulator.events.FinishEvent;
+import cambio.simulator.events.SimulationEndEvent;
 import cambio.simulator.events.ISelfScheduled;
 import cambio.simulator.export.MultiDataPointReporter;
 import cambio.simulator.parsing.ModelLoader;
@@ -72,7 +72,7 @@ public class MiSimModel extends Model {
         for (ISelfScheduled selfScheduledEvent : experimentModel.getAllSelfSchedulesEntities()) {
             selfScheduledEvent.doInitialSelfSchedule();
         }
-        new FinishEvent(this, "FinisherEvent", true);
+        new SimulationEndEvent(this, "FinisherEvent", true);
     }
 
 
