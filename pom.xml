@@ -6,7 +6,7 @@
 
     <groupId>cambio.simulator</groupId>
     <artifactId>misim</artifactId>
-    <version>3.0</version>
+    <version>3.1</version>
 
     <properties>
         <mockito.version>3.9.0</mockito.version>
@@ -185,7 +185,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>cambio.simulator.models.MainModel</mainClass>
+                            <mainClass>cambio.simulator.Main</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
