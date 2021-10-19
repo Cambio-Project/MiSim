@@ -109,7 +109,7 @@ fabric.properties
 
 .idea/
 
-Report_*/
+Report/
 
 *.hprof
 *.jfr
