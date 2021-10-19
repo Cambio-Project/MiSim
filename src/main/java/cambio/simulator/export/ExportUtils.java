@@ -25,13 +25,22 @@ import com.google.gson.Gson;
  */
 public final class ExportUtils {
 
-    public static Path prepareReportFolder(MiSimModel model) {
-        return prepareReportFolder(model.getExperimentMetaData());
+    /**
+     * Creates the report directory of the current experiment.
+     *
+     * @see ExportUtils#prepareReportDirectory(ExperimentMetaData)
+     */
     public static Path prepareReportDirectory(MiSimModel model) {
         return prepareReportDirectory(model.getExperimentMetaData());
     }
 
-    public static Path prepareReportFolder(ExperimentMetaData metaData) {
+    /**
+     * Creates the report directory of the current experiment.
+     * The directory name will consist of the experiment name and a timestamp of when the directory was created.
+     *
+     * @param metaData metadata that should be serialized and contains the report directory base location
+     * @return the {@link Path} to the created report directory.
+     */
     public static Path prepareReportDirectory(ExperimentMetaData metaData) {
         final Path reportLocationBaseDirectory;
         if (CLI.reportLocation.getValue() != null) {
