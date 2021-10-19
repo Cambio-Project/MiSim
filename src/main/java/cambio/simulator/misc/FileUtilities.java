@@ -149,10 +149,10 @@ public final class FileUtilities {
         Files.walkFileTree(Paths.get(fullPath.getPath(), folderName), new SimpleFileVisitor<Path>() {
             @Override
             public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
-                String abs1 = path.toAbsolutePath().toString();
-                String abs2 = Paths.get(fullPath.getAbsolutePath(), folderName).toString();
-                Path subdirAndFile = Paths.get(abs1.replace(abs2, ""));
-                //                String targetSubfolder = path.toAbsolutePath().toString().replaceFirst(fullPath.getAbsolutePath(), "");
+                String sourceFullPath = path.toAbsolutePath().toString();
+                String sourceDirectory = Paths.get(fullPath.getAbsolutePath(), folderName).toString();
+                Path subdirAndFile = Paths.get(sourceFullPath.replace(sourceDirectory, ""));
+
                 Path targetPath = Paths.get(destFolder.getPath(), subdirAndFile.toString());
                 if (path.toFile().isFile()) {
                     Files.createDirectories(targetPath.getParent());

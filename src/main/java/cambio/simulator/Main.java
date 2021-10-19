@@ -71,7 +71,7 @@ public class Main {
         MiSimModel model = new MiSimModel(architectureDescription, experimentDescription);
         ExperimentMetaData metaData = model.getExperimentMetaData();
 
-        Path reportLocation = ExportUtils.prepareReportFolder(model);
+        Path reportLocation = ExportUtils.prepareReportDirectory(model);
         metaData.setReportLocation(reportLocation);
 
 

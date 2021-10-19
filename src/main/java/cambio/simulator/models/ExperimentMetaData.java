@@ -83,7 +83,7 @@ public class ExperimentMetaData {
         return archFileLocation;
     }
 
-    public Path getReportBaseFolder() {
+    public Path getReportBaseDirectory() {
         return reportBaseFolder;
     }
 

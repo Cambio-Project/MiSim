@@ -18,8 +18,8 @@ class ExportUtilsTest {
 
         MiSimModel model = new MiSimModel(test_architecture, test_experiment);
 
-        ExportUtils.prepareReportFolder(model);
+        ExportUtils.prepareReportDirectory(model);
 
-        FileUtils.forceDeleteOnExit(model.getExperimentMetaData().getReportBaseFolder().toFile());
+        FileUtils.forceDeleteOnExit(model.getExperimentMetaData().getReportBaseDirectory().toFile());
     }
 }

@@ -27,14 +27,17 @@ public final class ExportUtils {
 
     public static Path prepareReportFolder(MiSimModel model) {
         return prepareReportFolder(model.getExperimentMetaData());
+    public static Path prepareReportDirectory(MiSimModel model) {
+        return prepareReportDirectory(model.getExperimentMetaData());
     }
 
     public static Path prepareReportFolder(ExperimentMetaData metaData) {
+    public static Path prepareReportDirectory(ExperimentMetaData metaData) {
         final Path reportLocationBaseDirectory;
         if (CLI.reportLocation.getValue() != null) {
             reportLocationBaseDirectory = Paths.get(CLI.reportLocation.getValue());
         } else {
-            reportLocationBaseDirectory = metaData.getReportBaseFolder();
+            reportLocationBaseDirectory = metaData.getReportBaseDirectory();
         }
 
         final DateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ssZ");
