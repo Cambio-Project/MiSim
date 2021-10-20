@@ -9,6 +9,7 @@ import cambio.simulator.events.SimulationEndEvent;
 import cambio.simulator.export.MultiDataPointReporter;
 import cambio.simulator.parsing.ModelLoader;
 import desmoj.core.simulator.Model;
+import desmoj.core.simulator.TimeInstant;
 
 /**
  * Main model that contains architectural and experiment descriptions/data.
@@ -71,7 +72,9 @@ public class MiSimModel extends Model {
         for (ISelfScheduled selfScheduledEvent : experimentModel.getAllSelfSchedulesEntities()) {
             selfScheduledEvent.doInitialSelfSchedule();
         }
-        new SimulationEndEvent(this, "FinisherEvent", true);
+        SimulationEndEvent simulationEndEvent =
+            new SimulationEndEvent(this, SimulationEndEvent.class.getSimpleName(), true);
+        simulationEndEvent.schedule(new TimeInstant(this.experimentMetaData.getDuration()));
     }
 
 
