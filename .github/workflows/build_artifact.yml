@@ -35,3 +35,6 @@ jobs:
       with:
         name: miSim 3.0
         path: ./staging/
+        
+    - name: Run Hello World
+      run: ./runHelloWorld.sh
