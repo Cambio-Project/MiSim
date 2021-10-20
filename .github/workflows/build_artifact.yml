@@ -7,8 +7,7 @@ on:
     branches: [ master ]
     
 jobs:
-  build_artifact:
-  
+  build_artifact:  
     runs-on: ubuntu-latest
 
     steps:
@@ -20,9 +19,6 @@ jobs:
         java-version: '16'
         distribution: 'adopt'
         cache: 'maven'
-    
-    - name: Run JUnit Tests
-      run: mvn -B test --file pom.xml "-Dcheckstyle.skipExec=true"
 
     - name: Build with Maven
       run: mvn -B package --file pom.xml "-DskipTests=true" "-Dmaven.javadoc.skip=true" "-Dcheckstyle.skipExec=true"
@@ -35,6 +31,28 @@ jobs:
       with:
         name: miSim 3.0
         path: ./staging/
-        
+              
+  run_tests:  
+    runs-on: ubuntu-latest
+    steps:
+    - name: Set up Java 16
+      uses: actions/setup-java@v2
+      with:
+        java-version: '16'
+        distribution: 'adopt'
+        cache: 'maven'        
+    
+    - name: Run JUnit Tests
+      run: mvn -B test --file pom.xml "-Dcheckstyle.skipExec=true"
+  
+  run_hello_world:    
+    runs-on: ubuntu-latest
+    steps:
+    - name: Set up Java 16
+      uses: actions/setup-java@v2
+      with:
+        java-version: '16'
+        distribution: 'adopt'
+        cache: 'maven'
     - name: Run Hello World
       run: ./runHelloWorld.sh
