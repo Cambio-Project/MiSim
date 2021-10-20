@@ -1,4 +1,4 @@
-name: Publish Artifact
+name: Build and Test
 
 on:
   push:
@@ -7,8 +7,7 @@ on:
     branches: [ master ]
     
 jobs:
-  build_artifact:
-  
+  build_artifact:  
     runs-on: ubuntu-latest
 
     steps:
@@ -20,9 +19,6 @@ jobs:
         java-version: '16'
         distribution: 'adopt'
         cache: 'maven'
-    
-    - name: Run JUnit Tests
-      run: mvn -B test --file pom.xml "-Dcheckstyle.skipExec=true"
 
     - name: Build with Maven
       run: mvn -B package --file pom.xml "-DskipTests=true" "-Dmaven.javadoc.skip=true" "-Dcheckstyle.skipExec=true"
@@ -31,7 +27,50 @@ jobs:
       run: mkdir staging && cp target/*.jar staging
       
     - name: upload artifacts
-      uses: actions/upload-artifact@v2.2.3
+      if:  github.event_name == 'push'
+      uses: actions/upload-artifact@v2
       with:
-        name: miSim 3.0
+        name: miSim
         path: ./staging/
+              
+  run_tests:  
+    runs-on: ubuntu-latest
+    steps:    
+    - uses: actions/checkout@v2
+    - name: Set up Java 16
+      uses: actions/setup-java@v2
+      with:
+        java-version: '16'
+        distribution: 'adopt'
+        cache: 'maven'        
+    
+    - name: Run JUnit Tests
+      run: mvn -B test --file pom.xml "-Dcheckstyle.skipExec=true"
+  
+  run_hello_world_Linux:    
+    runs-on: ubuntu-latest
+    steps:    
+    - uses: actions/checkout@v2
+    
+    - name: Set up Java 16
+      uses: actions/setup-java@v2
+      with:
+        java-version: '16'
+        distribution: 'adopt'
+        cache: 'maven'
+    - name: Run Hello World
+      run: ./runHelloWorld.sh
+      
+  run_hello_world_Windows:    
+    runs-on: windows-latest
+    steps:    
+    - uses: actions/checkout@v2
+    - name: Set up Java 16
+      uses: actions/setup-java@v2
+      with:
+        java-version: '16'
+        distribution: 'adopt'
+        cache: 'maven'
+    - name: Run Hello World
+      run: ./runHelloWorld.bat
+
