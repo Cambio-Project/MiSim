@@ -79,7 +79,7 @@ public final class ScenarioDescription {
 
         Set<ISelfScheduled> scheduables = new HashSet<>();
 
-        stimulus = stimulus.replaceAll("\\s+", "");
+        stimulus = stimulus.replaceAll("\\s+", " ");
         String[] stimuli = stimulus.split("AND");
 
         for (String stimulus : stimuli) {
@@ -117,7 +117,7 @@ public final class ScenarioDescription {
     @Contract("_, _ -> new")
     private @NotNull LoadGeneratorDescription createLimboGenerator(String profileLocation, Operation operation) {
         LoadGeneratorDescription description = new LimboLoadGeneratorDescription();
-        injectField("modelFile", description, new File(profileLocation));
+        injectField("modelFile", description, new File(profileLocation.trim()));
         injectField("targetOperation", description, operation);
         description.initializeArrivalRateModel();
         return description;
@@ -146,10 +146,24 @@ public final class ScenarioDescription {
 
         if (currentStimulus.startsWith("KILL")) {
 
+            String[] stimuliArray = currentStimulus.split(" ");
+
             int instances = Integer.MAX_VALUE;
-            if (currentStimulus.contains(" ")) {
-                instances = Integer.parseInt(currentStimulus.replace("KILL", ""));
+
+            if (stimuliArray.length == 2) {
+                try {
+                    instances = Integer.parseInt(stimuliArray[1]);
+                } catch (NumberFormatException e) {
+                    service = NameResolver.resolveMicroserviceName(model, stimuliArray[1]);
+                }
+            } else if (stimuliArray.length == 3) {
+                service = NameResolver.resolveMicroserviceName(model, stimuliArray[1]);
+                instances = Integer.parseInt(stimuliArray[2]);
+            } else {
+                throw new ParsingException("KILL was not defined correctly (KILL [<service_name>] "
+                    + "[<#instances>]@<target_time>)");
             }
+
 
             scheduables.add(
                 new ChaosMonkeyEvent(model, "Chaosmonkey", true, service, instances) {
