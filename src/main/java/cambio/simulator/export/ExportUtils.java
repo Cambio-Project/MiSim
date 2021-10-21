@@ -49,7 +49,7 @@ public final class ExportUtils {
             reportLocationBaseDirectory = metaData.getReportBaseDirectory();
         }
 
-        final DateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ssZ");
+        final DateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss.SSSZ");
         final String dateString = format.format(new Date());
         final Path reportLocation = Paths.get(reportLocationBaseDirectory.toString(),
             metaData.getExperimentName() + "_" + dateString);
