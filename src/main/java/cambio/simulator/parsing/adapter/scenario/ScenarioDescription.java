@@ -4,6 +4,7 @@ import static cambio.simulator.misc.Util.injectField;
 
 import java.io.File;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -20,6 +21,7 @@ import cambio.simulator.misc.NameResolver;
 import cambio.simulator.models.ExperimentModel;
 import cambio.simulator.models.MiSimModel;
 import cambio.simulator.parsing.ParsingException;
+import com.google.gson.annotations.SerializedName;
 import desmoj.core.simulator.TimeInstant;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Contract;
@@ -41,7 +43,8 @@ public final class ScenarioDescription {
     private String source;
     private String environment;
     private String response;
-    private String responseMeasures;
+    @SerializedName(value = "response_measure", alternate = {"response_measures"})
+    private Map<String, String> responseMeasures;
     //    public Integer duration;
 
 
@@ -59,9 +62,9 @@ public final class ScenarioDescription {
             || StringUtils.isEmpty(component)
             || StringUtils.isEmpty(name)) {
             throw new ParsingException("Scenario is missing parts! (stimulus,artifact,component,name)");
-        } else if (StringUtils.isAllBlank(environment)
-            || StringUtils.isAllBlank(response)
-            || StringUtils.isAllBlank(responseMeasures)) {
+        } else if (StringUtils.isBlank(environment)
+            || StringUtils.isBlank(response)
+            || responseMeasures == null) {
             System.out.printf("[Info] Scenario %s is missing some ATAM-components%n", name);
         }
     }
