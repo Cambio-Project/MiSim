@@ -77,6 +77,12 @@ public final class ExportUtils {
         return reportLocation;
     }
 
+    /**
+     * Serializes the given {@link ExperimentMetaData} as "metadata.json" into the report folder given in
+     * {@link ExperimentMetaData#getReportLocation}.
+     *
+     * @throws IOException if an I/O error occurs writing to or creating or writing the file
+     */
     public static void updateMetaData(ExperimentMetaData metaData) throws IOException {
         final Gson gson = GsonHelper.getGsonBuilder().serializeNulls().setPrettyPrinting().create();
         final String json = gson.toJson(metaData);
