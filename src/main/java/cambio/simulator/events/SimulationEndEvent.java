@@ -41,10 +41,10 @@ public class SimulationEndEvent extends NamedExternalEvent {
     public void eventRoutine() throws SuspendExecution {
         model.getArchitectureModel().getMicroservices().forEach(Microservice::finalizeStatistics);
 
-        model.getExperimentMetaData().markStartOfReport(System.currentTimeMillis());
+        model.getExperimentMetaData().markStartOfReport(System.nanoTime());
         triggerReport();
+        model.getExperimentMetaData().markEndOfExecution(System.nanoTime());
         clReport();
-        model.getExperimentMetaData().markEndOfExecution(System.currentTimeMillis());
     }
 
     private void triggerReport() {
@@ -65,6 +65,5 @@ public class SimulationEndEvent extends NamedExternalEvent {
         System.out.println("Experiment took:            " + Util.timeFormat(metaData.getExperimentDuration()));
         System.out.println("Report took:                " + Util.timeFormat(metaData.getReportDuration()));
         System.out.println("Execution took:             " + Util.timeFormat(metaData.getExecutionDuration()));
-
     }
 }
