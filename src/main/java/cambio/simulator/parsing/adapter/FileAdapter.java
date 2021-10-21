@@ -24,7 +24,7 @@ public class FileAdapter extends TypeAdapter<File> {
         if (value == null) {
             out.nullValue();
         } else {
-            out.jsonValue(value.getAbsolutePath());
+            out.value(value.getAbsolutePath());
         }
     }
 
@@ -35,6 +35,9 @@ public class FileAdapter extends TypeAdapter<File> {
             return null;
         }
         String path = reader.nextString();
+        if (path.startsWith("\"")) {
+            path = path.replaceAll("\"", "");
+        }
         return new File(path);
     }
 }
