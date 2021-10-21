@@ -78,10 +78,10 @@ public final class ExportUtils {
     }
 
     public static void updateMetaData(ExperimentMetaData metaData) throws IOException {
-        final Gson gson = GsonHelper.getGsonBuilder().serializeNulls().create();
+        final Gson gson = GsonHelper.getGsonBuilder().serializeNulls().setPrettyPrinting().create();
         final String json = gson.toJson(metaData);
 
-        Files.write(Paths.get(metaData.getReportLocation().toString(), "meta.json"),
+        Files.write(Paths.get(metaData.getReportLocation().toString(), "metadata.json"),
             json.getBytes(StandardCharsets.UTF_8),
             StandardOpenOption.CREATE);
     }
