@@ -72,8 +72,6 @@ public class Main {
         ExperimentMetaData metaData = model.getExperimentMetaData();
 
         Path reportLocation = ExportUtils.prepareReportDirectory(model);
-        metaData.setReportLocation(reportLocation);
-
 
         if (cl.hasOption(CLI.debugOutput.getOpt())) {
             model.debugOn();

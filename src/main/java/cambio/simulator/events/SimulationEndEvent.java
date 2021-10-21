@@ -1,10 +1,12 @@
 package cambio.simulator.events;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.TreeMap;
 
 import cambio.simulator.entities.NamedExternalEvent;
 import cambio.simulator.entities.microservice.Microservice;
+import cambio.simulator.export.ExportUtils;
 import cambio.simulator.export.ReportCollector;
 import cambio.simulator.export.ReportWriter;
 import cambio.simulator.misc.Priority;
@@ -28,8 +30,8 @@ public class SimulationEndEvent extends NamedExternalEvent {
      * Creates a new {@link SimulationEndEvent} that finishes off the simulation.
      *
      * <p>
-     * This Event automatically is assigned {@link Priority#HIGH} so it executes before the
-     * {@link desmoj.core.simulator.ExternalEventStop} that stops the simulation.
+     * This Event automatically is assigned {@link Priority#HIGH} so it executes before the {@link
+     * desmoj.core.simulator.ExternalEventStop} that stops the simulation.
      */
     public SimulationEndEvent(MiSimModel model, String name, boolean showInTrace) {
         super(model, name, showInTrace);
@@ -44,6 +46,15 @@ public class SimulationEndEvent extends NamedExternalEvent {
         model.getExperimentMetaData().markStartOfReport(System.nanoTime());
         triggerReport();
         model.getExperimentMetaData().markEndOfExecution(System.nanoTime());
+
+        //update the report metadata
+        try {
+            ExportUtils.updateMetaData(model.getExperimentMetaData());
+        } catch (IOException e) {
+            System.out.println("[Error] could not write final metadata. The write-out you will find in the results may"
+                + " only contains information gathered before the simulation started.");
+        }
+
         clReport();
     }
 

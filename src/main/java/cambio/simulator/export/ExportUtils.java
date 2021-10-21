@@ -35,8 +35,8 @@ public final class ExportUtils {
     }
 
     /**
-     * Creates the report directory of the current experiment.
-     * The directory name will consist of the experiment name and a timestamp of when the directory was created.
+     * Creates the report directory of the current experiment. The directory name will consist of the experiment name
+     * and a timestamp of when the directory was created.
      *
      * @param metaData metadata that should be serialized and contains the report directory base location
      * @return the {@link Path} to the created report directory.
@@ -54,16 +54,14 @@ public final class ExportUtils {
         final Path reportLocation = Paths.get(reportLocationBaseDirectory.toString(),
             metaData.getExperimentName() + "_" + dateString);
 
+        metaData.setReportLocation(reportLocation);
+
         try {
             Files.createDirectories(reportLocation);
 
             //copy metadata, architecture and experiment
-            final Gson gson = GsonHelper.getGsonBuilder().serializeNulls().create();
-            final String json = gson.toJson(metaData);
+            updateMetaData(metaData);
 
-            Files.write(Paths.get(reportLocation.toString(), "meta.json"),
-                json.getBytes(StandardCharsets.UTF_8),
-                StandardOpenOption.CREATE);
             Files.copy(metaData.getArchitectureDescriptionLocation().toPath(),
                 Paths.get(reportLocation.toString(), "architecture.json"));
             Files.copy(metaData.getExperimentDescriptionLocation().toPath(),
@@ -77,5 +75,14 @@ public final class ExportUtils {
             e.printStackTrace();
         }
         return reportLocation;
+    }
+
+    public static void updateMetaData(ExperimentMetaData metaData) throws IOException {
+        final Gson gson = GsonHelper.getGsonBuilder().serializeNulls().create();
+        final String json = gson.toJson(metaData);
+
+        Files.write(Paths.get(metaData.getReportLocation().toString(), "meta.json"),
+            json.getBytes(StandardCharsets.UTF_8),
+            StandardOpenOption.CREATE);
     }
 }
