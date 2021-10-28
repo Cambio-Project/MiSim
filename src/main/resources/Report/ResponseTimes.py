@@ -1,79 +1,66 @@
 import glob
 import json
+import os
+import sys
+
 import matplotlib.pyplot as plt
 import numpy as np
-import os
 import pandas as pd
 
+datasets = []
+duration = np.float32(json.load(open("metadata.json"))["duration"])
 
-def pull_data() -> None:
-    datasets = []
-    loadsets = []
-    duration = json.load(open("meta.json"))["duration"]
+for file in glob.glob(os.path.join(".", "raw", "*_ResponseTimes.csv")):
+    data = pd.read_csv(file, sep=";",
+                       usecols=[0, 1], dtype=np.float32)
 
-    for file in os.listdir("./raw/"):
-        if (file.endswith("_ResponseTimes.csv")):
-            data = pd.read_csv("./raw/" + file, sep=";", usecols=[0, 1])
+    # bin data over Simulation Time with 1s bins
+    data["simulation_time_rounded_down"] = data["Simulation Time"].apply(
+        lambda x: np.int64(x))
 
-            data["Simulation Time"] = np.int32(data["Simulation Time"] - 0.5)
-            groups = data.groupby("Simulation Time")
-            mean = groups.mean().reset_index()
-            std_mean = groups.sem().reset_index()
-            datasets.append((file.strip(), mean, std_mean))
+    # group by bins and calculates means and std over bins
+    groups = data.groupby("simulation_time_rounded_down")
+    mean = groups.mean().reset_index()
+    std_mean = groups.sem().reset_index()
 
-            mean["Error"] = std_mean["Value"]
-            mean["Avg. Simulated Response Time"] = mean["Value"]
+    # calculate the mean of the std over bins
+    mean["error"] = std_mean["Value"]
+    mean["mean_of_bin"] = mean["Value"]
 
-            mean.to_csv("./raw/" + file.replace("Times.csv", "Times_mean.csv"))
+    # drop columns "Value" and "Simulation Time" for readability
+    mean = mean.drop(columns=["Value", "Simulation Time"])
 
-            loadfile = file.replace("_ResponseTimes.csv", "")
-            loadfile = loadfile[2:loadfile.rindex("]"):]
-            loadfile = glob.glob("./raw/*" + loadfile + "*Load.csv")[0]
-            load_data = pd.read_csv(loadfile, sep=";", usecols=[0, 1])
+    # output processed data to an additional csv file
+    output_file = file.replace(".csv", "_processed.csv")
+    mean.to_csv(output_file, sep=";", index=False)
 
-            # binning to seconds because pandas refuses to do it itself
-            load_data["Simulation Time"] = np.int32(
-                load_data["Simulation Time"])
-            grouped = load_data.groupby("Simulation Time")
-            grouped = grouped.apply(lambda x: x["Value"].sum())
-            grouped = grouped.reset_index()
-            grouped["Value"] = grouped[0]
+    endpoint_name = file[file.index("["):file.index("]")]
+    datasets.append((endpoint_name, mean))
 
-            loadsets.append((loadfile.strip(), grouped))
+if len(datasets) == 0:
+    print("No dataset found!")
+    exit(1)
 
-    if (len(datasets) == 0):
-        return
+# use --no-plot for headless mode
+if len(sys.argv) > 1 and (sys.argv[1] == "--no-plot" or sys.argv[1] == "--headless"):
+    exit(0)
 
-    fig, axs = plt.subplots(len(datasets), 2)
-    plt.tight_layout()
+fig = plt.figure(1)
+plt.tight_layout()
 
-    maxTime = duration
-    step = int(maxTime / 10)
-    step = round(step / 10) * 10
-    step = step if step > 1 else 1
-    xtickz = list(range(0, int(maxTime + step), step))
+maxTime = duration
+step = max(int(maxTime / 10), 1)
+x_ticks = range(0, int(duration + step), step)
 
-    loc = 0
-    for dataset in datasets:
-        ax = axs[loc][0] if len(datasets) > 1 else axs[0]
-        ax.scatter(x=dataset[1]["Simulation Time"], y=dataset[1]["Value"])
-        ax.set_title(dataset[0])
-        ax.set_ylim(ymin=0)
-        ax.set_xticks(xtickz)
-        loc = loc + 1
+for index, (title, dataset) in enumerate(datasets, start=1):
+    ax = fig.add_subplot(len(datasets), 1, index)
+    ax.errorbar(dataset["simulation_time_rounded_down"], dataset
+    ["mean_of_bin"], dataset["error"], linestyle='None', marker='o')
+    ax.plot(dataset["simulation_time_rounded_down"],
+            dataset["mean_of_bin"], linewidth=1)
+    ax.set_title(title)
+    ax.set_ylim(ymin=0)
+    ax.set_xlim(xmin=0.1)
+    ax.set_xticks(x_ticks)
 
-    loc = 0
-    for dataset in loadsets:
-        ax = axs[loc][1] if len(datasets) > 1 else axs[1]
-        ax.scatter(x=dataset[1]["Simulation Time"], y=dataset[1]["Value"])
-        ax.plot(dataset[1]["Simulation Time"], dataset[1]["Value"])
-        ax.set_title(dataset[0])
-        ax.set_ylim(ymin=0)
-        ax.set_xticks(xtickz)
-        loc = loc + 1
-
-
-while (True):
-    pull_data()
-    plt.show()
-    plt.close()
+plt.show()
