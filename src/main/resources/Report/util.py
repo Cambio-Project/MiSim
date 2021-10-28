@@ -22,15 +22,14 @@ def plot(datasets: List[Tuple[str, DataFrame]],
     fig = plt.figure(1)
     plt.tight_layout()
 
-    max_time = duration
-    step = max(int(max_time / 10), 1)
+    step = max(int(duration / 10), 1)
     x_ticks = range(0, int(duration + step), step)
 
     for index, (title, dataset) in enumerate(datasets, start=1):
         ax = fig.add_subplot(len(datasets), 1, index)
         ax.set_title(title)
-        ax.set_ylim(ymin=0)
-        ax.set_xlim(xmin=0.1)
+        ax.set_ylim(ymin=0, auto=True)
+        ax.set_xlim(xmin=0.1, xmax=duration)
         ax.set_xticks(x_ticks)
         consumer(ax, dataset)
 
