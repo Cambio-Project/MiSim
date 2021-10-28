@@ -135,6 +135,7 @@ public final class LoadGeneratorDescriptionExecutor extends RequestSender implem
         @Override
         public void lifeCycle() throws SuspendExecution {
             sendNewUserRequest();
+            accReporter.addDatapoint("Load", presentTime(), 1);
             try {
                 TimeInstant next = loadGeneratorDescription.getNextTimeInstant();
                 this.hold(next);
