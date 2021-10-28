@@ -88,4 +88,12 @@ public class MultiDataPointReporter extends Reporter {
         dataSets.clear();
     }
 
+
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName()
+            + "{"
+            + "datasetsPrefix='" + datasetsPrefix + '\''
+            + '}';
+    }
 }
