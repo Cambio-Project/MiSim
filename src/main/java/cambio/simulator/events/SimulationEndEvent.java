@@ -72,6 +72,8 @@ public class SimulationEndEvent extends NamedExternalEvent {
             + metaData.getArchitectureDescriptionLocation().getAbsolutePath());
         System.out.println("Executed Experiment:        "
             + metaData.getExperimentDescriptionLocation().getAbsolutePath());
+        System.out.println("Report Location:            "
+            + metaData.getReportLocation().toAbsolutePath());
         System.out.println("Setup took:                 " + Util.timeFormat(metaData.getSetupDuration()));
         System.out.println("Experiment took:            " + Util.timeFormat(metaData.getExperimentDuration()));
         System.out.println("Report took:                " + Util.timeFormat(metaData.getReportDuration()));
