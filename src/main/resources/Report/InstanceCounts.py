@@ -1,37 +1,19 @@
-import matplotlib.pyplot as plt
+import glob
 import os
+
+import matplotlib.pyplot as plt
 import pandas
 
+import util
 
-def pull_data() -> None:
-    datasets = []
-    loadsets = []
+datasets = []
 
-    for file in os.listdir("./raw/"):
-        if (file.endswith("_InstanceCount.csv")):
-            data = pandas.read_csv("./raw/" + file, sep=";", usecols=[0, 1])
-            datasets.append((file.strip(), data))
+for file in glob.glob(os.path.join(".", "raw", "_InstanceCount.csv")):
+    data = pandas.read_csv(file, sep=";", usecols=[0, 1])
 
-    if (len(datasets) == 0):
-        return
+    endpoint_name = file[file.index("["):file.index("]")]
+    datasets.append((endpoint_name, data))
 
-    fig, axs = plt.subplots(len(datasets), 1)
-    plt.tight_layout()
+util.plot(datasets, lambda ax, dataset: ax.plot(dataset["Simulation Time"], dataset["Value"]))
 
-    loc = 0
-    for dataset in datasets:
-        ax = axs[loc]
-        ax.plot(dataset[1]["Simulation Time"], dataset[1]["Value"])
-        ax.set_title(dataset[0])
-        loc = loc + 1
-
-    loc = 0
-    for dataset in loadsets:
-        ax = axs[loc]
-        ax.scatter(x=dataset[1]["Simulation Time"], y=dataset[1]["Value"])
-        ax.set_title(dataset[0])
-        loc = loc + 1
-
-
-pull_data()
 plt.show()

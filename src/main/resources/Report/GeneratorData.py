@@ -1,79 +1,71 @@
 import glob
 import json
+from matplotlib.axes import Axes
 import matplotlib.pyplot as plt
+from numpy import NaN
 import pandas as pd
+import numpy as np
+from pandas.core.frame import DataFrame
+
+import util
+import os
+
+datasets = []
+timepoints = set()
+duration = json.load(open("metadata.json"))["duration"]
 
 
-def pull_data() -> None:
-    datasets = []
-    timepoints = set()
-    duration = json.load(open("meta.json"))["duration"]
+for file in glob.glob(os.path.join(".", "raw", "G*_Load.csv")):
 
-    for file in glob.glob("./raw/G*_Load.csv"):
-        name = file.rsplit("_", 1)[0][6:]
-        dataLoad = pd.read_csv(file, sep=";", usecols=[0, 1])
-        dataSuccessful = pd.read_csv(
-            "./raw/" + name + "_SuccessfulRequests.csv", sep=";", usecols=[0, 1])
-        dataFailed = pd.read_csv(
-            "./raw/" + name + "_FailedRequests.csv", sep=";", usecols=[0, 1])
+    dataLoad = pd.read_csv(file, sep=";", usecols=[0, 1])
+    dataSuccessful = pd.read_csv(
+        file.replace("_Load.csv", "_SuccessfulRequests.csv"), sep=";", usecols=[0, 1])
+    dataFailed = pd.read_csv(
+        file.replace("_Load.csv", "_FailedRequests.csv"), sep=";", usecols=[0, 1])
 
-        timepoints.update(dataLoad["Simulation Time"])
-        timepoints.update(dataSuccessful["Simulation Time"])
-        timepoints.update(dataSuccessful["Simulation Time"])
+    sucessrate = pd.DataFrame()
+    sucessrate["Simulation Time"] = dataSuccessful["Simulation Time"]
+    sucessrate["Value"] = dataSuccessful["Value"].div(
+        dataSuccessful["Value"] + dataFailed["Value"])
 
-        # combined = dataSuccessful["Value"].add(
-        #     dataFailed["Value"], fill_value=0)
+    joined = dataLoad.merge(dataSuccessful,
+                            how="outer", on="Simulation Time", suffixes=("_Load", "_Successful"))
+    joined = joined.merge(dataFailed, how="outer", on="Simulation Time")
+    joined.rename(columns={"Value_Load": "Load",
+                           "Value_Successful": "Successful", "Value": "Failed"}, inplace=True)
 
-        # dataFailed["Value"] = combined
-        sucessrate = pd.DataFrame()
-        sucessrate["Simulation Time"] = dataSuccessful["Simulation Time"]
-        sucessrate["Value"] = dataSuccessful["Value"].div(
-            dataSuccessful["Value"] + dataFailed["Value"])
+    joined["Successrate"] = joined["Successful"].div(
+        joined["Successful"] + joined["Failed"])
 
-        datasets.append(
-            (name, sucessrate, dataSuccessful, dataFailed))
+    joined.to_csv(file.replace("_Load", "_processed"), sep=";")
 
-    if (len(datasets) == 0):
-        return
-
-    fig, axs = plt.subplots(len(datasets), 1)
-    plt.tight_layout()
-
-    maxTime = duration
-    step = int(maxTime / 10)
-    step = round(step / 10) * 10
-    step = step if step > 1 else 1
-    xtickz = list(range(0, int(maxTime + step), step))
-
-    loc = 0
-    for dataset in datasets:
-        ax = axs[loc] if len(datasets) > 1 else axs
-        # ax.scatter(x=dataset[1]["Simulation Time"],y=dataset[1]["Value"], color="blue", label="Load")
-        ax.scatter(x=dataset[2]["Simulation Time"], y=dataset[2]["Value"],
-                   color="green", label="Successful")
-        ax.scatter(x=dataset[3]["Simulation Time"], y=dataset[3]
-        ["Value"], color="blue", label="Failed")
-        ax.plot(dataset[1]["Simulation Time"], dataset[1]
-        ["Value"], color="yellow", label="SucessRate")
-
-        # ax.fill_between(dataset[1]["Simulation Time"], 0,
-        #                 dataset[1]["Value"], facecolor="blue",
-        #                 label="Load")
-        # ax.fill_between(dataset[3]["Simulation Time"], 0, dataset[3]
-        #                 ["Value"], facecolor="red", label="Failed")
-        # ax.fill_between(dataset[2]["Simulation Time"], 0,
-        #                 dataset[2]["Value"], facecolor="green",
-        #                 label="Successful")
-
-        ax.set_title(dataset[0])
-        ax.set_ylim(ymin=0)
-        ax.set_xlim(xmin=0)
-        ax.set_xticks(xtickz)
-        ax.legend()
-        loc = loc + 1
+    name = file[file.rindex("[")+1:file.rindex("]")]
+    datasets.append((name, joined))
 
 
-while (True):
-    pull_data()
-    plt.show()
-    plt.close()
+def write_dataset(ax: Axes, ax2: Axes, dataset: DataFrame):
+    ax.plot(dataset["Simulation Time"],
+            dataset["Load"],
+            color="yellow",
+            label="Load")
+    ax.scatter(x=dataset["Simulation Time"],
+               y=dataset["Successful"],
+               color="green",
+               label="Successful")
+    ax.scatter(x=dataset["Simulation Time"],
+               y=dataset["Failed"],
+               color="blue",
+               label="Failed")
+
+    mask = np.isfinite(dataset["Successrate"])
+    ax2.plot(dataset["Simulation Time"][mask],
+             dataset["Successrate"][mask],
+             color="black",
+             linewidth=2,
+             label="Successrate")
+    ax2.set_ylim(-0.01, 1.01)
+    ax.legend()
+    ax2.legend()
+
+
+util.plot_two_column(datasets, write_dataset)
