@@ -1,22 +1,19 @@
 import glob
 import json
-from matplotlib.axes import Axes
-import matplotlib.pyplot as plt
-from numpy import NaN
-import pandas as pd
+import os
+
 import numpy as np
+import pandas as pd
+from matplotlib.axes import Axes
 from pandas.core.frame import DataFrame
 
 import util
-import os
 
 datasets = []
 timepoints = set()
 duration = json.load(open("metadata.json"))["duration"]
 
-
 for file in glob.glob(os.path.join(".", "raw", "G*_Load.csv")):
-
     dataLoad = pd.read_csv(file, sep=";", usecols=[0, 1])
     dataSuccessful = pd.read_csv(
         file.replace("_Load.csv", "_SuccessfulRequests.csv"), sep=";", usecols=[0, 1])
@@ -39,7 +36,7 @@ for file in glob.glob(os.path.join(".", "raw", "G*_Load.csv")):
 
     joined.to_csv(file.replace("_Load", "_processed"), sep=";")
 
-    name = file[file.rindex("[")+1:file.rindex("]")]
+    name = file[file.rindex("[") + 1:file.rindex("]")]
     datasets.append((name, joined))
 
 

@@ -1,8 +1,6 @@
 import glob
-import json
 import os
 
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from matplotlib.axes import Axes
@@ -52,4 +50,3 @@ def write_dataset(ax: Axes, dataset: DataFrame):
 
 
 util.plot(datasets, write_dataset)
-

@@ -1,11 +1,10 @@
 import glob
-import json
-from matplotlib.axes import Axes
-import matplotlib.pyplot as plt
-import pandas as pd
-from pandas.core.frame import DataFrame
 
 import numpy as np
+import pandas as pd
+from matplotlib.axes import Axes
+from pandas.core.frame import DataFrame
+
 import util
 
 datasets = []
@@ -20,13 +19,13 @@ for file in glob.glob("./raw/C*_Usage.csv"):
     joined = dataUsage.merge(
         dataActive, on="Simulation Time", suffixes=("_Usage", "_Active"))
     joined = joined.merge(dataTotal, on="Simulation Time")
-    joined = joined.rename(columns={"Value": "Value_Total"},)
+    joined = joined.rename(columns={"Value": "Value_Total"})
 
-    name = file[file.index("[")+1:file.index("]")]
+    name = file[file.index("[") + 1:file.index("]")]
     datasets.append((name, joined))
 
 
-def write_data(ax: Axes, dataset: DataFrame):
+def write_data(ax: Axes, ax2: Axes, dataset: DataFrame):
     mask = np.isfinite((dataset["Value_Total"]))
 
     ax.fill_between(dataset["Simulation Time"][mask],
@@ -41,6 +40,16 @@ def write_data(ax: Axes, dataset: DataFrame):
                     label="ActiveProcesses")
     ax.legend()
 
+    ax2.plot(dataset["Simulation Time"],
+             dataset["Value_Usage"],
+             label="Usage (%)",
+             linewidth=0.25)
+    ax2.scatter(x=dataset["Simulation Time"],
+                y=dataset["Value_Usage"],
+                c="black",
+                marker="2")
+    ax2.set_ylim(-0.01, 1.01)
+    ax2.legend()
 
-util.plot(datasets, write_data)
 
+util.plot_two_column(datasets, write_data)
