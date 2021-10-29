@@ -33,7 +33,7 @@ def plot(datasets: List[Tuple[str, DataFrame]],
     fig, x_ticks = _setup(datasets)
 
     for index, (title, dataset) in enumerate(datasets, start=1):
-        ax = fig.add_subplot(1, 1, index)
+        ax = fig.add_subplot(len(datasets), 1, index)
         ax.set_title(title)
         ax.set_ylim(ymin=0, auto=True)
         ax.set_xlim(xmin=0.1, xmax=x_ticks.stop)
