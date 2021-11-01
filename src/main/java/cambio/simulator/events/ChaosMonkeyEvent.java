@@ -18,7 +18,7 @@ import desmoj.core.simulator.Model;
 public class ChaosMonkeyEvent extends SelfScheduledExperimentAction {
     @Expose
     @SerializedName(value = "instances", alternate = {"instance_count", "killed_instance_count", "killed_instances"})
-    private int instances;
+    private int instances = Integer.MAX_VALUE;
 
     @Expose
     private Microservice microservice;
