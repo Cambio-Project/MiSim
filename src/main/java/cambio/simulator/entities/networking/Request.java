@@ -21,7 +21,7 @@ import org.apache.commons.math3.util.Precision;
  */
 public abstract class Request extends NamedEntity {
     public final Operation operation;
-    private final Set<NetworkDependency> dependencies = new HashSet<>();
+    private final Set<ServiceDependencyInstance> dependencies = new HashSet<>();
     private final Request parent;
     private final MicroserviceInstance requester;
     private final PriorityQueue<IRequestUpdateListener> updateListeners = new PriorityQueue<>();
@@ -67,7 +67,7 @@ public abstract class Request extends NamedEntity {
 
                 Operation nextOperationEntity = dependencyDescription.getTargetOperation();
 
-                NetworkDependency dep = new NetworkDependency(getModel(), this, nextOperationEntity,
+                ServiceDependencyInstance dep = new ServiceDependencyInstance(getModel(), this, nextOperationEntity,
                     dependencyDescription);
 
                 dependencies.add(dep);
@@ -75,7 +75,7 @@ public abstract class Request extends NamedEntity {
         }
     }
 
-    public final Set<NetworkDependency> getDependencies() {
+    public final Set<ServiceDependencyInstance> getDependencies() {
         return dependencies;
     }
 
@@ -201,12 +201,12 @@ public abstract class Request extends NamedEntity {
     }
 
     /**
-     * Tells this request that one {@link NetworkDependency} has finished.
+     * Tells this request that one {@link ServiceDependencyInstance} has finished.
      *
      * @param dep dependency that was completed
      * @return whether all dependencies are completed
      */
-    public boolean notifyDependencyHasFinished(NetworkDependency dep) {
+    public boolean notifyDependencyHasFinished(ServiceDependencyInstance dep) {
         if (this.dependenciesCompleted) {
             throw new IllegalStateException("Dependencies were already completed!");
         }
@@ -238,15 +238,15 @@ public abstract class Request extends NamedEntity {
 
 
     /**
-     * Gets the {@link NetworkDependency} that should be completed by the given request.
+     * Gets the {@link ServiceDependencyInstance} that should be completed by the given request.
      *
      * @param request child request of this request.
-     * @return the {@link NetworkDependency} that is related to the given request, {@code null} otherwise.
+     * @return the {@link ServiceDependencyInstance} that is related to the given request, {@code null} otherwise.
      */
-    public NetworkDependency getRelatedDependency(Request request) {
-        for (NetworkDependency networkDependency : dependencies) {
-            if (networkDependency.getChildRequest() == request) {
-                return networkDependency;
+    public ServiceDependencyInstance getRelatedDependency(Request request) {
+        for (ServiceDependencyInstance serviceDependencyInstance : dependencies) {
+            if (serviceDependencyInstance.getChildRequest() == request) {
+                return serviceDependencyInstance;
             }
         }
         return null;
