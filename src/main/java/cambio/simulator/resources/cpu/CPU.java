@@ -28,7 +28,7 @@ import org.javatuples.Pair;
  */
 public class CPU extends NamedExternalEvent {
 
-    private static final int DEFAULT_THREADPOOLSIZE = 100;
+    private static final int DEFAULT_THREADPOOLSIZE = 4;
 
     private final MultiDataPointReporter reporter;
 
