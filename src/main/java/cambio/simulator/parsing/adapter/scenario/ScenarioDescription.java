@@ -61,7 +61,7 @@ public final class ScenarioDescription {
             || StringUtils.isEmpty(artifact)
             || StringUtils.isEmpty(component)
             || StringUtils.isEmpty(name)) {
-            throw new ParsingException("Scenario is missing parts! (stimulus,artifact,component,name)");
+            throw new ParsingException("Scenario is missing parts! (stimulus, artifact, component, name)");
         } else if (StringUtils.isBlank(environment)
             || StringUtils.isBlank(response)
             || responseMeasures == null) {
@@ -159,7 +159,7 @@ public final class ScenarioDescription {
             } else if (stimuliArray.length == 3) {
                 service = NameResolver.resolveMicroserviceName(model, stimuliArray[1]);
                 instances = Integer.parseInt(stimuliArray[2]);
-            } else {
+            } else if (stimuliArray.length != 1) {
                 throw new ParsingException("KILL was not defined correctly (KILL [<service_name>] "
                     + "[<#instances>]@<target_time>)");
             }
