@@ -1,0 +1,75 @@
+{
+  "network_latency": ".02+.002-0.001",
+  "microservices": [
+    {
+      "name": "gateway",
+      "instances": 1,
+      "capacity": 10000,
+      "loadbalancer_strategy": "even",
+      "operations": [
+        {
+          "name": "API_Endpoint",
+          "demand": 1,
+          "dependencies": [
+            {
+              "service": "Service_A",
+              "operation": "dependentCalculation"
+            }
+          ]
+        }
+      ],
+      "patterns": [
+        {
+          "type": "retry",
+          "strategy": {
+            "type": "linear"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Service_A",
+      "instances": 2,
+      "patterns": [],
+      "capacity": 75,
+      "operations": [
+        {
+          "name": "dependentCalculation",
+          "demand": 10,
+          "dependencies": [
+            {
+              "operation": "Service_B.doWork",
+              "probability": 0.75
+            }
+          ]
+        }
+      ],
+      "s_patterns": [
+        {
+          "type": "autoscaling",
+          "config": {
+            "period": 0.5
+          },
+          "strategy": {
+            "type": "reactive",
+            "config": {
+              "lower_bound": 0.2,
+              "upper_bound": 0.8
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Service_B",
+      "instances": 1,
+      "capacity": 32000,
+      "operations": [
+        {
+          "name": "doWork",
+          "demand": 1
+        }
+      ]
+    }
+  ]
+}
