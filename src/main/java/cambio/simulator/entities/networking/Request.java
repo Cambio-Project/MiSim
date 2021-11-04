@@ -47,6 +47,7 @@ public abstract class Request extends NamedEntity {
         this.parent = parent;
         createDependencies();
         if (dependencies.isEmpty()) {
+            //TODO: clean up this mess (this call is made to neatly trigger onDependenciesComplete)
             notifyDependencyHasFinished(null);
         }
     }
@@ -55,8 +56,7 @@ public abstract class Request extends NamedEntity {
     private void createDependencies() {
         // Roll probability
         Random prob;
-        prob = new Random(((MiSimModel) getModel()).getExperimentMetaData().getSeed()); //TODO: resolve this mess (e
-        // .g. enforce MiSimModel in NamedEntity)
+        prob = new Random(((MiSimModel) getModel()).getExperimentMetaData().getSeed()); //TODO: resolve this mess
 
         for (DependencyDescription dependencyDescription : operation.getDependencyDescriptions()) {
 
@@ -204,25 +204,33 @@ public abstract class Request extends NamedEntity {
      * Tells this request that one {@link NetworkDependency} has finished.
      *
      * @param dep dependency that was completed
+     * @return whether all dependencies are completed
      */
     public boolean notifyDependencyHasFinished(NetworkDependency dep) {
         if (this.dependenciesCompleted) {
             throw new IllegalStateException("Dependencies were already completed!");
         }
 
+        long uncompletedCount =
+            dependencies.stream().filter(networkDependency -> !networkDependency.isCompleted()).count();
+
         if (dep != null) {
             if (!dependencies.contains(dep)) {
                 throw new IllegalStateException("This dependency is not part of this Request");
             }
             dep.setCompleted();
+
+            this.sendTraceNote(String.format("Completed Dependency \"%s\".", dep));
+            this.sendTraceNote(String.format("Remaining Dependencies: %d.", uncompletedCount - 1));
         }
 
-        if ((dependencies.stream().allMatch(NetworkDependency::isCompleted))) {
+        if (uncompletedCount == 0) {
             this.dependenciesCompleted = true;
             onDependenciesComplete();
             if (dependenciesCompleted && computationCompleted) {
                 onCompletion();
             }
+            this.sendTraceNote(String.format("Dependencies of Request \"%s\" are completed.", this.getName()));
             return true;
         }
         return false;
