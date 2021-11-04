@@ -154,7 +154,7 @@ public class Microservice extends NamedEntity {
             if (getInstancesCount() < targetInstanceCount) {
                 //TODO: restart shutdown instances instead of creating new ones
                 changedInstance =
-                    new MicroserviceInstance(getModel(), String.format("[%s]_I%d", getName(), instanceSpawnCounter),
+                    new MicroserviceInstance(getModel(), String.format("%s_I%d", getName(), instanceSpawnCounter),
                         this.traceIsOn(), this, instanceSpawnCounter);
                 changedInstance.activatePatterns(instanceOwnedPatternConfigurations);
                 instanceSpawnCounter++;

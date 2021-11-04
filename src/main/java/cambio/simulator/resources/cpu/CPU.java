@@ -78,7 +78,7 @@ public class CPU extends NamedExternalEvent {
      * Constructs a new CPU resource instance.
      *
      * @param model          parent and simulation model
-     * @param name           CPU name, should be formatted {}_{}
+     * @param name           CPU name
      * @param showInTrace    whether the computation events should be shown in the trace
      * @param owner          instance that owns this cpu
      * @param capacity       total capacity of the cpu resource. Each thread will be assigned a capacity of {@code
@@ -98,8 +98,7 @@ public class CPU extends NamedExternalEvent {
         this.threadPoolSize = threadPoolSize;
         activeProcesses = new HashSet<>(threadPoolSize);
 
-        String[] names = name.split("_");
-        reporter = new MultiDataPointReporter(String.format("C%s_[%s]_", names[0], names[1]));
+        reporter = new MultiDataPointReporter(String.format("C[%s]_", name));
     }
 
     /**

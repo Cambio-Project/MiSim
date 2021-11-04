@@ -36,7 +36,11 @@ public class NetworkDependency extends NamedEntity {
      */
     public NetworkDependency(Model model, Request parentRequest, Operation targetOp,
                              DependencyDescription dependencyDescription) {
-        super(model, String.format("Dependency(%s)of[%s]", targetOp.getPlainName(), parentRequest.getPlainName()),
+        super(model,
+            String.format(
+                "%s_depends_on_%s",
+                parentRequest.operation.getFullyQualifiedPlainName(),
+                targetOp.getFullyQualifiedPlainName()),
             false);
         this.parentRequest = parentRequest;
         this.targetOp = targetOp;

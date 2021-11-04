@@ -81,7 +81,7 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
             new FIFOScheduler("Scheduler"), this);
 
         String[] names = name.split("_");
-        reporter = new MultiDataPointReporter(String.format("I%s_[%s]_", names[0], names[1]));
+        reporter = new MultiDataPointReporter(String.format("I[%s]_", name));
 
         changeState(InstanceState.CREATED);
 

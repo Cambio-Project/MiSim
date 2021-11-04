@@ -61,8 +61,8 @@ public final class LoadGeneratorDescriptionExecutor extends RequestSender implem
         super.sendTraceNote("starting Generator " + this.getQuotedName());
 
         String reportName = String
-            .format("G[%s]_[%s(%s)]_", this.getClass().getSimpleName(), targetOperation.getOwnerMS().getName(),
-                targetOperation.getName());
+            .format("G[%s]_[%s(%s)]_", this.getClass().getSimpleName(), targetOperation.getOwnerMS().getPlainName(),
+                targetOperation.getPlainName());
         accReporter = new AccumulativeDataPointReporter(reportName);
 
 
