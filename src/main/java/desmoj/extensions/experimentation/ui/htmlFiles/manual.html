@@ -1,0 +1,69 @@
+<HTML>
+<HEAD>
+    <TITLE>Desmo-J Experiment Starter Users Manual</TITLE>
+</HEAD>
+<BODY>
+<H3>Desmo-J Experiment Starter Users Manual</H3>
+<P><B>Applet GUI v1.0 - Java 1.4<BR>
+    @author Gunnar Kiesel - 27.11.2003</B></P>
+
+<UL>
+    <LI>1. What is the Desmo-J Experiment Starter?</LI>
+    <LI>1.1 System requirements</LI>
+    <LI>2. Usage</LI>
+    <LI>2.1 Top Buttons</LI>
+    <LI>2.2 Panels</LI>
+    <LI>3. Known Problems</LI>
+</UL>
+
+<P><B>1. What is the Desmo-J Experiment Starter?</B><BR>
+    The Experiment Starter enables you to run an experiment (or a series of experiments) on a Desmo-J model. You are
+    able to manipulate the given model and experiment parameters. Parameter sets can be saved and loaded. Graphical
+    observers can provide visual information on the experiment. Finally you'll be able to view experiment results.</P>
+
+<P><B>1.1 System requirements</B><BR>
+    Java 1.4 is needed to run the Experiment Starter Applet. The Applet works on Windows platforms with IE5.5+ and
+    Mozilla 1.5+ (see known problems), on Sun Solaris Systems with Mozilla and on Mac OS X with Safari 1.1.</P>
+
+<P><B>2. Usage</B></P>
+
+<P><B>2.1 Top Buttons</B><BR>
+    <B>Load</B> - Enables you to load a paramter set from file.<BR>
+    <B>Save</B> - Saves the current parameter settings into an XML file.<BR>
+    <B>Reset</B> - Once an experiment has been run you'll need to reset it. Only then will you be able to run a new
+    experiment. 'Reset' resets all parameter to their default values.<BR>
+    <B>Start</B> - Starts the experiment with the current parameter values.<BR>
+    <B>Stop</B> - Stops a running experiment and creates reports (Experiments are automatically stopped when the
+    stopTime value is reached). Stopped experiments cannot be continued.<BR>
+    <B>Pause</B> - Allows you to pause and resume an experiment run. Observers will be updated when pause is activated.
+    However, no reports will be generated.<BR>
+
+<P><B>2.2 Panels</B></P>
+
+<P><B>Settings</B><BR>
+    The Settings panel, which is divided in two halves, shows you the current model- and experiment- parameters.
+    To change a given value, click the corresponding field. Press 'enter' to complete your input.
+    Make sure you enter a new name for each new parameter set.</P>
+
+<P><B>Observers</B><BR>
+    Provides you with graphical information on the current experiment. Observers will appear at the start of an
+    experiment. Graphs will be updated at whenever an experiment is paused or at the end of an experiment.</P>
+
+<P><B>Reports</B><BR>
+    Allows you to view the reports generated at the end of an experiment. On the left hand side double click the
+    'simulation output' folder. A new folder with the current experiment name will appear.
+    Double click the new folder or single click the switch next to it to open. Four documents corresponding to the
+    generated output will appear. Single click them to view the information in the browser on the right.<BR>
+    IMPORTANT: To be able to view different result sets you have to enter different names in the experiment settings, or
+    previous results will be overwritten!</P>
+
+<P><B>Manual</B><BR>
+    Shows this text.</P>
+
+<P><B>3. Known Problems</B><BR>
+    Some browsers (e.g. Mozilla on Windows platforms) may not find the result files. To solve this problem, change the
+    output path in the experiment parameters.</P>
+
+<!-- P>If you want information on how to use the Experiment Starter with your own models refer to the <A HREF="manualExperimentStarter.html">ExperimentStarter manual</A>.</P -->
+</BODY>
+</HTML>

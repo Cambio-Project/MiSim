@@ -1,0 +1,92 @@
+<HTML>
+<HEAD>
+    <TITLE>Desmo-J Experiment Starter Users Manual</TITLE>
+</HEAD>
+<BODY>
+<H3>Desmo-J Experiment Starter Users Manual</H3>
+<P><B>Application GUI v1.1 - Java 1.4<BR>
+    @author Gunnar Kiesel - 23.04.2004</B></P>
+
+<UL>
+    <LI>1. What is the Desmo-J Experiment Starter?</LI>
+    <LI>1.1 System requirements</LI>
+    <LI>2. Usage</LI>
+    <LI>2.1 Top Buttons</LI>
+    <LI>2.2 Panels</LI>
+    <LI>3. Known Problems</LI>
+</UL>
+
+<P><B>1. What is the Desmo-J Experiment Starter?</B><BR>
+    The Experiment Starter enables you to run an experiment (or a series of experiments) on a Desmo-J model. You are
+    able to manipulate the given model and experiment parameters. Parameter sets can be saved and loaded. Graphical
+    observers can provide visual information on the experiment. Finally you'll be able to view experiment results.</P>
+
+<P><B>1.1 System requirements</B><BR>
+    Java 1.4 is needed to run the Experiment Starter Application.</P>
+
+<P><B>2. Usage</B></P>
+
+<P><B>2.1 Top Buttons</B><BR>
+    <B>New</B> - Load a new model via this button.<BR>
+    <B>Load</B> - Enables you to load a paramter set from file.<BR>
+    <B>Save</B> - Saves the current parameter settings into an XML file.<BR>
+    <B>Reset</B> - Once an experiment has been run you'll need to reset it. Only then will you be able to run a new
+    experiment. 'Reset' resets all parameter to their default values.<BR>
+    <B>Start</B> - Starts the experiment with the current parameter values.<BR>
+    <B>Stop</B> - Stops a running experiment and creates reports (Experiments are automatically stopped when the
+    stopTime value is reached). Stopped experiments cannot be continued.<BR>
+    <B>Pause</B> - Allows you to pause and resume an experiment run. Observers will be updated when pause is activated.
+    However, no reports will be generated.<BR>
+
+<P><B>2.2 Panels</B></P>
+
+<P><B>Settings</B><BR>
+    The Settings panel, which is divided in two halves, shows you the current model- and experiment- parameters.<BR>
+    To change a given value, click the corresponding field. Press 'enter' to complete your input.
+    Make sure you enter a new name for each new parameter set.<BR>
+    Note: To be able to use the advanced functions as described under 'Reports' below, 'reportOutputType' and
+    'traceOutputType' need to be set as 'desmoj.report.XMLReportOutput' / 'desmoj.report.XMLTraceOutput'.</P>
+
+<P><B>Observers</B><BR>
+    Provides you with graphical information on the current experiment. Observers will appear at the start of an
+    experiment. Graphs will be updated at whenever an experiment is paused or at the end of an experiment.</P>
+
+<P><B>Reports</B><BR>
+    Allows you to view the reports generated at the end of an experiment. On the left hand side double click the
+    'simulation output' folder. A new folder with the current experiment name will appear.<BR>
+    By selecting the new folder the right hand side view will be updated. It now enables you to adjust the trace and
+    report output files according to your needs. In order to do so you have the following possibilities:</P>
+<P><B>Trace Settings</B></P>
+<UL>
+    <LI>min. Time - set the time at which your trace output shall start</LI>
+    <LI>max. Time - set the time at which your trace output shall stop</LI>
+    <LI>Events - select one event to appear in the trace, all other events will be hidden</LI>
+    <LI>Entities - select one entity to be shown in the trace, all other entities will be hidden</LI>
+</UL>
+<P><B>Report Settings</B></P>
+<P>Under this heading you will see a panel for each reporter type that appears in the reportoutput. By clicking the
+    panel and cheking or unchecking the checkbox immediately underneath it you can choose wether this reporter shall
+    appear in the output or not.<BR>Further below you will see a list of parameters that belong to this reporter. Select
+    all those you want to view in the report.<BR>
+    Note: Leaving all reporters / parameters unchecked will result in seeing them all in the output.</P>
+<P>After you have made your settings for a trace or report you will need to click the "aply" button that belongs with
+    them. Your output will then be generated.<BR>Note: The settings will always be aplied to the experiment stated on
+    top of the right hand side. In order to switch between experiments select their experiment folders on the left.
+    Changing an experiment may however take some time, so if you do not want to change settings simply directly click
+    the documents (see below).<BR>To be able to reuse given settings save and load them with the buttons next to "aply".
+</P>
+<P>By double clicking the experiment-folder on the left hand or single clicking the switch next to it will open. Four
+    documents corresponding to the generated output will appear.<BR>Single clicking these documents will open the output
+    files in one new window. In case you want to view more then one file at a time hold down "shift" will clicking on
+    the document, as this will give you an additional window.</P>
+IMPORTANT: To be able to view different result sets you have to enter different names in the experiment settings, or
+previous results will be overwritten!</P>
+
+<P><B>Manual</B><BR>
+    Shows this text.</P>
+
+<!-- P><B>3. Known Problems</B><BR>
+<P>none right now.</P>
+<P>If you want information on how to use the Experiment Starter with your own models refer to the <A HREF="manualExperimentStarter.html">ExperimentStarter manual</A>.</P -->
+</BODY>
+</HTML>

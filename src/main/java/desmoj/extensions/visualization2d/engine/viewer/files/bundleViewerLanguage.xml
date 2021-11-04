@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+    <comment>Bundle Viewer Language en</comment>
+    <entry key="VISUALIZATION_Name">DESMO-J Visualization2D</entry>
+    <entry key="VISUALIZATION_VERSION">1.0, February 2011</entry>
+    <!-- Externe URL's -->
+    <entry key="DESMOJ_PROJECT_URL">http://desmoj.sourceforge.net/home.html</entry>
+    <entry key="DESMOJ_CONTRIBUTORS_URL">http://desmoj.sourceforge.net/developer_team.html</entry>
+    <entry key="VISUALIZATION_PROJECT_URL">http://www.th-wildau.de/cmueller/Desmo-J/Visualization2d/</entry>
+    <entry key="VISUALIZATION_CONTRIBUTORS_URL">
+        http://www.tfh-wildau.de/cmueller/Desmo-J/Visualization2d/contributors.html
+    </entry>
+    <entry key="VISUALIZATION_HELP_URL">
+        http://www.tfh-wildau.de/cmueller/Desmo-J/Visualization2d/Guide_DesmoJ2d_Viewer.pdf
+    </entry>
+    <!-- Interne Icons -->
+    <entry key="viewer_start_icon">viewerStart_10_10.png</entry>
+    <entry key="viewer_pause_icon">viewerPause_10_10.png</entry>
+    <entry key="viewer_stop_icon">viewerStop_10_10.png</entry>
+    <entry key="viewer_delete_icon">viewerDelete_12_12.png</entry>
+    <entry key="viewer_info_icon">viewerInfo_12_12.png</entry>
+    <entry key="u_hamburg_title_icon">u_hamburg_150_60.png</entry>
+    <entry key="th_wildau_title_icon">th_wildau_150_60.png</entry>
+    <entry key="u_hamburg_menue_icon">u_hamburg_075_30.png</entry>
+    <entry key="th_wildau_menue_icon">th_wildau_075_30.png</entry>
+    <entry key="desmoJ_icon">desmoJ_088_20.png</entry>
+    <!--  Interne html Seiten-->
+    <entry key="desmoj_html">desmoj.en.html</entry>
+    <entry key="help_html">help.en.html</entry>
+    <entry key="visualization2d_html">visualization2d.en.html</entry>
+    <!-- Viewer FlowModes -->
+    <entry key="Mode_CONTINIUM">continues time flow</entry>
+    <entry key="Mode_STEP_FLOW">step flow</entry>
+    <entry key="Mode_STEP_SINGLE">single steps</entry>
+    <!-- Menu -->
+    <entry key="Menu_Data">Data</entry>
+    <entry key="Menu_DataOpen">Open</entry>
+    <entry key="Menu_DataClose">Close</entry>
+    <entry key="Menu_DataIconDir">IconDir</entry>
+    <entry key="Menu_DataSnapShotDir">SnapShotDir</entry>
+    <entry key="Menu_DataExit">Exit</entry>
+    <entry key="Menu_Simulation">Simulation</entry>
+    <entry key="Menu_SimulationStart">Start</entry>
+    <entry key="Menu_SimulationPause">Pause</entry>
+    <entry key="Menu_SimulationStop">Stop</entry>
+    <entry key="Menu_SimulationSpeed">SetSpeed</entry>
+    <entry key="Menu_SimulationMode">TimeFlowMode</entry>
+    <entry key="Menu_View">View</entry>
+    <entry key="Menu_ViewZoom">Zoom</entry>
+    <entry key="Menu_SnapShotSel">SnapShot selected view</entry>
+    <entry key="Menu_SnapShotAll">SnapShot all views</entry>
+    <entry key="Menu_Help">Help</entry>
+    <entry key="Menu_HelpOnline">Help Online</entry>
+    <entry key="Menu_HelpOffline">Help Offline</entry>
+    <entry key="Menu_HelpProject">About Simulation Project</entry>
+    <entry key="Menu_HelpFramework">About Simulation Framework</entry>
+    <!-- Screen -->
+    <entry key="Screen_Zoom">zoom:</entry>
+    <entry key="Screen_Speed">speed:</entry>
+    <entry key="Screen_Timezone">TimeZone:</entry>
+    <entry key="Screen_Mode">TimeFlowMode:</entry>
+    <entry key="Screen_Begin">Begin:</entry>
+    <entry key="Screen_End">End:</entry>
+    <entry key="Screen_Status">Status:</entry>
+    <!-- Help -->
+    <entry key="Help_about">about</entry>
+    <entry key="Help_moreInformation">more Information</entry>
+    <entry key="Help_Contributors">Contributors</entry>
+    <entry key="Help_Version">Version:</entry>
+    <entry key="Help_License">License:</entry>
+    <entry key="Help_Project">Project:</entry>
+    <entry key="Help_Model">Model:</entry>
+    <entry key="Help_Author">Author:</entry>
+    <entry key="Help_CreatedAt">Created at:</entry>
+    <entry key="Help_Description">Description:</entry>
+    <entry key="Help_Remarks">Remarks:</entry>
+    <entry key="Help_LicenseModel">License of Model:</entry>
+    <entry key="Help_SimulationFramework">Simulation Framework:</entry>
+    <entry key="Help_Visualization2dEngine">Visualization2d Engine:</entry>
+    <!-- Status MSG -->
+    <entry key="StatusMsg_00"></entry>
+    <entry key="StatusMsg_01">Init running</entry>
+    <entry key="StatusMsg_02">Init complete</entry>
+    <entry key="StatusMsg_03">Animation running</entry>
+    <entry key="StatusMsg_04">Animation stopped</entry>
+    <entry key="StatusMsg_05">Animation paused</entry>
+    <entry key="StatusMsg_06">Animation closed</entry>
+    <entry key="StatusMsg_07">For choosing CmdsFile use in menu: Data->Open</entry>
+    <entry key="StatusMsg_08">For choosing IconDir use in menu: Data->IconDir</entry>
+    <entry key="StatusMsg_09">Use CmdsFile with extension .cmds</entry>
+    <entry key="StatusMsg_10">Open CmdsFile:</entry>
+    <entry key="StatusMsg_11">Set IconDir:</entry>
+    <entry key="StatusMsg_12">Error on seting IconDir</entry>
+    <entry key="StatusMsg_13">Error on opening CmdsFile</entry>
+    <entry key="StatusMsg_14">Error on CmdsFile. For details look at LogFile</entry>
+    <entry key="StatusMsg_15">Set SnapShotDir:</entry>
+    <entry key="StatusMsg_16">Error on seting SnapShotDir</entry>
+</properties>
