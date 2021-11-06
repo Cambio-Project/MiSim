@@ -1,6 +1,5 @@
 package cambio.simulator;
 
-import cambio.simulator.CLI;
 import desmoj.core.simulator.Experiment;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.ParseException;
@@ -26,7 +25,8 @@ public final class Main {
             System.exit(1);
         }
 
-        Experiment experiment = ExperimentCreator.createSimulationExperiment(cl);
+        ExperimentStartupConfig config = ExperimentStartupConfig.fromCL(cl);
+        Experiment experiment = ExperimentCreator.createSimulationExperiment(config);
         experiment.start();
         experiment.finish();
     }

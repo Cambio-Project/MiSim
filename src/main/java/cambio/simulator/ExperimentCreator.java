@@ -10,21 +10,30 @@ import cambio.simulator.models.ExperimentMetaData;
 import cambio.simulator.models.MiSimModel;
 import desmoj.core.simulator.Experiment;
 import desmoj.core.simulator.TimeInstant;
-import org.apache.commons.cli.CommandLine;
 import org.jetbrains.annotations.NotNull;
 
 /**
+ * Class that contains code for creating a new {@link desmoj.core.simulator.Experiment} based on a {@link
+ * ExperimentStartupConfig}.
+ *
  * @author Lion Wagner
  */
 public final class ExperimentCreator {
-    public static Experiment createSimulationExperiment(CommandLine cl) {
-        String archDescLocation = cl.getOptionValue(CLI.archDescOpt.getOpt());
+
+    /**
+     * Creates a new {@link Experiment} based on the given configuration.
+     *
+     * @param config startup configuration of the experiment
+     * @return a new {@link Experiment} that is configured based on the given config
+     */
+    public static Experiment createSimulationExperiment(ExperimentStartupConfig config) {
+        String archDescLocation = config.getArchitectureDescLoc();
         String expDescLocation;
 
-        expDescLocation = cl.getOptionValue(
-            cl.hasOption(CLI.expDescOpt.getOpt())
-                ? CLI.expDescOpt.getOpt()
-                : CLI.scenarioOpt.getOpt());
+        expDescLocation = config
+            .getExperimentDescLoc() != null
+            ? CLI.expDescOpt.getOpt()
+            : CLI.scenarioOpt.getOpt();
 
         File architectureDescription =
             tryGetDescription(archDescLocation, "architecture");
@@ -34,11 +43,11 @@ public final class ExperimentCreator {
 
         MiSimModel model = new MiSimModel(architectureDescription, experimentDescription);
 
-        if (cl.hasOption(CLI.debugOutputOpt.getOpt())) {
+        if (config.debugOutputOn()) {
             model.debugOn();
         }
 
-        return setupExperiment(cl, model);
+        return setupExperiment(config, model);
     }
 
 
@@ -56,19 +65,19 @@ public final class ExperimentCreator {
 
 
     @NotNull
-    private static Experiment setupExperiment(CommandLine cl, MiSimModel model) {
+    private static Experiment setupExperiment(ExperimentStartupConfig config, MiSimModel model) {
         ExperimentMetaData metaData = model.getExperimentMetaData();
-        Path reportLocation = ExportUtils.prepareReportDirectory(model);
+        Path reportLocation = ExportUtils.prepareReportDirectory(config, model);
         Experiment exp = new Experiment(metaData.getExperimentName(), reportLocation.toString());
         model.connectToExperiment(exp);
 
         exp.setSeedGenerator(metaData.getSeed());
         exp.setShowProgressBarAutoclose(true);
-        exp.setShowProgressBar(cl.hasOption(CLI.showProgressBarOpt.getOpt()));
+        exp.setShowProgressBar(config.showProgressBarOn());
         exp.stop(new TimeInstant(metaData.getDuration(), metaData.getTimeUnit()));
         exp.tracePeriod(new TimeInstant(0, metaData.getTimeUnit()),
             new TimeInstant(metaData.getDuration(), metaData.getTimeUnit()));
-        if (cl.hasOption(CLI.debugOutputOpt.getOpt())) {
+        if (config.debugOutputOn()) {
             exp.debugPeriod(new TimeInstant(0, metaData.getTimeUnit()),
                 new TimeInstant(metaData.getDuration(), metaData.getTimeUnit()));
             exp.debugOn(new TimeInstant(0, metaData.getTimeUnit()));
