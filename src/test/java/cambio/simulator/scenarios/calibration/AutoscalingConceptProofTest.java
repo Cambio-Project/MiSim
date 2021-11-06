@@ -16,7 +16,7 @@ public class AutoscalingConceptProofTest {
     void ExampleExecutionRun() {
         File f = new File("./Examples/Calibration/autoscale_isolation_architecture.json");
         File f2 = new File("./Examples/Calibration/autoscale_experiement.json");
-        String[] args = new String[] {"-a", f.getAbsolutePath(), "-e", f2.getAbsolutePath(), "-d", "-p"};
+        String[] args = new String[] {"-a", f.getAbsolutePath(), "-e", f2.getAbsolutePath(), "-d"};
         Main.main(args);
     }
 }
