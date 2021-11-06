@@ -11,7 +11,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import cambio.simulator.cli.CLI;
+import cambio.simulator.CLI;
 import cambio.simulator.misc.FileUtilities;
 import cambio.simulator.models.ExperimentMetaData;
 import cambio.simulator.models.MiSimModel;

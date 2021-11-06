@@ -1,10 +1,9 @@
 package cambio.simulator;
 
-import java.io.File;
+import cambio.simulator.CLI;
 import java.io.FileNotFoundException;
 import java.nio.file.Path;
 
-import cambio.simulator.cli.CLI;
 import cambio.simulator.export.ExportUtils;
 import cambio.simulator.misc.FileUtilities;
 import cambio.simulator.models.ExperimentMetaData;

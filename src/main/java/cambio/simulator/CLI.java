@@ -1,4 +1,4 @@
-package cambio.simulator.cli;
+package cambio.simulator;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -52,15 +52,17 @@ public final class CLI {
             .build();
     public static final Option reportLocation =
         Option.builder("o")
-            .longOpt("--out")
+            .longOpt("out")
             .desc("Report Location Directory. Creates a new directory with experiment name and start timestamp for "
                 + "each experiment.")
             .hasArg()
             .build();
+
     /**
      * Variable to collect all available program argument {@link Option}s.
      */
     private static final Options options = new Options();
+
     /**
      * Current parsed command line arguments.
      */

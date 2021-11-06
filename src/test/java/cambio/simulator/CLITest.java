@@ -1,4 +1,4 @@
-package cambio.simulator.cli;
+package cambio.simulator;
 
 import java.util.LinkedList;
 import java.util.List;
