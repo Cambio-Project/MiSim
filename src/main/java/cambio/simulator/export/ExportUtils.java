@@ -43,8 +43,8 @@ public final class ExportUtils {
      */
     public static Path prepareReportDirectory(ExperimentMetaData metaData) {
         final Path reportLocationBaseDirectory;
-        if (CLI.reportLocation.getValue() != null) {
-            reportLocationBaseDirectory = Paths.get(CLI.reportLocation.getValue());
+        if (CLI.reportLocationOpt.getValue() != null) {
+            reportLocationBaseDirectory = Paths.get(CLI.reportLocationOpt.getValue());
         } else {
             reportLocationBaseDirectory = metaData.getReportBaseDirectory();
         }

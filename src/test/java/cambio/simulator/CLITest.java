@@ -49,8 +49,8 @@ class CLITest {
     void setGlobalCLI() {
         String[] args =
             new String[] {
-                "-" + CLI.archModelOpt.getOpt(), "somePath",
-                "-" + CLI.expModelOpt.getOpt(), "someOtherPath"
+                "-" + CLI.archDescOpt.getOpt(), "somePath",
+                "-" + CLI.expDescOpt.getOpt(), "someOtherPath"
             };
         try {
             CommandLine cli = CLI.parseArguments(args);
@@ -64,13 +64,13 @@ class CLITest {
     @Test
     void requiresEitherScenarioOrExperiment() {
         String[] args = {};
-        checkMissingRequiredArgument(args, CLI.expModelOpt.getOpt());
+        checkMissingRequiredArgument(args, CLI.expDescOpt.getOpt());
 
         args = new String[] {};
         checkMissingRequiredArgument(args, CLI.scenarioOpt.getOpt());
 
         args = new String[] {
-            "-" + CLI.expModelOpt.getOpt(), "someOtherPath",
+            "-" + CLI.expDescOpt.getOpt(), "someOtherPath",
             "-" + CLI.scenarioOpt.getOpt(), "someOtherOtherPath"
         };
 
@@ -82,20 +82,20 @@ class CLITest {
     @Test
     void requiresArchitectureFilePath() {
         String[] args = {};
-        checkMissingRequiredArgument(args, CLI.archModelOpt.getOpt());
+        checkMissingRequiredArgument(args, CLI.archDescOpt.getOpt());
     }
 
     @Test
     void properInput() {
         String[] args =
             new String[] {
-                "-" + CLI.archModelOpt.getOpt(), "somePath",
-                "-" + CLI.expModelOpt.getOpt(), "someOtherPath"
+                "-" + CLI.archDescOpt.getOpt(), "somePath",
+                "-" + CLI.expDescOpt.getOpt(), "someOtherPath"
             };
         try {
             CommandLine cli = CLI.parseArguments(args);
-            Assertions.assertEquals("somePath", cli.getOptionValue(CLI.archModelOpt.getOpt()));
-            Assertions.assertEquals("someOtherPath", cli.getOptionValue(CLI.expModelOpt.getOpt()));
+            Assertions.assertEquals("somePath", cli.getOptionValue(CLI.archDescOpt.getOpt()));
+            Assertions.assertEquals("someOtherPath", cli.getOptionValue(CLI.expDescOpt.getOpt()));
         } catch (ParseException e) {
             e.printStackTrace();
             Assertions.fail();

@@ -18,12 +18,12 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class ExperimentCreator {
     public static Experiment createSimulationExperiment(CommandLine cl) {
-        String archDescLocation = cl.getOptionValue(CLI.archModelOpt.getOpt());
+        String archDescLocation = cl.getOptionValue(CLI.archDescOpt.getOpt());
         String expDescLocation;
 
         expDescLocation = cl.getOptionValue(
-            cl.hasOption(CLI.expModelOpt.getOpt())
-                ? CLI.expModelOpt.getOpt()
+            cl.hasOption(CLI.expDescOpt.getOpt())
+                ? CLI.expDescOpt.getOpt()
                 : CLI.scenarioOpt.getOpt());
 
         File architectureDescription =
@@ -34,7 +34,7 @@ public final class ExperimentCreator {
 
         MiSimModel model = new MiSimModel(architectureDescription, experimentDescription);
 
-        if (cl.hasOption(CLI.debugOutput.getOpt())) {
+        if (cl.hasOption(CLI.debugOutputOpt.getOpt())) {
             model.debugOn();
         }
 
@@ -64,11 +64,11 @@ public final class ExperimentCreator {
 
         exp.setSeedGenerator(metaData.getSeed());
         exp.setShowProgressBarAutoclose(true);
-        exp.setShowProgressBar(cl.hasOption(CLI.showProgressBar.getOpt()));
+        exp.setShowProgressBar(cl.hasOption(CLI.showProgressBarOpt.getOpt()));
         exp.stop(new TimeInstant(metaData.getDuration(), metaData.getTimeUnit()));
         exp.tracePeriod(new TimeInstant(0, metaData.getTimeUnit()),
             new TimeInstant(metaData.getDuration(), metaData.getTimeUnit()));
-        if (cl.hasOption(CLI.debugOutput.getOpt())) {
+        if (cl.hasOption(CLI.debugOutputOpt.getOpt())) {
             exp.debugPeriod(new TimeInstant(0, metaData.getTimeUnit()),
                 new TimeInstant(metaData.getDuration(), metaData.getTimeUnit()));
             exp.debugOn(new TimeInstant(0, metaData.getTimeUnit()));

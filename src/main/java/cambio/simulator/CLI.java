@@ -19,14 +19,14 @@ import org.apache.commons.cli.ParseException;
  */
 public final class CLI {
 
-    public static final Option archModelOpt =
+    public static final Option archDescOpt =
         Option.builder("a")
             .longOpt("arch_desc")
             .desc("file path to an architectural description")
             .hasArg()
             .required()
             .build();
-    public static final Option expModelOpt =
+    public static final Option expDescOpt =
         Option.builder("e")
             .longOpt("exp_desc")
             .desc("file path to an experiment description")
@@ -38,24 +38,25 @@ public final class CLI {
             .desc("file path to a scenario description")
             .hasArg()
             .build();
-    public static final Option showProgressBar =
+    public static final Option reportLocationOpt =
+        Option.builder("o")
+            .longOpt("out")
+            .desc("Report Location Directory. Creates a new directory with experiment name and start timestamp for "
+                + "each experiment.")
+            .hasArg()
+            .build();
+
+    public static final Option showProgressBarOpt =
         Option.builder("p")
             .longOpt("progress_bar")
             .desc("Show progressbar window during simulation. When setting this flag, the simulator does not run in "
                 + "headless mode anymore.")
             .hasArg(false)
             .build();
-    public static final Option debugOutput =
+    public static final Option debugOutputOpt =
         Option.builder("d")
             .desc("Turns on debug output of the simulator.")
             .hasArg(false)
-            .build();
-    public static final Option reportLocation =
-        Option.builder("o")
-            .longOpt("out")
-            .desc("Report Location Directory. Creates a new directory with experiment name and start timestamp for "
-                + "each experiment.")
-            .hasArg()
             .build();
 
     /**
@@ -85,7 +86,7 @@ public final class CLI {
         //mutual exclusion of scenario and experiment
         OptionGroup group = new OptionGroup()
             .addOption(scenarioOpt)
-            .addOption(expModelOpt);
+            .addOption(expDescOpt);
         group.setRequired(true);
         options.addOptionGroup(group);
     }
