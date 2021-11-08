@@ -32,8 +32,8 @@ public final class ExperimentCreator {
 
         expDescLocation = config
             .getExperimentDescLoc() != null
-            ? CLI.expDescOpt.getOpt()
-            : CLI.scenarioOpt.getOpt();
+            ? config.getExperimentDescLoc()
+            : config.getScenario();
 
         File architectureDescription =
             tryGetDescription(archDescLocation, "architecture");
