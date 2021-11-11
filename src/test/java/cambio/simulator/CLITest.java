@@ -16,7 +16,7 @@ class CLITest {
 
     private static void checkMissingRequiredArgument(String[] args, String expectedMissingArg) {
         try {
-            CLI.parseArguments(args);
+            CLI.parseArguments(ExperimentStartupConfig.class, args);
         } catch (MissingOptionException e) {
             for (Object missingOption : e.getMissingOptions()) {
 
@@ -49,12 +49,11 @@ class CLITest {
     void setGlobalCLI() {
         String[] args =
             new String[] {
-                "-" + CLI.archDescOpt.getOpt(), "somePath",
-                "-" + CLI.expDescOpt.getOpt(), "someOtherPath"
+                "-a", "somePath",
+                "-e", "someOtherPath"
             };
         try {
-            CommandLine cli = CLI.parseArguments(args);
-            Assertions.assertEquals(cli, CLI.getCommandLine());
+            CLI.parseArgumentsToCommandLine(ExperimentStartupConfig.class, args);
         } catch (ParseException e) {
             e.printStackTrace();
             Assertions.fail();
@@ -64,38 +63,39 @@ class CLITest {
     @Test
     void requiresEitherScenarioOrExperiment() {
         String[] args = {};
-        checkMissingRequiredArgument(args, CLI.expDescOpt.getOpt());
+        checkMissingRequiredArgument(args, "e");
 
         args = new String[] {};
-        checkMissingRequiredArgument(args, CLI.scenarioOpt.getOpt());
+        checkMissingRequiredArgument(args, "s");
 
         args = new String[] {
-            "-" + CLI.expDescOpt.getOpt(), "someOtherPath",
-            "-" + CLI.scenarioOpt.getOpt(), "someOtherOtherPath"
+            "-e", "someOtherPath",
+            "-s", "someOtherOtherPath"
         };
 
         String[] finalArgs = args;
-        Assertions.assertThrows(AlreadySelectedException.class, () -> CLI.parseArguments(finalArgs));
+        Assertions.assertThrows(AlreadySelectedException.class,
+            () -> CLI.parseArguments(ExperimentStartupConfig.class, finalArgs));
 
     }
 
     @Test
     void requiresArchitectureFilePath() {
         String[] args = {};
-        checkMissingRequiredArgument(args, CLI.archDescOpt.getOpt());
+        checkMissingRequiredArgument(args, "a");
     }
 
     @Test
     void properInput() {
         String[] args =
             new String[] {
-                "-" + CLI.archDescOpt.getOpt(), "somePath",
-                "-" + CLI.expDescOpt.getOpt(), "someOtherPath"
+                "-a", "somePath",
+                "-e", "someOtherPath"
             };
         try {
-            CommandLine cli = CLI.parseArguments(args);
-            Assertions.assertEquals("somePath", cli.getOptionValue(CLI.archDescOpt.getOpt()));
-            Assertions.assertEquals("someOtherPath", cli.getOptionValue(CLI.expDescOpt.getOpt()));
+            CommandLine cli = CLI.parseArgumentsToCommandLine(ExperimentStartupConfig.class, args);
+            Assertions.assertEquals("somePath", cli.getOptionValue("a"));
+            Assertions.assertEquals("someOtherPath", cli.getOptionValue("e"));
         } catch (ParseException e) {
             e.printStackTrace();
             Assertions.fail();

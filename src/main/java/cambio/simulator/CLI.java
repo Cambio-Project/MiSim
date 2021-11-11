@@ -1,8 +1,11 @@
 package cambio.simulator;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
+import java.util.HashMap;
+import java.util.Map;
 
+import cambio.simulator.misc.Util;
+import com.google.gson.internal.UnsafeAllocator;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -10,6 +13,8 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Static class that holds the command line options of the simulator and is able to parse these into a {@link
@@ -19,91 +24,91 @@ import org.apache.commons.cli.ParseException;
  */
 public final class CLI {
 
-    public static final Option archDescOpt =
-        Option.builder("a")
-            .longOpt("arch_desc")
-            .desc("file path to an architectural description")
-            .hasArg()
-            .required()
-            .build();
-    public static final Option expDescOpt =
-        Option.builder("e")
-            .longOpt("exp_desc")
-            .desc("file path to an experiment description")
-            .hasArg()
-            .build();
-    public static final Option scenarioOpt =
-        Option.builder("s")
-            .longOpt("scenario_desc")
-            .desc("file path to a scenario description")
-            .hasArg()
-            .build();
-    public static final Option reportLocationOpt =
-        Option.builder("o")
-            .longOpt("out")
-            .desc("Report Location Directory. Creates a new directory with experiment name and start timestamp for "
-                + "each experiment.")
-            .hasArg()
-            .build();
-
-    public static final Option showProgressBarOpt =
-        Option.builder("p")
-            .longOpt("progress_bar")
-            .desc("Show progressbar window during simulation. When setting this flag, the simulator does not run in "
-                + "headless mode anymore.")
-            .hasArg(false)
-            .build();
-    public static final Option debugOutputOpt =
-        Option.builder("d")
-            .desc("Turns on debug output of the simulator.")
-            .hasArg(false)
-            .build();
+    /**
+     * Parses the given arguments into the given dataclass using {@link CLIOption}s and a {@link CommandLine} under the
+     * hood.
+     *
+     * <p>
+     * This method unsafely creates a  new instance of the given dataclass. So no initialization logic (constructors,
+     * setters and similar) will be called.
+     *
+     * <p>
+     * Use {@link CLIOption} to mark (and configure) witch fields of your dataclass should be parsed.
+     *
+     * @param dataclass class that should contain the parsed values of the arguments
+     * @param args      program arguments
+     * @param <T>       type of the dataclass
+     * @return a new object of the dataclass
+     * @throws ParseException if the command line arguments cannot be parsed properly to the given options
+     */
+    public static <T> @NotNull T parseArguments(Class<T> dataclass, String[] args) throws ParseException {
+        return CLI.parseCommandLineToDataObject(CLI.parseArgumentsToCommandLine(dataclass, args), dataclass);
+    }
 
     /**
-     * Variable to collect all available program argument {@link Option}s.
+     * Parses the given arguments into a {@link CommandLine} object using the optionsProviderClass. Specifically it
+     * scans the optionsProviderClass for {@link CLIOption}s and creates a {@link Options} based on this.
+     *
+     * @param optionsProviderClass class that provides with options
+     * @param args                 program arguments
+     * @return a new {@link CommandLine} object with the parsed arguments
+     * @throws ParseException if the command line arguments cannot be parsed properly to the given options
+     * @see CLIOption
      */
-    private static final Options options = new Options();
+    public static @NotNull CommandLine parseArgumentsToCommandLine(Class<?> optionsProviderClass, final String[] args)
+        throws ParseException {
+        Options options = new Options();
+        Field[] fields = Util.getAllFields(optionsProviderClass);
 
-    /**
-     * Current parsed command line arguments.
-     */
-    private static CommandLine cl;
+        Map<String, OptionGroup> optionGroups = new HashMap<>();
 
-    static {
+        for (Field field : fields) {
+            if (!field.isAnnotationPresent(CLIOption.class)) {
+                continue;
+            }
 
-        //load all static Option fields into the options field
-        for (Field declaredField : CLI.class.getDeclaredFields()) {
-            if (Modifier.isStatic(declaredField.getModifiers())
-                && Option.class.isAssignableFrom(declaredField.getType())) {
-                try {
-                    options.addOption((Option) declaredField.get(null));
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                }
+            CLIOption cliOption = field.getAnnotation(CLIOption.class);
+            if (cliOption.opt().equals("") && cliOption.longOpt().equals("")) {
+                throw new IllegalArgumentException("CLIOption annotation must have either opt or longOpt set!");
+            }
+
+            Option.Builder optionBuilder = Option.builder();
+            if (!cliOption.opt().equals("")) {
+                optionBuilder = Option.builder(cliOption.opt());
+            }
+
+            if (!cliOption.longOpt().equals("")) {
+                optionBuilder.longOpt(cliOption.longOpt());
+            }
+
+            optionBuilder.desc(cliOption.description())
+                .hasArg(cliOption.hasArg())
+                .required(cliOption.required());
+
+            final Option option = optionBuilder.build();
+            options.addOption(option);
+
+            if (!StringUtils.isBlank(cliOption.optionGroup())) {
+                OptionGroup tmpGroup = new OptionGroup();
+                tmpGroup.setRequired(cliOption.optionGroupRequired());
+                tmpGroup.addOption(option);
+
+                optionGroups.merge(cliOption.optionGroup(), tmpGroup,
+                    (currentGroup, newGroup) -> {
+                        if (!currentGroup.isRequired() && newGroup.isRequired()) {
+                            currentGroup.getOptions().forEach(newGroup::addOption);
+                            return newGroup;
+                        }
+                        currentGroup.addOption(option);
+                        return currentGroup;
+                    });
             }
         }
 
-        //mutual exclusion of scenario and experiment
-        OptionGroup group = new OptionGroup()
-            .addOption(scenarioOpt)
-            .addOption(expDescOpt);
-        group.setRequired(true);
-        options.addOptionGroup(group);
-    }
+        optionGroups.values().forEach(options::addOptionGroup);
 
 
-    /**
-     * Parses the given arguments into a {@link CommandLine} object.
-     *
-     * <p>
-     * Prints an Error and the Help overview automatically on {@link System#out} if anything with the options is
-     * faulty.
-     *
-     * @param args program arguments
-     * @return an instance of {@link CommandLine} that represents the parsed arguments.
-     * @throws ParseException when something goes wrong during parsing (e.g. missing required options or arguments)
-     */
-    public static CommandLine parseArguments(final String[] args) throws ParseException {
+        CommandLine cl;
         try {
             cl = new DefaultParser().parse(options, args, true);
         } catch (ParseException e) {
@@ -120,11 +125,52 @@ public final class CLI {
     }
 
     /**
-     * Tries to get the {@link CommandLine} object that represents the parsed command line arguments.
+     * Creates a new {@link ExperimentStartupConfig} based on the given {@link CommandLine} that should be created via
+     * the {@link CLI} class.
      *
-     * @return the parsed command line arguments or {@code null} if they are not parsed yet.
+     * @param cl {@link CommandLine} that contains the parsed cli options.
+     * @return a new parsed {@link ExperimentStartupConfig}
      */
-    public static CommandLine getCommandLine() {
-        return cl;
+    public static <T> @NotNull T parseCommandLineToDataObject(CommandLine cl, Class<? extends T> baseClass) {
+        T targetObject;
+        try {
+            targetObject = UnsafeAllocator.create().newInstance(baseClass);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new ClassCastException("Could not create instance of " + baseClass.getName());
+        }
+
+
+        for (Field targetField : Util.getAllFields(baseClass)) {
+            if (!targetField.isAnnotationPresent(CLIOption.class)) {
+                continue;
+            }
+            targetField.setAccessible(true);
+            Class<?> targetType = targetField.getType();
+
+            CLIOption option = targetField.getAnnotation(CLIOption.class);
+
+            try {
+                String optName = !option.opt().equals("") ? option.opt() : option.longOpt();
+                Object value = cl.getParsedOptionValue(optName);
+
+                if (value == null) {
+                    continue;
+                } else if (boolean.class.isAssignableFrom(targetType)) {
+                    targetField.set(targetObject, true);
+                } else if (String.class.isAssignableFrom(targetType)) {
+                    targetField.set(targetObject, value);
+                } else if (String[].class.isAssignableFrom(targetType)) {
+                    targetField.set(targetObject, value);
+                } else {
+                    throw new ClassCastException("Can only parse CLI options to the types of boolean, String or "
+                        + "String[].");
+                }
+            } catch (ParseException | IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+        return targetObject;
     }
+
 }
