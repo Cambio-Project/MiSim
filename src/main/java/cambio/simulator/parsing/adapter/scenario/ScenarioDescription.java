@@ -33,6 +33,7 @@ import org.jetbrains.annotations.NotNull;
  *
  * @author Lion Wagner
  */
+@SuppressWarnings("unused")
 public final class ScenarioDescription {
 
     private String name;
