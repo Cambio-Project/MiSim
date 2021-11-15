@@ -1,39 +1,55 @@
 {
   "simulation_meta_data": {
     "experiment_name": "ABCDE Experiment",
-    "model_name": "Schema ABCDE",
-    "duration": 50,
+    "model_name": "architecture_model",
+    "duration": 10,
     "report": "",
     "datapoints": 50,
     "seed": 979
   },
   "request_generators": [
     {
-      "microservice": "frontend",
-      "operation": "getCatalog",
-      "interval": 1.67
+      "type": "interval",
+      "config": {
+        "microservice": "frontend",
+        "operation": "getCatalog",
+        "interval": 2
+      }
     },
     {
-      "microservice": "frontend",
-      "operation": "createBook",
-      "interval": 1.67
+      "type": "interval",
+      "config": {
+        "microservice": "frontend",
+        "operation": "createBook",
+        "interval": 2.5
+      }
     },
     {
-      "microservice": "frontend",
-      "operation": "createUser",
-      "interval": 1.67
+      "type": "interval",
+      "config": {
+        "microservice": "frontend",
+        "operation": "createUser",
+        "interval": 3
+      }
     },
     {
-      "microservice": "frontend",
-      "operation": "getUsers",
-      "interval": 2.5
+      "type": "interval",
+      "config": {
+        "microservice": "frontend",
+        "operation": "getUsers",
+        "interval": 4
+      }
     }
   ],
-  "chaosmonkeys": [
+
+  "chaos_monkeys": [
     {
-      "microservice": "users",
-      "instances": 1,
-      "time": 10
+      "type": "monkey",
+      "config":     {
+        "microservice": "users",
+        "instances": 1,
+        "time": 6
+      }
     }
   ]
 }

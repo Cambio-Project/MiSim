@@ -72,7 +72,7 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
     private Set<InstanceOwnedPattern> patterns = new HashSet<>();
 
 
-    MicroserviceInstance(Model model, String name, boolean showInTrace, Microservice microservice,
+    public MicroserviceInstance(Model model, String name, boolean showInTrace, Microservice microservice,
                          int instanceID) {
         super(model, name, showInTrace);
         this.owner = microservice;
@@ -88,7 +88,7 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
         this.addUpdateListener(this);
     }
 
-    void activatePatterns(InstanceOwnedPatternConfiguration[] patterns) {
+    public void activatePatterns(InstanceOwnedPatternConfiguration[] patterns) {
         this.patterns = Arrays.stream(patterns)
             .map(patternData -> patternData.getPatternInstance(this))
             .filter(Objects::nonNull)
@@ -464,6 +464,10 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
         }
         currentlyOpenDependencies.removeAll(parentToCancel.getDependencies());
         currentRequestsToHandle.remove(parentToCancel);
+    }
+
+    public CPU getCpu() {
+        return cpu;
     }
 
 }

@@ -6,6 +6,7 @@ import java.util.TreeSet;
 import cambio.simulator.entities.NamedEntity;
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.entities.microservice.MicroserviceInstance;
+import cambio.simulator.orchestration.deprecated.Service;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 import desmoj.core.simulator.TimeSpan;
@@ -138,8 +139,12 @@ public class RequestSender extends NamedEntity {
         request.addUpdateListener(updateListenerProxy);
 
         NetworkRequestSendEvent sendEvent;
-        if (target == null || target.getClass() == Microservice.class) {
-            sendEvent = new NetworkRequestSendEvent(getModel(), eventName, traceIsOn(), request, (Microservice) target);
+        if (target == null || target.getClass() == Service.class || target.getClass() == Microservice.class) {
+            Microservice castedTarget = null;
+            if(target!=null){
+                castedTarget = target.getClass() == Microservice.class ? (Microservice) target : (Service) target;
+            }
+            sendEvent = new NetworkRequestSendEvent(getModel(), eventName, traceIsOn(), request, castedTarget);
         } else {
             sendEvent =
                 new NetworkRequestSendEvent(getModel(), eventName, traceIsOn(), request, (MicroserviceInstance) target);

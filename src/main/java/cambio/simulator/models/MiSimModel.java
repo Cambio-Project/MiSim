@@ -2,11 +2,16 @@ package cambio.simulator.models;
 
 import java.io.File;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.events.ISelfScheduled;
 import cambio.simulator.events.SimulationEndEvent;
 import cambio.simulator.export.MultiDataPointReporter;
+import cambio.simulator.orchestration.Cluster;
+import cambio.simulator.orchestration.ManagementPlane;
+import cambio.simulator.orchestration.Node;
 import cambio.simulator.parsing.ModelLoader;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
@@ -22,6 +27,8 @@ public class MiSimModel extends Model {
      * general reporter, can be used if objects/classes do not want to create their own reporter or use a common
      * reporter.
      */
+    public final boolean useOrchestration = true;
+
     public static MultiDataPointReporter generalReporter = new MultiDataPointReporter();
 
     private final transient File architectureModelLocation;
@@ -68,7 +75,11 @@ public class MiSimModel extends Model {
     public void doInitialSchedules() {
         this.experimentMetaData.markStartOfExperiment(System.nanoTime());
 
-        architectureModel.getMicroservices().forEach(Microservice::start);
+        if(useOrchestration){
+            initOrchestration();
+        } else {
+            architectureModel.getMicroservices().forEach(Microservice::start);
+        }
 
         for (ISelfScheduled selfScheduledEvent : experimentModel.getAllSelfSchedulesEntities()) {
             selfScheduledEvent.doInitialSelfSchedule();
@@ -78,6 +89,18 @@ public class MiSimModel extends Model {
         simulationEndEvent.schedule(new TimeInstant(this.experimentMetaData.getDuration()));
     }
 
+    public void initOrchestration(){
+        List<Node> nodes = new ArrayList<>();
+        for(int i = 0; i<5; i++){
+            nodes.add(new Node());
+        }
+        Cluster cluster = new Cluster(nodes);
+        final ManagementPlane managementPlane = ManagementPlane.getInstance();
+        managementPlane.setCluster(cluster);
+        managementPlane.buildDeploymentScheme(this.architectureModel);
+        managementPlane.applyDeploymentScheme();
+        System.out.println("Init Orchestration finished");
+    }
 
     public ArchitectureModel getArchitectureModel() {
         return architectureModel;
