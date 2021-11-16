@@ -2,6 +2,7 @@ package cambio.simulator.events;
 
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.misc.Priority;
+import cambio.simulator.orchestration.*;
 import cambio.simulator.parsing.JsonTypeName;
 import co.paralleluniverse.fibers.SuspendExecution;
 import com.google.gson.annotations.Expose;
@@ -60,6 +61,16 @@ public class ChaosMonkeyEvent extends SelfScheduledExperimentAction {
         sendTraceNote(String.format("There are %s instances left of service %s",
             hasServicesLeft ? String.format("still %d", microservice.getInstancesCount()) : "no",
             microservice.getName()));
+
+        for (Deployment deployment : ManagementPlane.getInstance().getDeployments()){
+            if (deployment.getServices().contains(microservice)){
+                for (Pod pod : deployment.getReplicaSet()) {
+                    //Immediately restart terminated containers regarding restart policy
+                    final RestartContainerEvent restartContainerEvent = new RestartContainerEvent(getModel(), "Checking " + pod.getQuotedName() + " for Terminated containers that need to be restarted", traceIsOn());
+                    restartContainerEvent.schedule(pod, getModel().presentTime());
+                }
+            }
+        }
     }
 
     @Override

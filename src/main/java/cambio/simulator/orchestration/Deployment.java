@@ -1,24 +1,25 @@
 package cambio.simulator.orchestration;
 
+import cambio.simulator.entities.NamedEntity;
+import cambio.simulator.entities.microservice.MicroserviceInstance;
 import cambio.simulator.orchestration.deprecated.Service;
+import desmoj.core.simulator.Model;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
-public class Deployment {
+public class Deployment extends NamedEntity {
     private Set<Service> services;
     private Set<Pod> replicaSet = new HashSet<>();
     private Scheduler scheduler;
 
     private int desiredReplicaCount;
 
-
-    public Deployment(Set<Service> services, int desiredReplicaCount) {
+    public Deployment(Model model, String name, boolean showInTrace, Set<Service> services, int desiredReplicaCount) {
+        super(model, name, showInTrace);
         this.services = services;
         this.desiredReplicaCount = desiredReplicaCount;
     }
-
 
     /**
      * Schedules the Deployments. Services will be created. These create ServiceInstances that later are scheduled in pods
@@ -27,10 +28,10 @@ public class Deployment {
 
         while(getCurrentReplicaCount() != desiredReplicaCount) {
 
-            final Pod pod = new Pod();
+            final Pod pod = new Pod(getModel(), "Pod", traceIsOn());
             for(Service service : services){
-                final ServiceInstance microServiceInstance = service.createMicroServiceInstance();
-                final Container container = new Container(microServiceInstance);
+                final MicroserviceInstance microServiceInstance = service.createMicroServiceInstance();
+                final Container container = new Container(getModel(), "Container", traceIsOn(), microServiceInstance);
                 pod.getContainers().add(container);
             }
             replicaSet.add(pod);

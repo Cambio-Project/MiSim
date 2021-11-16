@@ -7,7 +7,7 @@ import java.util.Collection;
 
 public interface ISchedulingStrategy {
 
-    void schedulePod(Pod pod, Cluster cluster);
+    Node getNode(Pod pod, Cluster cluster);
 }
 
 

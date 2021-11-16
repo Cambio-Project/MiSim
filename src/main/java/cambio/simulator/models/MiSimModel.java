@@ -92,10 +92,11 @@ public class MiSimModel extends Model {
     public void initOrchestration(){
         List<Node> nodes = new ArrayList<>();
         for(int i = 0; i<5; i++){
-            nodes.add(new Node());
+            nodes.add(new Node(getModel(), "Node", traceIsOn()));
         }
         Cluster cluster = new Cluster(nodes);
         final ManagementPlane managementPlane = ManagementPlane.getInstance();
+        managementPlane.setModel(this);
         managementPlane.setCluster(cluster);
         managementPlane.buildDeploymentScheme(this.architectureModel);
         managementPlane.applyDeploymentScheme();

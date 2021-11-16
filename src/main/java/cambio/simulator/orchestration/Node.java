@@ -1,13 +1,12 @@
 package cambio.simulator.orchestration;
 
-import cambio.simulator.entities.microservice.Microservice;
-import cambio.simulator.entities.microservice.MicroserviceInstance;
-import cambio.simulator.resources.cpu.CPU;
+import cambio.simulator.entities.NamedEntity;
+import desmoj.core.simulator.Model;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Node {
+public class Node extends NamedEntity {
 
     private static final int DEFAULT_CPU_CAPACITY = 400;
 
@@ -15,17 +14,18 @@ public class Node {
     int reserved = 0;
     private List<Pod> pods;
 
-    public Node(){
-        this(DEFAULT_CPU_CAPACITY);
+    public Node(Model model, String name, boolean showInTrace) {
+        this(model, name, showInTrace, DEFAULT_CPU_CAPACITY);
     }
 
-    public Node(int totalCPU) {
-        this.totalCPU= totalCPU;
+    public Node(Model model, String name, boolean showInTrace, int totalCPU) {
+        super(model, name, showInTrace);
+        this.totalCPU = totalCPU;
         this.pods = new ArrayList<>();
     }
 
-    public void addPod(Pod pod, int cpuDemand){
-        this.reserved += cpuDemand;
+    public void addPod(Pod pod) {
+        this.reserved += pod.getCPUDemand();
         pods.add(pod);
 
     }

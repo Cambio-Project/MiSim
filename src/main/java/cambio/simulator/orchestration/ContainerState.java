@@ -1,9 +1,7 @@
 package cambio.simulator.orchestration;
 
 public enum ContainerState {
-    IDLE,
+    WAITING,
     RUNNING,
-    STOPPED,
-    EVICTED,
-    DEAD
+    TERMINATED
 }

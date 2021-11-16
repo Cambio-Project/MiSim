@@ -1,14 +1,17 @@
 package cambio.simulator.orchestration;
 
+import cambio.simulator.entities.NamedEntity;
 import cambio.simulator.entities.microservice.MicroserviceInstance;
+import desmoj.core.simulator.Model;
 
-public class Container {
+public class Container extends NamedEntity {
     private MicroserviceInstance microserviceInstance;
     private ContainerState containerState;
 
-    public Container(MicroserviceInstance microserviceInstance) {
+    public Container(Model model, String name, boolean showInTrace, MicroserviceInstance microserviceInstance) {
+        super(model, name, showInTrace);
         this.microserviceInstance = microserviceInstance;
-        this.containerState = ContainerState.IDLE;
+        this.containerState = ContainerState.WAITING;
     }
 
     public MicroserviceInstance getMicroserviceInstance() {

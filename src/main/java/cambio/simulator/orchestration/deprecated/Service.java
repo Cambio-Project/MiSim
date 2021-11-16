@@ -1,7 +1,7 @@
 package cambio.simulator.orchestration.deprecated;
 
 import cambio.simulator.entities.microservice.*;
-import cambio.simulator.orchestration.ServiceInstance;
+import cambio.simulator.orchestration.*;
 import desmoj.core.simulator.Event;
 import desmoj.core.simulator.Model;
 
@@ -9,33 +9,77 @@ import java.util.*;
 
 public class Service extends Microservice {
 
+    LoadBalancerOrchestration loadBalancer;
+
+    public LoadBalancerOrchestration getLoadBalancer() {
+        return loadBalancer;
+    }
+
+    public void setLoadBalancer(LoadBalancerOrchestration loadBalancer) {
+        this.loadBalancer = loadBalancer;
+    }
+
     /**
      * Creates a new instance of a {@link Microservice}.
-     *
      */
     public Service(Model model, String name, boolean showInTrace) {
         super(model, name, showInTrace);
+    }
+
+    @Override
+    public MicroserviceInstance getNextAvailableInstance() throws NoInstanceAvailableException {
+        return loadBalancer.getNextServiceInstance();
+    }
+
+
+    @Override
+    public synchronized void killInstance() {
+        //TODO: use UniformDistribution form desmoj
+        MicroserviceInstance instanceToKill =
+                instancesSet.stream().findAny().orElse(null); //selects an element of the stream, not
+        if (instanceToKill == null) {
+            return;
+        }
+        instanceToKill.die();
+        instancesSet.remove(instanceToKill);
+        reporter.addDatapoint("InstanceCount", presentTime(), instancesSet.size());
+
+        for (Pod pod : getDeployment().getReplicaSet()) {
+            for (Container container : pod.getContainers()) {
+                if(container.getMicroserviceInstance().equals(instanceToKill)){
+                    container.setContainerState(ContainerState.TERMINATED);
+                    //Immediately restart terminated containers regarding restart policy
+                    final RestartContainerEvent restartContainerEvent = new RestartContainerEvent(getModel(), "Restarting " + container, traceIsOn());
+                    restartContainerEvent.schedule(pod, getModel().presentTime());
+                    return;
+                }
+            }
+        }
     }
 
     public int getCpuDemand() {
         return Arrays.stream(super.getOperations()).mapToInt(Operation::getDemand).sum();
     }
 
-    public ServiceInstance createMicroServiceInstance(){
-        Event<MicroserviceInstance> changeEvent;
-        ServiceInstance changedInstance;
+    public MicroserviceInstance createMicroServiceInstance() {
+        MicroserviceInstance changedInstance;
         changedInstance =
-                new ServiceInstance(getModel(), String.format("[%s]_I%d", getName(), instanceSpawnCounter),
+                new MicroserviceInstance(getModel(), String.format("[%s]_I%d", getName(), instanceSpawnCounter),
                         this.traceIsOn(), this, instanceSpawnCounter);
         changedInstance.activatePatterns(instanceOwnedPatternConfigurations);
 
         instanceSpawnCounter++;
-        changeEvent =
-                new InstanceStartupEvent(getModel(), "Instance Startup of " + changedInstance.getQuotedName(),
-                        traceIsOn());
         instancesSet.add(changedInstance);
-        changeEvent.schedule(changedInstance, presentTime());
         return changedInstance;
+    }
+
+    public Deployment getDeployment() {
+        for (Deployment deployment : ManagementPlane.getInstance().getDeployments()) {
+            if (deployment.getServices().contains(this)) {
+                return deployment;
+            }
+        }
+        return null;
     }
 
 }
