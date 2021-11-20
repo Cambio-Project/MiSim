@@ -1,8 +1,11 @@
-package cambio.simulator.orchestration.deprecated;
+package cambio.simulator.orchestration.k8objects;
 
 import cambio.simulator.entities.microservice.*;
-import cambio.simulator.orchestration.*;
-import desmoj.core.simulator.Event;
+import cambio.simulator.orchestration.ManagementPlane;
+import cambio.simulator.orchestration.environment.Container;
+import cambio.simulator.orchestration.environment.ContainerState;
+import cambio.simulator.orchestration.environment.Pod;
+import cambio.simulator.orchestration.loadbalancing.LoadBalancerOrchestration;
 import desmoj.core.simulator.Model;
 
 import java.util.*;
@@ -49,8 +52,8 @@ public class Service extends Microservice {
                 if(container.getMicroserviceInstance().equals(instanceToKill)){
                     container.setContainerState(ContainerState.TERMINATED);
                     //Immediately restart terminated containers regarding restart policy
-                    final RestartContainerEvent restartContainerEvent = new RestartContainerEvent(getModel(), "Restarting " + container, traceIsOn());
-                    restartContainerEvent.schedule(pod, getModel().presentTime());
+//                    final RestartContainerEvent restartContainerEvent = new RestartContainerEvent(getModel(), "Restarting " + container, traceIsOn());
+//                    restartContainerEvent.schedule(pod, getModel().presentTime());
                     return;
                 }
             }

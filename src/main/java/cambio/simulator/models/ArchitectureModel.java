@@ -6,7 +6,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import cambio.simulator.entities.microservice.Microservice;
-import cambio.simulator.orchestration.deprecated.Service;
+import cambio.simulator.orchestration.k8objects.Service;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import desmoj.core.dist.ContDistNormal;

@@ -1,8 +1,12 @@
-package cambio.simulator.orchestration;
+package cambio.simulator.orchestration.k8objects;
 
 import cambio.simulator.entities.NamedEntity;
 import cambio.simulator.entities.microservice.MicroserviceInstance;
-import cambio.simulator.orchestration.deprecated.Service;
+import cambio.simulator.orchestration.ManagementPlane;
+import cambio.simulator.orchestration.environment.Container;
+import cambio.simulator.orchestration.environment.Pod;
+import cambio.simulator.orchestration.events.StartPendingPodsEvent;
+import cambio.simulator.orchestration.scheduling.IScheduler;
 import desmoj.core.simulator.Model;
 
 import java.util.HashSet;
@@ -11,14 +15,15 @@ import java.util.Set;
 public class Deployment extends NamedEntity {
     private Set<Service> services;
     private Set<Pod> replicaSet = new HashSet<>();
-    private Scheduler scheduler;
+    private String schedulerType;
 
     private int desiredReplicaCount;
 
-    public Deployment(Model model, String name, boolean showInTrace, Set<Service> services, int desiredReplicaCount) {
+    public Deployment(Model model, String name, boolean showInTrace, Set<Service> services, int desiredReplicaCount, String schedulerType) {
         super(model, name, showInTrace);
         this.services = services;
         this.desiredReplicaCount = desiredReplicaCount;
+        this.schedulerType = schedulerType;
     }
 
     /**
@@ -35,14 +40,14 @@ public class Deployment extends NamedEntity {
                 pod.getContainers().add(container);
             }
             replicaSet.add(pod);
-            schedulePod(pod);
+            addPodToWaitingQueue(pod);
         }
         System.out.println("Pods succesfully deployed for this deployment");
 
     }
 
-    public void schedulePod(Pod pod){
-        scheduler.schedulePod(pod);
+    public void addPodToWaitingQueue(Pod pod){
+        ManagementPlane.getInstance().getPodWaitingQueue().add(pod);
     }
 
     public Set<Service> getServices() {
@@ -73,11 +78,11 @@ public class Deployment extends NamedEntity {
         this.replicaSet = replicaSet;
     }
 
-    public Scheduler getScheduler() {
-        return scheduler;
+    public String getSchedulerType() {
+        return schedulerType;
     }
 
-    public void setScheduler(Scheduler scheduler) {
-        this.scheduler = scheduler;
+    public void setSchedulerType(String schedulerType) {
+        this.schedulerType = schedulerType;
     }
 }

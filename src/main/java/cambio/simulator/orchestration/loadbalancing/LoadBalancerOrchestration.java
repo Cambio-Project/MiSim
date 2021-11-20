@@ -1,8 +1,8 @@
-package cambio.simulator.orchestration;
+package cambio.simulator.orchestration.loadbalancing;
 
 import cambio.simulator.entities.NamedEntity;
 import cambio.simulator.entities.microservice.MicroserviceInstance;
-import cambio.simulator.orchestration.deprecated.Service;
+import cambio.simulator.orchestration.k8objects.Service;
 import desmoj.core.simulator.Model;
 
 public class LoadBalancerOrchestration extends NamedEntity {

@@ -12,7 +12,7 @@ import cambio.simulator.entities.patterns.InstanceOwnedPatternConfiguration;
 import cambio.simulator.entities.patterns.LoadBalancer;
 import cambio.simulator.entities.patterns.ServiceOwnedPattern;
 import cambio.simulator.models.MiSimModel;
-import cambio.simulator.orchestration.deprecated.Service;
+import cambio.simulator.orchestration.k8objects.Service;
 import cambio.simulator.parsing.GsonHelper;
 import cambio.simulator.parsing.adapter.MiSimModelReferencingTypeAdapter;
 import cambio.simulator.parsing.adapter.NormalDistributionAdapter;
@@ -100,7 +100,11 @@ class MicroserviceAdapter extends MiSimModelReferencingTypeAdapter<Microservice>
 
         @Override
         public Microservice createInstance(Type type) {
-            return new Service(baseModel, microserviceName, true);
+            if(baseModel.orchestrated){
+                return new Service(baseModel, microserviceName, true);
+            }else{
+                return new Microservice(baseModel, microserviceName, true);
+            }
         }
     }
 }

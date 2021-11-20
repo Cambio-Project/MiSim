@@ -9,9 +9,10 @@ import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.events.ISelfScheduled;
 import cambio.simulator.events.SimulationEndEvent;
 import cambio.simulator.export.MultiDataPointReporter;
-import cambio.simulator.orchestration.Cluster;
+import cambio.simulator.orchestration.environment.Cluster;
 import cambio.simulator.orchestration.ManagementPlane;
-import cambio.simulator.orchestration.Node;
+import cambio.simulator.orchestration.MasterTasksExecutor;
+import cambio.simulator.orchestration.environment.Node;
 import cambio.simulator.parsing.ModelLoader;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
@@ -27,7 +28,7 @@ public class MiSimModel extends Model {
      * general reporter, can be used if objects/classes do not want to create their own reporter or use a common
      * reporter.
      */
-    public final boolean useOrchestration = true;
+    public static final boolean orchestrated = true;
 
     public static MultiDataPointReporter generalReporter = new MultiDataPointReporter();
 
@@ -75,11 +76,14 @@ public class MiSimModel extends Model {
     public void doInitialSchedules() {
         this.experimentMetaData.markStartOfExperiment(System.nanoTime());
 
-        if(useOrchestration){
+        if(orchestrated){
             initOrchestration();
         } else {
             architectureModel.getMicroservices().forEach(Microservice::start);
         }
+
+        final MasterTasksExecutor masterTasksExecutor = new MasterTasksExecutor(getModel(), "MasterTaskExecutor", getModel().traceIsOn());
+        masterTasksExecutor.doInitialSelfSchedule();
 
         for (ISelfScheduled selfScheduledEvent : experimentModel.getAllSelfSchedulesEntities()) {
             selfScheduledEvent.doInitialSelfSchedule();
@@ -98,6 +102,7 @@ public class MiSimModel extends Model {
         final ManagementPlane managementPlane = ManagementPlane.getInstance();
         managementPlane.setModel(this);
         managementPlane.setCluster(cluster);
+        managementPlane.populateSchedulerMap();
         managementPlane.buildDeploymentScheme(this.architectureModel);
         managementPlane.applyDeploymentScheme();
         System.out.println("Init Orchestration finished");

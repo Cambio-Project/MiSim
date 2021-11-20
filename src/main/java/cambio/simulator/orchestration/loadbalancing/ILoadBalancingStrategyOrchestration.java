@@ -1,7 +1,7 @@
-package cambio.simulator.orchestration;
+package cambio.simulator.orchestration.loadbalancing;
 
 import cambio.simulator.entities.microservice.MicroserviceInstance;
-import cambio.simulator.orchestration.deprecated.Service;
+import cambio.simulator.orchestration.k8objects.Service;
 
 public interface ILoadBalancingStrategyOrchestration {
 

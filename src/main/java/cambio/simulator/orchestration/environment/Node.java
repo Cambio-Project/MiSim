@@ -1,4 +1,4 @@
-package cambio.simulator.orchestration;
+package cambio.simulator.orchestration.environment;
 
 import cambio.simulator.entities.NamedEntity;
 import desmoj.core.simulator.Model;

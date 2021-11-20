@@ -1,4 +1,4 @@
-package cambio.simulator.orchestration;
+package cambio.simulator.orchestration.environment;
 
 public enum PodState {
     PENDING,
