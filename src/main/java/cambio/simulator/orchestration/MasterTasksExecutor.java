@@ -5,7 +5,7 @@ import cambio.simulator.entities.NamedSimProcess;
 import cambio.simulator.entities.generator.IntervalLoadGeneratorDescription;
 import cambio.simulator.entities.generator.LoadGeneratorStopException;
 import cambio.simulator.events.ISelfScheduled;
-import cambio.simulator.orchestration.events.StartPendingPodsEvent;
+import cambio.simulator.orchestration.events.PeriodicTasksEvent;
 import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
@@ -26,8 +26,8 @@ public class MasterTasksExecutor extends NamedEntity implements ISelfScheduled {
 
     public void executeManagementTasks(){
         System.out.println("Executing Management tasks: " + presentTime());
-        final StartPendingPodsEvent startPendingPodsEvent = new StartPendingPodsEvent(getModel(), "Check for pending pods and schedule them", traceIsOn());
-        startPendingPodsEvent.schedule(getModel().presentTime());
+        final PeriodicTasksEvent periodicTasksEvent = new PeriodicTasksEvent(getModel(), "Apply Periodic Tasks (schedule Pending pods, apply scaling)", traceIsOn());
+        periodicTasksEvent.schedule(getModel().presentTime());
     }
 
     @Override

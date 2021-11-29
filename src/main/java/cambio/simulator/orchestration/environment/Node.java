@@ -1,14 +1,18 @@
 package cambio.simulator.orchestration.environment;
 
 import cambio.simulator.entities.NamedEntity;
+import cambio.simulator.entities.microservice.InstanceState;
+import cambio.simulator.orchestration.events.CheckPodRemovableEvent;
 import desmoj.core.simulator.Model;
+import desmoj.core.simulator.TimeInstant;
+import desmoj.core.simulator.TimeSpan;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Node extends NamedEntity {
 
-    private static final int DEFAULT_CPU_CAPACITY = 400;
+    private static final int DEFAULT_CPU_CAPACITY = 1500;
 
     final int totalCPU;
     int reserved = 0;
@@ -24,11 +28,34 @@ public class Node extends NamedEntity {
         this.pods = new ArrayList<>();
     }
 
-    public void addPod(Pod pod) {
-        this.reserved += pod.getCPUDemand();
-        pods.add(pod);
+    public synchronized boolean addPod(Pod pod) {
+        if (this.getReserved() + pod.getCPUDemand() <= this.getTotalCPU()) {
+            this.reserved += pod.getCPUDemand();
+            pods.add(pod);
+            pod.getContainers().forEach(container -> container.setContainerState(ContainerState.RUNNING));
+            pod.getContainers().forEach(container -> container.getMicroserviceInstance().start());
+            pod.setPodState(PodState.RUNNING);
+            return true;
+        }
+        return false;
+    }
+
+    public void startRemoving(Pod pod){
+        pod.setPodState(PodState.TERMINATING);
+        pod.getContainers().forEach(container -> container.getMicroserviceInstance().startShutdown());
+        final CheckPodRemovableEvent checkPodRemovableEvent = new CheckPodRemovableEvent(getModel(), "Check if pod can be removed", traceIsOn());
+        checkPodRemovableEvent.schedule(pod, this, new TimeSpan(0));
 
     }
+
+    public void removePod(Pod pod){
+        pod.getContainers().forEach(container -> container.setContainerState(ContainerState.TERMINATED));
+        pod.setPodState(PodState.SUCCEEDED);
+        this.reserved -= pod.getCPUDemand();
+        pods.remove(pod);
+        sendTraceNote(pod.getQuotedName() + " was removed from " + this.getQuotedName());
+    }
+
 
     public List<Pod> getPods() {
         return pods;
@@ -37,6 +64,7 @@ public class Node extends NamedEntity {
     public void setPods(List<Pod> pods) {
         this.pods = pods;
     }
+
     public int getTotalCPU() {
         return totalCPU;
     }

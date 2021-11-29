@@ -2,8 +2,9 @@ package cambio.simulator.orchestration.scheduling;
 
 import cambio.simulator.orchestration.environment.Pod;
 
-public interface IScheduler {
+import java.util.LinkedList;
 
+public interface IScheduler {
 
 //    When Pods are created, they go to a queue and wait to be scheduled. The scheduler picks a Pod from the queue and tries to schedule it on a Node.
 //    https://kubernetes.io/docs/concepts/scheduling-eviction/_print/
@@ -12,5 +13,12 @@ public interface IScheduler {
 //    SOLUTION: ManagementPlane übernimmt verantwortung
 
 
-    public boolean schedulePod(Pod pod);
+    boolean schedulePod();
+
+    void schedulePods();
+
+    Pod getNextPodFromWaitingQueue();
+
+    LinkedList<Pod> getPodWaitingQueue();
+
 }

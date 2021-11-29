@@ -95,7 +95,7 @@ public class MiSimModel extends Model {
 
     public void initOrchestration(){
         List<Node> nodes = new ArrayList<>();
-        for(int i = 0; i<5; i++){
+        for(int i = 0; i<3; i++){
             nodes.add(new Node(getModel(), "Node", traceIsOn()));
         }
         Cluster cluster = new Cluster(nodes);
@@ -103,6 +103,7 @@ public class MiSimModel extends Model {
         managementPlane.setModel(this);
         managementPlane.setCluster(cluster);
         managementPlane.populateSchedulerMap();
+        managementPlane.populateScalerMap();
         managementPlane.buildDeploymentScheme(this.architectureModel);
         managementPlane.applyDeploymentScheme();
         System.out.println("Init Orchestration finished");

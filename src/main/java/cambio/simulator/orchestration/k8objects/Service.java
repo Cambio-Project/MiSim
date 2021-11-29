@@ -60,10 +60,6 @@ public class Service extends Microservice {
         }
     }
 
-    public int getCpuDemand() {
-        return Arrays.stream(super.getOperations()).mapToInt(Operation::getDemand).sum();
-    }
-
     public MicroserviceInstance createMicroServiceInstance() {
         MicroserviceInstance changedInstance;
         changedInstance =

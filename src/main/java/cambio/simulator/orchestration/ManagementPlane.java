@@ -1,18 +1,28 @@
 package cambio.simulator.orchestration;
 
 
+import cambio.simulator.entities.microservice.InstanceState;
 import cambio.simulator.models.ArchitectureModel;
 import cambio.simulator.orchestration.environment.Cluster;
+import cambio.simulator.orchestration.environment.Container;
+import cambio.simulator.orchestration.environment.Node;
 import cambio.simulator.orchestration.environment.Pod;
+import cambio.simulator.orchestration.events.CheckPodRemovableEvent;
 import cambio.simulator.orchestration.events.DeploymentEvent;
-import cambio.simulator.orchestration.events.StartPendingPodsEvent;
+import cambio.simulator.orchestration.events.PeriodicTasksEvent;
+import cambio.simulator.orchestration.events.RemovePodEvent;
 import cambio.simulator.orchestration.k8objects.Deployment;
 import cambio.simulator.orchestration.k8objects.Service;
+import cambio.simulator.orchestration.loadbalancing.LeastUtilizationLoadBalanceStrategyOrchestration;
 import cambio.simulator.orchestration.loadbalancing.LoadBalancerOrchestration;
-import cambio.simulator.orchestration.loadbalancing.RandomLoadBalanceStrategyOrchestration;
+import cambio.simulator.orchestration.scaling.HorizontalPodAutoscaler;
+import cambio.simulator.orchestration.scaling.IAutoScaler;
 import cambio.simulator.orchestration.scheduling.FirstFitScheduler;
 import cambio.simulator.orchestration.scheduling.IScheduler;
 import desmoj.core.simulator.Model;
+import desmoj.core.simulator.Scheduler;
+import desmoj.core.simulator.TimeInstant;
+import desmoj.core.simulator.TimeSpan;
 
 import java.util.*;
 
@@ -22,8 +32,7 @@ public class ManagementPlane {
     Model model;
     LinkedList<Pod> podWaitingQueue = new LinkedList<>();
     Map<String, IScheduler> schedulerMap = new HashMap<>();
-    //Map<String, IScheduler> Name & SChedulerObjekt, nichts -> dann immer default scheduler. Schon von anfang an in der Map
-    //
+    Map<String, IAutoScaler> scalerMap = new HashMap<>();
 
     public static int deploymentCounter = 0;
 
@@ -53,12 +62,16 @@ public class ManagementPlane {
             final DeploymentEvent deploymentEvent = new DeploymentEvent(getModel(), String.format("Starting with deployment of %s ", deployment.getQuotedName()), getModel().traceIsOn());
             deploymentEvent.schedule(deployment, getModel().presentTime());
         }
-        final StartPendingPodsEvent startPendingPodsEvent = new StartPendingPodsEvent(getModel(), "Start Scheduling for pending Pods", getModel().traceIsOn());
-        startPendingPodsEvent.schedule(getModel().presentTime());
+//        final PeriodicTasksEvent periodicTasksEvent = new PeriodicTasksEvent(getModel(), "Start periodicTasksEvent", getModel().traceIsOn());
+//        periodicTasksEvent.schedule(getModel().presentTime());
     }
 
     public void populateSchedulerMap() {
         schedulerMap.put("firstFit", FirstFitScheduler.getInstance());
+    }
+
+    public void populateScalerMap() {
+        scalerMap.put("HPA", HorizontalPodAutoscaler.getInstance());
     }
 
     public void connectLoadBalancersToServices(Set<Service> services) {
@@ -68,37 +81,49 @@ public class ManagementPlane {
     }
 
     public void connectLoadBalancerToService(Service service) {
-        service.setLoadBalancer(new LoadBalancerOrchestration(getModel(), "RandomLoadBalancer", getModel().traceIsOn(), new RandomLoadBalanceStrategyOrchestration(), service));
+//        service.setLoadBalancer(new LoadBalancerOrchestration(getModel(), "RandomLoadBalancer", getModel().traceIsOn(), new RandomLoadBalanceStrategyOrchestration(), service));
+        service.setLoadBalancer(new LoadBalancerOrchestration(getModel(), "LeastUtilLoadBalancer", getModel().traceIsOn(), new LeastUtilizationLoadBalanceStrategyOrchestration(), service));
     }
 
     //Do this periodically
     public void checkForPendingPods() {
+        schedulerMap.values().forEach(IScheduler::schedulePods);
 
-        if (podWaitingQueue.isEmpty()) {
-            getModel().sendTraceNote("Pod Waiting Queue is empty. No need for consulting the scheduler");
-            return;
+    }
+
+    public void addPodToSpecificSchedulerQueue(Pod pod, String schedulerType){
+        final IScheduler scheduler = schedulerMap.get(schedulerType);
+        if (scheduler != null) {
+            scheduler.getPodWaitingQueue().add(pod);
+        } else {
+            getModel().sendTraceNote("Unknown scheduler type: " + schedulerType + ". Cannot send" + pod + " to its scheduler queue");
         }
+    }
 
-        LinkedList<Pod> stillUnscheduledPods = new LinkedList<>();
-        while (!podWaitingQueue.isEmpty()) {
-            final Pod pod = podWaitingQueue.poll();
-            for (Deployment deployment : deployments) {
-                if (deployment.getReplicaSet().contains(pod)) {
-                    //Event Schedule Pod - Und schedule Pod ist verantwortlich die podWaitingQueue zu füllen, wenn Pod nicht geschedulet
-                    final IScheduler scheduler = schedulerMap.get(deployment.getSchedulerType());
-                    if (scheduler != null) {
-                        if (!scheduler.schedulePod(pod)) {
-                            stillUnscheduledPods.add(pod);
-                        }
-                    } else {
-                        getModel().sendTraceNote("Unknown scheduler type: " + deployment.getSchedulerType() + ". Cannot schedule pods of " + deployment);
-                        stillUnscheduledPods.add(pod);
-                    }
-                    break;
-                }
+    public void checkForScaling(){
+        final IAutoScaler hpa = scalerMap.get("HPA");
+        for (Deployment deployment : deployments) {
+            //deployment get scaler type = HPA
+            //make event out of it
+            hpa.apply(deployment);
+        }
+    }
+
+    public void checkIfPodRemovableFromNode(Pod pod, Node node){
+        for (Container container : pod.getContainers()) {
+            if(container.getMicroserviceInstance().getState()!= InstanceState.SHUTDOWN){
+                final CheckPodRemovableEvent checkPodRemovableEvent = new CheckPodRemovableEvent(getModel(), "Check if pod can be removed", getModel().traceIsOn());
+                checkPodRemovableEvent.schedule(pod,node, new TimeSpan(2));
+                return;
             }
         }
-        podWaitingQueue.addAll(stillUnscheduledPods);
+        final RemovePodEvent removePodEvent = new RemovePodEvent(getModel(), "Remove Pod from Node Event", getModel().traceIsOn());
+        removePodEvent.schedule(pod, node, model.presentTime());
+
+    }
+
+    public void removePodFromNode(Pod pod, Node node){
+        node.removePod(pod);
     }
 
     public List<Deployment> getDeployments() {

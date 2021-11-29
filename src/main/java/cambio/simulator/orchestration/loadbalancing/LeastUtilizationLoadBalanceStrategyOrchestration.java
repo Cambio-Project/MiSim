@@ -12,31 +12,33 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-public class RandomLoadBalanceStrategyOrchestration implements ILoadBalancingStrategyOrchestration {
+public class LeastUtilizationLoadBalanceStrategyOrchestration implements ILoadBalancingStrategyOrchestration{
     @Override
     public MicroserviceInstance getNextServiceInstance(Service service) {
 
+
+
         final Set<Pod> replicaSet = service.getDeployment().getReplicaSet();
-
         List<Pod> pods = new ArrayList<>(replicaSet);
-        Collections.shuffle(pods);
 
+        MicroserviceInstance leastUtilized = null;
         for (Pod pod : pods) {
             if(pod.getPodState()== PodState.RUNNING){
                 final Set<Container> containers = pod.getContainers();
                 for (Container container : containers) {
                     if (container.getMicroserviceInstance().getOwner().equals(service)) {
                         if(container.getContainerState()== ContainerState.RUNNING){
-                            return container.getMicroserviceInstance();
+                            if(leastUtilized == null || container.getMicroserviceInstance().getRelativeWorkDemand() < leastUtilized.getRelativeWorkDemand()){
+                                leastUtilized = container.getMicroserviceInstance();
+                            }
                         }
-                        //If container is not running, then try another pod
                         break;
                     }
                 }
             }
+
         }
 
-
-        return null;
+        return leastUtilized;
     }
 }
