@@ -1,10 +1,8 @@
 package cambio.simulator.orchestration.scheduling;
 
 import cambio.simulator.entities.NamedEntity;
-import cambio.simulator.orchestration.*;
 import cambio.simulator.orchestration.environment.*;
-import cambio.simulator.orchestration.k8objects.Deployment;
-import desmoj.core.simulator.Model;
+import cambio.simulator.orchestration.management.ManagementPlane;
 
 import java.util.LinkedList;
 

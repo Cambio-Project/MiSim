@@ -1,14 +1,12 @@
 package cambio.simulator.orchestration.k8objects;
 
 import cambio.simulator.entities.microservice.*;
-import cambio.simulator.orchestration.ManagementPlane;
+import cambio.simulator.orchestration.management.ManagementPlane;
 import cambio.simulator.orchestration.environment.Container;
 import cambio.simulator.orchestration.environment.ContainerState;
 import cambio.simulator.orchestration.environment.Pod;
 import cambio.simulator.orchestration.loadbalancing.LoadBalancerOrchestration;
 import desmoj.core.simulator.Model;
-
-import java.util.*;
 
 public class Service extends Microservice {
 

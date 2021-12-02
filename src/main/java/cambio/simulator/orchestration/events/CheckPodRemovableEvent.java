@@ -1,5 +1,5 @@
 package cambio.simulator.orchestration.events;
-import cambio.simulator.orchestration.ManagementPlane;
+import cambio.simulator.orchestration.management.ManagementPlane;
 import cambio.simulator.orchestration.environment.Node;
 import cambio.simulator.orchestration.environment.Pod;
 import desmoj.core.simulator.EventOf2Entities;

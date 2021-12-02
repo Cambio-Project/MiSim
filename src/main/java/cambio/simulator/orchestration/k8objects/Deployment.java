@@ -2,18 +2,17 @@ package cambio.simulator.orchestration.k8objects;
 
 import cambio.simulator.entities.NamedEntity;
 import cambio.simulator.entities.microservice.MicroserviceInstance;
-import cambio.simulator.orchestration.ManagementPlane;
+import cambio.simulator.orchestration.management.ManagementPlane;
 import cambio.simulator.orchestration.environment.*;
+import cambio.simulator.orchestration.parsing.K8Kind;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-public class Deployment extends NamedEntity {
+public class Deployment extends K8Object {
     private Set<Service> services;
     private Set<Pod> replicaSet = new HashSet<>();
     private String schedulerType;
@@ -26,7 +25,7 @@ public class Deployment extends NamedEntity {
     private int minReplicaCount = 1;
 
     public Deployment(Model model, String name, boolean showInTrace, Set<Service> services, int desiredReplicaCount, String schedulerType) {
-        super(model, name, showInTrace);
+        super(model, name, showInTrace, K8Kind.DEPLOYMENT);
         this.services = services;
         this.desiredReplicaCount = desiredReplicaCount;
         this.schedulerType = schedulerType;
@@ -52,7 +51,7 @@ public class Deployment extends NamedEntity {
         final Pod pod = new Pod(getModel(), "Pod", traceIsOn());
         for (Service service : services) {
             final MicroserviceInstance microServiceInstance = service.createMicroServiceInstance();
-            final Container container = new Container(getModel(), "Container", traceIsOn(), microServiceInstance);
+            final Container container = new Container(getModel(), "Container_"+service.getPlainName(), traceIsOn(), microServiceInstance);
             pod.getContainers().add(container);
         }
         replicaSet.add(pod);

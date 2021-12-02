@@ -2,7 +2,7 @@ package cambio.simulator.orchestration.events;
 
 import cambio.simulator.entities.NamedExternalEvent;
 import cambio.simulator.misc.Priority;
-import cambio.simulator.orchestration.ManagementPlane;
+import cambio.simulator.orchestration.management.ManagementPlane;
 import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.Model;
 

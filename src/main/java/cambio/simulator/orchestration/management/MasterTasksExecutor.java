@@ -1,4 +1,4 @@
-package cambio.simulator.orchestration;
+package cambio.simulator.orchestration.management;
 
 import cambio.simulator.entities.NamedEntity;
 import cambio.simulator.entities.NamedSimProcess;

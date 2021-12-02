@@ -1,14 +1,10 @@
 package cambio.simulator.orchestration.scaling;
 
 import cambio.simulator.entities.NamedEntity;
-import cambio.simulator.orchestration.ManagementPlane;
+import cambio.simulator.orchestration.management.ManagementPlane;
 import cambio.simulator.orchestration.environment.*;
 import cambio.simulator.orchestration.events.DeploymentEvent;
 import cambio.simulator.orchestration.k8objects.Deployment;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.OptionalDouble;
 
 public class HorizontalPodAutoscaler extends NamedEntity implements IAutoScaler {
 
@@ -41,7 +37,7 @@ public class HorizontalPodAutoscaler extends NamedEntity implements IAutoScaler 
         if (timeAsDouble - deployment.getLastScaleDown().getTimeAsDouble() > holdTimeDown) {
             downscalingAllowed = true;
         }
-        Double target = 50.0; //in percent
+        double target = 50.0; //in percent
 
         if (upscalingAllowed || downscalingAllowed) {
             double sumOfRelativeCPUUsage = 0;

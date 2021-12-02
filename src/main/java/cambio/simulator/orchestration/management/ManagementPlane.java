@@ -1,4 +1,4 @@
-package cambio.simulator.orchestration;
+package cambio.simulator.orchestration.management;
 
 
 import cambio.simulator.entities.microservice.InstanceState;
@@ -9,7 +9,6 @@ import cambio.simulator.orchestration.environment.Node;
 import cambio.simulator.orchestration.environment.Pod;
 import cambio.simulator.orchestration.events.CheckPodRemovableEvent;
 import cambio.simulator.orchestration.events.DeploymentEvent;
-import cambio.simulator.orchestration.events.PeriodicTasksEvent;
 import cambio.simulator.orchestration.events.RemovePodEvent;
 import cambio.simulator.orchestration.k8objects.Deployment;
 import cambio.simulator.orchestration.k8objects.Service;
@@ -20,8 +19,6 @@ import cambio.simulator.orchestration.scaling.IAutoScaler;
 import cambio.simulator.orchestration.scheduling.FirstFitScheduler;
 import cambio.simulator.orchestration.scheduling.IScheduler;
 import desmoj.core.simulator.Model;
-import desmoj.core.simulator.Scheduler;
-import desmoj.core.simulator.TimeInstant;
 import desmoj.core.simulator.TimeSpan;
 
 import java.util.*;
@@ -52,7 +49,7 @@ public class ManagementPlane {
         for (Service service : services) {
             Set<Service> deploymentServices = new HashSet<>();
             deploymentServices.add(service);
-            deployments.add(new Deployment(getModel(), "Deployment_" + ++deploymentCounter, false, deploymentServices, service.getStartingInstanceCount(), "firstFit"));
+            deployments.add(new Deployment(getModel(), "Deployment_" + ++deploymentCounter, getModel().traceIsOn(), deploymentServices, service.getStartingInstanceCount(), "firstFit"));
         }
     }
 

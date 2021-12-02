@@ -4,15 +4,21 @@ import java.io.File;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.events.ISelfScheduled;
 import cambio.simulator.events.SimulationEndEvent;
 import cambio.simulator.export.MultiDataPointReporter;
+import cambio.simulator.orchestration.Util;
 import cambio.simulator.orchestration.environment.Cluster;
-import cambio.simulator.orchestration.ManagementPlane;
-import cambio.simulator.orchestration.MasterTasksExecutor;
+import cambio.simulator.orchestration.k8objects.Deployment;
+import cambio.simulator.orchestration.k8objects.K8Object;
+import cambio.simulator.orchestration.management.ManagementPlane;
+import cambio.simulator.orchestration.management.MasterTasksExecutor;
 import cambio.simulator.orchestration.environment.Node;
+import cambio.simulator.orchestration.parsing.ParsingException;
+import cambio.simulator.orchestration.parsing.YAMLParser;
 import cambio.simulator.parsing.ModelLoader;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
@@ -104,7 +110,29 @@ public class MiSimModel extends Model {
         managementPlane.setCluster(cluster);
         managementPlane.populateSchedulerMap();
         managementPlane.populateScalerMap();
-        managementPlane.buildDeploymentScheme(this.architectureModel);
+
+
+        final YAMLParser yamlParser = YAMLParser.getInstance();
+        yamlParser.setArchitectureModel(architectureModel);
+        String targetDir = "target/orchestration";
+        final Set<String> fileNames = Util.getInstance().listFilesUsingJavaIO(targetDir);
+        for(String fileName : fileNames){
+            try {
+                String filePath = targetDir + "/" + fileName;
+                final K8Object k8Object = yamlParser.parseFile(filePath);
+                managementPlane.getDeployments().add((Deployment) k8Object);
+            } catch (ParsingException e) {
+                e.printStackTrace();
+                System.exit(1);
+            }
+        }
+
+        //TODO check if whole architecture file matches to deployments
+        //TODO other K8 objects: service, pod
+
+
+
+//        managementPlane.buildDeploymentScheme(this.architectureModel);
         managementPlane.applyDeploymentScheme();
         System.out.println("Init Orchestration finished");
     }
