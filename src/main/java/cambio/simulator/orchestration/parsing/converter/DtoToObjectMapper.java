@@ -10,10 +10,10 @@ import cambio.simulator.orchestration.parsing.SpecDeploymentDto;
 import java.util.ArrayList;
 import java.util.List;
 
-public interface DtoToObjectMapper {
-    K8Object buildScheme() throws ParsingException;
+public interface DtoToObjectMapper<T> {
+    T buildScheme() throws ParsingException;
 
     void setArchitectureModel(ArchitectureModel architectureModel);
 
-    void setK8ObjectDto(K8ObjectDto<SpecDeploymentDto> k8ObjectDto);
+    void setK8ObjectDto(K8ObjectDto k8ObjectDto);
 }

@@ -1,6 +1,6 @@
 package cambio.simulator.orchestration.parsing;
 
-public class K8DeploymentDto extends K8ObjectDto<SpecDeploymentDto>{
+public class K8DeploymentDto extends K8ObjectDto{
     private SpecDeploymentDto spec;
 
     public SpecDeploymentDto getSpec() {

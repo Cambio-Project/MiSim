@@ -1,6 +1,7 @@
 package cambio.simulator.models;
 
 import java.io.File;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -121,7 +122,7 @@ public class MiSimModel extends Model {
                 String filePath = targetDir + "/" + fileName;
                 final K8Object k8Object = yamlParser.parseFile(filePath);
                 managementPlane.getDeployments().add((Deployment) k8Object);
-            } catch (ParsingException e) {
+            } catch (ParsingException | IOException e) {
                 e.printStackTrace();
                 System.exit(1);
             }

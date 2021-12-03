@@ -6,6 +6,7 @@ import cambio.simulator.orchestration.environment.Pod;
 import desmoj.core.simulator.EventOf2Entities;
 import desmoj.core.simulator.Model;
 
+//TODO Rename: Event for releasing space on node - ShutdownFinishedEvent
 public class RemovePodEvent extends EventOf2Entities<Pod, Node> {
     public RemovePodEvent(Model model, String name, boolean traceIsOn) {
         super(model, name, traceIsOn);

@@ -16,7 +16,7 @@ public class PeriodicTasksEvent extends NamedExternalEvent {
 
     @Override
     public void eventRoutine() throws SuspendExecution {
-        ManagementPlane.getInstance().checkForPendingPods();
         ManagementPlane.getInstance().checkForScaling();
+        ManagementPlane.getInstance().checkForPendingPods();
     }
 }

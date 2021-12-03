@@ -19,14 +19,14 @@ public class YAMLParser {
 
     ArchitectureModel architectureModel = null;
 
-    private YAMLParser() {}
+    private YAMLParser() {
+    }
 
     private static final YAMLParser instance = new YAMLParser();
 
     public static YAMLParser getInstance() {
         return instance;
     }
-
 
 
     public String getKindAsString(String src) {
@@ -46,43 +46,37 @@ public class YAMLParser {
         return null;
     }
 
-    public K8Object parseFile(String src) throws ParsingException {
+    public K8Object parseFile(String src) throws ParsingException, IOException {
         final String s = this.getKindAsString(src);
         final K8Kind k8Kind = getK8Kind(s.toUpperCase(Locale.ROOT));
-        K8ObjectDto k8ObjectDtoClass = null;
+        Class targetClass = null;
         DtoToObjectMapper dtoToObjectMapper = null;
-
-        switch (k8Kind){
+        switch (k8Kind) {
             case DEPLOYMENT:
-                k8ObjectDtoClass = new K8DeploymentDto();
+                targetClass = K8DeploymentDto.class;
                 dtoToObjectMapper = DtoToDeploymentMapper.getInstance();
                 break;
             default:
-                System.out.println("Could not identify kind of Kubernetes Object in YAML file");
+                throw new ParsingException("Could not identify kind of Kubernetes Object in YAML file");
         }
 
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         mapper.findAndRegisterModules();
-        K8ObjectDto k8object = null;
-        try {
-            k8object = mapper.readValue(new File(src), k8ObjectDtoClass.getClass());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        K8ObjectDto k8object = (K8ObjectDto) mapper.readValue(new File(src),targetClass);
 
-        if(k8object!= null && dtoToObjectMapper!=null){
+        if (k8object != null && dtoToObjectMapper != null) {
             dtoToObjectMapper.setK8ObjectDto(k8object);
             dtoToObjectMapper.setArchitectureModel(architectureModel);
-            return dtoToObjectMapper.buildScheme();
+            return (K8Object) dtoToObjectMapper.buildScheme();
         }
         return null;
     }
 
-    public static K8Kind getK8Kind(String s){
+    public static K8Kind getK8Kind(String s) {
         return K8Kind.valueOf(s);
     }
 
-    public static void main(String[] args) throws ParsingException {
+    public static void main(String[] args) throws ParsingException, IOException {
 
         final YAMLParser yamlParser = YAMLParser.getInstance();
 //        yamlParser.setArchitectureModel("");
