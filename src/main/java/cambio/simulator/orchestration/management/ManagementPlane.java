@@ -9,7 +9,7 @@ import cambio.simulator.orchestration.environment.Node;
 import cambio.simulator.orchestration.environment.Pod;
 import cambio.simulator.orchestration.events.CheckPodRemovableEvent;
 import cambio.simulator.orchestration.events.DeploymentEvent;
-import cambio.simulator.orchestration.events.RemovePodEvent;
+import cambio.simulator.orchestration.events.FinishPodShutdown;
 import cambio.simulator.orchestration.k8objects.Deployment;
 import cambio.simulator.orchestration.k8objects.Service;
 import cambio.simulator.orchestration.loadbalancing.LeastUtilizationLoadBalanceStrategyOrchestration;
@@ -114,8 +114,8 @@ public class ManagementPlane {
                 return;
             }
         }
-        final RemovePodEvent removePodEvent = new RemovePodEvent(getModel(), "Remove Pod from Node Event", getModel().traceIsOn());
-        removePodEvent.schedule(pod, node, model.presentTime());
+        final FinishPodShutdown finishPodShutdown = new FinishPodShutdown(getModel(), "Remove Pod from Node Event", getModel().traceIsOn());
+        finishPodShutdown.schedule(pod, node, model.presentTime());
 
     }
 

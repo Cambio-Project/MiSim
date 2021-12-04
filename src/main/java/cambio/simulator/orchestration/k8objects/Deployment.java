@@ -2,6 +2,7 @@ package cambio.simulator.orchestration.k8objects;
 
 import cambio.simulator.entities.NamedEntity;
 import cambio.simulator.entities.microservice.MicroserviceInstance;
+import cambio.simulator.orchestration.events.StartPodShutdown;
 import cambio.simulator.orchestration.management.ManagementPlane;
 import cambio.simulator.orchestration.environment.*;
 import cambio.simulator.orchestration.parsing.K8Kind;
@@ -37,7 +38,7 @@ public class Deployment extends K8Object {
     public void deploy() {
         final int diff = Math.abs(getCurrentRunningOrPendingReplicaCount() - desiredReplicaCount);
         int i = 0;
-        while (i< diff) {
+        while (i < diff) {
             i++;
             if (getCurrentRunningOrPendingReplicaCount() < desiredReplicaCount) {
                 createPod();
@@ -51,7 +52,7 @@ public class Deployment extends K8Object {
         final Pod pod = new Pod(getModel(), "Pod", traceIsOn());
         for (Service service : services) {
             final MicroserviceInstance microServiceInstance = service.createMicroServiceInstance();
-            final Container container = new Container(getModel(), "Container_"+service.getPlainName(), traceIsOn(), microServiceInstance);
+            final Container container = new Container(getModel(), "Container_" + service.getPlainName(), traceIsOn(), microServiceInstance);
             pod.getContainers().add(container);
         }
         replicaSet.add(pod);
@@ -59,17 +60,20 @@ public class Deployment extends K8Object {
         addPodToWaitingQueue(pod);
     }
 
-    public void removePod(){
+    public void removePod() {
         final Optional<Pod> optionalPod = replicaSet.stream().filter(pod -> pod.getPodState() == PodState.RUNNING).findFirst();
-        if(!optionalPod.isPresent()){
+        if (!optionalPod.isPresent()) {
             //No Pod found that could be removed
             return;
         }
         final Pod podToRemove = optionalPod.get();
         final Optional<Node> first = ManagementPlane.getInstance().getCluster().getNodes().stream().filter(node -> node.getPods().contains(podToRemove)).findFirst();
-        if(first.isPresent()){
+        if (first.isPresent()) {
             final Node node = first.get();
-            node.startRemoving(podToRemove);
+            //need to set other state than running. Happens in event anyways but event is delayed. This avoids picking the same pod from the replicaSet
+            podToRemove.setPodState(PodState.PRETERMINATING);
+            final StartPodShutdown startPodShutdownEvent = new StartPodShutdown(getModel(), "StartPodShutdownEvent", traceIsOn());
+            startPodShutdownEvent.schedule(podToRemove, node, presentTime());
         }
     }
 
@@ -97,8 +101,8 @@ public class Deployment extends K8Object {
         return getReplicaSet().size();
     }
 
-    public int getCurrentRunningOrPendingReplicaCount(){
-        return (int) getReplicaSet().stream().filter(pod -> pod.getPodState()==PodState.RUNNING || pod.getPodState()==PodState.PENDING).count();
+    public int getCurrentRunningOrPendingReplicaCount() {
+        return (int) getReplicaSet().stream().filter(pod -> pod.getPodState() == PodState.RUNNING || pod.getPodState() == PodState.PENDING).count();
     }
 
     public Set<Pod> getReplicaSet() {
