@@ -61,7 +61,7 @@ public class MiSimModel extends Model {
 
         long startTime = System.nanoTime();
         this.experimentMetaData =
-            ModelLoader.loadExperimentMetaData(experimentModelOrScenarioLocation, architectureModelLocation);
+                ModelLoader.loadExperimentMetaData(experimentModelOrScenarioLocation, architectureModelLocation);
         this.experimentMetaData.markStartOfSetup(startTime);
     }
 
@@ -83,7 +83,7 @@ public class MiSimModel extends Model {
     public void doInitialSchedules() {
         this.experimentMetaData.markStartOfExperiment(System.nanoTime());
 
-        if(orchestrated){
+        if (orchestrated) {
             initOrchestration();
         } else {
             architectureModel.getMicroservices().forEach(Microservice::start);
@@ -96,13 +96,13 @@ public class MiSimModel extends Model {
             selfScheduledEvent.doInitialSelfSchedule();
         }
         SimulationEndEvent simulationEndEvent =
-            new SimulationEndEvent(this, SimulationEndEvent.class.getSimpleName(), true);
+                new SimulationEndEvent(this, SimulationEndEvent.class.getSimpleName(), true);
         simulationEndEvent.schedule(new TimeInstant(this.experimentMetaData.getDuration()));
     }
 
-    public void initOrchestration(){
+    public void initOrchestration() {
         List<Node> nodes = new ArrayList<>();
-        for(int i = 0; i<3; i++){
+        for (int i = 0; i < 3; i++) {
             nodes.add(new Node(getModel(), "Node", traceIsOn()));
         }
         Cluster cluster = new Cluster(nodes);
@@ -117,20 +117,35 @@ public class MiSimModel extends Model {
         yamlParser.setArchitectureModel(architectureModel);
         String targetDir = "target/orchestration";
         final Set<String> fileNames = Util.getInstance().listFilesUsingJavaIO(targetDir);
-        for(String fileName : fileNames){
+        for (String fileName : fileNames) {
             try {
                 String filePath = targetDir + "/" + fileName;
                 final K8Object k8Object = yamlParser.parseFile(filePath);
-                managementPlane.getDeployments().add((Deployment) k8Object);
+                if (k8Object != null) {
+                    if (k8Object instanceof Deployment) {
+                        managementPlane.getDeployments().add((Deployment) k8Object);
+                    } else {
+                        throw new ParsingException("The parser returned an unknown K8Object");
+                    }
+                }
             } catch (ParsingException | IOException e) {
                 e.printStackTrace();
                 System.exit(1);
             }
         }
 
-        //TODO check if whole architecture file matches to deployments
-        //TODO other K8 objects: service, pod
+        for (String filePath : yamlParser.getRemainingFilePaths()) {
+            try {
+                yamlParser.applyManipulation(filePath);
+            } catch (ParsingException | IOException e) {
+                e.printStackTrace();
+                System.exit(1);
+            }
+        }
 
+
+        //TODO check if whole architecture file matches to deployments
+        //TODO other K8 objects: service
 
 
 //        managementPlane.buildDeploymentScheme(this.architectureModel);

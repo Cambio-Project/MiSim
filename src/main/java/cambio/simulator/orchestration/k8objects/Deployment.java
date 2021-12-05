@@ -17,6 +17,7 @@ public class Deployment extends K8Object {
     private Set<Service> services;
     private Set<Pod> replicaSet = new HashSet<>();
     private String schedulerType;
+    private String scalerType;
 
 
     private TimeInstant lastScaleUp = new TimeInstant(0);
@@ -24,6 +25,7 @@ public class Deployment extends K8Object {
     private int desiredReplicaCount;
     private int maxReplicaCount = 10;
     private int minReplicaCount = 1;
+    private double averageUtilization = 50.0;
 
     public Deployment(Model model, String name, boolean showInTrace, Set<Service> services, int desiredReplicaCount, String schedulerType) {
         super(model, name, showInTrace, K8Kind.DEPLOYMENT);
@@ -151,5 +153,21 @@ public class Deployment extends K8Object {
 
     public void setLastScaleDown(TimeInstant lastScaleDown) {
         this.lastScaleDown = lastScaleDown;
+    }
+
+    public String getScalerType() {
+        return scalerType;
+    }
+
+    public void setScalerType(String scalerType) {
+        this.scalerType = scalerType;
+    }
+
+    public double getAverageUtilization() {
+        return averageUtilization;
+    }
+
+    public void setAverageUtilization(double averageUtilization) {
+        this.averageUtilization = averageUtilization;
     }
 }

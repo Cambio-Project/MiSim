@@ -22,6 +22,7 @@ import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeSpan;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class ManagementPlane {
     List<Deployment> deployments = new ArrayList<>();
@@ -99,8 +100,8 @@ public class ManagementPlane {
 
     public void checkForScaling(){
         final IAutoScaler hpa = scalerMap.get("HPA");
-        for (Deployment deployment : deployments) {
-            //deployment get scaler type = HPA
+        final Set<Deployment> deploymentsWithHPA = deployments.stream().filter(deployment -> deployment.getScalerType()!=null && deployment.getScalerType().equals("HPA")).collect(Collectors.toSet());
+        for (Deployment deployment : deploymentsWithHPA) {
             //make event out of it
             hpa.apply(deployment);
         }

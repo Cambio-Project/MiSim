@@ -37,7 +37,7 @@ public class HorizontalPodAutoscaler extends NamedEntity implements IAutoScaler 
         if (timeAsDouble - deployment.getLastScaleDown().getTimeAsDouble() > holdTimeDown) {
             downscalingAllowed = true;
         }
-        double target = 50.0; //in percent
+        double target = deployment.getAverageUtilization(); //in percent
 
         if (upscalingAllowed || downscalingAllowed) {
             double sumOfRelativeCPUUsage = 0;
@@ -45,7 +45,6 @@ public class HorizontalPodAutoscaler extends NamedEntity implements IAutoScaler 
                 if (pod.getPodState() == PodState.RUNNING) {
                     for (Container container : pod.getContainers()) {
                         if (container.getContainerState() == ContainerState.RUNNING) {
-                            //TODO get the right metric - connection to CPUrequest in yaml file?
                             final double relativeWorkDemand = container.getMicroserviceInstance().getRelativeWorkDemand();
                             sumOfRelativeCPUUsage += relativeWorkDemand;
                         }
@@ -56,9 +55,9 @@ public class HorizontalPodAutoscaler extends NamedEntity implements IAutoScaler 
 
             if (desiredReplicas > 0) {
                 desiredReplicas = Math.min(desiredReplicas, deployment.getMaxReplicaCount());
-            } else {
-                desiredReplicas = deployment.getMinReplicaCount();
             }
+                desiredReplicas = Math.max(deployment.getMinReplicaCount(), desiredReplicas);
+
 
             if (desiredReplicas != deployment.getCurrentRunningOrPendingReplicaCount()) {
                 deployment.setDesiredReplicaCount(desiredReplicas);

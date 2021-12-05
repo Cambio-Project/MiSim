@@ -4,6 +4,8 @@ import cambio.simulator.models.ArchitectureModel;
 import cambio.simulator.orchestration.k8objects.K8Object;
 import cambio.simulator.orchestration.parsing.converter.DtoToDeploymentMapper;
 import cambio.simulator.orchestration.parsing.converter.DtoToObjectMapper;
+import cambio.simulator.orchestration.parsing.converter.HPAManipulator;
+import cambio.simulator.orchestration.parsing.converter.K8ObjectManipulator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import org.yaml.snakeyaml.Yaml;
@@ -12,12 +14,15 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Locale;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class YAMLParser {
 
     ArchitectureModel architectureModel = null;
+
+    Set<String> remainingFilePaths = new HashSet<>();
 
     private YAMLParser() {
     }
@@ -48,14 +53,18 @@ public class YAMLParser {
 
     public K8Object parseFile(String src) throws ParsingException, IOException {
         final String s = this.getKindAsString(src);
-        final K8Kind k8Kind = getK8Kind(s.toUpperCase(Locale.ROOT));
-        Class targetClass = null;
-        DtoToObjectMapper dtoToObjectMapper = null;
+        final K8Kind k8Kind = K8Kind.getK8Kind(s);
+        Class targetClass;
+        DtoToObjectMapper dtoToObjectMapper;
         switch (k8Kind) {
             case DEPLOYMENT:
                 targetClass = K8DeploymentDto.class;
                 dtoToObjectMapper = DtoToDeploymentMapper.getInstance();
                 break;
+            case HORIZONTALPODAUTOSCALER:
+                //Will be dealt with after k8objects have been initialized.
+                remainingFilePaths.add(src);
+                return null;
             default:
                 throw new ParsingException("Could not identify kind of Kubernetes Object in YAML file");
         }
@@ -72,8 +81,28 @@ public class YAMLParser {
         return null;
     }
 
-    public static K8Kind getK8Kind(String s) {
-        return K8Kind.valueOf(s);
+    public void applyManipulation(String src) throws ParsingException, IOException {
+        final String s = this.getKindAsString(src);
+        final K8Kind k8Kind = K8Kind.getK8Kind(s);
+        Class targetClass = null;
+        K8ObjectManipulator k8ObjectManipulator = null;
+        switch (k8Kind) {
+            case HORIZONTALPODAUTOSCALER:
+                targetClass = K8HPADto.class;
+                k8ObjectManipulator = HPAManipulator.getInstance();
+                break;
+            default:
+                throw new ParsingException("Could not identify kind of Kubernetes Object in YAML file");
+        }
+
+        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+        mapper.findAndRegisterModules();
+        K8ObjectDto k8object = (K8ObjectDto) mapper.readValue(new File(src),targetClass);
+
+        if (k8object != null && k8ObjectManipulator != null) {
+            k8ObjectManipulator.setK8ObjectDto(k8object);
+            k8ObjectManipulator.manipulate();
+        }
     }
 
     public static void main(String[] args) throws ParsingException, IOException {
@@ -92,6 +121,14 @@ public class YAMLParser {
 
     public void setArchitectureModel(ArchitectureModel architectureModel) {
         this.architectureModel = architectureModel;
+    }
+
+    public Set<String> getRemainingFilePaths() {
+        return remainingFilePaths;
+    }
+
+    public void setRemainingFilePaths(Set<String> remainingFilePaths) {
+        this.remainingFilePaths = remainingFilePaths;
     }
 }
 
