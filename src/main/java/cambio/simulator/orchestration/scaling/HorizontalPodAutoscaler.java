@@ -65,8 +65,6 @@ public class HorizontalPodAutoscaler extends NamedEntity implements IAutoScaler 
                     if (upscalingAllowed) {
                         deployment.setLastScaleUp(presentTime());
                         sendTraceNote("Scaling Up " + deployment + ". From " + deployment.getCurrentRunningOrPendingReplicaCount() + " -> " + desiredReplicas);
-                        final DeploymentEvent deploymentEvent = new DeploymentEvent(getModel(), String.format("Starting with deployment of %s ", deployment.getQuotedName()), traceIsOn());
-                        deploymentEvent.schedule(deployment, presentTime());
                     } else {
                         sendTraceNote("Up scaling not allowed for " + deployment + " due to hold time.");
                     }
@@ -75,8 +73,6 @@ public class HorizontalPodAutoscaler extends NamedEntity implements IAutoScaler 
                     if (downscalingAllowed) {
                         deployment.setLastScaleDown(presentTime());
                         sendTraceNote("Scaling Down " + deployment + ". From " + deployment.getCurrentRunningOrPendingReplicaCount() + " -> " + desiredReplicas);
-                        final DeploymentEvent deploymentEvent = new DeploymentEvent(getModel(), String.format("Starting with deployment of %s ", deployment.getQuotedName()), traceIsOn());
-                        deploymentEvent.schedule(deployment, presentTime());
                     } else {
                         sendTraceNote("Down scaling not allowed for " + deployment + " due to hold time.");
                     }

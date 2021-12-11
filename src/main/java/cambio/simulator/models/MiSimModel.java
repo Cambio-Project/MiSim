@@ -134,6 +134,7 @@ public class MiSimModel extends Model {
             }
         }
 
+        //Apply things that affect k8 objects: like HPA
         for (String filePath : yamlParser.getRemainingFilePaths()) {
             try {
                 yamlParser.applyManipulation(filePath);

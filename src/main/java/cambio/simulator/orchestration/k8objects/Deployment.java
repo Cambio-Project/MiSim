@@ -2,6 +2,7 @@ package cambio.simulator.orchestration.k8objects;
 
 import cambio.simulator.entities.NamedEntity;
 import cambio.simulator.entities.microservice.MicroserviceInstance;
+import cambio.simulator.orchestration.events.RestartPodEvent;
 import cambio.simulator.orchestration.events.StartPodShutdown;
 import cambio.simulator.orchestration.management.ManagementPlane;
 import cambio.simulator.orchestration.environment.*;
@@ -12,6 +13,7 @@ import desmoj.core.simulator.TimeInstant;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class Deployment extends K8Object {
     private Set<Service> services;
@@ -50,7 +52,17 @@ public class Deployment extends K8Object {
         }
     }
 
-    public void createPod() {
+    public synchronized void createPod() {
+
+        //first try to restart failed pods
+        final Optional<Pod> first = replicaSet.stream().filter(pod -> pod.getPodState().equals(PodState.FAILED)).findFirst();
+        if(first.isPresent()){
+            final Pod pod = first.get();
+            final RestartPodEvent restartPodEvent = new RestartPodEvent(getModel(), "RestartPodEvent", traceIsOn());
+            restartPodEvent.schedule(pod, presentTime());
+            return;
+        }
+
         final Pod pod = new Pod(getModel(), "Pod", traceIsOn());
         for (Service service : services) {
             final MicroserviceInstance microServiceInstance = service.createMicroServiceInstance();
@@ -79,6 +91,27 @@ public class Deployment extends K8Object {
         }
     }
 
+
+    public synchronized void killPodInstances(final int numberOfInstances) {
+        final int maxKills = Math.max(0, Math.min(numberOfInstances, getCurrentRunningOrPendingReplicaCount()));
+        for (int i = 0; i < maxKills; i++) {
+            killPodInstance();
+        }
+    }
+
+    /**
+     * Kills a random instance. Can be called on a service that has 0 running instances.
+     */
+    public synchronized void killPodInstance() {
+        Pod instanceToKill =
+                getCurrentRunningOrPendingReplicas().stream().findAny().orElse(null); //selects an element of the stream, not
+        if (instanceToKill == null) {
+            return;
+        }
+        instanceToKill.kill();
+
+    }
+
     public void addPodToWaitingQueue(Pod pod) {
         ManagementPlane.getInstance().addPodToSpecificSchedulerQueue(pod, this.getSchedulerType());
     }
@@ -104,8 +137,12 @@ public class Deployment extends K8Object {
     }
 
     public int getCurrentRunningOrPendingReplicaCount() {
-        return (int) getReplicaSet().stream().filter(pod -> pod.getPodState() == PodState.RUNNING || pod.getPodState() == PodState.PENDING).count();
+        return getCurrentRunningOrPendingReplicas().size();
     }
+
+    public Set<Pod> getCurrentRunningOrPendingReplicas(){
+        return getReplicaSet().stream().filter(pod -> pod.getPodState() == PodState.RUNNING || pod.getPodState() == PodState.PENDING).collect(Collectors.toSet());
+        }
 
     public Set<Pod> getReplicaSet() {
         return replicaSet;

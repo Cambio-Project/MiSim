@@ -3,6 +3,7 @@ package cambio.simulator.orchestration.environment;
 import cambio.simulator.entities.NamedEntity;
 import cambio.simulator.entities.microservice.InstanceState;
 import cambio.simulator.orchestration.events.CheckPodRemovableEvent;
+import cambio.simulator.orchestration.events.StartPodEvent;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 import desmoj.core.simulator.TimeSpan;
@@ -32,9 +33,8 @@ public class Node extends NamedEntity {
         if (this.getReserved() + pod.getCPUDemand() <= this.getTotalCPU()) {
             this.reserved += pod.getCPUDemand();
             pods.add(pod);
-            pod.getContainers().forEach(container -> container.setContainerState(ContainerState.RUNNING));
-            pod.getContainers().forEach(container -> container.getMicroserviceInstance().start());
-            pod.setPodState(PodState.RUNNING);
+            final StartPodEvent startPodEvent = new StartPodEvent(getModel(), "StartPodEvent", traceIsOn());
+            startPodEvent.schedule(pod, presentTime());
             return true;
         }
         return false;

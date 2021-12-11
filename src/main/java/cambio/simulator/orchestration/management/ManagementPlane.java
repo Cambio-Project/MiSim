@@ -2,6 +2,8 @@ package cambio.simulator.orchestration.management;
 
 
 import cambio.simulator.entities.microservice.InstanceState;
+import cambio.simulator.entities.patterns.ILoadBalancingStrategy;
+import cambio.simulator.entities.patterns.RandomLoadBalanceStrategy;
 import cambio.simulator.models.ArchitectureModel;
 import cambio.simulator.orchestration.environment.Cluster;
 import cambio.simulator.orchestration.environment.Container;
@@ -14,6 +16,7 @@ import cambio.simulator.orchestration.k8objects.Deployment;
 import cambio.simulator.orchestration.k8objects.Service;
 import cambio.simulator.orchestration.loadbalancing.LeastUtilizationLoadBalanceStrategyOrchestration;
 import cambio.simulator.orchestration.loadbalancing.LoadBalancerOrchestration;
+import cambio.simulator.orchestration.loadbalancing.RandomLoadBalanceStrategyOrchestration;
 import cambio.simulator.orchestration.scaling.HorizontalPodAutoscaler;
 import cambio.simulator.orchestration.scaling.IAutoScaler;
 import cambio.simulator.orchestration.scheduling.FirstFitScheduler;
@@ -57,7 +60,7 @@ public class ManagementPlane {
     public void applyDeploymentScheme() {
 
         for (Deployment deployment : deployments) {
-            final DeploymentEvent deploymentEvent = new DeploymentEvent(getModel(), String.format("Starting with deployment of %s ", deployment.getQuotedName()), getModel().traceIsOn());
+            final DeploymentEvent deploymentEvent = new DeploymentEvent(getModel(), String.format("Taking care of deployment state %s ", deployment.getQuotedName()), getModel().traceIsOn());
             deploymentEvent.schedule(deployment, getModel().presentTime());
         }
 //        final PeriodicTasksEvent periodicTasksEvent = new PeriodicTasksEvent(getModel(), "Start periodicTasksEvent", getModel().traceIsOn());
@@ -78,9 +81,17 @@ public class ManagementPlane {
         }
     }
 
+    public void connectLoadBalancer(Service service, ILoadBalancingStrategy loadBalancingStrategy) {
+        if(loadBalancingStrategy instanceof RandomLoadBalanceStrategy){
+            service.setLoadBalancerOrchestration(new LoadBalancerOrchestration(getModel(), RandomLoadBalanceStrategyOrchestration.getName(), getModel().traceIsOn(), new RandomLoadBalanceStrategyOrchestration(), service));
+        } else if (loadBalancingStrategy instanceof LeastUtilizationLoadBalanceStrategyOrchestration)
+        service.setLoadBalancerOrchestration(new LoadBalancerOrchestration(getModel(), LeastUtilizationLoadBalanceStrategyOrchestration.getName(), getModel().traceIsOn(), loadBalancingStrategy, service));
+
+    }
+
     public void connectLoadBalancerToService(Service service) {
 //        service.setLoadBalancer(new LoadBalancerOrchestration(getModel(), "RandomLoadBalancer", getModel().traceIsOn(), new RandomLoadBalanceStrategyOrchestration(), service));
-        service.setLoadBalancer(new LoadBalancerOrchestration(getModel(), "LeastUtilLoadBalancer", getModel().traceIsOn(), new LeastUtilizationLoadBalanceStrategyOrchestration(), service));
+//        service.setLoadBalancerOrchestration(new LoadBalancerOrchestration(getModel(), "LeastUtilLB", getModel().traceIsOn(), new LeastUtilizationLoadBalanceStrategyOrchestration(), service));
     }
 
     //Do this periodically
@@ -89,7 +100,7 @@ public class ManagementPlane {
 
     }
 
-    public void addPodToSpecificSchedulerQueue(Pod pod, String schedulerType){
+    public void addPodToSpecificSchedulerQueue(Pod pod, String schedulerType) {
         final IScheduler scheduler = schedulerMap.get(schedulerType);
         if (scheduler != null) {
             scheduler.getPodWaitingQueue().add(pod);
@@ -98,20 +109,20 @@ public class ManagementPlane {
         }
     }
 
-    public void checkForScaling(){
+    public void checkForScaling() {
         final IAutoScaler hpa = scalerMap.get("HPA");
-        final Set<Deployment> deploymentsWithHPA = deployments.stream().filter(deployment -> deployment.getScalerType()!=null && deployment.getScalerType().equals("HPA")).collect(Collectors.toSet());
+        final Set<Deployment> deploymentsWithHPA = deployments.stream().filter(deployment -> deployment.getScalerType() != null && deployment.getScalerType().equals("HPA")).collect(Collectors.toSet());
         for (Deployment deployment : deploymentsWithHPA) {
             //make event out of it
             hpa.apply(deployment);
         }
     }
 
-    public void checkIfPodRemovableFromNode(Pod pod, Node node){
+    public void checkIfPodRemovableFromNode(Pod pod, Node node) {
         for (Container container : pod.getContainers()) {
-            if(container.getMicroserviceInstance().getState()!= InstanceState.SHUTDOWN){
+            if (container.getMicroserviceInstance().getState() != InstanceState.SHUTDOWN) {
                 final CheckPodRemovableEvent checkPodRemovableEvent = new CheckPodRemovableEvent(getModel(), "Check if pod can be removed", getModel().traceIsOn());
-                checkPodRemovableEvent.schedule(pod,node, new TimeSpan(2));
+                checkPodRemovableEvent.schedule(pod, node, new TimeSpan(2));
                 return;
             }
         }
@@ -120,7 +131,7 @@ public class ManagementPlane {
 
     }
 
-    public void removePodFromNode(Pod pod, Node node){
+    public void removePodFromNode(Pod pod, Node node) {
         node.removePod(pod);
     }
 

@@ -1,23 +1,25 @@
 package cambio.simulator.orchestration.loadbalancing;
 
 import cambio.simulator.entities.microservice.MicroserviceInstance;
+import cambio.simulator.entities.microservice.NoInstanceAvailableException;
+import cambio.simulator.entities.patterns.ILoadBalancingStrategy;
 import cambio.simulator.orchestration.environment.Container;
 import cambio.simulator.orchestration.environment.ContainerState;
 import cambio.simulator.orchestration.environment.Pod;
 import cambio.simulator.orchestration.environment.PodState;
 import cambio.simulator.orchestration.k8objects.Service;
+import cambio.simulator.parsing.JsonTypeName;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-
-public class LeastUtilizationLoadBalanceStrategyOrchestration implements ILoadBalancingStrategyOrchestration{
+import java.util.*;
+@JsonTypeName("leastUtil_orchestration")
+public class LeastUtilizationLoadBalanceStrategyOrchestration implements ILoadBalancingStrategy {
     @Override
-    public MicroserviceInstance getNextServiceInstance(Service service) {
+    public MicroserviceInstance getNextInstance(Collection<MicroserviceInstance> runningInstances) throws NoInstanceAvailableException {
+        throw new UnsupportedOperationException("Not supposed to be called in orchestration mode");
+    }
 
-
-
+    @Override
+    public MicroserviceInstance getNextInstance(Service service) {
         final Set<Pod> replicaSet = service.getDeployment().getReplicaSet();
         List<Pod> pods = new ArrayList<>(replicaSet);
 
@@ -36,9 +38,11 @@ public class LeastUtilizationLoadBalanceStrategyOrchestration implements ILoadBa
                     }
                 }
             }
-
         }
-
         return leastUtilized;
+    }
+
+    public static String getName(){
+        return "LeastUtilBalancer";
     }
 }

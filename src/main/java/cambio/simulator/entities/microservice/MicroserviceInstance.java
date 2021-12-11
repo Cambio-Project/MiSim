@@ -470,4 +470,11 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
         return cpu;
     }
 
+    public Set<InstanceOwnedPattern> getPatterns() {
+        return patterns;
+    }
+
+    public void setState(InstanceState state) {
+        this.state = state;
+    }
 }

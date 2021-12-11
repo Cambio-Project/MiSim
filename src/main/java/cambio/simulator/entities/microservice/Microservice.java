@@ -289,4 +289,8 @@ public class Microservice extends NamedEntity {
     public void setStartingInstanceCount(int startingInstanceCount) {
         this.startingInstanceCount = startingInstanceCount;
     }
+
+    public LoadBalancer getLoadBalancer() {
+        return loadBalancer;
+    }
 }

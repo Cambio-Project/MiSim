@@ -9,7 +9,7 @@ import cambio.simulator.entities.microservice.NoInstanceAvailableException;
 import cambio.simulator.parsing.JsonTypeName;
 
 @JsonTypeName("random")
-final class RandomLoadBalanceStrategy implements ILoadBalancingStrategy {
+public final class RandomLoadBalanceStrategy implements ILoadBalancingStrategy {
 
     //TODO: inject random seed
 

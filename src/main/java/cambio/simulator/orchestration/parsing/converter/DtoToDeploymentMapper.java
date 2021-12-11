@@ -35,6 +35,7 @@ public class DtoToDeploymentMapper implements DtoToObjectMapper<Deployment> {
                 if (optionalService.isPresent()) {
                     final Service service = optionalService.get();
                     services.add(service);
+                    ManagementPlane.getInstance().connectLoadBalancer(service, service.getLoadBalancer().getLoadBalancingStrategy());
                     if (service.getStartingInstanceCount() != k8DeploymentDto.getSpec().getReplicas()) {
                         throw new ParsingException("Replica count for service " + service.getPlainName() + " in architecture file does not match the replica count" +
                                 "provided in the deployment file for " + deploymentName + " (" + service.getStartingInstanceCount() + "/" + k8DeploymentDto.getSpec().getReplicas() + ")");

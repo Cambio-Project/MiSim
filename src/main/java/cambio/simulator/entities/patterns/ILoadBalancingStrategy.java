@@ -2,8 +2,10 @@ package cambio.simulator.entities.patterns;
 
 import java.util.Collection;
 
+import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.entities.microservice.MicroserviceInstance;
 import cambio.simulator.entities.microservice.NoInstanceAvailableException;
+import cambio.simulator.orchestration.k8objects.Service;
 
 /**
  * Interface for a load balancing strategy.
@@ -22,6 +24,11 @@ public interface ILoadBalancingStrategy extends IStrategy {
      */
     MicroserviceInstance getNextInstance(Collection<MicroserviceInstance> runningInstances) throws
         NoInstanceAvailableException;
+
+    default MicroserviceInstance getNextInstance(Service service) throws
+            NoInstanceAvailableException {
+        return null;
+    }
 
 }
 

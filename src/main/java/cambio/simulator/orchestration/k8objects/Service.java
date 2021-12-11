@@ -10,14 +10,14 @@ import desmoj.core.simulator.Model;
 
 public class Service extends Microservice {
 
-    LoadBalancerOrchestration loadBalancer;
+    LoadBalancerOrchestration loadBalancerOrchestration;
 
-    public LoadBalancerOrchestration getLoadBalancer() {
-        return loadBalancer;
+    public LoadBalancerOrchestration getLoadBalancerOrchestration() {
+        return loadBalancerOrchestration;
     }
 
-    public void setLoadBalancer(LoadBalancerOrchestration loadBalancer) {
-        this.loadBalancer = loadBalancer;
+    public void setLoadBalancerOrchestration(LoadBalancerOrchestration loadBalancerOrchestration) {
+        this.loadBalancerOrchestration = loadBalancerOrchestration;
     }
 
     /**
@@ -29,7 +29,7 @@ public class Service extends Microservice {
 
     @Override
     public MicroserviceInstance getNextAvailableInstance() throws NoInstanceAvailableException {
-        return loadBalancer.getNextServiceInstance();
+        return loadBalancerOrchestration.getNextServiceInstance();
     }
 
 

@@ -1,7 +1,10 @@
 package cambio.simulator.orchestration.environment;
 
 import cambio.simulator.entities.NamedEntity;
+import cambio.simulator.entities.microservice.InstanceState;
+import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.entities.microservice.MicroserviceInstance;
+import cambio.simulator.entities.patterns.InstanceOwnedPattern;
 import cambio.simulator.orchestration.k8objects.Service;
 import desmoj.core.simulator.Model;
 
@@ -10,7 +13,6 @@ import java.util.Set;
 
 public class Pod extends NamedEntity {
     private PodState podState;
-
     private Set<Container> containers;
 
     public Pod(Model model, String name, boolean showInTrace) {
@@ -20,12 +22,18 @@ public class Pod extends NamedEntity {
     }
 
     public int getCPUDemand() {
-        int cpuDemand = 0;
-        for (Container container : this.getContainers()) {
-            final Service microservice = (Service) container.getMicroserviceInstance().getOwner();
-            cpuDemand += microservice.getCapacity();
-        }
-        return cpuDemand;
+        return this.getContainers().stream().mapToInt(container -> container.getMicroserviceInstance().getOwner().getCapacity()).sum();
+    }
+
+    public void kill(){
+        containers.forEach(Container::kill);
+        setPodState(PodState.FAILED);
+    }
+
+    public void restart(){
+        containers.forEach(this::restartMicroService);
+        setPodState(PodState.RUNNING);
+        sendTraceNote(this.getQuotedName() + "was restarted");
     }
 
     public Set<Container> getContainers() {
@@ -48,15 +56,18 @@ public class Pod extends NamedEntity {
     public void applyRestartPolicy() {
         for (Container container : getContainers()) {
             if (container.getContainerState() == ContainerState.TERMINATED) {
-                final Service service = (Service) container.getMicroserviceInstance().getOwner();
-                final MicroserviceInstance newMicroServiceInstance = service.createMicroServiceInstance();
-                container.setMicroserviceInstance(newMicroServiceInstance);
-                container.setContainerState(ContainerState.RUNNING);
-                newMicroServiceInstance.start();
-                //Warum kommt Trace Nachricht nicht durch?
-                sendTraceNote(newMicroServiceInstance.getQuotedName() + " was restarted");
+                restartMicroService(container);
             }
         }
+    }
+
+    public void restartMicroService(Container container){
+        MicroserviceInstance microserviceInstance = container.getMicroserviceInstance();
+        microserviceInstance.setState(InstanceState.SHUTDOWN);
+        microserviceInstance.getPatterns().forEach(InstanceOwnedPattern::start);
+        microserviceInstance.start();
+        container.setContainerState(ContainerState.RUNNING);
+        sendTraceNote(microserviceInstance.getQuotedName() + " was restarted");
     }
 
 }

@@ -14,6 +14,11 @@ public class Container extends NamedEntity {
         this.containerState = ContainerState.WAITING;
     }
 
+    public void kill(){
+        microserviceInstance.die();
+        setContainerState(ContainerState.TERMINATED);
+    }
+
     public MicroserviceInstance getMicroserviceInstance() {
         return microserviceInstance;
     }
