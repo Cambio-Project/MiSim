@@ -17,8 +17,6 @@ public class StartPodEvent extends Event<Pod> {
 
     @Override
     public void eventRoutine(Pod pod) throws SuspendExecution {
-        pod.getContainers().forEach(container -> container.setContainerState(ContainerState.RUNNING));
-        pod.getContainers().forEach(container -> container.getMicroserviceInstance().start());
-        pod.setPodState(PodState.RUNNING);
+        pod.start();
     }
 }

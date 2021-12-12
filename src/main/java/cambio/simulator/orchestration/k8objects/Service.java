@@ -48,10 +48,8 @@ public class Service extends Microservice {
         for (Pod pod : getDeployment().getReplicaSet()) {
             for (Container container : pod.getContainers()) {
                 if(container.getMicroserviceInstance().equals(instanceToKill)){
+                    //After the ChaosMonkey was executed, the container restart policy will be applied
                     container.setContainerState(ContainerState.TERMINATED);
-                    //Immediately restart terminated containers regarding restart policy
-//                    final RestartContainerEvent restartContainerEvent = new RestartContainerEvent(getModel(), "Restarting " + container, traceIsOn());
-//                    restartContainerEvent.schedule(pod, getModel().presentTime());
                     return;
                 }
             }

@@ -1,6 +1,8 @@
 package cambio.simulator.orchestration.parsing;
 
 import cambio.simulator.models.ArchitectureModel;
+import cambio.simulator.orchestration.Util;
+import cambio.simulator.orchestration.k8objects.K8Kind;
 import cambio.simulator.orchestration.k8objects.K8Object;
 import cambio.simulator.orchestration.parsing.converter.DtoToDeploymentMapper;
 import cambio.simulator.orchestration.parsing.converter.DtoToObjectMapper;
@@ -53,9 +55,12 @@ public class YAMLParser {
 
     public K8Object parseFile(String src) throws ParsingException, IOException {
         final String s = this.getKindAsString(src);
-        final K8Kind k8Kind = K8Kind.getK8Kind(s);
-        Class targetClass;
-        DtoToObjectMapper dtoToObjectMapper;
+        final K8Kind k8Kind = Util.searchEnum(K8Kind.class, s);
+        if(k8Kind==null){
+            throw new ParsingException("Could not identify kind '"+s+"' of Kubernetes Object in YAML file at "+src);
+        }
+        Class targetClass = null;
+        DtoToObjectMapper dtoToObjectMapper = null;
         switch (k8Kind) {
             case DEPLOYMENT:
                 targetClass = K8DeploymentDto.class;
@@ -65,8 +70,6 @@ public class YAMLParser {
                 //Will be dealt with after k8objects have been initialized.
                 remainingFilePaths.add(src);
                 return null;
-            default:
-                throw new ParsingException("Could not identify kind of Kubernetes Object in YAML file");
         }
 
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
@@ -83,7 +86,7 @@ public class YAMLParser {
 
     public void applyManipulation(String src) throws ParsingException, IOException {
         final String s = this.getKindAsString(src);
-        final K8Kind k8Kind = K8Kind.getK8Kind(s);
+        final K8Kind k8Kind = Util.searchEnum(K8Kind.class, s);
         Class targetClass = null;
         K8ObjectManipulator k8ObjectManipulator = null;
         switch (k8Kind) {
@@ -92,7 +95,7 @@ public class YAMLParser {
                 k8ObjectManipulator = HPAManipulator.getInstance();
                 break;
             default:
-                throw new ParsingException("Could not identify kind of Kubernetes Object in YAML file");
+                throw new ParsingException("Could not identify kind '"+s+"' of Kubernetes Object in YAML file at "+src);
         }
 
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
@@ -103,16 +106,6 @@ public class YAMLParser {
             k8ObjectManipulator.setK8ObjectDto(k8object);
             k8ObjectManipulator.manipulate();
         }
-    }
-
-    public static void main(String[] args) throws ParsingException, IOException {
-
-        final YAMLParser yamlParser = YAMLParser.getInstance();
-//        yamlParser.setArchitectureModel("");
-
-        String src = "src/main/java/cambio/simulator/orchestration/Test/k8_file.yaml";
-        final K8Object k8Object = yamlParser.parseFile(src);
-        System.out.println(k8Object);
     }
 
     public ArchitectureModel getArchitectureModel() {

@@ -21,6 +21,9 @@ import cambio.simulator.orchestration.scaling.HorizontalPodAutoscaler;
 import cambio.simulator.orchestration.scaling.IAutoScaler;
 import cambio.simulator.orchestration.scheduling.FirstFitScheduler;
 import cambio.simulator.orchestration.scheduling.IScheduler;
+import cambio.simulator.orchestration.scheduling.SchedulerType;
+import com.google.common.base.Enums;
+import com.google.common.base.Optional;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeSpan;
 
@@ -48,23 +51,20 @@ public class ManagementPlane {
     }
 
     public void buildDeploymentScheme(ArchitectureModel architectureModel) {
-        final Set<Service> services = architectureModel.getServices();
-        connectLoadBalancersToServices(services);
-        for (Service service : services) {
-            Set<Service> deploymentServices = new HashSet<>();
-            deploymentServices.add(service);
-            deployments.add(new Deployment(getModel(), "Deployment_" + ++deploymentCounter, getModel().traceIsOn(), deploymentServices, service.getStartingInstanceCount(), "firstFit"));
-        }
+//        final Set<Service> services = architectureModel.getServices();
+//        connectLoadBalancersToServices(services);
+//        for (Service service : services) {
+//            Set<Service> deploymentServices = new HashSet<>();
+//            deploymentServices.add(service);
+//            deployments.add(new Deployment(getModel(), "Deployment_" + ++deploymentCounter, getModel().traceIsOn(), deploymentServices, service.getStartingInstanceCount(), "firstFit"));
+//        }
     }
 
     public void applyDeploymentScheme() {
-
         for (Deployment deployment : deployments) {
             final DeploymentEvent deploymentEvent = new DeploymentEvent(getModel(), String.format("Taking care of deployment state %s ", deployment.getQuotedName()), getModel().traceIsOn());
             deploymentEvent.schedule(deployment, getModel().presentTime());
         }
-//        final PeriodicTasksEvent periodicTasksEvent = new PeriodicTasksEvent(getModel(), "Start periodicTasksEvent", getModel().traceIsOn());
-//        periodicTasksEvent.schedule(getModel().presentTime());
     }
 
     public void populateSchedulerMap() {
@@ -75,29 +75,34 @@ public class ManagementPlane {
         scalerMap.put("HPA", HorizontalPodAutoscaler.getInstance());
     }
 
-    public void connectLoadBalancersToServices(Set<Service> services) {
-        for (Service service : services) {
-            connectLoadBalancerToService(service);
-        }
-    }
-
     public void connectLoadBalancer(Service service, ILoadBalancingStrategy loadBalancingStrategy) {
-        if(loadBalancingStrategy instanceof RandomLoadBalanceStrategy){
+        if (loadBalancingStrategy instanceof RandomLoadBalanceStrategy) {
             service.setLoadBalancerOrchestration(new LoadBalancerOrchestration(getModel(), RandomLoadBalanceStrategyOrchestration.getName(), getModel().traceIsOn(), new RandomLoadBalanceStrategyOrchestration(), service));
         } else if (loadBalancingStrategy instanceof LeastUtilizationLoadBalanceStrategyOrchestration)
-        service.setLoadBalancerOrchestration(new LoadBalancerOrchestration(getModel(), LeastUtilizationLoadBalanceStrategyOrchestration.getName(), getModel().traceIsOn(), loadBalancingStrategy, service));
+            service.setLoadBalancerOrchestration(new LoadBalancerOrchestration(getModel(), LeastUtilizationLoadBalanceStrategyOrchestration.getName(), getModel().traceIsOn(), loadBalancingStrategy, service));
 
     }
 
-    public void connectLoadBalancerToService(Service service) {
-//        service.setLoadBalancer(new LoadBalancerOrchestration(getModel(), "RandomLoadBalancer", getModel().traceIsOn(), new RandomLoadBalanceStrategyOrchestration(), service));
-//        service.setLoadBalancerOrchestration(new LoadBalancerOrchestration(getModel(), "LeastUtilLB", getModel().traceIsOn(), new LeastUtilizationLoadBalanceStrategyOrchestration(), service));
-    }
+//    public void connectLoadBalancerToService(Service service) {
+////        service.setLoadBalancer(new LoadBalancerOrchestration(getModel(), "RandomLoadBalancer", getModel().traceIsOn(), new RandomLoadBalanceStrategyOrchestration(), service));
+////        service.setLoadBalancerOrchestration(new LoadBalancerOrchestration(getModel(), "LeastUtilLB", getModel().traceIsOn(), new LeastUtilizationLoadBalanceStrategyOrchestration(), service));
+//    }
 
     //Do this periodically
     public void checkForPendingPods() {
         schedulerMap.values().forEach(IScheduler::schedulePods);
 
+    }
+
+    public String getSchedulerByNameOrStandard(String name) {
+        if (name != null) {
+            final SchedulerType schedulerType = SchedulerType.fromString(name);
+            if(schedulerType!=null){
+                return schedulerType.getName();
+            }
+        }
+        System.out.println("Using default Scheduler: " + SchedulerType.FIRSTFIT.getName());
+        return SchedulerType.FIRSTFIT.getName();
     }
 
     public void addPodToSpecificSchedulerQueue(Pod pod, String schedulerType) {

@@ -2,10 +2,8 @@ package cambio.simulator.orchestration.environment;
 
 import cambio.simulator.entities.NamedEntity;
 import cambio.simulator.entities.microservice.InstanceState;
-import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.entities.microservice.MicroserviceInstance;
 import cambio.simulator.entities.patterns.InstanceOwnedPattern;
-import cambio.simulator.orchestration.k8objects.Service;
 import desmoj.core.simulator.Model;
 
 import java.util.HashSet;
@@ -25,12 +23,18 @@ public class Pod extends NamedEntity {
         return this.getContainers().stream().mapToInt(container -> container.getMicroserviceInstance().getOwner().getCapacity()).sum();
     }
 
-    public void kill(){
-        containers.forEach(Container::kill);
+    public void die() {
+        containers.forEach(Container::die);
         setPodState(PodState.FAILED);
     }
 
-    public void restart(){
+    public void start(){
+        getContainers().forEach(container -> container.setContainerState(ContainerState.RUNNING));
+        getContainers().forEach(container -> container.getMicroserviceInstance().start());
+        setPodState(PodState.RUNNING);
+    }
+
+    public void restart() {
         containers.forEach(this::restartMicroService);
         setPodState(PodState.RUNNING);
         sendTraceNote(this.getQuotedName() + "was restarted");
@@ -54,15 +58,13 @@ public class Pod extends NamedEntity {
 
     //    https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/
     public void applyRestartPolicy() {
-        for (Container container : getContainers()) {
-            if (container.getContainerState() == ContainerState.TERMINATED) {
-                restartMicroService(container);
-            }
-        }
+        getContainers().stream().filter(container -> container.getContainerState() == ContainerState.TERMINATED)
+                .forEach(this::restartMicroService);
     }
 
-    public void restartMicroService(Container container){
+    public void restartMicroService(Container container) {
         MicroserviceInstance microserviceInstance = container.getMicroserviceInstance();
+        //state must be switched from KILLED to SHUTDOWN. Otherwise start method would throw error
         microserviceInstance.setState(InstanceState.SHUTDOWN);
         microserviceInstance.getPatterns().forEach(InstanceOwnedPattern::start);
         microserviceInstance.start();

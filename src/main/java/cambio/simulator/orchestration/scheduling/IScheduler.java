@@ -15,6 +15,8 @@ public interface IScheduler {
 
     boolean schedulePod();
 
+    SchedulerType getSchedulerType();
+
     void schedulePods();
 
     Pod getNextPodFromWaitingQueue();

@@ -1,7 +1,8 @@
 package cambio.simulator.orchestration.parsing.converter;
 
+import cambio.simulator.orchestration.Util;
 import cambio.simulator.orchestration.k8objects.Deployment;
-import cambio.simulator.orchestration.k8objects.K8Object;
+import cambio.simulator.orchestration.k8objects.K8Kind;
 import cambio.simulator.orchestration.management.ManagementPlane;
 import cambio.simulator.orchestration.parsing.*;
 
@@ -26,8 +27,8 @@ public class HPAManipulator implements K8ObjectManipulator {
         if (k8HPADto != null) {
             final ScaleTargetRefDto scaleTargetRef = k8HPADto.getSpec().getScaleTargetRef();
             if (scaleTargetRef != null) {
-                final K8Kind k8Kind = K8Kind.getK8Kind(scaleTargetRef.getKind());
-                if (k8Kind.equals(K8Kind.DEPLOYMENT)) {
+                final K8Kind k8Kind = Util.searchEnum(K8Kind.class, scaleTargetRef.getKind());
+                if (k8Kind!=null && k8Kind.equals(K8Kind.DEPLOYMENT)) {
                     final String deploymentName = scaleTargetRef.getName();
                     final Optional<Deployment> optionalDeployment = ManagementPlane.getInstance().getDeployments().stream().filter(deployment -> deployment.getPlainName().equals(deploymentName)).findFirst();
                     if (optionalDeployment.isPresent()) {
@@ -56,7 +57,7 @@ public class HPAManipulator implements K8ObjectManipulator {
                         throw new ParsingException("Could not find an existing deployment object by the given name: " + deploymentName);
                     }
                 } else {
-                    throw new ParsingException("Currently, only 'Deployment' is supported as kind for the 'scaleTargetRef'");
+                    throw new ParsingException("Does not recognize value '"+scaleTargetRef.getKind()+"'. Currently, only 'Deployment' is supported as kind for the 'scaleTargetRef'");
                 }
             } else {
                 throw new ParsingException("Could not find the 'scaleTargetRef' definition");

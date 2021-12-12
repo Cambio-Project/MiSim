@@ -27,14 +27,14 @@ public class ChaosMonkeyForPodsEvent extends SelfScheduledExperimentAction {
     }
 
     /**
-     * Instantiate a <code>ChaosMonkeyEvent</code>.
+     * Instantiate a <code>ChaosMonkeyForPodsEvent</code>.
      *
-     * @param owner        Model: The model that owns this event
-     * @param name         String: The name of this event
-     * @param showInTrace  boolean: Declaration if this event should be shown in the trace
+     * @param owner          Model: The model that owns this event
+     * @param name           String: The name of this event
+     * @param showInTrace    boolean: Declaration if this event should be shown in the trace
      * @param deploymentName String: The target deployment whose pod instances should be terminated
-     * @param instances    int: The number of instances of the specified microservice you want to shut down, can be
-     *                     greater than the number of currently running instances
+     * @param instances      int: The number of instances of the specified deployment you want to shut down, can be
+     *                       greater than the number of currently running instances
      */
     public ChaosMonkeyForPodsEvent(Model owner, String name, boolean showInTrace, String deploymentName, int instances) {
         super(owner, name, showInTrace);
@@ -45,14 +45,14 @@ public class ChaosMonkeyForPodsEvent extends SelfScheduledExperimentAction {
     }
 
     /**
-     * The eventRoutine of the <code>ChaosMonkeyEvent</code>. Terminates a specified number of instances of a specified
-     * <code>Microservice</code>.
+     * The eventRoutine of the <code>ChaosMonkeyForPodsEvent</code>. Terminates a specified number of instances of a specified
+     * <code>Deployment</code>.
      * Also tries to note the remaining number of instances in the trace.
      */
     @Override
     public void eventRoutine() throws SuspendExecution {
         final Deployment deployment = Util.getInstance().findDeploymentByName(deploymentName);
-        if(deployment!=null){
+        if (deployment != null) {
             deployment.killPodInstances(instances);
 
             boolean hasServicesLeft = deployment.getCurrentRunningOrPendingReplicaCount() > 0;
@@ -60,6 +60,9 @@ public class ChaosMonkeyForPodsEvent extends SelfScheduledExperimentAction {
             sendTraceNote(String.format("There are %s pods left of deployment %s",
                     hasServicesLeft ? String.format("still %d", deployment.getCurrentRunningOrPendingReplicaCount()) : "no",
                     deployment.getName()));
+        } else {
+            sendTraceNote("Could not execute ChaosMonkeyForPodsEvent because the deployment from the " +
+                    "given experiment file with the name '" + deploymentName + "' is unknown");
         }
     }
 

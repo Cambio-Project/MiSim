@@ -47,8 +47,8 @@ public class DtoToDeploymentMapper implements DtoToObjectMapper<Deployment> {
             if (services.isEmpty()) {
                 throw new ParsingException("Could not match a containerized service of the deployment " + deploymentName + "with the services provided in the architecture file");
             }
-            ManagementPlane.getInstance().connectLoadBalancersToServices(services);
-            final Deployment deployment = new Deployment(ManagementPlane.getInstance().getModel(), deploymentName, ManagementPlane.getInstance().getModel().traceIsOn(), services, k8DeploymentDto.getSpec().getReplicas(), "firstFit");
+            final String schedulerName = ManagementPlane.getInstance().getSchedulerByNameOrStandard(k8DeploymentDto.getSpec().getTemplate().getSpec().getSchedulerName());
+            final Deployment deployment = new Deployment(ManagementPlane.getInstance().getModel(), deploymentName, ManagementPlane.getInstance().getModel().traceIsOn(), services, k8DeploymentDto.getSpec().getReplicas(), schedulerName);
             this.k8DeploymentDto = null;
             return deployment;
         } else {

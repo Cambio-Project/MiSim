@@ -1,12 +1,10 @@
 package cambio.simulator.orchestration.k8objects;
 
-import cambio.simulator.entities.NamedEntity;
 import cambio.simulator.entities.microservice.MicroserviceInstance;
 import cambio.simulator.orchestration.events.RestartPodEvent;
 import cambio.simulator.orchestration.events.StartPodShutdown;
 import cambio.simulator.orchestration.management.ManagementPlane;
 import cambio.simulator.orchestration.environment.*;
-import cambio.simulator.orchestration.parsing.K8Kind;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 
@@ -36,9 +34,6 @@ public class Deployment extends K8Object {
         this.schedulerType = schedulerType;
     }
 
-    /**
-     * Schedules the Deployments. Services will be created. These create ServiceInstances that later are scheduled in pods
-     */
     public void deploy() {
         final int diff = Math.abs(getCurrentRunningOrPendingReplicaCount() - desiredReplicaCount);
         int i = 0;
@@ -66,7 +61,7 @@ public class Deployment extends K8Object {
         final Pod pod = new Pod(getModel(), "Pod", traceIsOn());
         for (Service service : services) {
             final MicroserviceInstance microServiceInstance = service.createMicroServiceInstance();
-            final Container container = new Container(getModel(), "Container_" + service.getPlainName(), traceIsOn(), microServiceInstance);
+            final Container container = new Container(getModel(), "Container[" + service.getPlainName()+"]", traceIsOn(), microServiceInstance);
             pod.getContainers().add(container);
         }
         replicaSet.add(pod);
@@ -108,7 +103,7 @@ public class Deployment extends K8Object {
         if (instanceToKill == null) {
             return;
         }
-        instanceToKill.kill();
+        instanceToKill.die();
 
     }
 

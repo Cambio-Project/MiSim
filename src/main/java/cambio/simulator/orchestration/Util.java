@@ -3,6 +3,7 @@ package cambio.simulator.orchestration;
 import cambio.simulator.orchestration.k8objects.Deployment;
 import cambio.simulator.orchestration.management.ManagementPlane;
 import cambio.simulator.orchestration.scheduling.FirstFitScheduler;
+import cambio.simulator.orchestration.scheduling.SchedulerType;
 
 import java.io.File;
 import java.util.Optional;
@@ -32,5 +33,15 @@ public class Util {
         final Optional<Deployment> first =
                 ManagementPlane.getInstance().getDeployments().stream().filter(deployment -> deployment.getPlainName().equals(name)).findFirst();
         return first.orElse(null);
+    }
+
+    public static <T extends Enum<?>> T searchEnum(Class<T> enumeration,
+                                                   String search) {
+        for (T each : enumeration.getEnumConstants()) {
+            if (each.name().compareToIgnoreCase(search) == 0) {
+                return each;
+            }
+        }
+        return null;
     }
 }
