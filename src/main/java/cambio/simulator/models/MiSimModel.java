@@ -35,9 +35,10 @@ public class MiSimModel extends Model {
      * general reporter, can be used if objects/classes do not want to create their own reporter or use a common
      * reporter.
      */
-    public static final boolean orchestrated = true;
-
     public static MultiDataPointReporter generalReporter = new MultiDataPointReporter();
+
+    // TODO this should come from an external config (probably in experiment model "useOrchestration": true/false)
+    public static final boolean orchestrated = true;
 
     private final transient File architectureModelLocation;
     private final transient File experimentModelOrScenarioLocation;
@@ -85,12 +86,11 @@ public class MiSimModel extends Model {
 
         if (orchestrated) {
             initOrchestration();
+            final MasterTasksExecutor masterTasksExecutor = new MasterTasksExecutor(getModel(), "MasterTaskExecutor", getModel().traceIsOn());
+            masterTasksExecutor.doInitialSelfSchedule();
         } else {
             architectureModel.getMicroservices().forEach(Microservice::start);
         }
-
-        final MasterTasksExecutor masterTasksExecutor = new MasterTasksExecutor(getModel(), "MasterTaskExecutor", getModel().traceIsOn());
-        masterTasksExecutor.doInitialSelfSchedule();
 
         for (ISelfScheduled selfScheduledEvent : experimentModel.getAllSelfSchedulesEntities()) {
             selfScheduledEvent.doInitialSelfSchedule();
@@ -101,6 +101,7 @@ public class MiSimModel extends Model {
     }
 
     public void initOrchestration() {
+        // TODO this should come from an environment / cluster model
         List<Node> nodes = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
             nodes.add(new Node(getModel(), "Node", traceIsOn()));
@@ -115,8 +116,10 @@ public class MiSimModel extends Model {
 
         final YAMLParser yamlParser = YAMLParser.getInstance();
         yamlParser.setArchitectureModel(architectureModel);
+        // TODO this should come from an external config (probably experiment model)
         String targetDir = "target/orchestration";
         final Set<String> fileNames = Util.getInstance().listFilesUsingJavaIO(targetDir);
+        // Read only deployments first
         for (String fileName : fileNames) {
             try {
                 String filePath = targetDir + "/" + fileName;
@@ -134,7 +137,7 @@ public class MiSimModel extends Model {
             }
         }
 
-        //Apply things that affect k8 objects: like HPA
+        //Read other k8s obejcts that refer to deployments (e.g. HPA)
         for (String filePath : yamlParser.getRemainingFilePaths()) {
             try {
                 yamlParser.applyManipulation(filePath);
@@ -146,11 +149,18 @@ public class MiSimModel extends Model {
 
 
         //TODO check if whole architecture file matches to deployments
-        //TODO other K8 objects: service
+        /*
+        Desired behavior:
+        - if service is specified in k8s deployments and in architecture model -> one deployment created
+        - if service is specified in k8s deployments but not in architecture model -> should result in a warining will
+        not be created and not simulated
+        - if service is not specified in k8s deployments but in the architecture model -> automatically create deployment,
+        autoscaler, load balancer, scheduler etc. from default values or entry from architecture file
+         */
+        //TODO maybe read other K8s objects: service etc.
 
 
 //        managementPlane.buildDeploymentScheme(this.architectureModel);
-        managementPlane.applyDeploymentScheme();
         System.out.println("Init Orchestration finished");
     }
 

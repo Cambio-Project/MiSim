@@ -1,11 +1,9 @@
 package cambio.simulator.orchestration.environment;
 
 import cambio.simulator.entities.NamedEntity;
-import cambio.simulator.entities.microservice.InstanceState;
 import cambio.simulator.orchestration.events.CheckPodRemovableEvent;
 import cambio.simulator.orchestration.events.StartPodEvent;
 import desmoj.core.simulator.Model;
-import desmoj.core.simulator.TimeInstant;
 import desmoj.core.simulator.TimeSpan;
 
 import java.util.ArrayList;
@@ -13,6 +11,7 @@ import java.util.List;
 
 public class Node extends NamedEntity {
 
+    // TODO Should come from external config
     private static final int DEFAULT_CPU_CAPACITY = 1500;
 
     final int totalCPU;
@@ -42,18 +41,18 @@ public class Node extends NamedEntity {
 
     public void startRemoving(Pod pod){
         pod.setPodState(PodState.TERMINATING);
-        pod.getContainers().forEach(container -> container.getMicroserviceInstance().startShutdown());
         final CheckPodRemovableEvent checkPodRemovableEvent = new CheckPodRemovableEvent(getModel(), "Check if pod can be removed", traceIsOn());
         checkPodRemovableEvent.schedule(pod, this, new TimeSpan(0));
-
     }
 
     public void removePod(Pod pod){
-        pod.getContainers().forEach(container -> container.setContainerState(ContainerState.TERMINATED));
         pod.setPodState(PodState.SUCCEEDED);
         this.reserved -= pod.getCPUDemand();
-        pods.remove(pod);
-        sendTraceNote(pod.getQuotedName() + " was removed from " + this.getQuotedName());
+        if (pods.remove(pod)) {
+            sendTraceNote(pod.getQuotedName() + " was removed from " + this.getQuotedName());
+        } else {
+            throw new IllegalArgumentException("Pod " + pod.getQuotedPlainName() + " does not belong to this node");
+        }
     }
 
 
@@ -71,9 +70,5 @@ public class Node extends NamedEntity {
 
     public int getReserved() {
         return reserved;
-    }
-
-    public void setReserved(int reserved) {
-        this.reserved = reserved;
     }
 }

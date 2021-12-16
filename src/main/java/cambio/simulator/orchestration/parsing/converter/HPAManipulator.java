@@ -2,7 +2,7 @@ package cambio.simulator.orchestration.parsing.converter;
 
 import cambio.simulator.orchestration.Util;
 import cambio.simulator.orchestration.k8objects.Deployment;
-import cambio.simulator.orchestration.k8objects.K8Kind;
+import cambio.simulator.orchestration.parsing.K8Kind;
 import cambio.simulator.orchestration.management.ManagementPlane;
 import cambio.simulator.orchestration.parsing.*;
 

@@ -12,6 +12,7 @@ import java.util.Set;
 public class Pod extends NamedEntity {
     private PodState podState;
     private Set<Container> containers;
+    // Map<Container, Integer> restartBackoff = new HashMap<>();
 
     public Pod(Model model, String name, boolean showInTrace) {
         super(model, name, showInTrace);
@@ -28,16 +29,16 @@ public class Pod extends NamedEntity {
         setPodState(PodState.FAILED);
     }
 
-    public void start(){
+    public void startAllContainers(){
         getContainers().forEach(container -> container.setContainerState(ContainerState.RUNNING));
         getContainers().forEach(container -> container.getMicroserviceInstance().start());
         setPodState(PodState.RUNNING);
     }
 
-    public void restart() {
-        containers.forEach(this::restartMicroService);
+    public void restartAllContainers() {
+        containers.forEach(this::restartContainer);
         setPodState(PodState.RUNNING);
-        sendTraceNote(this.getQuotedName() + "was restarted");
+        sendTraceNote(this.getQuotedName() + " was restarted");
     }
 
     public Set<Container> getContainers() {
@@ -54,22 +55,32 @@ public class Pod extends NamedEntity {
 
     public void setPodState(PodState podState) {
         this.podState = podState;
+        if (podState == PodState.TERMINATING) {
+            getContainers().forEach(container -> container.getMicroserviceInstance().startShutdown());
+        } else if (podState == PodState.SUCCEEDED) {
+            getContainers().forEach(container -> container.setContainerState(ContainerState.TERMINATED));
+        }
     }
 
     //    https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/
-    public void applyRestartPolicy() {
+    public void restartTerminatedContainers() {
         getContainers().stream().filter(container -> container.getContainerState() == ContainerState.TERMINATED)
-                .forEach(this::restartMicroService);
+                .forEach(this::restartContainer);
     }
 
-    public void restartMicroService(Container container) {
-        MicroserviceInstance microserviceInstance = container.getMicroserviceInstance();
-        //state must be switched from KILLED to SHUTDOWN. Otherwise start method would throw error
-        microserviceInstance.setState(InstanceState.SHUTDOWN);
-        microserviceInstance.getPatterns().forEach(InstanceOwnedPattern::start);
-        microserviceInstance.start();
-        container.setContainerState(ContainerState.RUNNING);
-        sendTraceNote(microserviceInstance.getQuotedName() + " was restarted");
+    public void restartContainer(Container container) {
+        if (containers.contains(container)) {
+            // TODO Check if this is correct
+            MicroserviceInstance microserviceInstance = container.getMicroserviceInstance();
+            //state must be switched from KILLED to SHUTDOWN. Otherwise start method would throw error
+            microserviceInstance.setState(InstanceState.SHUTDOWN);
+            microserviceInstance.getPatterns().forEach(InstanceOwnedPattern::start);
+            microserviceInstance.start();
+            container.setContainerState(ContainerState.RUNNING);
+            sendTraceNote(microserviceInstance.getQuotedName() + " was restarted");
+        } else {
+            throw new IllegalArgumentException("Container " + container.getQuotedPlainName() + " does not belong to this pod");
+        }
     }
 
 }

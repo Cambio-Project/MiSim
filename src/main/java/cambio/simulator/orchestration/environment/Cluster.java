@@ -4,7 +4,10 @@ import java.util.List;
 
 public class Cluster {
     private List<Node> nodes;
+    // Future: for cluster autoscaling
     private List<Node> extraNodes = null;
+
+    // Future: Might include network information
 
     public Cluster(List<Node> nodes) {
         this.nodes = nodes;

@@ -3,7 +3,6 @@ package cambio.simulator.orchestration.scaling;
 import cambio.simulator.entities.NamedEntity;
 import cambio.simulator.orchestration.management.ManagementPlane;
 import cambio.simulator.orchestration.environment.*;
-import cambio.simulator.orchestration.events.DeploymentEvent;
 import cambio.simulator.orchestration.k8objects.Deployment;
 
 import java.util.ArrayList;
@@ -11,15 +10,26 @@ import java.util.List;
 
 public class HorizontalPodAutoscaler extends NamedEntity implements IAutoScaler {
 
-    private final double holdTimeUp = 5;
-    private final double holdTimeDown = 5;
+    private final double holdTimeUp;
+    private final double holdTimeDown;
     private static final HorizontalPodAutoscaler instance = new HorizontalPodAutoscaler();
 
+    // TODO make this public
     //private constructor to avoid client applications to use constructor
     private HorizontalPodAutoscaler() {
         super(ManagementPlane.getInstance().getModel(), "HPA", ManagementPlane.getInstance().getModel().traceIsOn());
+        holdTimeUp = 5;
+        holdTimeDown = 5;
     }
 
+    // TODO call this constructor when parsing
+    public HorizontalPodAutoscaler(double holdTimeUp, double holdTimeDown) {
+        super(ManagementPlane.getInstance().getModel(), "HPA", ManagementPlane.getInstance().getModel().traceIsOn());
+        this.holdTimeDown = holdTimeDown;
+        this.holdTimeUp = holdTimeUp;
+    }
+
+    // TODO delete
     public static HorizontalPodAutoscaler getInstance() {
         return instance;
     }
@@ -59,11 +69,8 @@ public class HorizontalPodAutoscaler extends NamedEntity implements IAutoScaler 
                 }
             }
             double avg2Target = podConsumptions.stream().mapToDouble(d -> d).average().orElse(0) / target;
-            System.out.println("-----NEW-----------");
-            System.out.println("sumOfRelativeCPUUsage: "+sumOfRelativeCPUUsage);
             if (avg2Target > 0.9 && avg2Target < 1.1) {
                 sendTraceNote("No Scaling required for " + deployment + ".");
-                System.out.println("avg2Target prohibits scaling: "+avg2Target);
                 return;
             }
 

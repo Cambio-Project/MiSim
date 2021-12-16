@@ -1,6 +1,7 @@
-package cambio.simulator.orchestration.k8objects;
+package cambio.simulator.orchestration;
 
 import cambio.simulator.entities.microservice.*;
+import cambio.simulator.orchestration.k8objects.Deployment;
 import cambio.simulator.orchestration.management.ManagementPlane;
 import cambio.simulator.orchestration.environment.Container;
 import cambio.simulator.orchestration.environment.ContainerState;
@@ -8,7 +9,7 @@ import cambio.simulator.orchestration.environment.Pod;
 import cambio.simulator.orchestration.loadbalancing.LoadBalancerOrchestration;
 import desmoj.core.simulator.Model;
 
-public class Service extends Microservice {
+public class MicroserviceOrchestration extends Microservice {
 
     LoadBalancerOrchestration loadBalancerOrchestration;
 
@@ -23,7 +24,7 @@ public class Service extends Microservice {
     /**
      * Creates a new instance of a {@link Microservice}.
      */
-    public Service(Model model, String name, boolean showInTrace) {
+    public MicroserviceOrchestration(Model model, String name, boolean showInTrace) {
         super(model, name, showInTrace);
     }
 

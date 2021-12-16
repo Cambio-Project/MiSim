@@ -4,6 +4,9 @@ import cambio.simulator.entities.NamedEntity;
 import cambio.simulator.entities.microservice.MicroserviceInstance;
 import desmoj.core.simulator.Model;
 
+/**
+ * Basically represents a 1:1-relationsship to @link{MicroserviceInstance} with a coupled @link{ContainerState}
+ */
 public class Container extends NamedEntity {
     private MicroserviceInstance microserviceInstance;
     private ContainerState containerState;

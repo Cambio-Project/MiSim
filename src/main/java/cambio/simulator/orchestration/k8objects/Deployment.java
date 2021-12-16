@@ -1,10 +1,11 @@
 package cambio.simulator.orchestration.k8objects;
 
 import cambio.simulator.entities.microservice.MicroserviceInstance;
+import cambio.simulator.orchestration.MicroserviceOrchestration;
 import cambio.simulator.orchestration.events.RestartPodEvent;
-import cambio.simulator.orchestration.events.StartPodShutdown;
 import cambio.simulator.orchestration.management.ManagementPlane;
 import cambio.simulator.orchestration.environment.*;
+import cambio.simulator.orchestration.parsing.K8Kind;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 
@@ -14,35 +15,44 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class Deployment extends K8Object {
-    private Set<Service> services;
-    private Set<Pod> replicaSet = new HashSet<>();
+    private Set<MicroserviceOrchestration> services;
+    private Set<Pod> replicaSet;
     private String schedulerType;
     private String scalerType;
-
-
-    private TimeInstant lastScaleUp = new TimeInstant(0);
-    private TimeInstant lastScaleDown = new TimeInstant(0);
+    private TimeInstant lastScaleUp;
+    private TimeInstant lastScaleDown;
     private int desiredReplicaCount;
-    private int maxReplicaCount = 10;
-    private int minReplicaCount = 1;
-    private double averageUtilization = 50.0;
+    private int maxReplicaCount;
+    private int minReplicaCount;
+    private double averageUtilization;
 
-    public Deployment(Model model, String name, boolean showInTrace, Set<Service> services, int desiredReplicaCount, String schedulerType) {
+    public Deployment(Model model, String name, boolean showInTrace, Set<MicroserviceOrchestration> microserviceOrchestrations, int desiredReplicaCount, String schedulerType) {
         super(model, name, showInTrace, K8Kind.DEPLOYMENT);
-        this.services = services;
+        this.services = microserviceOrchestrations;
         this.desiredReplicaCount = desiredReplicaCount;
         this.schedulerType = schedulerType;
+        this.maxReplicaCount = 10;
+        this.minReplicaCount = 1;
+        this.averageUtilization = 50.0;
+        lastScaleUp = new TimeInstant(0);
+        lastScaleDown = new TimeInstant(0);
+        replicaSet = new HashSet<>();
     }
 
     public void deploy() {
         final int diff = Math.abs(getCurrentRunningOrPendingReplicaCount() - desiredReplicaCount);
         int i = 0;
-        while (i < diff) {
-            i++;
-            if (getCurrentRunningOrPendingReplicaCount() < desiredReplicaCount) {
-                createPod();
-            } else {
-                removePod();
+        sendTraceNote("Checking state of deployment " + this.getQuotedPlainName());
+        if (diff == 0) {
+            sendTraceNote("no action needed");
+        } else {
+            while (i < diff) {
+                i++;
+                if (getCurrentRunningOrPendingReplicaCount() < desiredReplicaCount) {
+                    createPod();
+                } else {
+                    removePod();
+                }
             }
         }
     }
@@ -59,9 +69,9 @@ public class Deployment extends K8Object {
         }
 
         final Pod pod = new Pod(getModel(), "Pod", traceIsOn());
-        for (Service service : services) {
-            final MicroserviceInstance microServiceInstance = service.createMicroServiceInstance();
-            final Container container = new Container(getModel(), "Container[" + service.getPlainName()+"]", traceIsOn(), microServiceInstance);
+        for (MicroserviceOrchestration microserviceOrchestration : services) {
+            final MicroserviceInstance microServiceInstance = microserviceOrchestration.createMicroServiceInstance();
+            final Container container = new Container(getModel(), "Container[" + microserviceOrchestration.getPlainName()+"]", traceIsOn(), microServiceInstance);
             pod.getContainers().add(container);
         }
         replicaSet.add(pod);
@@ -72,17 +82,16 @@ public class Deployment extends K8Object {
     public void removePod() {
         final Optional<Pod> optionalPod = replicaSet.stream().filter(pod -> pod.getPodState() == PodState.RUNNING).findFirst();
         if (!optionalPod.isPresent()) {
-            //No Pod found that could be removed
+            sendTraceNote("There is not pod that could be removed");
             return;
         }
         final Pod podToRemove = optionalPod.get();
-        final Optional<Node> first = ManagementPlane.getInstance().getCluster().getNodes().stream().filter(node -> node.getPods().contains(podToRemove)).findFirst();
+        final Optional<Node> first = ManagementPlane.getInstance().getNodeForPod(podToRemove);
         if (first.isPresent()) {
             final Node node = first.get();
-            //need to set other state than running. Happens in event anyways but event is delayed. This avoids picking the same pod from the replicaSet
-            podToRemove.setPodState(PodState.PRETERMINATING);
-            final StartPodShutdown startPodShutdownEvent = new StartPodShutdown(getModel(), "StartPodShutdownEvent", traceIsOn());
-            startPodShutdownEvent.schedule(podToRemove, node, presentTime());
+            node.startRemoving(podToRemove);
+        } else {
+            throw new IllegalStateException("There is no node which knows the pod " + podToRemove.getQuotedPlainName());
         }
     }
 
@@ -95,7 +104,7 @@ public class Deployment extends K8Object {
     }
 
     /**
-     * Kills a random instance. Can be called on a service that has 0 running instances.
+     * Kills a random instance. Can be called on a deployment that has 0 running instances.
      */
     public synchronized void killPodInstance() {
         Pod instanceToKill =
@@ -111,12 +120,12 @@ public class Deployment extends K8Object {
         ManagementPlane.getInstance().addPodToSpecificSchedulerQueue(pod, this.getSchedulerType());
     }
 
-    public Set<Service> getServices() {
+    public Set<MicroserviceOrchestration> getServices() {
         return services;
     }
 
-    public void setServices(Set<Service> services) {
-        this.services = services;
+    public void setServices(Set<MicroserviceOrchestration> microserviceOrchestrations) {
+        this.services = microserviceOrchestrations;
     }
 
     public int getDesiredReplicaCount() {
@@ -137,7 +146,11 @@ public class Deployment extends K8Object {
 
     public Set<Pod> getCurrentRunningOrPendingReplicas(){
         return getReplicaSet().stream().filter(pod -> pod.getPodState() == PodState.RUNNING || pod.getPodState() == PodState.PENDING).collect(Collectors.toSet());
-        }
+    }
+
+    public Set<Pod> getRunningReplicas(){
+        return getReplicaSet().stream().filter(pod -> pod.getPodState() == PodState.RUNNING).collect(Collectors.toSet());
+    }
 
     public Set<Pod> getReplicaSet() {
         return replicaSet;

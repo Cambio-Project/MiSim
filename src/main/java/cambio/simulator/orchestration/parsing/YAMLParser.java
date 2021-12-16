@@ -2,7 +2,6 @@ package cambio.simulator.orchestration.parsing;
 
 import cambio.simulator.models.ArchitectureModel;
 import cambio.simulator.orchestration.Util;
-import cambio.simulator.orchestration.k8objects.K8Kind;
 import cambio.simulator.orchestration.k8objects.K8Object;
 import cambio.simulator.orchestration.parsing.converter.DtoToDeploymentMapper;
 import cambio.simulator.orchestration.parsing.converter.DtoToObjectMapper;
@@ -53,14 +52,21 @@ public class YAMLParser {
         return null;
     }
 
+    /**
+     * Call this to read file if it is a deployment it will be parsed now, otherwise returned null
+     * @param src
+     * @return
+     * @throws ParsingException
+     * @throws IOException
+     */
     public K8Object parseFile(String src) throws ParsingException, IOException {
         final String s = this.getKindAsString(src);
         final K8Kind k8Kind = Util.searchEnum(K8Kind.class, s);
         if(k8Kind==null){
             throw new ParsingException("Could not identify kind '"+s+"' of Kubernetes Object in YAML file at "+src);
         }
-        Class targetClass = null;
-        DtoToObjectMapper dtoToObjectMapper = null;
+        Class<?> targetClass = null;
+        DtoToObjectMapper<?> dtoToObjectMapper = null;
         switch (k8Kind) {
             case DEPLOYMENT:
                 targetClass = K8DeploymentDto.class;
@@ -84,6 +90,12 @@ public class YAMLParser {
         return null;
     }
 
+    /**
+     * Call this to read file containing objects (like HPA) which influence previously parsed deployments
+     * @param src
+     * @throws ParsingException
+     * @throws IOException
+     */
     public void applyManipulation(String src) throws ParsingException, IOException {
         final String s = this.getKindAsString(src);
         final K8Kind k8Kind = Util.searchEnum(K8Kind.class, s);
@@ -120,8 +132,5 @@ public class YAMLParser {
         return remainingFilePaths;
     }
 
-    public void setRemainingFilePaths(Set<String> remainingFilePaths) {
-        this.remainingFilePaths = remainingFilePaths;
-    }
 }
 

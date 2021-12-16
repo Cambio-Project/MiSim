@@ -1,11 +1,9 @@
 package cambio.simulator.orchestration.events;
 
-import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.events.SelfScheduledExperimentAction;
 import cambio.simulator.misc.Priority;
 import cambio.simulator.orchestration.Util;
 import cambio.simulator.orchestration.k8objects.Deployment;
-import cambio.simulator.orchestration.management.ManagementPlane;
 import cambio.simulator.parsing.JsonTypeName;
 import co.paralleluniverse.fibers.SuspendExecution;
 import com.google.gson.annotations.Expose;

@@ -93,7 +93,7 @@ public class NetworkRequestSendEvent extends NetworkRequestEvent {
             NetworkRequestEvent cancelEvent =
                 new NetworkRequestCanceledEvent(getModel(), "RequestCanceledEvent", traceIsOn(), travelingRequest,
                     RequestFailedReason.NO_INSTANCE_AVAILABLE,
-                    String.format("No Instance for Service %s was available.", targetService.getQuotedName()));
+                    String.format("No Instance for MicroserviceOrchestration %s was available.", targetService.getQuotedName()));
             cancelEvent.schedule(new TimeSpan(nextDelay));
         } else {
             receiverEvent = new NetworkRequestReceiveEvent(getModel(),

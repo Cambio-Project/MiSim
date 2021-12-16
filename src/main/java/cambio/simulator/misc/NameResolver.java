@@ -113,7 +113,7 @@ public final class NameResolver {
 
             if (operationName.contains(".")) {
                 throw new IllegalArgumentException(
-                    "Inconsistent Operation description. (Service name and fully qualified name do not match.)");
+                    "Inconsistent Operation description. (MicroserviceOrchestration name and fully qualified name do not match.)");
             }
             fullyQualifiedName = serviceName + "." + operationName;
 

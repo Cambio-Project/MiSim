@@ -16,7 +16,7 @@ public class RestartContainerEvent extends Event<Deployment> {
     @Override
     public void eventRoutine(Deployment deployment) {
         for (Pod pod : deployment.getReplicaSet()) {
-            pod.applyRestartPolicy();
+            pod.restartTerminatedContainers();
         }
     }
 }

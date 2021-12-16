@@ -8,7 +8,7 @@ public enum SchedulerType {
     SchedulerType(String name) {
         this.name = name;
     }
-    String name;
+    final String name;
 
     public String getName() {
         return name;

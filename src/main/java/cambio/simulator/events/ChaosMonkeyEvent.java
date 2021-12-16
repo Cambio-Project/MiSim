@@ -64,6 +64,7 @@ public class ChaosMonkeyEvent extends SelfScheduledExperimentAction {
                 hasServicesLeft ? String.format("still %d", microservice.getInstancesCount()) : "no",
                 microservice.getName()));
 
+        // TODO overwrite killInstances from microservice and move logic, pod should restart container in 10s, 20, 40s ...
         for (Deployment deployment : ManagementPlane.getInstance().getDeployments()) {
             if (deployment.getServices().contains(microservice)) {
                 //Immediately restart terminated containers regarding restart policy

@@ -3,20 +3,20 @@ package cambio.simulator.orchestration.loadbalancing;
 import cambio.simulator.entities.NamedEntity;
 import cambio.simulator.entities.microservice.MicroserviceInstance;
 import cambio.simulator.entities.patterns.ILoadBalancingStrategy;
-import cambio.simulator.orchestration.k8objects.Service;
+import cambio.simulator.orchestration.MicroserviceOrchestration;
 import desmoj.core.simulator.Model;
 
 public class LoadBalancerOrchestration extends NamedEntity {
-    private ILoadBalancingStrategy loadBalancingStrategy;
-    private Service service;
+    private final ILoadBalancingStrategy loadBalancingStrategy;
+    private final MicroserviceOrchestration microserviceOrchestration;
 
-    public LoadBalancerOrchestration(Model model, String name, boolean showInTrace, ILoadBalancingStrategy loadBalancingStrategy, Service service) {
+    public LoadBalancerOrchestration(Model model, String name, boolean showInTrace, ILoadBalancingStrategy loadBalancingStrategy, MicroserviceOrchestration microserviceOrchestration) {
         super(model, name, showInTrace);
         this.loadBalancingStrategy = loadBalancingStrategy;
-        this.service = service;
+        this.microserviceOrchestration = microserviceOrchestration;
     }
 
     public MicroserviceInstance getNextServiceInstance() {
-        return loadBalancingStrategy.getNextInstance(this.service);
+        return loadBalancingStrategy.getNextInstance(this.microserviceOrchestration);
     }
 }

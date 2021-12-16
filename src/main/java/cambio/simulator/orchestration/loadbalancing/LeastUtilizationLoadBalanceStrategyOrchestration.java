@@ -7,10 +7,11 @@ import cambio.simulator.orchestration.environment.Container;
 import cambio.simulator.orchestration.environment.ContainerState;
 import cambio.simulator.orchestration.environment.Pod;
 import cambio.simulator.orchestration.environment.PodState;
-import cambio.simulator.orchestration.k8objects.Service;
+import cambio.simulator.orchestration.MicroserviceOrchestration;
 import cambio.simulator.parsing.JsonTypeName;
 
 import java.util.*;
+
 @JsonTypeName("leastUtil_orchestration")
 public class LeastUtilizationLoadBalanceStrategyOrchestration implements ILoadBalancingStrategy {
     @Override
@@ -19,30 +20,26 @@ public class LeastUtilizationLoadBalanceStrategyOrchestration implements ILoadBa
     }
 
     @Override
-    public MicroserviceInstance getNextInstance(Service service) {
-        final Set<Pod> replicaSet = service.getDeployment().getReplicaSet();
-        List<Pod> pods = new ArrayList<>(replicaSet);
-
+    public MicroserviceInstance getNextInstance(MicroserviceOrchestration microserviceOrchestration) {
+        final Set<Pod> replicaSet = microserviceOrchestration.getDeployment().getRunningReplicas();
         MicroserviceInstance leastUtilized = null;
-        for (Pod pod : pods) {
-            if(pod.getPodState()== PodState.RUNNING){
-                final Set<Container> containers = pod.getContainers();
-                for (Container container : containers) {
-                    if (container.getMicroserviceInstance().getOwner().equals(service)) {
-                        if(container.getContainerState()== ContainerState.RUNNING){
-                            if(leastUtilized == null || container.getMicroserviceInstance().getRelativeWorkDemand() < leastUtilized.getRelativeWorkDemand()){
-                                leastUtilized = container.getMicroserviceInstance();
-                            }
+        for (Pod pod : replicaSet) {
+            final Set<Container> containers = pod.getContainers();
+            for (Container container : containers) {
+                if (container.getMicroserviceInstance().getOwner().equals(microserviceOrchestration)) {
+                    if (container.getContainerState() == ContainerState.RUNNING) {
+                        if (leastUtilized == null || container.getMicroserviceInstance().getRelativeWorkDemand() < leastUtilized.getRelativeWorkDemand()) {
+                            leastUtilized = container.getMicroserviceInstance();
                         }
-                        break;
                     }
+                    break;
                 }
             }
         }
         return leastUtilized;
     }
 
-    public static String getName(){
+    public static String getName() {
         return "LeastUtilBalancer";
     }
 }
