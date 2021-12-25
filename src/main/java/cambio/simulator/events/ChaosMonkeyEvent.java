@@ -2,9 +2,6 @@ package cambio.simulator.events;
 
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.misc.Priority;
-import cambio.simulator.orchestration.events.RestartContainerEvent;
-import cambio.simulator.orchestration.k8objects.Deployment;
-import cambio.simulator.orchestration.management.ManagementPlane;
 import cambio.simulator.parsing.JsonTypeName;
 import co.paralleluniverse.fibers.SuspendExecution;
 import com.google.gson.annotations.Expose;
@@ -63,16 +60,6 @@ public class ChaosMonkeyEvent extends SelfScheduledExperimentAction {
         sendTraceNote(String.format("There are %s instances left of service %s",
                 hasServicesLeft ? String.format("still %d", microservice.getInstancesCount()) : "no",
                 microservice.getName()));
-
-        // TODO overwrite killInstances from microservice and move logic, pod should restart container in 10s, 20, 40s ...
-        for (Deployment deployment : ManagementPlane.getInstance().getDeployments()) {
-            if (deployment.getServices().contains(microservice)) {
-                //Immediately restart terminated containers regarding restart policy
-                final RestartContainerEvent restartContainerEvent = new RestartContainerEvent(getModel(), "Check for terminated containers that need to be restarted", traceIsOn());
-                restartContainerEvent.schedule(deployment, getModel().presentTime());
-                return;
-            }
-        }
     }
 
     @Override

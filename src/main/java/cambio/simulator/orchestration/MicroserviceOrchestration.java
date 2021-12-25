@@ -1,6 +1,7 @@
 package cambio.simulator.orchestration;
 
 import cambio.simulator.entities.microservice.*;
+import cambio.simulator.orchestration.events.RestartContainerEvent;
 import cambio.simulator.orchestration.k8objects.Deployment;
 import cambio.simulator.orchestration.management.ManagementPlane;
 import cambio.simulator.orchestration.environment.Container;
@@ -48,9 +49,12 @@ public class MicroserviceOrchestration extends Microservice {
 
         for (Pod pod : getDeployment().getReplicaSet()) {
             for (Container container : pod.getContainers()) {
-                if(container.getMicroserviceInstance().equals(instanceToKill)){
-                    //After the ChaosMonkey was executed, the container restart policy will be applied
+                if (container.getMicroserviceInstance().equals(instanceToKill)) {
                     container.setContainerState(ContainerState.TERMINATED);
+                    //Restart terminated container regarding restart policy
+                    container.applyBackOffDelayResetIfNecessary();
+                    final RestartContainerEvent restartContainerEvent = new RestartContainerEvent(getModel(), "Restart " + container.getQuotedPlainName(), traceIsOn());
+                    restartContainerEvent.schedule(container, container.getPlannedExecutionTime());
                     return;
                 }
             }

@@ -1,12 +1,12 @@
 package cambio.simulator.orchestration.events;
 
 import cambio.simulator.misc.Priority;
-import cambio.simulator.orchestration.k8objects.Deployment;
+import cambio.simulator.orchestration.environment.Container;
 import cambio.simulator.orchestration.environment.Pod;
 import desmoj.core.simulator.Event;
 import desmoj.core.simulator.Model;
 
-public class RestartContainerEvent extends Event<Deployment> {
+public class RestartContainerEvent extends Event<Container> {
 
     public RestartContainerEvent(Model model, String name, boolean showInTrace) {
         super(model, name, showInTrace);
@@ -14,9 +14,7 @@ public class RestartContainerEvent extends Event<Deployment> {
     }
 
     @Override
-    public void eventRoutine(Deployment deployment) {
-        for (Pod pod : deployment.getReplicaSet()) {
-            pod.restartTerminatedContainers();
-        }
+    public void eventRoutine(Container container) {
+            container.restart();
     }
 }

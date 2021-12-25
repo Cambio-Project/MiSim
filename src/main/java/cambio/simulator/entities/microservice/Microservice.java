@@ -289,4 +289,8 @@ public class Microservice extends NamedEntity {
     public LoadBalancer getLoadBalancer() {
         return loadBalancer;
     }
+
+    public Set<MicroserviceInstance> getInstancesSet() {
+        return instancesSet;
+    }
 }
