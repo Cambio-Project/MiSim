@@ -4,7 +4,6 @@ package cambio.simulator.orchestration.management;
 import cambio.simulator.entities.microservice.InstanceState;
 import cambio.simulator.entities.patterns.ILoadBalancingStrategy;
 import cambio.simulator.entities.patterns.RandomLoadBalanceStrategy;
-import cambio.simulator.models.ArchitectureModel;
 import cambio.simulator.orchestration.environment.Cluster;
 import cambio.simulator.orchestration.environment.Container;
 import cambio.simulator.orchestration.environment.Node;
@@ -15,8 +14,6 @@ import cambio.simulator.orchestration.MicroserviceOrchestration;
 import cambio.simulator.orchestration.loadbalancing.LeastUtilizationLoadBalanceStrategyOrchestration;
 import cambio.simulator.orchestration.loadbalancing.LoadBalancerOrchestration;
 import cambio.simulator.orchestration.loadbalancing.RandomLoadBalanceStrategyOrchestration;
-import cambio.simulator.orchestration.scaling.HorizontalPodAutoscaler;
-import cambio.simulator.orchestration.scaling.IAutoScaler;
 import cambio.simulator.orchestration.scheduling.FirstFitScheduler;
 import cambio.simulator.orchestration.scheduling.IScheduler;
 import cambio.simulator.orchestration.scheduling.SchedulerType;
@@ -24,21 +21,18 @@ import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeSpan;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class ManagementPlane {
     List<Deployment> deployments;
     Cluster cluster;
     Model model;
     Map<String, IScheduler> schedulerMap;
-    Map<String, IAutoScaler> scalerMap;
 
     private static final ManagementPlane instance = new ManagementPlane();
 
     //private constructor to avoid client applications to use constructor
     private ManagementPlane() {
         schedulerMap = new HashMap<>();
-        scalerMap = new HashMap<>();
         deployments = new ArrayList<>();
     }
 
@@ -46,7 +40,7 @@ public class ManagementPlane {
         return instance;
     }
 
-    public void buildDeploymentScheme(ArchitectureModel architectureModel) {
+//    public void buildDeploymentScheme(ArchitectureModel architectureModel) {
 //        final Set<MicroserviceOrchestration> services = architectureModel.getServices();
 //        connectLoadBalancersToServices(services);
 //        for (MicroserviceOrchestration service : services) {
@@ -54,7 +48,7 @@ public class ManagementPlane {
 //            deploymentServices.add(service);
 //            deployments.add(new Deployment(getModel(), "Deployment_" + ++deploymentCounter, getModel().traceIsOn(), deploymentServices, service.getStartingInstanceCount(), "firstFit"));
 //        }
-    }
+//    }
 
     /**
      * For each deployment, check if desired state equals current state, if not trigger actions
@@ -67,11 +61,6 @@ public class ManagementPlane {
 
     public void populateSchedulerMap() {
         schedulerMap.put("firstFit", FirstFitScheduler.getInstance());
-    }
-
-    // TODO Delete this map -> scaler should be mapped to deployments
-    public void populateScalerMap() {
-        scalerMap.put("HPA", HorizontalPodAutoscaler.getInstance());
     }
 
     public void connectLoadBalancer(MicroserviceOrchestration microserviceOrchestration, ILoadBalancingStrategy loadBalancingStrategy) {
@@ -94,7 +83,7 @@ public class ManagementPlane {
     public String getSchedulerByNameOrStandard(String name) {
         if (name != null) {
             final SchedulerType schedulerType = SchedulerType.fromString(name);
-            if(schedulerType!=null){
+            if (schedulerType != null) {
                 return schedulerType.getName();
             }
         }
@@ -116,18 +105,7 @@ public class ManagementPlane {
     }
 
     public void checkForScaling() {
-        // TODO: for each deployment call checkForScaling
-        /*
-        for (Deployment deployment : deployments) {
-            deployment.checkForScaling();
-        }
-         */
-        final IAutoScaler hpa = scalerMap.get("HPA");
-        final Set<Deployment> deploymentsWithHPA = deployments.stream().filter(deployment -> deployment.getScalerType() != null && deployment.getScalerType().equals("HPA")).collect(Collectors.toSet());
-        for (Deployment deployment : deploymentsWithHPA) {
-            //make event out of it
-            hpa.apply(deployment);
-        }
+        deployments.forEach(Deployment::scale);
     }
 
     public void checkIfPodRemovableFromNode(Pod pod, Node node) {
@@ -165,11 +143,4 @@ public class ManagementPlane {
         this.model = model;
     }
 
-    public Map<String, IScheduler> getSchedulerMap() {
-        return schedulerMap;
-    }
-
-    public void setSchedulerMap(Map<String, IScheduler> schedulerMap) {
-        this.schedulerMap = schedulerMap;
-    }
 }

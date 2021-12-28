@@ -29,14 +29,18 @@ public class Pod extends NamedEntity {
         setPodState(PodState.FAILED);
     }
 
-    public void startAllContainers(){
+    public void startAllContainers() {
         getContainers().forEach(container -> container.setContainerState(ContainerState.RUNNING));
         getContainers().forEach(container -> container.getMicroserviceInstance().start());
         setPodState(PodState.RUNNING);
     }
 
+    /**
+     * Should be called when a Pod has died due to a ChaosMonkeyForPodsEvents.
+     * It restarts all containers that belong to this pod.
+     */
     public void restartAllContainers() {
-        containers.forEach(this::restartContainer);
+        containers.forEach(container -> container.restart());
         setPodState(PodState.RUNNING);
         sendTraceNote(this.getQuotedName() + " was restarted");
     }
@@ -61,26 +65,4 @@ public class Pod extends NamedEntity {
             getContainers().forEach(container -> container.setContainerState(ContainerState.TERMINATED));
         }
     }
-
-    //    https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/
-    public void restartTerminatedContainers() {
-        getContainers().stream().filter(container -> container.getContainerState() == ContainerState.TERMINATED)
-                .forEach(this::restartContainer);
-    }
-
-    public void restartContainer(Container container) {
-        if (containers.contains(container)) {
-            // TODO Check if this is correct
-            MicroserviceInstance microserviceInstance = container.getMicroserviceInstance();
-            //state must be switched from KILLED to SHUTDOWN. Otherwise start method would throw error
-            microserviceInstance.setState(InstanceState.SHUTDOWN);
-            microserviceInstance.getPatterns().forEach(InstanceOwnedPattern::start);
-            microserviceInstance.start();
-            container.setContainerState(ContainerState.RUNNING);
-            sendTraceNote(microserviceInstance.getQuotedName() + " was restarted");
-        } else {
-            throw new IllegalArgumentException("Container " + container.getQuotedPlainName() + " does not belong to this pod");
-        }
-    }
-
 }

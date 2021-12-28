@@ -15,6 +15,6 @@ public class RestartContainerEvent extends Event<Container> {
 
     @Override
     public void eventRoutine(Container container) {
-            container.restart();
+            container.restartTerminatedContainer();
     }
 }

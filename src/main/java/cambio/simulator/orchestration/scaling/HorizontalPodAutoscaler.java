@@ -1,38 +1,23 @@
 package cambio.simulator.orchestration.scaling;
 
-import cambio.simulator.entities.NamedEntity;
-import cambio.simulator.orchestration.management.ManagementPlane;
 import cambio.simulator.orchestration.environment.*;
 import cambio.simulator.orchestration.k8objects.Deployment;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class HorizontalPodAutoscaler extends NamedEntity implements IAutoScaler {
+public class HorizontalPodAutoscaler extends AutoScaler {
 
-    private final double holdTimeUp;
-    private final double holdTimeDown;
-    private static final HorizontalPodAutoscaler instance = new HorizontalPodAutoscaler();
 
-    // TODO make this public
-    //private constructor to avoid client applications to use constructor
-    private HorizontalPodAutoscaler() {
-        super(ManagementPlane.getInstance().getModel(), "HPA", ManagementPlane.getInstance().getModel().traceIsOn());
-        holdTimeUp = 5;
-        holdTimeDown = 5;
+    public HorizontalPodAutoscaler() {
+        this.rename("HPA");
     }
 
     // TODO call this constructor when parsing
-    public HorizontalPodAutoscaler(double holdTimeUp, double holdTimeDown) {
-        super(ManagementPlane.getInstance().getModel(), "HPA", ManagementPlane.getInstance().getModel().traceIsOn());
-        this.holdTimeDown = holdTimeDown;
-        this.holdTimeUp = holdTimeUp;
-    }
-
-    // TODO delete
-    public static HorizontalPodAutoscaler getInstance() {
-        return instance;
-    }
+//    public HorizontalPodAutoscaler(double holdTimeUp, double holdTimeDown) {
+//        super.holdTimeDown = holdTimeDown;
+//        this.holdTimeUp = holdTimeUp;
+//    }
 
     @Override
     public void apply(Deployment deployment) {
@@ -40,17 +25,19 @@ public class HorizontalPodAutoscaler extends NamedEntity implements IAutoScaler 
 //        Scale-up can only happen if there was no rescaling within the last 3 minutes. Scale-down will wait for 5 minutes from the last rescaling.
 //        Moreover any scaling will only be made if: avg(CurrentPodsConsumption) / Target drops below 0.9 or increases above 1.1 (10% tolerance)
 
-        boolean upscalingAllowed = false;
-        boolean downscalingAllowed = false;
+        final double lastRescaling = deployment.getLastRescaling().getTimeAsDouble();
 
-        final double timeAsDouble = presentTime().getTimeAsDouble();
-        if (timeAsDouble - deployment.getLastScaleUp().getTimeAsDouble() > holdTimeUp) {
+        final double timePassed = presentTime().getTimeAsDouble() - lastRescaling;
+        boolean upscalingAllowed = timePassed > holdTimeUp;
+        boolean downscalingAllowed = timePassed > holdTimeDown;
+
+        //This allows scaling after initialization is complete and no rescaling was applied before
+        if (lastRescaling == 0 && presentTime().getTimeAsDouble() > 0) {
             upscalingAllowed = true;
-        }
-        if (timeAsDouble - deployment.getLastScaleDown().getTimeAsDouble() > holdTimeDown) {
             downscalingAllowed = true;
         }
-        double target = deployment.getAverageUtilization() > 0? deployment.getAverageUtilization() : 1.0 ; //in percent
+
+        double target = deployment.getAverageUtilization(); //in percent
 
         if (upscalingAllowed || downscalingAllowed) {
             double sumOfRelativeCPUUsage = 0;
@@ -84,7 +71,7 @@ public class HorizontalPodAutoscaler extends NamedEntity implements IAutoScaler 
                 if (desiredReplicas > deployment.getCurrentRunningOrPendingReplicaCount()) {
                     if (upscalingAllowed) {
                         deployment.setDesiredReplicaCount(desiredReplicas);
-                        deployment.setLastScaleUp(presentTime());
+                        deployment.setLastRescaling(presentTime());
                         sendTraceNote("Scaling Up " + deployment + ". From " + deployment.getCurrentRunningOrPendingReplicaCount() + " -> " + desiredReplicas);
                     } else {
                         sendTraceNote("Up scaling not allowed for " + deployment + " due to hold time.");
@@ -92,7 +79,7 @@ public class HorizontalPodAutoscaler extends NamedEntity implements IAutoScaler 
                 } else {
                     if (downscalingAllowed) {
                         deployment.setDesiredReplicaCount(desiredReplicas);
-                        deployment.setLastScaleDown(presentTime());
+                        deployment.setLastRescaling(presentTime());
                         sendTraceNote("Scaling Down " + deployment + ". From " + deployment.getCurrentRunningOrPendingReplicaCount() + " -> " + desiredReplicas);
                     } else {
                         sendTraceNote("Down scaling not allowed for " + deployment + " due to hold time.");
@@ -102,7 +89,11 @@ public class HorizontalPodAutoscaler extends NamedEntity implements IAutoScaler 
                 sendTraceNote("No Scaling required for " + deployment + ".");
             }
         } else {
-            sendTraceNote("No Scaling allowed for " + deployment + " due to hold times.");
+            if (presentTime().getTimeAsDouble() == 0) {
+                sendTraceNote("No scaling allowed for " + deployment + " during initialization.");
+            } else {
+                sendTraceNote("No scaling allowed for " + deployment + " due to hold times.");
+            }
         }
     }
 }

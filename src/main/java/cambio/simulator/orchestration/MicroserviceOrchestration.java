@@ -37,7 +37,6 @@ public class MicroserviceOrchestration extends Microservice {
 
     @Override
     public synchronized void killInstance() {
-        //TODO: use UniformDistribution form desmoj
         MicroserviceInstance instanceToKill =
                 instancesSet.stream().findAny().orElse(null); //selects an element of the stream, not
         if (instanceToKill == null) {
@@ -51,7 +50,7 @@ public class MicroserviceOrchestration extends Microservice {
             for (Container container : pod.getContainers()) {
                 if (container.getMicroserviceInstance().equals(instanceToKill)) {
                     container.setContainerState(ContainerState.TERMINATED);
-                    //Restart terminated container regarding restart policy
+                    //Restart terminated container regarding restart policy https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/
                     container.applyBackOffDelayResetIfNecessary();
                     final RestartContainerEvent restartContainerEvent = new RestartContainerEvent(getModel(), "Restart " + container.getQuotedPlainName(), traceIsOn());
                     restartContainerEvent.schedule(container, container.getPlannedExecutionTime());

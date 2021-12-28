@@ -5,6 +5,7 @@ import cambio.simulator.orchestration.k8objects.Deployment;
 import cambio.simulator.orchestration.parsing.K8Kind;
 import cambio.simulator.orchestration.management.ManagementPlane;
 import cambio.simulator.orchestration.parsing.*;
+import cambio.simulator.orchestration.scaling.HorizontalPodAutoscaler;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,7 +26,7 @@ public class HPAManipulator implements K8ObjectManipulator {
     @Override
     public void manipulate() throws ParsingException {
         if (k8HPADto != null) {
-            final ScaleTargetRefDto scaleTargetRef = k8HPADto.getSpec().getScaleTargetRef();
+            final SpecHPADto.ScaleTargetRefDto scaleTargetRef = k8HPADto.getSpec().getScaleTargetRef();
             if (scaleTargetRef != null) {
                 final K8Kind k8Kind = Util.searchEnum(K8Kind.class, scaleTargetRef.getKind());
                 if (k8Kind!=null && k8Kind.equals(K8Kind.DEPLOYMENT)) {
@@ -33,10 +34,10 @@ public class HPAManipulator implements K8ObjectManipulator {
                     final Optional<Deployment> optionalDeployment = ManagementPlane.getInstance().getDeployments().stream().filter(deployment -> deployment.getPlainName().equals(deploymentName)).findFirst();
                     if (optionalDeployment.isPresent()) {
                         final Deployment deployment = optionalDeployment.get();
-                        deployment.setScalerType("HPA");
+                        deployment.setAutoScaler(new HorizontalPodAutoscaler());
                         final int minReplicas = k8HPADto.getSpec().getMinReplicas();
                         final int maxReplicas = k8HPADto.getSpec().getMaxReplicas();
-                        final List<MetricDto> metrics = k8HPADto.getSpec().getMetrics();
+                        final List<SpecHPADto.MetricDto> metrics = k8HPADto.getSpec().getMetrics();
                         if (metrics.size() != 1) {
                             throw new ParsingException("Currently, only exact one 'metric' is supported for the HPA " +
                                     "configuration. Make sure there is only one entry for the metric");
@@ -45,7 +46,7 @@ public class HPAManipulator implements K8ObjectManipulator {
                         if (!resource.getName().equals("cpu")) {
                             throw new ParsingException("Currently, only 'cpu' is supported as metric");
                         }
-                        final TargetDto target = resource.getTarget();
+                        final ResourceDto.TargetDto target = resource.getTarget();
                         if (!target.getType().equals("Utilization")) {
                             throw new ParsingException("Currently, only 'Utilization' is allowed as target type");
                         }

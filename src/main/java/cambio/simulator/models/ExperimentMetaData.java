@@ -44,6 +44,9 @@ public class ExperimentMetaData {
     private long experimentDuration = -1;
     private long reportDuration = -1;
 
+    @SerializedName(value = "orchestration_dir")
+    private String orchestrationDirectory;
+
     private transient long startOfSetup;
     private transient long startOfExperiment;
     private transient long startOfReport;
@@ -140,5 +143,13 @@ public class ExperimentMetaData {
 
     public long getExecutionDuration() {
         return endOfExecution - startOfSetup;
+    }
+
+    public String getOrchestrationDirectory() {
+        return orchestrationDirectory;
+    }
+
+    public void setOrchestrationDirectory(String orchestrationDirectory) {
+        this.orchestrationDirectory = orchestrationDirectory;
     }
 }

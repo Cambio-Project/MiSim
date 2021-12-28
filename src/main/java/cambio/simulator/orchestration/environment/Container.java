@@ -66,22 +66,30 @@ public class Container extends NamedEntity {
         return new TimeInstant(getBackOffDelay() + getModel().presentTime().getTimeAsDouble());
     }
 
-    public void restart() {
+    /**
+     * Should be called when a Container has died due to a ChaosMonkeyEvent that has killed a
+     * MicroServiceInstance. This call regards the back off delay of each container.
+     */
+    public void restartTerminatedContainer() {
         if(getContainerState().equals(ContainerState.TERMINATED)){
             incrementBackOffDelay();
             lastRetry = presentTime();
-            MicroserviceInstance microserviceInstance = getMicroserviceInstance();
-            //state must be switched from KILLED to SHUTDOWN. Otherwise start method would throw error
-            microserviceInstance.setState(InstanceState.SHUTDOWN);
-            microserviceInstance.getPatterns().forEach(InstanceOwnedPattern::start);
-            microserviceInstance.start();
-            setContainerState(ContainerState.RUNNING);
-            //Needs to be added again to MicroServiceInstances. Otherwise, a following chaos monkey event would not find an instance to kill
-            microserviceInstance.getOwner().getInstancesSet().add(microserviceInstance);
-            sendTraceNote(microserviceInstance.getQuotedName() + " was restarted");
+            restart();
         } else {
             sendTraceNote("No need to restart " + this.getQuotedPlainName() + " because it is not terminated");
         }
+    }
+
+    public void restart(){
+        MicroserviceInstance microserviceInstance = getMicroserviceInstance();
+        //state must be switched from KILLED to SHUTDOWN. Otherwise start method would throw error
+        microserviceInstance.setState(InstanceState.SHUTDOWN);
+        microserviceInstance.getPatterns().forEach(InstanceOwnedPattern::start);
+        microserviceInstance.start();
+        setContainerState(ContainerState.RUNNING);
+        //Needs to be added again to MicroServiceInstances. Otherwise, a following chaos monkey event would not find an instance to kill
+        microserviceInstance.getOwner().getInstancesSet().add(microserviceInstance);
+        sendTraceNote(microserviceInstance.getQuotedName() + " was restarted");
     }
 
     public void applyBackOffDelayResetIfNecessary(){

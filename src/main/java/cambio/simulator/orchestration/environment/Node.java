@@ -11,7 +11,6 @@ import java.util.List;
 
 public class Node extends NamedEntity {
 
-    // TODO Should come from external config
     private static final int DEFAULT_CPU_CAPACITY = 1500;
 
     final int totalCPU;

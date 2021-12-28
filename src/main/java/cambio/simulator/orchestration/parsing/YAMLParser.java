@@ -120,6 +120,14 @@ public class YAMLParser {
         }
     }
 
+    public static ConfigDto parseConfigFile(String src) throws IOException {
+        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+        mapper.findAndRegisterModules();
+        final ConfigDto configDto = mapper.readValue(new File(src), ConfigDto.class);
+        return configDto;
+
+    }
+
     public ArchitectureModel getArchitectureModel() {
         return architectureModel;
     }

@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.events.ISelfScheduled;
@@ -18,6 +19,7 @@ import cambio.simulator.orchestration.k8objects.K8Object;
 import cambio.simulator.orchestration.management.ManagementPlane;
 import cambio.simulator.orchestration.management.MasterTasksExecutor;
 import cambio.simulator.orchestration.environment.Node;
+import cambio.simulator.orchestration.parsing.ConfigDto;
 import cambio.simulator.orchestration.parsing.ParsingException;
 import cambio.simulator.orchestration.parsing.YAMLParser;
 import cambio.simulator.parsing.ModelLoader;
@@ -37,8 +39,7 @@ public class MiSimModel extends Model {
      */
     public static MultiDataPointReporter generalReporter = new MultiDataPointReporter();
 
-    // TODO this should come from an external config (probably in experiment model "useOrchestration": true/false)
-    public static final boolean orchestrated = true;
+    public static boolean orchestrated;
 
     private final transient File architectureModelLocation;
     private final transient File experimentModelOrScenarioLocation;
@@ -75,6 +76,8 @@ public class MiSimModel extends Model {
 
     @Override
     public void init() {
+        //check if orchestration mode should be active
+        this.orchestrated = getExperimentMetaData().getOrchestrationDirectory() != null;
         this.architectureModel = ModelLoader.loadArchitectureModel(this);
         this.experimentModel = ModelLoader.loadExperimentModel(this);
         this.experimentMetaData.setStartDate(LocalDateTime.now());
@@ -86,9 +89,8 @@ public class MiSimModel extends Model {
 
         if (orchestrated) {
             initOrchestration();
-            final MasterTasksExecutor masterTasksExecutor = new MasterTasksExecutor(getModel(), "MasterTaskExecutor", getModel().traceIsOn());
-            masterTasksExecutor.doInitialSelfSchedule();
         } else {
+            System.out.println("Using MiSim WITHOUT Container Orchestration");
             architectureModel.getMicroservices().forEach(Microservice::start);
         }
 
@@ -101,58 +103,66 @@ public class MiSimModel extends Model {
     }
 
     public void initOrchestration() {
-        // TODO this should come from an environment / cluster model
-        List<Node> nodes = new ArrayList<>();
-        for (int i = 0; i < 3; i++) {
-            nodes.add(new Node(getModel(), "Node", traceIsOn()));
+        String targetDir = getExperimentMetaData().getOrchestrationDirectory() + "/k8_files";
+        ConfigDto configDto = null;
+        try {
+            configDto = YAMLParser.parseConfigFile(getExperimentMetaData().getOrchestrationDirectory() + "/environment/config.yaml");
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.exit(1);
         }
-        Cluster cluster = new Cluster(nodes);
+        Cluster cluster = new Cluster(createNodesFromConfigDto(configDto));
+        //set hold times for scales
         final ManagementPlane managementPlane = ManagementPlane.getInstance();
         managementPlane.setModel(this);
         managementPlane.setCluster(cluster);
         managementPlane.populateSchedulerMap();
-        managementPlane.populateScalerMap();
 
 
         final YAMLParser yamlParser = YAMLParser.getInstance();
         yamlParser.setArchitectureModel(architectureModel);
-        // TODO this should come from an external config (probably experiment model)
-        String targetDir = "target/orchestration";
-        final Set<String> fileNames = Util.getInstance().listFilesUsingJavaIO(targetDir);
-        // Read only deployments first
-        for (String fileName : fileNames) {
-            try {
-                String filePath = targetDir + "/" + fileName;
-                final K8Object k8Object = yamlParser.parseFile(filePath);
-                if (k8Object != null) {
-                    if (k8Object instanceof Deployment) {
-                        managementPlane.getDeployments().add((Deployment) k8Object);
-                    } else {
-                        throw new ParsingException("The parser returned an unknown K8Object");
+        final Set<String> fileNames;
+        try {
+            fileNames = Util.getInstance().listFilesUsingJavaIO(targetDir);
+            // Read only deployments first
+            for (String fileName : fileNames) {
+                try {
+                    String filePath = targetDir + "/" + fileName;
+                    final K8Object k8Object = yamlParser.parseFile(filePath);
+                    if (k8Object != null) {
+                        if (k8Object instanceof Deployment) {
+                            managementPlane.getDeployments().add((Deployment) k8Object);
+                        } else {
+                            throw new ParsingException("The parser returned an unknown K8Object");
+                        }
                     }
+                } catch (ParsingException | IOException e) {
+                    e.printStackTrace();
+                    System.exit(1);
                 }
-            } catch (ParsingException | IOException e) {
-                e.printStackTrace();
-                System.exit(1);
             }
+
+            //Read other k8s objects that refer to deployments (e.g. HPA)
+            for (String filePath : yamlParser.getRemainingFilePaths()) {
+                try {
+                    yamlParser.applyManipulation(filePath);
+                } catch (ParsingException | IOException e) {
+                    e.printStackTrace();
+                    System.exit(1);
+                }
+            }
+        } catch (ParsingException e) {
+            e.printStackTrace();
+            System.exit(1);
         }
 
-        //Read other k8s obejcts that refer to deployments (e.g. HPA)
-        for (String filePath : yamlParser.getRemainingFilePaths()) {
-            try {
-                yamlParser.applyManipulation(filePath);
-            } catch (ParsingException | IOException e) {
-                e.printStackTrace();
-                System.exit(1);
-            }
-        }
-
+        setHoldTimesForAllScalersFromConfigDto(configDto);
 
         //TODO check if whole architecture file matches to deployments
         /*
         Desired behavior:
         - if service is specified in k8s deployments and in architecture model -> one deployment created
-        - if service is specified in k8s deployments but not in architecture model -> should result in a warining will
+        - if service is specified in k8s deployments but not in architecture model -> should result in a warning will
         not be created and not simulated
         - if service is not specified in k8s deployments but in the architecture model -> automatically create deployment,
         autoscaler, load balancer, scheduler etc. from default values or entry from architecture file
@@ -161,8 +171,27 @@ public class MiSimModel extends Model {
 
 
 //        managementPlane.buildDeploymentScheme(this.architectureModel);
+
+        final MasterTasksExecutor masterTasksExecutor = new MasterTasksExecutor(getModel(), "MasterTaskExecutor", getModel().traceIsOn());
+        masterTasksExecutor.doInitialSelfSchedule();
         System.out.println("Init Orchestration finished");
+
     }
+
+    public List<Node> createNodesFromConfigDto(ConfigDto configDto) {
+        List<Node> nodes = new ArrayList<>();
+        for (int i = 0; i < configDto.getNodes().getAmount(); i++) {
+            nodes.add(new Node(getModel(), "Node", traceIsOn(), configDto.getNodes().getCpu()));
+        }
+        return nodes;
+    }
+
+    public void setHoldTimesForAllScalersFromConfigDto(ConfigDto configDto) {
+        ManagementPlane.getInstance().getDeployments().stream().filter(deployment -> deployment.getAutoScaler()!=null).collect(Collectors.toList()).stream().forEach(deployment -> {
+            deployment.getAutoScaler().setHoldTimeUp(configDto.getScaler().getHoldTimeUpScaler());
+            deployment.getAutoScaler().setHoldTimeDown(configDto.getScaler().getHoldTimeDownScaler());
+    });
+}
 
     public ArchitectureModel getArchitectureModel() {
         return architectureModel;

@@ -6,6 +6,7 @@ import cambio.simulator.orchestration.events.RestartPodEvent;
 import cambio.simulator.orchestration.management.ManagementPlane;
 import cambio.simulator.orchestration.environment.*;
 import cambio.simulator.orchestration.parsing.K8Kind;
+import cambio.simulator.orchestration.scaling.AutoScaler;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 
@@ -18,13 +19,12 @@ public class Deployment extends K8Object {
     private Set<MicroserviceOrchestration> services;
     private Set<Pod> replicaSet;
     private String schedulerType;
-    private String scalerType;
-    private TimeInstant lastScaleUp;
-    private TimeInstant lastScaleDown;
+    private TimeInstant lastRescaling;
     private int desiredReplicaCount;
     private int maxReplicaCount;
     private int minReplicaCount;
     private double averageUtilization;
+    private AutoScaler autoScaler;
 
     public Deployment(Model model, String name, boolean showInTrace, Set<MicroserviceOrchestration> microserviceOrchestrations, int desiredReplicaCount, String schedulerType) {
         super(model, name, showInTrace, K8Kind.DEPLOYMENT);
@@ -34,8 +34,7 @@ public class Deployment extends K8Object {
         this.maxReplicaCount = 10;
         this.minReplicaCount = 1;
         this.averageUtilization = 50.0;
-        lastScaleUp = new TimeInstant(0);
-        lastScaleDown = new TimeInstant(0);
+        this.lastRescaling = new TimeInstant(0);
         replicaSet = new HashSet<>();
     }
 
@@ -116,6 +115,12 @@ public class Deployment extends K8Object {
 
     }
 
+    public void scale(){
+        if(autoScaler!=null){
+            autoScaler.apply(this);
+        }
+    }
+
     public void addPodToWaitingQueue(Pod pod) {
         ManagementPlane.getInstance().addPodToSpecificSchedulerQueue(pod, this.getSchedulerType());
     }
@@ -184,28 +189,12 @@ public class Deployment extends K8Object {
         this.minReplicaCount = minReplicaCount;
     }
 
-    public TimeInstant getLastScaleUp() {
-        return lastScaleUp;
+    public TimeInstant getLastRescaling() {
+        return lastRescaling;
     }
 
-    public void setLastScaleUp(TimeInstant lastScaleUp) {
-        this.lastScaleUp = lastScaleUp;
-    }
-
-    public TimeInstant getLastScaleDown() {
-        return lastScaleDown;
-    }
-
-    public void setLastScaleDown(TimeInstant lastScaleDown) {
-        this.lastScaleDown = lastScaleDown;
-    }
-
-    public String getScalerType() {
-        return scalerType;
-    }
-
-    public void setScalerType(String scalerType) {
-        this.scalerType = scalerType;
+    public void setLastRescaling(TimeInstant lastRescaling) {
+        this.lastRescaling = lastRescaling;
     }
 
     public double getAverageUtilization() {
@@ -214,5 +203,13 @@ public class Deployment extends K8Object {
 
     public void setAverageUtilization(double averageUtilization) {
         this.averageUtilization = averageUtilization;
+    }
+
+    public AutoScaler getAutoScaler() {
+        return autoScaler;
+    }
+
+    public void setAutoScaler(AutoScaler autoScaler) {
+        this.autoScaler = autoScaler;
     }
 }

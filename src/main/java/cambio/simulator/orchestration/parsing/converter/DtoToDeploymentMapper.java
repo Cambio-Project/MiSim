@@ -31,7 +31,7 @@ public class DtoToDeploymentMapper implements DtoToObjectMapper<Deployment> {
         if (k8DeploymentDto != null && architectureModel != null) {
             final String deploymentName = k8DeploymentDto.getMetadata().getName();
             final Set<MicroserviceOrchestration> services = new HashSet<>();
-            for (ContainerDto containerDto : k8DeploymentDto.getSpec().getTemplate().getSpec().getContainers()) {
+            for (SpecDeploymentDto.TemplateDto.SpecContainerDto.ContainerDto containerDto : k8DeploymentDto.getSpec().getTemplate().getSpec().getContainers()) {
                 final Optional<Microservice> optionalService = architectureModel.getMicroservices().stream().filter(service -> service.getPlainName().equals(containerDto.getName())).findFirst();
                 if (optionalService.isPresent()) {
                     final MicroserviceOrchestration service = (MicroserviceOrchestration) optionalService.get();

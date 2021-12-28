@@ -2,8 +2,7 @@ package cambio.simulator.orchestration;
 
 import cambio.simulator.orchestration.k8objects.Deployment;
 import cambio.simulator.orchestration.management.ManagementPlane;
-import cambio.simulator.orchestration.scheduling.FirstFitScheduler;
-import cambio.simulator.orchestration.scheduling.SchedulerType;
+import cambio.simulator.orchestration.parsing.ParsingException;
 
 import java.io.File;
 import java.util.Optional;
@@ -22,11 +21,15 @@ public class Util {
         return instance;
     }
 
-    public Set<String> listFilesUsingJavaIO(String dir) {
-        return Stream.of(new File(dir).listFiles())
-                .filter(file -> !file.isDirectory())
-                .map(File::getName)
-                .collect(Collectors.toSet());
+    public Set<String> listFilesUsingJavaIO(String dir) throws ParsingException {
+        final File directory = new File(dir);
+        if(directory.exists()){
+            return Stream.of(directory.listFiles())
+                    .filter(file -> !file.isDirectory())
+                    .map(File::getName)
+                    .collect(Collectors.toSet());
+        }
+        throw new ParsingException("Could not find the directory: " + dir);
     }
 
     public Deployment findDeploymentByName(String name){
