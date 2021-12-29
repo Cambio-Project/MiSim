@@ -8,12 +8,13 @@ import cambio.simulator.orchestration.parsing.K8ObjectDto;
 import cambio.simulator.orchestration.parsing.ParsingException;
 import cambio.simulator.orchestration.parsing.SpecDeploymentDto;
 
+import java.rmi.UnexpectedException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 public interface DtoToObjectMapper<T> {
-    T buildScheme() throws ParsingException;
+    T buildScheme() throws ParsingException, UnexpectedException;
 
     void setMicroservices(Set<Microservice> microservices);
 

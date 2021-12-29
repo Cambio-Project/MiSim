@@ -6,6 +6,8 @@ public class ConfigDto {
 
     public Nodes nodes;
     public Scaler scaler;
+    public String loadBalancer;
+    public String scheduler;
 
     public class Nodes{
         int amount;
@@ -63,5 +65,21 @@ public class ConfigDto {
 
     public void setScaler(Scaler scaler) {
         this.scaler = scaler;
+    }
+
+    public String getLoadBalancer() {
+        return loadBalancer;
+    }
+
+    public void setLoadBalancer(String loadBalancer) {
+        this.loadBalancer = loadBalancer;
+    }
+
+    public String getScheduler() {
+        return scheduler;
+    }
+
+    public void setScheduler(String scheduler) {
+        this.scheduler = scheduler;
     }
 }

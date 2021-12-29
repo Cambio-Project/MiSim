@@ -1,10 +1,16 @@
 package cambio.simulator.orchestration;
 
+import cambio.simulator.entities.patterns.ILoadBalancingStrategy;
 import cambio.simulator.orchestration.k8objects.Deployment;
+import cambio.simulator.orchestration.loadbalancing.LeastUtilizationLoadBalanceStrategyOrchestration;
+import cambio.simulator.orchestration.loadbalancing.LoadBalancerType;
+import cambio.simulator.orchestration.loadbalancing.RandomLoadBalanceStrategyOrchestration;
+import cambio.simulator.orchestration.management.DefaultValues;
 import cambio.simulator.orchestration.management.ManagementPlane;
 import cambio.simulator.orchestration.parsing.ParsingException;
 
 import java.io.File;
+import java.rmi.UnexpectedException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -44,6 +50,20 @@ public class Util {
             if (each.name().compareToIgnoreCase(search) == 0) {
                 return each;
             }
+        }
+        return null;
+    }
+
+    public static ILoadBalancingStrategy getDefaultLoadBalancingStrategy() throws UnexpectedException {
+        final LoadBalancerType loadBalancerType = LoadBalancerType.fromString(DefaultValues.getInstance().getLoadBalancer());
+        if(loadBalancerType!=null) {
+            if(loadBalancerType.equals(LoadBalancerType.RANDOM)){
+                return new RandomLoadBalanceStrategyOrchestration();
+            } else if (loadBalancerType.equals(LoadBalancerType.LEAST_UTIL)){
+                return new LeastUtilizationLoadBalanceStrategyOrchestration();
+            }
+        } else {
+            throw new UnexpectedException("Should not happen. The loadBalancerType is checked during parsing the config file");
         }
         return null;
     }

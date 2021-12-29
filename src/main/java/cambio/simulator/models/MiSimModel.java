@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.events.ISelfScheduled;
@@ -105,7 +104,7 @@ public class MiSimModel extends Model {
         ConfigDto configDto = null;
         try {
             configDto = YAMLParser.parseConfigFile(getExperimentMetaData().getOrchestrationDirectory() + "/environment/config.yaml");
-        } catch (IOException e) {
+        } catch (IOException | ParsingException e) {
             e.printStackTrace();
             System.exit(1);
         }
@@ -116,21 +115,18 @@ public class MiSimModel extends Model {
 
 
         final YAMLParser yamlParser = YAMLParser.getInstance();
+        yamlParser.setArchitectureModel(architectureModel);
+        yamlParser.setConfigDto(configDto);
         try {
-            yamlParser.createK8ObjectsFromFiles(architectureModel, targetDir);
+            yamlParser.initDeploymentsFromArchitectureAndYAMLFiles(targetDir);
         } catch (ParsingException e) {
             e.printStackTrace();
             System.exit(1);
         }
 
-
-        //post initialization
-        setHoldTimesForAllScalersFromConfigDto(configDto);
-
-
         final MasterTasksExecutor masterTasksExecutor = new MasterTasksExecutor(getModel(), "MasterTaskExecutor", getModel().traceIsOn());
         masterTasksExecutor.doInitialSelfSchedule();
-        System.out.println("### Container Orchestration finished ###");
+        System.out.println("### Initialization of Container Orchestration finished ###");
         System.out.println();
 
     }
@@ -141,13 +137,6 @@ public class MiSimModel extends Model {
             nodes.add(new Node(getModel(), "Node", traceIsOn(), configDto.getNodes().getCpu()));
         }
         return nodes;
-    }
-
-    public void setHoldTimesForAllScalersFromConfigDto(ConfigDto configDto) {
-        ManagementPlane.getInstance().getDeployments().stream().filter(deployment -> deployment.getAutoScaler() != null).collect(Collectors.toList()).stream().forEach(deployment -> {
-            deployment.getAutoScaler().setHoldTimeUp(configDto.getScaler().getHoldTimeUpScaler());
-            deployment.getAutoScaler().setHoldTimeDown(configDto.getScaler().getHoldTimeDownScaler());
-        });
     }
 
     public ArchitectureModel getArchitectureModel() {

@@ -6,6 +6,8 @@ import cambio.simulator.orchestration.MicroserviceOrchestration;
 import cambio.simulator.orchestration.Util;
 import cambio.simulator.orchestration.k8objects.Deployment;
 import cambio.simulator.orchestration.k8objects.K8Object;
+import cambio.simulator.orchestration.loadbalancing.LoadBalancerType;
+import cambio.simulator.orchestration.management.DefaultValues;
 import cambio.simulator.orchestration.management.ManagementPlane;
 import cambio.simulator.orchestration.parsing.converter.DtoToDeploymentMapper;
 import cambio.simulator.orchestration.parsing.converter.DtoToObjectMapper;
@@ -20,11 +22,17 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.rmi.UnexpectedException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class YAMLParser {
 
     Set<String> remainingFilePaths = new HashSet<>();
+
+    ConfigDto configDto;
+
+    ArchitectureModel architectureModel;
 
     private YAMLParser() {
     }
@@ -84,7 +92,7 @@ public class YAMLParser {
         return k8objectDto;
     }
 
-    public K8Object buildK8Object(K8ObjectDto k8object, DtoToObjectMapper<?> dtoToObjectMapper, Set<Microservice> microservices) throws ParsingException {
+    public K8Object buildK8Object(K8ObjectDto k8object, DtoToObjectMapper<?> dtoToObjectMapper, Set<Microservice> microservices) throws ParsingException, UnexpectedException {
         if (k8object != null && dtoToObjectMapper != null) {
             dtoToObjectMapper.setK8ObjectDto(k8object);
             dtoToObjectMapper.setMicroservices(microservices);
@@ -124,7 +132,7 @@ public class YAMLParser {
         }
     }
 
-    public void createK8ObjectsFromFiles(ArchitectureModel architectureModel, String dir_path) throws ParsingException {
+    public void initDeploymentsFromArchitectureAndYAMLFiles(String dir_path) throws ParsingException {
         final Set<String> fileNames;
         Set<K8DeploymentDto> k8ObjectDtos = new HashSet<>();
         try {
@@ -161,6 +169,12 @@ public class YAMLParser {
                 }
             }
 
+            //set AutoScaler Hold Times from configDto
+            ManagementPlane.getInstance().getDeployments().stream().filter(deployment -> deployment.getAutoScaler() != null).collect(Collectors.toList()).stream().forEach(deployment -> {
+                deployment.getAutoScaler().setHoldTimeUp(configDto.getScaler().getHoldTimeUpScaler());
+                deployment.getAutoScaler().setHoldTimeDown(configDto.getScaler().getHoldTimeDownScaler());
+            });
+
 
         } catch (ParsingException |
                 IOException e) {
@@ -182,7 +196,7 @@ public class YAMLParser {
      * @param k8ObjectDtos
      * @return Map<K8ObjectDto, Set < Microservice>>
      */
-    public Map<K8ObjectDto, Set<Microservice>> createMapping(Set<Microservice> microservices, Set<K8DeploymentDto> k8ObjectDtos) {
+    public Map<K8ObjectDto, Set<Microservice>> createMapping(Set<Microservice> microservices, Set<K8DeploymentDto> k8ObjectDtos) throws UnexpectedException {
         Map<K8ObjectDto, Set<Microservice>> map = new HashMap<>();
         for (K8DeploymentDto k8DeploymentDto : k8ObjectDtos) {
             Set<Microservice> microserviceSet = new HashSet<>();
@@ -193,41 +207,49 @@ public class YAMLParser {
                     microservices.remove(service);
                     microserviceSet.add(service);
                 } else {
-                    System.out.println("WARNING: The container " + containerDto.getName() + " from the given deployment " + k8DeploymentDto.getMetadata().getName() +
+                    System.out.println("[WARNING]: The container " + containerDto.getName() + " from the given deployment " + k8DeploymentDto.getMetadata().getName() +
                             " is not simulated because there is no corresponding microservice in the architecture file.");
                 }
             }
             if (!microserviceSet.isEmpty()) {
                 map.put(k8DeploymentDto, microserviceSet);
             } else {
-                System.out.println("WARNING: The whole deployment " + k8DeploymentDto.getMetadata().getName() +
+                System.out.println("[WARNING]: The whole deployment " + k8DeploymentDto.getMetadata().getName() +
                         " is not simulated because no matching microservices from the architecture file were found.");
             }
         }
 
         //create default deployments for remaining microservices from the architecture file
-        microservices.forEach(this::createDefaultDeployment);
+        for (Microservice microservice : microservices) {
+            createDefaultDeployment(microservice);
+        }
 
         return map;
 
     }
 
-    public void createDefaultDeployment(Microservice microservice) {
+    public void createDefaultDeployment(Microservice microservice) throws UnexpectedException {
         final String deploymentName = microservice.getPlainName() + "-deployment";
         final Set<MicroserviceOrchestration> services = new HashSet<>();
         services.add((MicroserviceOrchestration) microservice);
         ManagementPlane.getInstance().connectLoadBalancer((MicroserviceOrchestration) microservice, microservice.getLoadBalancer().getLoadBalancingStrategy());
-        final String schedulerName = "firstFit";
+        final String schedulerName = ManagementPlane.getInstance().getSchedulerByNameOrStandard(DefaultValues.getInstance().getScheduler(), deploymentName);
         final Deployment deployment = new Deployment(ManagementPlane.getInstance().getModel(), deploymentName, ManagementPlane.getInstance().getModel().traceIsOn(), services, microservice.getStartingInstanceCount(), schedulerName);
         deployment.setAutoScaler(new HorizontalPodAutoscaler());
-        System.out.println("INFO: Creating deployment " + deploymentName +" only from architecture file. There is no corresponding YAML file");
+        System.out.println("[INFO]: Creating deployment " + deploymentName +" from architecture file only. There is no corresponding YAML file");
+        System.out.println("Using the following default settings:");
+        System.out.println("--Scheduler: "+schedulerName);
+        System.out.println("--LoadBalancer: "+ LoadBalancerType.fromString(DefaultValues.getInstance().getLoadBalancer()).getDisplayName());
+        System.out.println("--AutoScaler: HPA");
         ManagementPlane.getInstance().getDeployments().add(deployment);
     }
 
-    public static ConfigDto parseConfigFile(String src) throws IOException {
+    public static ConfigDto parseConfigFile(String src) throws IOException, ParsingException {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         mapper.findAndRegisterModules();
         final ConfigDto configDto = mapper.readValue(new File(src), ConfigDto.class);
+        //Check values for validity and create default values
+        DefaultValues.getInstance().setDefaultValuesFromConfigFile(configDto);
         return configDto;
 
     }
@@ -236,5 +258,20 @@ public class YAMLParser {
         return remainingFilePaths;
     }
 
+    public ConfigDto getConfigDto() {
+        return configDto;
+    }
+
+    public void setConfigDto(ConfigDto configDto) {
+        this.configDto = configDto;
+    }
+
+    public ArchitectureModel getArchitectureModel() {
+        return architectureModel;
+    }
+
+    public void setArchitectureModel(ArchitectureModel architectureModel) {
+        this.architectureModel = architectureModel;
+    }
 }
 

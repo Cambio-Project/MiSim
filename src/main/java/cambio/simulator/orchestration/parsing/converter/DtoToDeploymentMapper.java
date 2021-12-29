@@ -6,6 +6,7 @@ import cambio.simulator.orchestration.MicroserviceOrchestration;
 import cambio.simulator.orchestration.management.ManagementPlane;
 import cambio.simulator.orchestration.parsing.*;
 
+import java.rmi.UnexpectedException;
 import java.util.*;
 
 public class DtoToDeploymentMapper implements DtoToObjectMapper<Deployment> {
@@ -25,7 +26,7 @@ public class DtoToDeploymentMapper implements DtoToObjectMapper<Deployment> {
     }
 
 
-    public Deployment buildScheme() throws ParsingException {
+    public Deployment buildScheme() throws ParsingException, UnexpectedException {
 
         if (k8DeploymentDto != null && microservices != null) {
             final String deploymentName = k8DeploymentDto.getMetadata().getName();
@@ -45,7 +46,7 @@ public class DtoToDeploymentMapper implements DtoToObjectMapper<Deployment> {
                     throw new ParsingException("Could not map a single containerized service from the deployment " + deploymentName + " to the architecture file");
                 }
             }
-            final String schedulerName = ManagementPlane.getInstance().getSchedulerByNameOrStandard(k8DeploymentDto);
+            final String schedulerName = ManagementPlane.getInstance().getSchedulerByNameOrStandard(k8DeploymentDto.getSpec().getTemplate().getSpec().getSchedulerName(), k8DeploymentDto.getMetadata().getName());
             final Deployment deployment = new Deployment(ManagementPlane.getInstance().getModel(), deploymentName, ManagementPlane.getInstance().getModel().traceIsOn(), services, k8DeploymentDto.getSpec().getReplicas(), schedulerName);
             this.k8DeploymentDto = null;
             return deployment;

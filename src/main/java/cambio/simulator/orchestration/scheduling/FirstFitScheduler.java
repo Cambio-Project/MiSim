@@ -69,14 +69,14 @@ public class FirstFitScheduler extends NamedEntity implements IScheduler {
     public SchedulerType getSchedulerType() {
         return SchedulerType.FIRSTFIT;
     }
-
+    @Override
     public Pod getNextPodFromWaitingQueue() {
         if (podWaitingQueue.isEmpty()) {
             return null;
         }
         return podWaitingQueue.poll();
     }
-
+    @Override
     public LinkedList<Pod> getPodWaitingQueue() {
         return podWaitingQueue;
     }
