@@ -14,16 +14,7 @@ public abstract class AutoScaler extends NamedEntity {
         holdTimeDown = 5;
     }
 
-    // TODO call this constructor when parsing
-    public AutoScaler(double holdTimeUp, double holdTimeDown) {
-        super(ManagementPlane.getInstance().getModel(), "AutoScaler", ManagementPlane.getInstance().getModel().traceIsOn());
-        this.holdTimeDown = holdTimeDown;
-        this.holdTimeUp = holdTimeUp;
-    }
-
-    public void apply(Deployment deployment){
-
-    }
+    public abstract void apply(Deployment deployment);
 
     public double getHoldTimeUp() {
         return holdTimeUp;

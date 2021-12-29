@@ -14,6 +14,7 @@ import cambio.simulator.orchestration.MicroserviceOrchestration;
 import cambio.simulator.orchestration.loadbalancing.LeastUtilizationLoadBalanceStrategyOrchestration;
 import cambio.simulator.orchestration.loadbalancing.LoadBalancerOrchestration;
 import cambio.simulator.orchestration.loadbalancing.RandomLoadBalanceStrategyOrchestration;
+import cambio.simulator.orchestration.parsing.K8DeploymentDto;
 import cambio.simulator.orchestration.scheduling.FirstFitScheduler;
 import cambio.simulator.orchestration.scheduling.IScheduler;
 import cambio.simulator.orchestration.scheduling.SchedulerType;
@@ -40,15 +41,13 @@ public class ManagementPlane {
         return instance;
     }
 
-//    public void buildDeploymentScheme(ArchitectureModel architectureModel) {
-//        final Set<MicroserviceOrchestration> services = architectureModel.getServices();
-//        connectLoadBalancersToServices(services);
-//        for (MicroserviceOrchestration service : services) {
-//            Set<MicroserviceOrchestration> deploymentServices = new HashSet<>();
-//            deploymentServices.add(service);
-//            deployments.add(new Deployment(getModel(), "Deployment_" + ++deploymentCounter, getModel().traceIsOn(), deploymentServices, service.getStartingInstanceCount(), "firstFit"));
-//        }
-//    }
+
+    /**
+     * For each deployment, check if rescaling is required
+     */
+    public void checkForScaling() {
+        deployments.forEach(Deployment::scale);
+    }
 
     /**
      * For each deployment, check if desired state equals current state, if not trigger actions
@@ -58,41 +57,11 @@ public class ManagementPlane {
             deployment.deploy();
         }
     }
-
-    public void populateSchedulerMap() {
-        schedulerMap.put("firstFit", FirstFitScheduler.getInstance());
-    }
-
-    public void connectLoadBalancer(MicroserviceOrchestration microserviceOrchestration, ILoadBalancingStrategy loadBalancingStrategy) {
-        if (loadBalancingStrategy instanceof RandomLoadBalanceStrategy) {
-            microserviceOrchestration.setLoadBalancerOrchestration(new LoadBalancerOrchestration(getModel(), RandomLoadBalanceStrategyOrchestration.getName(), getModel().traceIsOn(), new RandomLoadBalanceStrategyOrchestration(), microserviceOrchestration));
-        } else if (loadBalancingStrategy instanceof LeastUtilizationLoadBalanceStrategyOrchestration)
-            microserviceOrchestration.setLoadBalancerOrchestration(new LoadBalancerOrchestration(getModel(), LeastUtilizationLoadBalanceStrategyOrchestration.getName(), getModel().traceIsOn(), loadBalancingStrategy, microserviceOrchestration));
-    }
-
-//    public void connectLoadBalancerToService(MicroserviceOrchestration service) {
-////        service.setLoadBalancer(new LoadBalancerOrchestration(getModel(), "RandomLoadBalancer", getModel().traceIsOn(), new RandomLoadBalanceStrategyOrchestration(), service));
-////        service.setLoadBalancerOrchestration(new LoadBalancerOrchestration(getModel(), "LeastUtilLB", getModel().traceIsOn(), new LeastUtilizationLoadBalanceStrategyOrchestration(), service));
-//    }
-
-    //Do this periodically
+    /**
+     * Each scheduler will try to schedule the pending pods that are waiting in its queue
+     */
     public void checkForPendingPods() {
         schedulerMap.values().forEach(IScheduler::schedulePods);
-    }
-
-    public String getSchedulerByNameOrStandard(String name) {
-        if (name != null) {
-            final SchedulerType schedulerType = SchedulerType.fromString(name);
-            if (schedulerType != null) {
-                return schedulerType.getName();
-            }
-        }
-        System.out.println("Using default Scheduler: " + SchedulerType.FIRSTFIT.getName());
-        return SchedulerType.FIRSTFIT.getName();
-    }
-
-    public Optional<Node> getNodeForPod(Pod pod) {
-        return getCluster().getNodes().stream().filter(node -> node.getPods().contains(pod)).findFirst();
     }
 
     public void addPodToSpecificSchedulerQueue(Pod pod, String schedulerType) {
@@ -104,10 +73,34 @@ public class ManagementPlane {
         }
     }
 
-    public void checkForScaling() {
-        deployments.forEach(Deployment::scale);
+
+    public void connectLoadBalancer(MicroserviceOrchestration microserviceOrchestration, ILoadBalancingStrategy loadBalancingStrategy) {
+        if (loadBalancingStrategy instanceof RandomLoadBalanceStrategy) {
+            microserviceOrchestration.setLoadBalancerOrchestration(new LoadBalancerOrchestration(getModel(), RandomLoadBalanceStrategyOrchestration.getName(), getModel().traceIsOn(), new RandomLoadBalanceStrategyOrchestration(), microserviceOrchestration));
+        } else if (loadBalancingStrategy instanceof LeastUtilizationLoadBalanceStrategyOrchestration)
+            microserviceOrchestration.setLoadBalancerOrchestration(new LoadBalancerOrchestration(getModel(), LeastUtilizationLoadBalanceStrategyOrchestration.getName(), getModel().traceIsOn(), loadBalancingStrategy, microserviceOrchestration));
     }
 
+    public String getSchedulerByNameOrStandard(K8DeploymentDto k8DeploymentDto) {
+        final String name = k8DeploymentDto.getSpec().getTemplate().getSpec().getSchedulerName();
+        if (name != null) {
+            final SchedulerType schedulerType = SchedulerType.fromString(name);
+            if (schedulerType != null) {
+                return schedulerType.getName();
+            }
+        }
+        System.out.println("Using default Scheduler '" + SchedulerType.FIRSTFIT.getName() + "' for deployment "+ k8DeploymentDto.getMetadata().getName());
+        return SchedulerType.FIRSTFIT.getName();
+    }
+
+    public Optional<Node> getNodeForPod(Pod pod) {
+        return getCluster().getNodes().stream().filter(node -> node.getPods().contains(pod)).findFirst();
+    }
+
+    /**
+     * Check if a pod's containers have no calculations left. If so then remove it from the pod.
+     * Otherwise this method schedules itself again for a later time
+     */
     public void checkIfPodRemovableFromNode(Pod pod, Node node) {
         for (Container container : pod.getContainers()) {
             if (container.getMicroserviceInstance().getState() != InstanceState.SHUTDOWN) {
@@ -121,6 +114,10 @@ public class ManagementPlane {
 
     public void removePodFromNode(Pod pod, Node node) {
         node.removePod(pod);
+    }
+
+    public void populateSchedulerMap() {
+        schedulerMap.put("firstFit", FirstFitScheduler.getInstance());
     }
 
     public List<Deployment> getDeployments() {

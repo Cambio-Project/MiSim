@@ -1,7 +1,6 @@
 package cambio.simulator.orchestration.parsing.converter;
 
 import cambio.simulator.entities.microservice.Microservice;
-import cambio.simulator.models.ArchitectureModel;
 import cambio.simulator.orchestration.k8objects.Deployment;
 import cambio.simulator.orchestration.MicroserviceOrchestration;
 import cambio.simulator.orchestration.management.ManagementPlane;
@@ -11,7 +10,7 @@ import java.util.*;
 
 public class DtoToDeploymentMapper implements DtoToObjectMapper<Deployment> {
 
-    private ArchitectureModel architectureModel = null;
+    private Set<Microservice> microservices;
     private K8DeploymentDto k8DeploymentDto = null;
 
     private DtoToDeploymentMapper() {
@@ -28,13 +27,14 @@ public class DtoToDeploymentMapper implements DtoToObjectMapper<Deployment> {
 
     public Deployment buildScheme() throws ParsingException {
 
-        if (k8DeploymentDto != null && architectureModel != null) {
+        if (k8DeploymentDto != null && microservices != null) {
             final String deploymentName = k8DeploymentDto.getMetadata().getName();
             final Set<MicroserviceOrchestration> services = new HashSet<>();
             for (SpecDeploymentDto.TemplateDto.SpecContainerDto.ContainerDto containerDto : k8DeploymentDto.getSpec().getTemplate().getSpec().getContainers()) {
-                final Optional<Microservice> optionalService = architectureModel.getMicroservices().stream().filter(service -> service.getPlainName().equals(containerDto.getName())).findFirst();
+                final Optional<Microservice> optionalService = microservices.stream().filter(service -> service.getPlainName().equals(containerDto.getName())).findFirst();
                 if (optionalService.isPresent()) {
                     final MicroserviceOrchestration service = (MicroserviceOrchestration) optionalService.get();
+                    microservices.remove(service);
                     services.add(service);
                     ManagementPlane.getInstance().connectLoadBalancer(service, service.getLoadBalancer().getLoadBalancingStrategy());
                     if (service.getStartingInstanceCount() != k8DeploymentDto.getSpec().getReplicas()) {
@@ -45,10 +45,7 @@ public class DtoToDeploymentMapper implements DtoToObjectMapper<Deployment> {
                     throw new ParsingException("Could not map a single containerized service from the deployment " + deploymentName + " to the architecture file");
                 }
             }
-            if (services.isEmpty()) {
-                throw new ParsingException("Could not match a containerized service of the deployment " + deploymentName + "with the services provided in the architecture file");
-            }
-            final String schedulerName = ManagementPlane.getInstance().getSchedulerByNameOrStandard(k8DeploymentDto.getSpec().getTemplate().getSpec().getSchedulerName());
+            final String schedulerName = ManagementPlane.getInstance().getSchedulerByNameOrStandard(k8DeploymentDto);
             final Deployment deployment = new Deployment(ManagementPlane.getInstance().getModel(), deploymentName, ManagementPlane.getInstance().getModel().traceIsOn(), services, k8DeploymentDto.getSpec().getReplicas(), schedulerName);
             this.k8DeploymentDto = null;
             return deployment;
@@ -58,12 +55,12 @@ public class DtoToDeploymentMapper implements DtoToObjectMapper<Deployment> {
         }
     }
 
-    public ArchitectureModel getArchitectureModel() {
-        return architectureModel;
+    public Set<Microservice> getMicroservices() {
+        return microservices;
     }
 
-    public void setArchitectureModel(ArchitectureModel architectureModel) {
-        this.architectureModel = architectureModel;
+    public void setMicroservices(Set<Microservice> microservices) {
+        this.microservices = microservices;
     }
 
     @Override

@@ -13,12 +13,6 @@ public class HorizontalPodAutoscaler extends AutoScaler {
         this.rename("HPA");
     }
 
-    // TODO call this constructor when parsing
-//    public HorizontalPodAutoscaler(double holdTimeUp, double holdTimeDown) {
-//        super.holdTimeDown = holdTimeDown;
-//        this.holdTimeUp = holdTimeUp;
-//    }
-
     @Override
     public void apply(Deployment deployment) {
         //https://github.com/kubernetes/kubernetes/blob/8caeec429ee1d2a9df7b7a41b21c626346b456fb/docs/design/horizontal-pod-autoscaler.md#autoscaling-algorithm
