@@ -1,13 +1,19 @@
 package cambio.simulator.orchestration;
 
 import cambio.simulator.entities.patterns.ILoadBalancingStrategy;
+import cambio.simulator.entities.patterns.RandomLoadBalanceStrategy;
 import cambio.simulator.orchestration.k8objects.Deployment;
 import cambio.simulator.orchestration.loadbalancing.LeastUtilizationLoadBalanceStrategyOrchestration;
+import cambio.simulator.orchestration.loadbalancing.LoadBalancerOrchestration;
 import cambio.simulator.orchestration.loadbalancing.LoadBalancerType;
 import cambio.simulator.orchestration.loadbalancing.RandomLoadBalanceStrategyOrchestration;
 import cambio.simulator.orchestration.management.DefaultValues;
 import cambio.simulator.orchestration.management.ManagementPlane;
 import cambio.simulator.orchestration.parsing.ParsingException;
+import cambio.simulator.orchestration.scheduling.FirstFitScheduler;
+import cambio.simulator.orchestration.scheduling.IScheduler;
+import cambio.simulator.orchestration.scheduling.RandomScheduler;
+import cambio.simulator.orchestration.scheduling.SchedulerType;
 
 import java.io.File;
 import java.rmi.UnexpectedException;
@@ -61,10 +67,52 @@ public class Util {
                 return new RandomLoadBalanceStrategyOrchestration();
             } else if (loadBalancerType.equals(LoadBalancerType.LEAST_UTIL)){
                 return new LeastUtilizationLoadBalanceStrategyOrchestration();
+            } else {
+                throw new UnexpectedException("You forgot to link to the default Load Balancing Strategy. Add it here!");
             }
         } else {
             throw new UnexpectedException("Should not happen. The loadBalancerType is checked during parsing the config file");
         }
-        return null;
+    }
+
+    public SchedulerType getSchedulerTypeByNameOrStandard(String schedulerName, String deploymentName) {
+        if (schedulerName != null) {
+            final SchedulerType schedulerType = SchedulerType.fromString(schedulerName);
+            if (schedulerType != null) {
+                return schedulerType;
+            } else {
+                System.out.print("[WARNING]: Unknown scheduler name '" + schedulerName + "' for deployment " + deploymentName + ".");
+            }
+        } else {
+            System.out.print("[INFO]: No scheduler was selected for deployment " + deploymentName + ".");
+        }
+        System.out.println(" Using default Scheduler '" + SchedulerType.fromString(DefaultValues.getInstance().getScheduler()).getDisplayName() + "'");
+        return SchedulerType.fromString(DefaultValues.getInstance().getScheduler());
+    }
+
+    public IScheduler getSchedulerInstanceByType(SchedulerType schedulerType) throws UnexpectedException {
+        if(schedulerType.equals(SchedulerType.RANDOM)){
+            return RandomScheduler.getInstance();
+        } else if(schedulerType.equals(SchedulerType.FIRSTFIT)){
+            return FirstFitScheduler.getInstance();
+        }
+        throw new UnexpectedException("This SchedulerType is not linked to a Schedulerinstance yet. Do it here!");
+    }
+
+    public void connectLoadBalancer(MicroserviceOrchestration microserviceOrchestration, ILoadBalancingStrategy loadBalancingStrategy) throws UnexpectedException {
+        //This case occurs when no load balancing strategy was given in the architecture file. MiSim automatically has defaulted to randomStrategy. We have to use our default strategy.
+        if (loadBalancingStrategy instanceof RandomLoadBalanceStrategy) {
+            final ILoadBalancingStrategy defaultLoadBalancingStrategy = Util.getDefaultLoadBalancingStrategy();
+            System.out.println("[INFO]: No load balancer was selected for microservice '" + microserviceOrchestration.getPlainName() + "'. Using default load balancer '" + LoadBalancerType.fromString(DefaultValues.getInstance().getLoadBalancer()).getDisplayName() + "'");
+            microserviceOrchestration.setLoadBalancerOrchestration(new LoadBalancerOrchestration(ManagementPlane.getInstance().getModel(), LoadBalancerType.fromString(DefaultValues.getInstance().getLoadBalancer()).getDisplayName(), ManagementPlane.getInstance().getModel().traceIsOn(), defaultLoadBalancingStrategy, microserviceOrchestration));
+            return;
+        }
+        if (loadBalancingStrategy instanceof RandomLoadBalanceStrategyOrchestration) {
+            microserviceOrchestration.setLoadBalancerOrchestration(new LoadBalancerOrchestration(ManagementPlane.getInstance().getModel(), LoadBalancerType.RANDOM.getDisplayName(), ManagementPlane.getInstance().getModel().traceIsOn(), new RandomLoadBalanceStrategyOrchestration(), microserviceOrchestration));
+        } else if (loadBalancingStrategy instanceof LeastUtilizationLoadBalanceStrategyOrchestration) {
+            microserviceOrchestration.setLoadBalancerOrchestration(new LoadBalancerOrchestration(ManagementPlane.getInstance().getModel(), LoadBalancerType.LEAST_UTIL.getDisplayName(), ManagementPlane.getInstance().getModel().traceIsOn(), new LeastUtilizationLoadBalanceStrategyOrchestration(), microserviceOrchestration));
+        } else {
+            throw new UnexpectedException("Unknown Load Balancing Strategy: " + loadBalancingStrategy);
+        }
     }
 }

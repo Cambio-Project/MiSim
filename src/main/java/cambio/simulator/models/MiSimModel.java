@@ -111,8 +111,6 @@ public class MiSimModel extends Model {
         Cluster cluster = new Cluster(createNodesFromConfigDto(configDto));
         ManagementPlane.getInstance().setModel(this);
         ManagementPlane.getInstance().setCluster(cluster);
-        ManagementPlane.getInstance().populateSchedulerMap();
-
 
         final YAMLParser yamlParser = YAMLParser.getInstance();
         yamlParser.setArchitectureModel(architectureModel);

@@ -14,6 +14,7 @@ import cambio.simulator.orchestration.parsing.converter.DtoToObjectMapper;
 import cambio.simulator.orchestration.parsing.converter.HPAManipulator;
 import cambio.simulator.orchestration.parsing.converter.K8ObjectManipulator;
 import cambio.simulator.orchestration.scaling.HorizontalPodAutoscaler;
+import cambio.simulator.orchestration.scheduling.SchedulerType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import org.yaml.snakeyaml.Yaml;
@@ -175,6 +176,9 @@ public class YAMLParser {
                 deployment.getAutoScaler().setHoldTimeDown(configDto.getScaler().getHoldTimeDownScaler());
             });
 
+            //Init only schedulers that are used
+            ManagementPlane.getInstance().populateSchedulers();
+
 
         } catch (ParsingException |
                 IOException e) {
@@ -232,13 +236,13 @@ public class YAMLParser {
         final String deploymentName = microservice.getPlainName() + "-deployment";
         final Set<MicroserviceOrchestration> services = new HashSet<>();
         services.add((MicroserviceOrchestration) microservice);
-        ManagementPlane.getInstance().connectLoadBalancer((MicroserviceOrchestration) microservice, microservice.getLoadBalancer().getLoadBalancingStrategy());
-        final String schedulerName = ManagementPlane.getInstance().getSchedulerByNameOrStandard(DefaultValues.getInstance().getScheduler(), deploymentName);
-        final Deployment deployment = new Deployment(ManagementPlane.getInstance().getModel(), deploymentName, ManagementPlane.getInstance().getModel().traceIsOn(), services, microservice.getStartingInstanceCount(), schedulerName);
+        Util.getInstance().connectLoadBalancer((MicroserviceOrchestration) microservice, microservice.getLoadBalancer().getLoadBalancingStrategy());
+        final SchedulerType schedulerType = Util.getInstance().getSchedulerTypeByNameOrStandard(DefaultValues.getInstance().getScheduler(), deploymentName);
+        final Deployment deployment = new Deployment(ManagementPlane.getInstance().getModel(), deploymentName, ManagementPlane.getInstance().getModel().traceIsOn(), services, microservice.getStartingInstanceCount(), schedulerType);
         deployment.setAutoScaler(new HorizontalPodAutoscaler());
         System.out.println("[INFO]: Creating deployment " + deploymentName +" from architecture file only. There is no corresponding YAML file");
         System.out.println("Using the following default settings:");
-        System.out.println("--Scheduler: "+schedulerName);
+        System.out.println("--Scheduler: "+schedulerType.getDisplayName());
         System.out.println("--LoadBalancer: "+ LoadBalancerType.fromString(DefaultValues.getInstance().getLoadBalancer()).getDisplayName());
         System.out.println("--AutoScaler: HPA");
         ManagementPlane.getInstance().getDeployments().add(deployment);

@@ -23,6 +23,8 @@ public class MicroserviceOrchestration extends Microservice {
 
     @Override
     public MicroserviceInstance getNextAvailableInstance() throws NoInstanceAvailableException {
+        //TraceNote For debugging purposes
+        //sendTraceNote("Finding next instance using " + loadBalancerOrchestration.getPlainName());
         return loadBalancerOrchestration.getNextServiceInstance();
     }
 

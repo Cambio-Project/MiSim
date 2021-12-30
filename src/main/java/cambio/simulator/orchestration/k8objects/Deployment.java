@@ -7,6 +7,7 @@ import cambio.simulator.orchestration.management.ManagementPlane;
 import cambio.simulator.orchestration.environment.*;
 import cambio.simulator.orchestration.parsing.K8Kind;
 import cambio.simulator.orchestration.scaling.AutoScaler;
+import cambio.simulator.orchestration.scheduling.SchedulerType;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 
@@ -18,7 +19,7 @@ import java.util.stream.Collectors;
 public class Deployment extends K8Object {
     private Set<MicroserviceOrchestration> services;
     private Set<Pod> replicaSet;
-    private String schedulerType;
+    private SchedulerType schedulerType;
     private TimeInstant lastRescaling;
     private int desiredReplicaCount;
     private int maxReplicaCount;
@@ -26,7 +27,7 @@ public class Deployment extends K8Object {
     private double averageUtilization;
     private AutoScaler autoScaler;
 
-    public Deployment(Model model, String name, boolean showInTrace, Set<MicroserviceOrchestration> microserviceOrchestrations, int desiredReplicaCount, String schedulerType) {
+    public Deployment(Model model, String name, boolean showInTrace, Set<MicroserviceOrchestration> microserviceOrchestrations, int desiredReplicaCount, SchedulerType schedulerType) {
         super(model, name, showInTrace, K8Kind.DEPLOYMENT);
         this.services = microserviceOrchestrations;
         this.desiredReplicaCount = desiredReplicaCount;
@@ -165,11 +166,11 @@ public class Deployment extends K8Object {
         this.replicaSet = replicaSet;
     }
 
-    public String getSchedulerType() {
+    public SchedulerType getSchedulerType() {
         return schedulerType;
     }
 
-    public void setSchedulerType(String schedulerType) {
+    public void setSchedulerType(SchedulerType schedulerType) {
         this.schedulerType = schedulerType;
     }
 
