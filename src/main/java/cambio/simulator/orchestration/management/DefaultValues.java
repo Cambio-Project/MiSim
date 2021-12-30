@@ -5,6 +5,10 @@ import cambio.simulator.orchestration.parsing.ConfigDto;
 import cambio.simulator.orchestration.parsing.ParsingException;
 import cambio.simulator.orchestration.scheduling.SchedulerType;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class DefaultValues {
     String scheduler;
     String loadBalancer;
@@ -24,13 +28,15 @@ public class DefaultValues {
         if (schedulerType != null) {
             scheduler = schedulerType.getName();
         } else{
-            throw new ParsingException("Unknown SchedulerType in config file: "+ configDto.getScheduler());
+            final List<String> possibleValues = Arrays.stream(SchedulerType.values()).map(schedulerType1 -> schedulerType1.getName()).collect(Collectors.toList());
+            throw new ParsingException("Unknown SchedulerType in config file: "+ configDto.getScheduler() + "\nPossible values are: " + possibleValues);
         }
         final LoadBalancerType loadBalancerType = LoadBalancerType.fromString(configDto.getLoadBalancer());
         if(loadBalancerType!=null){
             loadBalancer = configDto.loadBalancer;
         } else {
-            throw new ParsingException("Unknown LoadBalancerType in config file: "+ configDto.loadBalancer);
+            final List<String> possibleValues = Arrays.stream(LoadBalancerType.values()).map(loadBalancerType1 -> loadBalancerType1.getConfigName()).collect(Collectors.toList());
+            throw new ParsingException("Unknown LoadBalancerType in config file: "+ configDto.loadBalancer + "\nPossible values are: " + possibleValues);
         }
     }
 

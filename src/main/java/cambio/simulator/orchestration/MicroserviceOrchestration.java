@@ -14,14 +14,6 @@ public class MicroserviceOrchestration extends Microservice {
 
     LoadBalancerOrchestration loadBalancerOrchestration;
 
-    public LoadBalancerOrchestration getLoadBalancerOrchestration() {
-        return loadBalancerOrchestration;
-    }
-
-    public void setLoadBalancerOrchestration(LoadBalancerOrchestration loadBalancerOrchestration) {
-        this.loadBalancerOrchestration = loadBalancerOrchestration;
-    }
-
     /**
      * Creates a new instance of a {@link Microservice}.
      */
@@ -79,6 +71,10 @@ public class MicroserviceOrchestration extends Microservice {
             }
         }
         return null;
+    }
+
+    public void setLoadBalancerOrchestration(LoadBalancerOrchestration loadBalancerOrchestration) {
+        this.loadBalancerOrchestration = loadBalancerOrchestration;
     }
 
 }

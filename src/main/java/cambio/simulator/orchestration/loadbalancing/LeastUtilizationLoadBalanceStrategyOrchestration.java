@@ -13,7 +13,7 @@ import cambio.simulator.parsing.JsonTypeName;
 import java.util.*;
 
 @JsonTypeName("leastUtil_orchestration")
-public class LeastUtilizationLoadBalanceStrategyOrchestration implements ILoadBalancingStrategy, ILoadBalancer {
+public class LeastUtilizationLoadBalanceStrategyOrchestration implements ILoadBalancingStrategy {
     @Override
     public MicroserviceInstance getNextInstance(Collection<MicroserviceInstance> runningInstances) throws NoInstanceAvailableException {
         throw new UnsupportedOperationException("Not supposed to be called in orchestration mode");
@@ -37,10 +37,5 @@ public class LeastUtilizationLoadBalanceStrategyOrchestration implements ILoadBa
             }
         }
         return leastUtilized;
-    }
-
-    @Override
-    public LoadBalancerType getLoadBalancerType() {
-        return LoadBalancerType.LEAST_UTIL;
     }
 }

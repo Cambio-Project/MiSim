@@ -13,7 +13,7 @@ import cambio.simulator.parsing.JsonTypeName;
 import java.util.*;
 
 @JsonTypeName("random_orchestration")
-public class RandomLoadBalanceStrategyOrchestration implements ILoadBalancingStrategy, ILoadBalancer {
+public class RandomLoadBalanceStrategyOrchestration implements ILoadBalancingStrategy {
     @Override
     public MicroserviceInstance getNextInstance(Collection<MicroserviceInstance> runningInstances) throws NoInstanceAvailableException {
         throw new UnsupportedOperationException("Not supposed to be called in orchestration mode");
@@ -39,10 +39,5 @@ public class RandomLoadBalanceStrategyOrchestration implements ILoadBalancingStr
             }
         }
         return null;
-    }
-
-    @Override
-    public LoadBalancerType getLoadBalancerType() {
-        return LoadBalancerType.RANDOM;
     }
 }

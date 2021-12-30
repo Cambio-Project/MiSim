@@ -3,15 +3,22 @@ package cambio.simulator.orchestration.scheduling;
 public enum SchedulerType {
 
 
-    FIRSTFIT("firstFit");
+    FIRSTFIT("firstFit", "FirstFitScheduler"),
+    RANDOM("random", "RandomScheduler");
 
-    SchedulerType(String name) {
+    SchedulerType(String name, String displayName) {
         this.name = name;
+        this.displayName = displayName;
     }
     final String name;
+    final String displayName;
 
     public String getName() {
         return name;
+    }
+
+    public String getDisplayName() {
+        return displayName;
     }
 
     public static SchedulerType fromString(String name) {

@@ -79,10 +79,10 @@ public class ManagementPlane {
 
 
     public void connectLoadBalancer(MicroserviceOrchestration microserviceOrchestration, ILoadBalancingStrategy loadBalancingStrategy) throws UnexpectedException {
-        //This case occures when no load balancing strategy was given in the architecture file. MiSim automatically has defaulted to randomStrategy. We have to use our default strategy.
+        //This case occurs when no load balancing strategy was given in the architecture file. MiSim automatically has defaulted to randomStrategy. We have to use our default strategy.
         if (loadBalancingStrategy instanceof RandomLoadBalanceStrategy){
             final ILoadBalancingStrategy defaultLoadBalancingStrategy = Util.getDefaultLoadBalancingStrategy();
-            System.out.println("[INFO]: Using default load balancer '"+ LoadBalancerType.fromString(DefaultValues.getInstance().getLoadBalancer()).getDisplayName() + "' for microservice " + microserviceOrchestration.getPlainName());
+            System.out.println("[INFO]: No load balancer was selected for microservice '" + microserviceOrchestration.getPlainName() + "'. Using default load balancer '" +LoadBalancerType.fromString(DefaultValues.getInstance().getLoadBalancer()).getDisplayName() + "'");
             microserviceOrchestration.setLoadBalancerOrchestration(new LoadBalancerOrchestration(getModel(), DefaultValues.getInstance().getLoadBalancer(), getModel().traceIsOn(), defaultLoadBalancingStrategy, microserviceOrchestration));
         }
         if (loadBalancingStrategy instanceof RandomLoadBalanceStrategyOrchestration) {
@@ -98,10 +98,10 @@ public class ManagementPlane {
             if (schedulerType != null) {
                 return schedulerType.getName();
             } else{
-                System.out.println("[WARNING]: Unknown scheduler name '" + schedulerName + "' for deployment "+ deploymentName + ". Using default Scheduler '" + SchedulerType.FIRSTFIT.getName() + "'");
+                System.out.println("[WARNING]: Unknown scheduler name '" + schedulerName + "' for deployment "+ deploymentName + ". Using default Scheduler '" + SchedulerType.fromString(DefaultValues.getInstance().getScheduler()).getDisplayName() + "'");
             }
         } else {
-            System.out.println("[INFO]: No scheduler was selected for deployment "+ deploymentName + ". Using default Scheduler '" + SchedulerType.FIRSTFIT.getName() + "'");
+            System.out.println("[INFO]: No scheduler was selected for deployment "+ deploymentName + ". Using default Scheduler '" + SchedulerType.fromString(DefaultValues.getInstance().getScheduler()).getDisplayName() + "'");
         }
         return DefaultValues.getInstance().getScheduler();
     }
