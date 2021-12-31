@@ -1,0 +1,8 @@
+nodes:
+  amount: 5
+  cpu: 10
+scaler:
+  holdTimeUpScaler: 5
+  holdTimeDownScaler: 3
+loadBalancer: random_orchestration
+scheduler: random

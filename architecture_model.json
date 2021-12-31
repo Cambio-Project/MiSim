@@ -1,0 +1,198 @@
+{
+  "microservices": [
+    {
+      "name": "users",
+      "instances": 3,
+	  "loadbalancer_strategy": "leastUtil_orchestration",
+      "patterns": [],
+      "capacity": 2,
+      "operations": [
+        {
+          "name": "authentication",
+          "demand": 4,
+          "dependencies": []
+        },
+        {
+          "name": "users.GET",
+          "demand": 5,
+          "dependencies": []
+        },
+        {
+          "name": "users.POST",
+          "demand": 2,
+          "dependencies": []
+        }
+      ]
+    },
+    {
+      "name": "customers",
+      "instances": 2,
+      "loadbalancer_strategy": "leastUtil_orchestration",
+      "patterns": [],
+      "capacity": 2,
+      "operations": [
+        {
+          "name": "authentication",
+          "demand": 4,
+          "dependencies": []
+        },
+        {
+          "name": "customers.GET",
+          "demand": 5,
+          "dependencies": []
+        },
+        {
+          "name": "customers.POST",
+          "demand": 2,
+          "dependencies": []
+        }
+      ]
+    },
+    {
+      "name": "frontend",
+      "instances": 2,
+      "patterns": [],
+      "capacity": 10,
+      "operations": [
+        {
+          "name": "getUsers",
+          "demand": 5,
+          "circuitBreaker": {
+            "rollingWindow": 10,
+            "requestVolumeThreshold": 3,
+            "errorThresholdPercentage": 0.5,
+            "timeout": 20,
+            "sleepWindow": 5
+          },
+          "dependencies": [
+            {
+              "service": "users",
+              "operation": "authentication",
+              "probability": 1.0
+            },
+            {
+              "service": "users",
+              "operation": "users.GET",
+              "probability": 1.0
+            }
+          ]
+        },
+        {
+          "name": "getCatalog",
+          "demand": 6,
+          "circuitBreaker": {
+            "rollingWindow": 10,
+            "requestVolumeThreshold": 3,
+            "errorThresholdPercentage": 0.5,
+            "timeout": 20,
+            "sleepWindow": 5
+          },
+          "dependencies": [
+            {
+              "service": "users",
+              "operation": "authentication",
+              "probability": 1.0
+            },
+            {
+              "service": "books",
+              "operation": "books.GET",
+              "probability": 1.0
+            }
+          ]
+        },
+        {
+          "name": "createBook",
+          "demand": 10,
+          "circuitBreaker": {
+            "rollingWindow": 10,
+            "requestVolumeThreshold": 3,
+            "errorThresholdPercentage": 0.5,
+            "timeout": 40,
+            "sleepWindow": 5
+          },
+          "dependencies": [
+            {
+              "service": "users",
+              "operation": "authentication",
+              "probability": 1.0
+            },
+            {
+              "service": "books",
+              "operation": "books.POST",
+              "probability": 1.0
+            }
+          ]
+        },
+		 {
+          "name": "deleteBook",
+          "demand": 6,
+          "circuitBreaker": {
+            "rollingWindow": 10,
+            "requestVolumeThreshold": 3,
+            "errorThresholdPercentage": 0.5,
+            "timeout": 20,
+            "sleepWindow": 5
+          },
+          "dependencies": [
+            {
+              "service": "books",
+              "operation": "books.GET",
+              "probability": 1.0
+            },
+            {
+              "service": "books",
+              "operation": "books.DELETE",
+              "probability": 1.0
+            }
+          ]
+        },
+        {
+          "name": "createUser",
+          "demand": 4,
+          "circuitBreaker": {
+            "rollingWindow": 10,
+            "requestVolumeThreshold": 3,
+            "errorThresholdPercentage": 0.5,
+            "timeout": 40,
+            "sleepWindow": 5
+          },
+          "dependencies": [
+            {
+              "service": "users",
+              "operation": "authentication",
+              "probability": 1.0
+            },
+            {
+              "service": "users",
+              "operation": "users.POST",
+              "probability": 1.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "books",
+      "instances": 1,
+      "patterns": [],
+      "capacity": 5,
+      "operations": [
+        {
+          "name": "books.GET",
+          "demand": 100,
+          "dependencies": []
+        },
+        {
+          "name": "books.POST",
+          "demand": 4,
+          "dependencies": []
+        },
+		{
+          "name": "books.DELETE",
+          "demand": 5,
+          "dependencies": []
+        }
+      ]
+    }
+  ]
+}
