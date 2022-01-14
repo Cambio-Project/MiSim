@@ -50,7 +50,7 @@ public class Microservice extends NamedEntity {
     private final transient Set<MicroserviceInstance> instancesSet = new HashSet<>();
     private final transient MultiDataPointReporter reporter;
     @Expose
-    @SerializedName(value = "loadbalancer_strategy", alternate = "load_balancer")
+    @SerializedName(value = "loadbalancer_strategy", alternate = { "load_balancer", "loadbalancer"})
     private final LoadBalancer loadBalancer;
     private transient boolean started = false;
     private transient int instanceSpawnCounter = 0; // running counter to create instance ID's
