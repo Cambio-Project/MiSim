@@ -219,6 +219,7 @@ public abstract class Request extends NamedEntity {
                 throw new IllegalStateException("This dependency is not part of this Request");
             }
             dep.setCompleted();
+            uncompletedCount -= 1;
 
             this.sendTraceNote(String.format("Completed Dependency \"%s\".", dep));
             this.sendTraceNote(String.format("Remaining Dependencies: %d.", uncompletedCount - 1));
