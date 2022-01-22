@@ -34,19 +34,17 @@ public class HorizontalPodAutoscaler extends AutoScaler {
         double target = deployment.getAverageUtilization(); //in percent
 
         if (upscalingAllowed || downscalingAllowed) {
-            double sumOfRelativeCPUUsage = 0;
             List<Double> podConsumptions = new ArrayList<>();
             for (Pod pod : deployment.getReplicaSet()) {
                 if (pod.getPodState() == PodState.RUNNING) {
-                    double podCPUUtiization = 0;
+                    double podCPUUtilization = 0;
                     for (Container container : pod.getContainers()) {
                         if (container.getContainerState() == ContainerState.RUNNING) {
                             double relativeWorkDemand = container.getMicroserviceInstance().getRelativeWorkDemand();
-                            podCPUUtiization += relativeWorkDemand;
+                            podCPUUtilization += relativeWorkDemand;
                         }
                     }
-                    podConsumptions.add(podCPUUtiization);
-                    sumOfRelativeCPUUsage += podCPUUtiization;
+                    podConsumptions.add(podCPUUtilization);
                 }
             }
             double avg2Target = podConsumptions.stream().mapToDouble(d -> d).average().orElse(0) / target;
@@ -54,6 +52,8 @@ public class HorizontalPodAutoscaler extends AutoScaler {
                 sendTraceNote("No Scaling required for " + deployment + ".");
                 return;
             }
+
+            double sumOfRelativeCPUUsage = podConsumptions.stream().mapToDouble(d-> d).sum();
 
             int desiredReplicas = (int) Math.ceil((sumOfRelativeCPUUsage / target));
 

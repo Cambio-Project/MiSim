@@ -4,7 +4,8 @@ public enum SchedulerType {
 
 
     FIRSTFIT("firstFit", "FirstFitScheduler"),
-    RANDOM("random", "RandomScheduler");
+    RANDOM("random", "RandomScheduler"),
+    KUBE("kube", "KubeScheduler");
 
     SchedulerType(String name, String displayName) {
         this.name = name;

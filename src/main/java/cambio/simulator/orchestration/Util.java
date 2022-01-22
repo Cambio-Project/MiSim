@@ -10,10 +10,7 @@ import cambio.simulator.orchestration.loadbalancing.RandomLoadBalanceStrategyOrc
 import cambio.simulator.orchestration.management.DefaultValues;
 import cambio.simulator.orchestration.management.ManagementPlane;
 import cambio.simulator.orchestration.parsing.ParsingException;
-import cambio.simulator.orchestration.scheduling.FirstFitScheduler;
-import cambio.simulator.orchestration.scheduling.IScheduler;
-import cambio.simulator.orchestration.scheduling.RandomScheduler;
-import cambio.simulator.orchestration.scheduling.SchedulerType;
+import cambio.simulator.orchestration.scheduling.*;
 
 import java.io.File;
 import java.rmi.UnexpectedException;
@@ -95,6 +92,8 @@ public class Util {
             return RandomScheduler.getInstance();
         } else if(schedulerType.equals(SchedulerType.FIRSTFIT)){
             return FirstFitScheduler.getInstance();
+        } else if(schedulerType.equals(SchedulerType.KUBE)) {
+            return KubeScheduler.getInstance();
         }
         throw new UnexpectedException("This SchedulerType is not linked to a Schedulerinstance yet. Do it here!");
     }

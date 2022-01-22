@@ -6,8 +6,6 @@ import java.util.LinkedList;
 
 public interface IScheduler {
 
-    boolean schedulePod();
-
     SchedulerType getSchedulerType();
 
     void schedulePods();

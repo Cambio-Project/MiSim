@@ -13,8 +13,8 @@ public class Node extends NamedEntity {
 
     private static final int DEFAULT_CPU_CAPACITY = 1500;
 
-    final int totalCPU;
-    int reserved = 0;
+    private final int totalCPU;
+    private int reserved = 0;
     private List<Pod> pods;
 
     public Node(Model model, String name, boolean showInTrace) {
@@ -38,7 +38,7 @@ public class Node extends NamedEntity {
         return false;
     }
 
-    public void startRemoving(Pod pod){
+    public void startRemovingPod(Pod pod){
         pod.setPodState(PodState.TERMINATING);
         final CheckPodRemovableEvent checkPodRemovableEvent = new CheckPodRemovableEvent(getModel(), "Check if pod can be removed", traceIsOn());
         checkPodRemovableEvent.schedule(pod, this, new TimeSpan(0));
