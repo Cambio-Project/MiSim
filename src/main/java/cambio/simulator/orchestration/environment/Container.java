@@ -3,11 +3,13 @@ package cambio.simulator.orchestration.environment;
 import cambio.simulator.entities.NamedEntity;
 import cambio.simulator.entities.microservice.InstanceState;
 import cambio.simulator.entities.microservice.MicroserviceInstance;
+import cambio.simulator.entities.microservice.Operation;
 import cambio.simulator.entities.patterns.InstanceOwnedPattern;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 
 import java.sql.Time;
+import java.util.Arrays;
 
 /**
  * Basically represents a 1:1-relationsship to @link{MicroserviceInstance} with a coupled @link{ContainerState}
@@ -99,5 +101,9 @@ public class Container extends NamedEntity {
                 resetBackOffDelay();
             }
         }
+    }
+
+    public int calculateRequests(){
+        return Arrays.stream(this.getMicroserviceInstance().getOwner().getOperations()).mapToInt(Operation::getDemand).sum();
     }
 }

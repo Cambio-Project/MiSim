@@ -1,0 +1,41 @@
+{
+  "metadata": {
+    "name": "TEMPLATE_NAME",
+    "namespace": "default",
+    "uid": "TEMPLATE_UID",
+    "resourceVersion": "19302",
+    "creationTimestamp": "2022-01-26T14:02:05Z"
+  },
+  "spec": {
+    "containers": TEMPLATE_CONTAINERS,
+    "restartPolicy": "Always",
+    "terminationGracePeriodSeconds": 30,
+    "dnsPolicy": "ClusterFirst",
+    "serviceAccountName": "default",
+    "serviceAccount": "default",
+    "securityContext": {
+    },
+    "schedulerName": "my-scheduler",
+    "tolerations": [
+      {
+        "key": "node.kubernetes.io/not-ready",
+        "operator": "Exists",
+        "effect": "NoExecute",
+        "tolerationSeconds": 300
+      },
+      {
+        "key": "node.kubernetes.io/unreachable",
+        "operator": "Exists",
+        "effect": "NoExecute",
+        "tolerationSeconds": 300
+      }
+    ],
+    "priority": 0,
+    "enableServiceLinks": true,
+    "preemptionPolicy": "PreemptLowerPriority"
+  },
+  "status": {
+    "phase": "Pending",
+    "qosClass": "BestEffort"
+  }
+}

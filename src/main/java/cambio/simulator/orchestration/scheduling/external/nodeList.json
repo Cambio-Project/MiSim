@@ -1,0 +1,8 @@
+{
+  "kind": "NodeList",
+  "apiVersion": "v1",
+  "metadata": {
+    "resourceVersion": "5432"
+  },
+  "items": TEMPLATE_NODES
+}

@@ -1,0 +1,215 @@
+{
+  "metadata": {
+    "name": "TEMPLATE_NAME",
+    "uid": "TEMPLATE_UID",
+    "resourceVersion": "5432",
+    "creationTimestamp": "2022-01-21T10:47:08Z",
+    "labels": {
+      "beta.kubernetes.io/arch": "amd64",
+      "beta.kubernetes.io/os": "linux",
+      "kubernetes.io/arch": "amd64",
+      "kubernetes.io/hostname": "cluster",
+      "kubernetes.io/os": "linux",
+      "minikube.k8s.io/commit": "a03fbcf166e6f74ef224d4a63be4277d017bb62e",
+      "minikube.k8s.io/name": "cluster",
+      "minikube.k8s.io/updated_at": "2022_01_21T11_47_11_0700",
+      "minikube.k8s.io/version": "v1.22.0",
+      "node-role.kubernetes.io/control-plane": "",
+      "node-role.kubernetes.io/master": "",
+      "node.kubernetes.io/exclude-from-external-load-balancers": ""
+    },
+    "annotations": {
+      "kubeadm.alpha.kubernetes.io/cri-socket": "/var/run/dockershim.sock",
+      "node.alpha.kubernetes.io/ttl": "0",
+      "volumes.kubernetes.io/controller-managed-attach-detach": "true"
+    },
+    "managedFields": [
+      {
+        "manager": "kubeadm",
+        "operation": "Update",
+        "apiVersion": "v1",
+        "time": "2022-01-21T10:47:10Z",
+        "fieldsType": "FieldsV1",
+        "fieldsV1": {
+          "f:metadata": {
+            "f:annotations": {
+              "f:kubeadm.alpha.kubernetes.io/cri-socket": {}
+            },
+            "f:labels": {
+              "f:node-role.kubernetes.io/control-plane": {},
+              "f:node-role.kubernetes.io/master": {},
+              "f:node.kubernetes.io/exclude-from-external-load-balancers": {}
+            }
+          }
+        }
+      },
+      {
+        "manager": "kubectl-label",
+        "operation": "Update",
+        "apiVersion": "v1",
+        "time": "2022-01-21T10:47:11Z",
+        "fieldsType": "FieldsV1",
+        "fieldsV1": {
+          "f:metadata": {
+            "f:labels": {
+              "f:minikube.k8s.io/commit": {},
+              "f:minikube.k8s.io/name": {},
+              "f:minikube.k8s.io/updated_at": {},
+              "f:minikube.k8s.io/version": {}
+            }
+          }
+        }
+      },
+      {
+        "manager": "kube-controller-manager",
+        "operation": "Update",
+        "apiVersion": "v1",
+        "time": "2022-01-21T10:47:24Z",
+        "fieldsType": "FieldsV1",
+        "fieldsV1": {
+          "f:metadata": {
+            "f:annotations": {
+              "f:node.alpha.kubernetes.io/ttl": {}
+            }
+          },
+          "f:spec": {
+            "f:podCIDR": {},
+            "f:podCIDRs": {
+              ".": {},
+              "v:\"10.244.0.0/24\"": {}
+            }
+          }
+        }
+      },
+      {
+        "manager": "kubelet",
+        "operation": "Update",
+        "apiVersion": "v1",
+        "time": "2022-01-21T10:48:48Z",
+        "fieldsType": "FieldsV1",
+        "fieldsV1": {
+          "f:metadata": {
+            "f:annotations": {
+              ".": {},
+              "f:volumes.kubernetes.io/controller-managed-attach-detach": {}
+            },
+            "f:labels": {
+              ".": {},
+              "f:beta.kubernetes.io/arch": {},
+              "f:beta.kubernetes.io/os": {},
+              "f:kubernetes.io/arch": {},
+              "f:kubernetes.io/hostname": {},
+              "f:kubernetes.io/os": {}
+            }
+          },
+          "f:status": {
+            "f:conditions": {
+              "k:{\"type\":\"DiskPressure\"}": {
+                "f:lastHeartbeatTime": {}
+              },
+              "k:{\"type\":\"MemoryPressure\"}": {
+                "f:lastHeartbeatTime": {}
+              },
+              "k:{\"type\":\"PIDPressure\"}": {
+                "f:lastHeartbeatTime": {}
+              },
+              "k:{\"type\":\"Ready\"}": {
+                "f:lastHeartbeatTime": {},
+                "f:lastTransitionTime": {},
+                "f:message": {},
+                "f:reason": {},
+                "f:status": {}
+              }
+            },
+            "f:images": {}
+          }
+        }
+      }
+    ]
+  },
+  "spec": {
+    "podCIDR": "10.244.0.0/24",
+    "podCIDRs": [
+      "10.244.0.0/24"
+    ]
+  },
+  "status": {
+    "capacity": {
+      "cpu": "TEMPLATE_CPU",
+      "ephemeral-storage": "191197068Ki",
+      "hugepages-1Gi": "0",
+      "hugepages-2Mi": "0",
+      "memory": "16366576Ki",
+      "pods": "110"
+    },
+    "allocatable": {
+      "cpu": "TEMPLATE_CPU",
+      "ephemeral-storage": "191197068Ki",
+      "hugepages-1Gi": "0",
+      "hugepages-2Mi": "0",
+      "memory": "16366576Ki",
+      "pods": "110"
+    },
+    "conditions": [
+      {
+        "type": "MemoryPressure",
+        "status": "False",
+        "lastHeartbeatTime": "2022-01-21T12:24:30Z",
+        "lastTransitionTime": "2022-01-21T10:47:03Z",
+        "reason": "KubeletHasSufficientMemory",
+        "message": "kubelet has sufficient memory available"
+      },
+      {
+        "type": "DiskPressure",
+        "status": "False",
+        "lastHeartbeatTime": "2022-01-21T12:24:30Z",
+        "lastTransitionTime": "2022-01-21T10:47:03Z",
+        "reason": "KubeletHasNoDiskPressure",
+        "message": "kubelet has no disk pressure"
+      },
+      {
+        "type": "PIDPressure",
+        "status": "False",
+        "lastHeartbeatTime": "2022-01-21T12:24:30Z",
+        "lastTransitionTime": "2022-01-21T10:47:03Z",
+        "reason": "KubeletHasSufficientPID",
+        "message": "kubelet has sufficient PID available"
+      },
+      {
+        "type": "Ready",
+        "status": "True",
+        "lastHeartbeatTime": "2022-01-21T12:24:30Z",
+        "lastTransitionTime": "2022-01-21T10:47:23Z",
+        "reason": "KubeletReady",
+        "message": "kubelet is posting ready status"
+      }
+    ],
+    "addresses": [
+      {
+        "type": "InternalIP",
+        "address": "TEMPLATE_IP_ADDRESS"
+      },
+      {
+        "type": "Hostname",
+        "address": "TEMPLATE_NAME"
+      }
+    ],
+    "daemonEndpoints": {
+      "kubeletEndpoint": {
+        "Port": 10250
+      }
+    },
+    "nodeInfo": {
+      "machineID": "TEMPLATE_MACHINE_ID",
+      "systemUUID": "53adebdd-2bc5-4324-a00f-76eee08a6c77",
+      "bootID": "ee73f4ef-8566-41e0-ad9c-866d8ad00792",
+      "kernelVersion": "5.4.0-81-generic",
+      "osImage": "Ubuntu 20.04.2 LTS",
+      "containerRuntimeVersion": "docker://20.10.7",
+      "kubeletVersion": "v1.21.2",
+      "kubeProxyVersion": "v1.21.2",
+      "operatingSystem": "linux",
+      "architecture": "amd64"
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "name": "TEMPLATE_CONTAINER_NAME",
+  "resources": {
+    "requests": {
+      "cpu": "TEMPLATE_REQUESTS"
+    }
+  }
+}

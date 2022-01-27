@@ -14,7 +14,7 @@ spec:
       labels:
         app: frontend
     spec:
-      schedulerName: firstFit
+      schedulerName: kube
       containers:
         - name: frontend
           image: frontendApp:1.14.2

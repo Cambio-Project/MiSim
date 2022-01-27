@@ -68,7 +68,7 @@ public class Deployment extends K8Object {
             return;
         }
 
-        final Pod pod = new Pod(getModel(), "Pod", traceIsOn());
+        final Pod pod = new Pod(getModel(), "Pod-"+this.getPlainName(), traceIsOn());
         for (MicroserviceOrchestration microserviceOrchestration : services) {
             final MicroserviceInstance microServiceInstance = microserviceOrchestration.createMicroServiceInstance();
             final Container container = new Container(getModel(), "Container[" + microserviceOrchestration.getPlainName()+"]", traceIsOn(), microServiceInstance);

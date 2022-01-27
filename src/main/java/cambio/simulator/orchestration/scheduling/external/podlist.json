@@ -1,0 +1,8 @@
+{
+  "kind": "PodList",
+  "apiVersion": "v1",
+  "metadata": {
+    "resourceVersion": "19321"
+  },
+  "items": TEMPLATE_POD_LIST
+}
