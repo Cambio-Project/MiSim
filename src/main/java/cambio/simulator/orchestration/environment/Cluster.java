@@ -1,6 +1,7 @@
 package cambio.simulator.orchestration.environment;
 
 import java.util.List;
+import java.util.Optional;
 
 public class Cluster {
     private List<Node> nodes;
@@ -16,6 +17,14 @@ public class Cluster {
     public Cluster(List<Node> nodes, List<Node> extraNodes ) {
         this.nodes = nodes;
         this.extraNodes = extraNodes;
+    }
+
+    public Node getNodeByName(String name){
+        Optional<Node> first = nodes.stream().filter(node -> node.getName().equals(name)).findFirst();
+        if(first.isPresent()){
+            return first.get();
+        }
+        return null;
     }
 
     public List<Node> getNodes() {

@@ -4,6 +4,7 @@ import cambio.simulator.entities.microservice.Operation;
 import cambio.simulator.orchestration.environment.Container;
 import cambio.simulator.orchestration.environment.Node;
 import cambio.simulator.orchestration.environment.Pod;
+import cambio.simulator.orchestration.management.ManagementPlane;
 import com.google.gson.Gson;
 
 
@@ -19,17 +20,15 @@ import java.util.stream.Collectors;
 public class KubeJSONCreator {
 
 
-//    private static Map<String, String> getMapFromJSON(String path) throws IOException {
-//        // create Gson instance
-//        Gson gson = new Gson();
-//        // create a reader
-//        Reader reader = Files.newBufferedReader(Paths.get(path));
-//        // convert JSON file to map
-//        Map<String, String> map = gson.fromJson(reader, Map.class);
-//        // close reader
-//        reader.close();
-//        return map;
-//    }
+    private static Map<String, String> getMapFromJSON(String jsonString) throws IOException {
+        // create Gson instance
+        Gson gson = new Gson();
+        // create a reader
+        // convert JSON file to map
+        Map<String, String> map = gson.fromJson(jsonString, Map.class);
+        // close reader
+        return map;
+    }
 
     private static String getFileContent(String path) throws IOException {
         String actual = Files.readString(Path.of(path));
@@ -42,11 +41,11 @@ public class KubeJSONCreator {
     }
 
 
-    public static String createPendingPod(Pod pod) throws IOException {
+    public static String createPod(Pod pod, boolean running) throws IOException, KubeSchedulerException {
         List containers = new ArrayList<>();
         for (Container container : pod.getContainers()) {
             String plainName = container.getMicroserviceInstance().getOwner().getPlainName();
-            int requests = container.calculateRequests();
+            int requests = pod.getCPUDemand();
             String containerTemplateString = getFileContent("src/main/java/cambio/simulator/orchestration/scheduling/external/container.json");
             containerTemplateString = containerTemplateString.replace("TEMPLATE_CONTAINER_NAME", plainName);
             containerTemplateString = containerTemplateString.replace("TEMPLATE_REQUESTS", String.valueOf(requests));
@@ -54,6 +53,24 @@ public class KubeJSONCreator {
         }
 
         String podTemplateString = getFileContent("src/main/java/cambio/simulator/orchestration/scheduling/external/pod.json");
+
+
+        if (running) {
+            String runningStatus = getFileContent("src/main/java/cambio/simulator/orchestration/scheduling/external/status_running.json");
+            Optional<Node> nodeForPod = ManagementPlane.getInstance().getNodeForPod(pod);
+            if (nodeForPod.isPresent()) {
+                Node node = nodeForPod.get();
+                runningStatus = runningStatus.replace("TEMPLATE_HOST_IP", node.getNodeIpAddress());
+                podTemplateString = podTemplateString.replace("TEMPLATE_STATUS", runningStatus);
+                podTemplateString = podTemplateString.replace("TEMPLATE_NODE_NAME", "\"nodeName\": \"" + node.getName() + "\",");
+            } else {
+                throw new KubeSchedulerException("Could not find the node where " + pod.getName() + " is running on");
+            }
+        } else {
+            String pendingStatus = getFileContent("src/main/java/cambio/simulator/orchestration/scheduling/external/status_pending.json");
+            podTemplateString = podTemplateString.replace("TEMPLATE_STATUS", pendingStatus);
+            podTemplateString = podTemplateString.replace("TEMPLATE_NODE_NAME", "");
+        }
         podTemplateString = podTemplateString.replace("TEMPLATE_NAME", pod.getName());
         podTemplateString = podTemplateString.replace("TEMPLATE_UID", pod.getName());
         podTemplateString = podTemplateString.replace("TEMPLATE_CONTAINERS", containers.toString());
@@ -69,15 +86,13 @@ public class KubeJSONCreator {
 //        TEMPLATE_IP_ADDRESS
 //        TEMPLATE_MACHINE_ID
 
-        String ipAddress = "192.168.49.";
-        int counter = 1;
 
         ArrayList<String> nodeList = new ArrayList<>();
 
         for (Node node : nodes) {
             String name = node.getName();
             String cpu = String.valueOf(node.getTotalCPU());
-            String nodeIpAddress = ipAddress + counter++;
+            String nodeIpAddress = node.getNodeIpAddress();
             String machineId = "MachineID-" + name;
             String nodeTemplateString = getFileContent("src/main/java/cambio/simulator/orchestration/scheduling/external/node.json");
             nodeTemplateString = nodeTemplateString.replace("TEMPLATE_NAME", name);

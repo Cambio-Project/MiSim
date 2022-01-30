@@ -102,8 +102,4 @@ public class Container extends NamedEntity {
             }
         }
     }
-
-    public int calculateRequests(){
-        return Arrays.stream(this.getMicroserviceInstance().getOwner().getOperations()).mapToInt(Operation::getDemand).sum();
-    }
 }

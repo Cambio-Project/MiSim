@@ -113,6 +113,25 @@ public class ManagementPlane {
 
     }
 
+    public Pod getPodByName(String name){
+        List<Pod> collect = deployments.stream().map(deployment -> deployment.getReplicaSet().stream().collect(Collectors.toList())).flatMap(Collection::stream).collect(Collectors.toList());
+        Optional<Pod> first = collect.stream().filter(pod -> pod.getName().equals(name)).findFirst();
+        if(first.isPresent()){
+            return first.get();
+        }
+        return null;
+    }
+
+    /**
+     * Returns all pods that are known by all nodes. That means they either are running or at least placed on the node
+     * while waiting for being started
+     * @return
+     */
+    public List<Pod> getAllPodsPlacedOnNodes(){
+        List<Pod> collect = cluster.getNodes().stream().map(node -> node.getPods().stream().collect(Collectors.toList())).flatMap(Collection::stream).collect(Collectors.toList());
+        return collect;
+    }
+
     public List<Deployment> getDeployments() {
         return deployments;
     }

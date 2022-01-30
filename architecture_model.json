@@ -52,7 +52,7 @@
       "name": "frontend",
       "instances": 2,
       "patterns": [],
-      "capacity": 10,
+      "capacity": 6,
       "operations": [
         {
           "name": "getUsers",

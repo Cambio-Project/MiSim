@@ -1,0 +1,32 @@
+{
+  "phase": "Running",
+  "conditions": [
+    {
+      "type": "Initialized",
+      "status": "True",
+      "lastProbeTime": null,
+      "lastTransitionTime": "2022-01-22T18:45:55Z"
+    },
+    {
+      "type": "Ready",
+      "status": "True",
+      "lastProbeTime": null,
+      "lastTransitionTime": "2022-01-23T10:58:15Z"
+    },
+    {
+      "type": "ContainersReady",
+      "status": "True",
+      "lastProbeTime": null,
+      "lastTransitionTime": "2022-01-23T10:58:15Z"
+    },
+    {
+      "type": "PodScheduled",
+      "status": "True",
+      "lastProbeTime": null,
+      "lastTransitionTime": "2022-01-22T18:45:55Z"
+    }
+  ],
+  "hostIP": "TEMPLATE_HOST_IP",
+  "startTime": "2022-01-22T18:45:55Z",
+  "qosClass": "BestEffort"
+}
