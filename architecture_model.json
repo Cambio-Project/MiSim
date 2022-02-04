@@ -5,11 +5,11 @@
       "instances": 3,
 	  "loadbalancer_strategy": "leastUtil_orchestration",
       "patterns": [],
-      "capacity": 2,
+      "capacity": 5,
       "operations": [
         {
           "name": "authentication",
-          "demand": 4,
+          "demand": 1,
           "dependencies": []
         },
         {
@@ -26,14 +26,14 @@
     },
     {
       "name": "customers",
-      "instances": 2,
+      "instances": 1,
       "loadbalancer_strategy": "leastUtil_orchestration",
       "patterns": [],
-      "capacity": 2,
+      "capacity": 10,
       "operations": [
         {
           "name": "authentication",
-          "demand": 4,
+          "demand": 5,
           "dependencies": []
         },
         {
@@ -52,7 +52,7 @@
       "name": "frontend",
       "instances": 2,
       "patterns": [],
-      "capacity": 6,
+      "capacity": 3,
       "operations": [
         {
           "name": "getUsers",
@@ -179,7 +179,7 @@
       "operations": [
         {
           "name": "books.GET",
-          "demand": 100,
+          "demand": 4,
           "dependencies": []
         },
         {

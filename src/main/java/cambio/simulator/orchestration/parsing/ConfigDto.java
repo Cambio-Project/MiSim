@@ -8,8 +8,30 @@ public class ConfigDto {
     public Scaler scaler;
     public String loadBalancer;
     public String scheduler;
+    public List<CustomNodes> customNodes;
 
-    public class Nodes{
+    public static class CustomNodes {
+        String name;
+        int cpu;
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public int getCpu() {
+            return cpu;
+        }
+
+        public void setCpu(int cpu) {
+            this.cpu = cpu;
+        }
+    }
+
+    public class Nodes {
         int amount;
         int cpu;
 
@@ -30,7 +52,7 @@ public class ConfigDto {
         }
     }
 
-    public class Scaler{
+    public class Scaler {
         int holdTimeUpScaler;
         int holdTimeDownScaler;
 
@@ -81,5 +103,13 @@ public class ConfigDto {
 
     public void setScheduler(String scheduler) {
         this.scheduler = scheduler;
+    }
+
+    public List<CustomNodes> getCustomNodes() {
+        return customNodes;
+    }
+
+    public void setCustomNodes(List<CustomNodes> customNodes) {
+        this.customNodes = customNodes;
     }
 }

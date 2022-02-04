@@ -1,5 +1,8 @@
 package cambio.simulator.orchestration.parsing;
 
+import cambio.simulator.orchestration.environment.Node;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.List;
 
 public class SpecDeploymentDto {
@@ -67,6 +70,8 @@ public class SpecDeploymentDto {
 
         public static class SpecContainerDto {
 
+            public Affinity affinity;
+
             public String schedulerName;
 
             public List<ContainerDto> containers;
@@ -85,6 +90,26 @@ public class SpecDeploymentDto {
 
             public void setSchedulerName(String schedulerName) {
                 this.schedulerName = schedulerName;
+            }
+
+            public Affinity getAffinity() {
+                return affinity;
+            }
+
+            public void setAffinity(Affinity affinity) {
+                this.affinity = affinity;
+            }
+
+            public static class Affinity {
+                private NodeAffinity nodeAffinity;
+
+                public NodeAffinity getNodeAffinity() {
+                    return nodeAffinity;
+                }
+
+                public void setNodeAffinity(NodeAffinity nodeAffinity) {
+                    this.nodeAffinity = nodeAffinity;
+                }
             }
 
             public static class ContainerDto {
@@ -127,6 +152,75 @@ public class SpecDeploymentDto {
                         this.containerPort = containerPort;
                     }
                 }
+            }
+
+            public static class NodeAffinity{
+                private RequiredDuringSchedulingIgnoredDuringExecution requiredDuringSchedulingIgnoredDuringExecution;
+
+                public RequiredDuringSchedulingIgnoredDuringExecution getRequiredDuringSchedulingIgnoredDuringExecution() {
+                    return requiredDuringSchedulingIgnoredDuringExecution;
+                }
+
+                public void setRequiredDuringSchedulingIgnoredDuringExecution(RequiredDuringSchedulingIgnoredDuringExecution requiredDuringSchedulingIgnoredDuringExecution) {
+                    this.requiredDuringSchedulingIgnoredDuringExecution = requiredDuringSchedulingIgnoredDuringExecution;
+                }
+
+                public static class RequiredDuringSchedulingIgnoredDuringExecution {
+                    private List<NodeSelectorTerms> nodeSelectorTerms;
+
+                    public List<NodeSelectorTerms> getNodeSelectorTerms() {
+                        return nodeSelectorTerms;
+                    }
+
+                    public void setNodeSelectorTerms(List<NodeSelectorTerms> nodeSelectorTerms) {
+                        this.nodeSelectorTerms = nodeSelectorTerms;
+                    }
+
+                    public static class NodeSelectorTerms {
+                        List<MatchExpressions> matchExpressions;
+
+                        public List<MatchExpressions> getMatchExpressions() {
+                            return matchExpressions;
+                        }
+
+                        public void setMatchExpressions(List<MatchExpressions> matchExpressions) {
+                            this.matchExpressions = matchExpressions;
+                        }
+
+                        public static class MatchExpressions {
+                            private String key;
+                            private String operator;
+                            private List<String> values;
+
+                            public String getKey() {
+                                return key;
+                            }
+
+                            public void setKey(String key) {
+                                this.key = key;
+                            }
+
+                            public String getOperator() {
+                                return operator;
+                            }
+
+                            public void setOperator(String operator) {
+                                this.operator = operator;
+                            }
+
+                            public List<String> getValues() {
+                                return values;
+                            }
+
+                            public void setValues(List<String> values) {
+                                this.values = values;
+                            }
+                        }
+
+                    }
+                }
+
+
             }
         }
     }

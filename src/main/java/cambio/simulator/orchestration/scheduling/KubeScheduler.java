@@ -10,19 +10,24 @@ import cambio.simulator.orchestration.scheduling.external.KubeSchedulerException
 import org.json.JSONObject;
 
 import java.io.*;
+import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 
 public class KubeScheduler extends NamedEntity implements IScheduler {
 
     static String API_URL = "http://127.0.0.1:8000/update/";
 
+    private static int counter = 1;
+
     Cluster cluster;
-    LinkedList<Pod> podWaitingQueue = new LinkedList<>();
+    List<Pod> podWaitingQueue = new ArrayList<>();
 
     private static final KubeScheduler instance = new KubeScheduler();
 
@@ -54,16 +59,36 @@ public class KubeScheduler extends NamedEntity implements IScheduler {
 
     @Override
     public void schedulePods() {
+        if (podWaitingQueue.isEmpty()){
+            sendTraceNote(this.getQuotedName() + " has no pods left for scheduling");
+            return;
+        }
 
-        //TODO mehrere verschiedene Nodes einfügen
-        //TODO Manuell nodes einfügen, mit Namen und rest
         //TODO Plugins für Scheduler testen, schreiben
         //TODO NodeAffinity testen
 
         try {
+
+
+//            String[] cmd_API = { "/bin/sh", "-c", "cd /home/ittaq/Documents/Uni/Masterarbeit/test/rest-api/fast-api; uvicorn main:app --reload" };
+//
+//            Process process_API = Runtime.getRuntime().exec(cmd_API);
+//
+//            StreamGobbler streamGobbler_API =
+//                    new StreamGobbler(process_API.getInputStream(), System.out::println);
+//            Executors.newSingleThreadExecutor().submit(streamGobbler_API);
+
+            String[] cmd_Scheduler = {"/bin/sh", "-c", "cd /home/ittaq/Documents/Uni/Masterarbeit/scheduler; ./kube-scheduler --master 127.0.0.1:8000 --config config.txt"};
+
+            Process process_Scheduler = Runtime.getRuntime().exec(cmd_Scheduler);
+
+
+
+
+
             List podList = new ArrayList<>();
             int numberOfPendingPods = podWaitingQueue.size();
-            while (podWaitingQueue.peek() != null) {
+            while (podWaitingQueue.size() != 0) {
                 String pendingPod = KubeJSONCreator.createPod(getNextPodFromWaitingQueue(), false);
                 podList.add(pendingPod);
             }
@@ -75,9 +100,10 @@ public class KubeScheduler extends NamedEntity implements IScheduler {
 
             if (!podList.isEmpty()) {
                 String podListTemplateString = KubeJSONCreator.getPodListTemplate();
+                podListTemplateString = podListTemplateString.replace("TEMPLATE_RESOURCE_VERSION", String.valueOf(counter++));
                 podListTemplateString = podListTemplateString.replace("TEMPLATE_POD_LIST", podList.toString());
 
-                JSONObject response = post(podListTemplateString,numberOfPendingPods, "pods");
+                JSONObject response = post(podListTemplateString, numberOfPendingPods, "pods");
                 Map<String, Object> responseMap = response.toMap();
                 ArrayList<Map<String, String>> bindList = (ArrayList) responseMap.get("bindingList");
                 for (Map<String, String> map : bindList) {
@@ -111,6 +137,14 @@ public class KubeScheduler extends NamedEntity implements IScheduler {
                     sendTraceNote(this.getQuotedName() + " has send " + pod + " back to the Pod Waiting Queue");
                 }
             }
+
+            System.out.println();
+
+            String[] cmd = {"/bin/sh", "-c", "kill `pidof kube-scheduler`"};
+            Process process_ = Runtime.getRuntime().exec(cmd);
+
+//            process_API.destroy();
+            process_Scheduler.destroy();
 
         } catch (IOException | KubeSchedulerException e) {
             e.printStackTrace();
@@ -152,11 +186,32 @@ public class KubeScheduler extends NamedEntity implements IScheduler {
 
     @Override
     public Pod getNextPodFromWaitingQueue() {
-        return podWaitingQueue.poll();
+        if (!podWaitingQueue.isEmpty()) {
+            Pod pod = podWaitingQueue.get(0);
+            podWaitingQueue.remove(pod);
+            return pod;
+        }
+        return null;
     }
 
     @Override
-    public LinkedList<Pod> getPodWaitingQueue() {
+    public List<Pod> getPodWaitingQueue() {
         return podWaitingQueue;
+    }
+
+    private static class StreamGobbler implements Runnable {
+        private InputStream inputStream;
+        private Consumer<String> consumer;
+
+        public StreamGobbler(InputStream inputStream, Consumer<String> consumer) {
+            this.inputStream = inputStream;
+            this.consumer = consumer;
+        }
+
+        @Override
+        public void run() {
+            new BufferedReader(new InputStreamReader(inputStream)).lines()
+                    .forEach(consumer);
+        }
     }
 }

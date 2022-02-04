@@ -4,6 +4,8 @@ import cambio.simulator.entities.microservice.Operation;
 import cambio.simulator.orchestration.environment.Container;
 import cambio.simulator.orchestration.environment.Node;
 import cambio.simulator.orchestration.environment.Pod;
+import cambio.simulator.orchestration.k8objects.Affinity;
+import cambio.simulator.orchestration.k8objects.Deployment;
 import cambio.simulator.orchestration.management.ManagementPlane;
 import com.google.gson.Gson;
 
@@ -18,7 +20,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class KubeJSONCreator {
-
 
     private static Map<String, String> getMapFromJSON(String jsonString) throws IOException {
         // create Gson instance
@@ -62,7 +63,7 @@ public class KubeJSONCreator {
                 Node node = nodeForPod.get();
                 runningStatus = runningStatus.replace("TEMPLATE_HOST_IP", node.getNodeIpAddress());
                 podTemplateString = podTemplateString.replace("TEMPLATE_STATUS", runningStatus);
-                podTemplateString = podTemplateString.replace("TEMPLATE_NODE_NAME", "\"nodeName\": \"" + node.getName() + "\",");
+                podTemplateString = podTemplateString.replace("TEMPLATE_NODE_NAME", "\"nodeName\": \"" + node.getPlainName() + "\",");
             } else {
                 throw new KubeSchedulerException("Could not find the node where " + pod.getName() + " is running on");
             }
@@ -71,6 +72,31 @@ public class KubeJSONCreator {
             podTemplateString = podTemplateString.replace("TEMPLATE_STATUS", pendingStatus);
             podTemplateString = podTemplateString.replace("TEMPLATE_NODE_NAME", "");
         }
+
+        Deployment deploymentForPod = ManagementPlane.getInstance().getDeploymentForPod(pod);
+        Affinity affinity = deploymentForPod.getAffinity();
+        Set<String> nodeAffinities = affinity.getNodeAffinities();
+        if(affinity.getKey()!=null && !nodeAffinities.isEmpty()){
+            String affinityTemplateString = getFileContent("src/main/java/cambio/simulator/orchestration/scheduling/external/affinity.json");
+
+            String nodeAffinitiesString = "[";
+
+            for (String nodeAffinity : nodeAffinities) {
+                nodeAffinitiesString += '"'+nodeAffinity+ '"' + ",";
+            }
+            nodeAffinitiesString = nodeAffinitiesString.substring(0,nodeAffinitiesString.length() - 1);
+            nodeAffinitiesString += "]";
+
+            affinityTemplateString = affinityTemplateString.replace("TEMPLATE_NODE_NAME" , nodeAffinitiesString);
+            affinityTemplateString = affinityTemplateString.replace("TEMPLATE_KEY" , affinity.getKey());
+
+            podTemplateString = podTemplateString.replace("TEMPLATE_NODE_AFFINITY", affinityTemplateString);
+        }else {
+            podTemplateString = podTemplateString.replace("TEMPLATE_NODE_AFFINITY", "{}");
+        }
+
+
+        podTemplateString = podTemplateString.replace("TEMPLATE_CONTAINERS", containers.toString());
         podTemplateString = podTemplateString.replace("TEMPLATE_NAME", pod.getName());
         podTemplateString = podTemplateString.replace("TEMPLATE_UID", pod.getName());
         podTemplateString = podTemplateString.replace("TEMPLATE_CONTAINERS", containers.toString());
@@ -90,7 +116,8 @@ public class KubeJSONCreator {
         ArrayList<String> nodeList = new ArrayList<>();
 
         for (Node node : nodes) {
-            String name = node.getName();
+
+            String name = node.getPlainName();
             String cpu = String.valueOf(node.getTotalCPU());
             String nodeIpAddress = node.getNodeIpAddress();
             String machineId = "MachineID-" + name;

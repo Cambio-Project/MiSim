@@ -14,7 +14,7 @@
       "config": {
         "microservice": "frontend",
         "operation": "createBook",
-        "interval": 1
+        "interval": 5
       }
     },
     {
@@ -22,7 +22,7 @@
       "config": {
         "microservice": "books",
         "operation": "books.GET",
-        "interval": 3
+        "interval": 10
       }
     }
   ],

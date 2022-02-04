@@ -1,0 +1,17 @@
+{
+  "nodeAffinity": {
+    "requiredDuringSchedulingIgnoredDuringExecution": {
+      "nodeSelectorTerms": [
+        {
+          "matchExpressions": [
+            {
+              "key": "TEMPLATE_KEY",
+              "operator": "In",
+              "values": TEMPLATE_NODE_NAME
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

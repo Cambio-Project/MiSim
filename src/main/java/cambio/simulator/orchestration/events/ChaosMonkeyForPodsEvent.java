@@ -54,7 +54,7 @@ public class ChaosMonkeyForPodsEvent extends SelfScheduledExperimentAction {
             deployment.killPodInstances(instances);
 
             boolean hasServicesLeft = deployment.getCurrentRunningOrPendingReplicaCount() > 0;
-            sendTraceNote("Chaos Monkey for Pods was applied on" + deployment.getQuotedName());
+            sendTraceNote("Chaos Monkey for Pods was applied on " + deployment.getQuotedName());
             sendTraceNote(String.format("There are %s pods left of deployment %s",
                     hasServicesLeft ? String.format("still %d", deployment.getCurrentRunningOrPendingReplicaCount()) : "no",
                     deployment.getName()));

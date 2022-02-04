@@ -3,10 +3,7 @@ package cambio.simulator.orchestration.management;
 
 import cambio.simulator.entities.microservice.InstanceState;
 import cambio.simulator.orchestration.Util;
-import cambio.simulator.orchestration.environment.Cluster;
-import cambio.simulator.orchestration.environment.Container;
-import cambio.simulator.orchestration.environment.Node;
-import cambio.simulator.orchestration.environment.Pod;
+import cambio.simulator.orchestration.environment.*;
 import cambio.simulator.orchestration.events.CheckPodRemovableEvent;
 import cambio.simulator.orchestration.k8objects.Deployment;
 import cambio.simulator.orchestration.scheduling.IScheduler;
@@ -60,6 +57,15 @@ public class ManagementPlane {
      */
     public void checkForPendingPods() {
         schedulerMap.values().forEach(IScheduler::schedulePods);
+
+        String nodeInfo = "NAME | CPUAvail | CPURes | #pods";
+        getModel().sendTraceNote(nodeInfo);
+        for (Node node : getCluster().getNodes()) {
+            getModel().sendTraceNote(node.getName() + " | " + node.getTotalCPU() + " | " + node.getReserved() + " | " + node.getPods().size());
+        }
+
+        getModel().sendTraceNote(nodeInfo);
+
     }
 
     public void addPodToSpecificSchedulerQueue(Pod pod, SchedulerType schedulerType) {
@@ -87,6 +93,9 @@ public class ManagementPlane {
     public void checkIfPodRemovableFromNode(Pod pod, Node node) {
         for (Container container : pod.getContainers()) {
             if (container.getMicroserviceInstance().getState() != InstanceState.SHUTDOWN) {
+
+                double relativeWorkDemand = container.getMicroserviceInstance().getRelativeWorkDemand();
+                getModel().sendTraceNote("Cannot remove pod with " +container.getMicroserviceInstance().getName() + " because at least one container is still calculating. Current Relative WorkDemand: " + relativeWorkDemand);
                 final CheckPodRemovableEvent checkPodRemovableEvent = new CheckPodRemovableEvent(getModel(), "Check if pod can be removed", getModel().traceIsOn());
                 checkPodRemovableEvent.schedule(pod, node, new TimeSpan(2));
                 return;
@@ -113,10 +122,10 @@ public class ManagementPlane {
 
     }
 
-    public Pod getPodByName(String name){
+    public Pod getPodByName(String name) {
         List<Pod> collect = deployments.stream().map(deployment -> deployment.getReplicaSet().stream().collect(Collectors.toList())).flatMap(Collection::stream).collect(Collectors.toList());
         Optional<Pod> first = collect.stream().filter(pod -> pod.getName().equals(name)).findFirst();
-        if(first.isPresent()){
+        if (first.isPresent()) {
             return first.get();
         }
         return null;
@@ -125,11 +134,29 @@ public class ManagementPlane {
     /**
      * Returns all pods that are known by all nodes. That means they either are running or at least placed on the node
      * while waiting for being started
+     *
      * @return
      */
-    public List<Pod> getAllPodsPlacedOnNodes(){
+    public List<Pod> getAllPodsPlacedOnNodes() {
         List<Pod> collect = cluster.getNodes().stream().map(node -> node.getPods().stream().collect(Collectors.toList())).flatMap(Collection::stream).collect(Collectors.toList());
         return collect;
+    }
+
+    public Deployment getDeploymentForPod(Pod pod){
+        Optional<Deployment> first = deployments.stream().filter(deployment -> deployment.getReplicaSet().contains(pod)).findFirst();
+        if(first.isPresent()){
+            return first.get();
+        }
+        return null;
+    }
+
+    public Pod getPodForContainer(Container container){
+        List<Pod> collect = deployments.stream().map(deployment -> deployment.getReplicaSet()).flatMap(Collection::stream).collect(Collectors.toList());
+        Optional<Pod> first = collect.stream().filter(pod -> pod.getContainers().contains(container)).findFirst();
+        if(first.isPresent()){
+            return first.get();
+        }
+        return null;
     }
 
     public List<Deployment> getDeployments() {

@@ -17,3 +17,12 @@ spec:
       containers:
         - name: books
           image: booksApp:1.14.2
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: personalized/name
+                    operator: In
+                    values:
+                      - Node19

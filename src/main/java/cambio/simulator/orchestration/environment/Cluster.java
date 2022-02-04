@@ -20,7 +20,7 @@ public class Cluster {
     }
 
     public Node getNodeByName(String name){
-        Optional<Node> first = nodes.stream().filter(node -> node.getName().equals(name)).findFirst();
+        Optional<Node> first = nodes.stream().filter(node -> node.getPlainName().equals(name)).findFirst();
         if(first.isPresent()){
             return first.get();
         }

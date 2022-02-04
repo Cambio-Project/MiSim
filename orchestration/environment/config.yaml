@@ -1,8 +1,15 @@
 nodes:
-  amount: 3
+  amount: 20
   cpu: 10
+customNodes:
+  - name: Test5Node
+    cpu: 5
+  - name: Test6Node
+    cpu: 6
+  - name: Test12Node
+    cpu: 12
 scaler:
   holdTimeUpScaler: 5
   holdTimeDownScaler: 3
 loadBalancer: random_orchestration
-scheduler: firstFit
+scheduler: kube

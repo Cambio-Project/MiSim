@@ -132,8 +132,16 @@ public class MiSimModel extends Model {
     public List<Node> createNodesFromConfigDto(ConfigDto configDto) {
         List<Node> nodes = new ArrayList<>();
         for (int i = 0; i < configDto.getNodes().getAmount(); i++) {
-            nodes.add(new Node(getModel(), "Node", traceIsOn(), configDto.getNodes().getCpu()));
+            nodes.add(new Node(getModel(), "Node"+i, traceIsOn(), configDto.getNodes().getCpu()));
         }
+
+        if (configDto.getCustomNodes() != null) {
+            for (ConfigDto.CustomNodes customNode : configDto.getCustomNodes()) {
+                nodes.add(new Node(getModel(), customNode.getName(), traceIsOn(), customNode.getCpu()));
+            }
+        }
+
+
         return nodes;
     }
 

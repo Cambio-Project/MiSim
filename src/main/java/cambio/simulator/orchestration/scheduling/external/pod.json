@@ -16,6 +16,7 @@
     "securityContext": {
     },
     TEMPLATE_NODE_NAME
+    "affinity": TEMPLATE_NODE_AFFINITY,
     "schedulerName": "my-scheduler",
     "tolerations": [
       {

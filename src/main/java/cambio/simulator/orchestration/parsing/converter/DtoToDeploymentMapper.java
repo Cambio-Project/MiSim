@@ -10,6 +10,7 @@ import cambio.simulator.orchestration.scheduling.SchedulerType;
 
 import java.rmi.UnexpectedException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class DtoToDeploymentMapper implements DtoToObjectMapper<Deployment> {
 
@@ -50,6 +51,18 @@ public class DtoToDeploymentMapper implements DtoToObjectMapper<Deployment> {
             }
             final SchedulerType schedulerType = Util.getInstance().getSchedulerTypeByNameOrStandard(k8DeploymentDto.getSpec().getTemplate().getSpec().getSchedulerName(), k8DeploymentDto.getMetadata().getName());
             final Deployment deployment = new Deployment(ManagementPlane.getInstance().getModel(), deploymentName, ManagementPlane.getInstance().getModel().traceIsOn(), services, k8DeploymentDto.getSpec().getReplicas(), schedulerType);
+
+            SpecDeploymentDto.TemplateDto.SpecContainerDto.Affinity affinity = k8DeploymentDto.getSpec().getTemplate().getSpec().getAffinity();
+            if(affinity!=null){
+                List<SpecDeploymentDto.TemplateDto.SpecContainerDto.NodeAffinity.RequiredDuringSchedulingIgnoredDuringExecution.NodeSelectorTerms.MatchExpressions> matchExpressions = affinity.getNodeAffinity().getRequiredDuringSchedulingIgnoredDuringExecution().getNodeSelectorTerms().get(0).getMatchExpressions();
+
+                //Only considers one affinity configuration by now
+                String key = matchExpressions.get(0).getKey();
+                Set<String> nodeAffinities = matchExpressions.stream().map(matchExpression -> matchExpression.getValues()).flatMap(Collection::stream).collect(Collectors.toSet());
+                deployment.getAffinity().setKey(key);
+                deployment.getAffinity().setNodeAffinities(nodeAffinities);
+            }
+
             this.k8DeploymentDto = null;
             return deployment;
         } else {

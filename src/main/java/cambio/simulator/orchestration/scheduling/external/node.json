@@ -12,6 +12,7 @@
       "kubernetes.io/os": "linux",
       "minikube.k8s.io/commit": "a03fbcf166e6f74ef224d4a63be4277d017bb62e",
       "minikube.k8s.io/name": "cluster",
+      "personalized/name": "TEMPLATE_NAME",
       "minikube.k8s.io/updated_at": "2022_01_21T11_47_11_0700",
       "minikube.k8s.io/version": "v1.22.0",
       "node-role.kubernetes.io/control-plane": "",

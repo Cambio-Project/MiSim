@@ -5,6 +5,7 @@ import cambio.simulator.entities.microservice.InstanceState;
 import cambio.simulator.entities.microservice.MicroserviceInstance;
 import cambio.simulator.entities.microservice.Operation;
 import cambio.simulator.entities.patterns.InstanceOwnedPattern;
+import cambio.simulator.orchestration.management.ManagementPlane;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 

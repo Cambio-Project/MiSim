@@ -2,6 +2,7 @@ package cambio.simulator.orchestration.scheduling;
 
 import cambio.simulator.orchestration.environment.Pod;
 
+import java.util.Collection;
 import java.util.LinkedList;
 
 public interface IScheduler {
@@ -12,7 +13,7 @@ public interface IScheduler {
 
     Pod getNextPodFromWaitingQueue();
 
-    LinkedList<Pod> getPodWaitingQueue();
+    Collection<Pod> getPodWaitingQueue();
 
 
 }

@@ -2,15 +2,18 @@ package cambio.simulator.orchestration.k8objects;
 
 import cambio.simulator.entities.microservice.MicroserviceInstance;
 import cambio.simulator.orchestration.MicroserviceOrchestration;
+import cambio.simulator.orchestration.Util;
 import cambio.simulator.orchestration.events.RestartPodEvent;
 import cambio.simulator.orchestration.management.ManagementPlane;
 import cambio.simulator.orchestration.environment.*;
 import cambio.simulator.orchestration.parsing.K8Kind;
 import cambio.simulator.orchestration.scaling.AutoScaler;
+import cambio.simulator.orchestration.scheduling.IScheduler;
 import cambio.simulator.orchestration.scheduling.SchedulerType;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 
+import java.rmi.UnexpectedException;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -26,6 +29,7 @@ public class Deployment extends K8Object {
     private int minReplicaCount;
     private double averageUtilization;
     private AutoScaler autoScaler;
+    private Affinity affinity;
 
     public Deployment(Model model, String name, boolean showInTrace, Set<MicroserviceOrchestration> microserviceOrchestrations, int desiredReplicaCount, SchedulerType schedulerType) {
         super(model, name, showInTrace, K8Kind.DEPLOYMENT);
@@ -37,6 +41,7 @@ public class Deployment extends K8Object {
         this.averageUtilization = 50.0;
         this.lastRescaling = new TimeInstant(0);
         replicaSet = new HashSet<>();
+        affinity = new Affinity();
     }
 
     public void deploy() {
@@ -80,9 +85,26 @@ public class Deployment extends K8Object {
     }
 
     public void removePod() {
+        final Optional<Pod> optionalPendingPod = replicaSet.stream().filter(pod -> pod.getPodState() == PodState.PENDING).findFirst();
+        if (optionalPendingPod.isPresent()) {
+            Pod pod = optionalPendingPod.get();
+            //find corresponding waiting queue and remove pod there as well
+            try {
+                IScheduler scheduler = Util.getInstance().getSchedulerInstanceByType(this.schedulerType);
+                scheduler.getPodWaitingQueue().remove(pod);
+                this.getReplicaSet().remove(optionalPendingPod.get());
+                sendTraceNote("A pending pod was removed from "+this.getPlainName()+" and from " + scheduler.getSchedulerType().getDisplayName());
+            } catch (UnexpectedException e) {
+                e.printStackTrace();
+                System.exit(1);
+            }
+            return;
+        }
+
         final Optional<Pod> optionalPod = replicaSet.stream().filter(pod -> pod.getPodState() == PodState.RUNNING).findFirst();
         if (!optionalPod.isPresent()) {
-            sendTraceNote("There is not pod that could be removed");
+            //Should not happen. If there is neither a pending or running pod, then this method should not have been called
+            sendTraceNote("There is no pod that could be removed");
             return;
         }
         final Pod podToRemove = optionalPod.get();
@@ -212,5 +234,13 @@ public class Deployment extends K8Object {
 
     public void setAutoScaler(AutoScaler autoScaler) {
         this.autoScaler = autoScaler;
+    }
+
+    public Affinity getAffinity() {
+        return affinity;
+    }
+
+    public void setAffinity(Affinity affinity) {
+        this.affinity = affinity;
     }
 }
