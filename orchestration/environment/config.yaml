@@ -6,7 +6,7 @@ customNodes:
     cpu: 5
   - name: Test6Node
     cpu: 6
-  - name: Test12Node
+  - name: Large
     cpu: 12
 scaler:
   holdTimeUpScaler: 5
