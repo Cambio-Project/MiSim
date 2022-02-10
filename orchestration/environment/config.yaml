@@ -1,5 +1,5 @@
 nodes:
-  amount: 20
+  amount: 1
   cpu: 10
 customNodes:
   - name: Test5Node
@@ -7,7 +7,7 @@ customNodes:
   - name: Test6Node
     cpu: 6
   - name: Large
-    cpu: 12
+    cpu: 10
 scaler:
   holdTimeUpScaler: 5
   holdTimeDownScaler: 3

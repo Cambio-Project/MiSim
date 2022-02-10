@@ -1,0 +1,8 @@
+{
+  "type": "ADDED",
+  "object": {
+    "kind": "Pod",
+    "apiVersion": "v1",
+    TEMPLATE_POD
+  }
+}

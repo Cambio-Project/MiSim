@@ -7,7 +7,9 @@ import cambio.simulator.entities.patterns.InstanceOwnedPattern;
 import desmoj.core.simulator.Model;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class Pod extends NamedEntity {
     private PodState podState;
@@ -30,8 +32,9 @@ public class Pod extends NamedEntity {
     }
 
     public void startAllContainers() {
-        getContainers().forEach(container -> container.setContainerState(ContainerState.RUNNING));
-        getContainers().forEach(container -> container.getMicroserviceInstance().start());
+        List<Container> collect = getContainers().stream().filter(container -> !container.getContainerState().equals(ContainerState.RUNNING)).collect(Collectors.toList());
+        collect.forEach(container -> container.setContainerState(ContainerState.RUNNING));
+        collect.forEach(container -> container.getMicroserviceInstance().start());
         setPodState(PodState.RUNNING);
     }
 

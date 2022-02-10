@@ -105,6 +105,15 @@ public class KubeJSONCreator {
 
     }
 
+    public static String createWatchStreamShellForJSONPod(String podAsJson) throws IOException {
+        String watchStreamShell = getFileContent("src/main/java/cambio/simulator/orchestration/scheduling/external/watchStreamShell.json");
+        podAsJson = podAsJson.replaceFirst("\\{", "");
+        podAsJson = podAsJson.substring(0,podAsJson.lastIndexOf("}"));
+        watchStreamShell = watchStreamShell.replace("TEMPLATE_POD", podAsJson);
+        return watchStreamShell;
+
+    }
+
     public static String createNodeList(List<Node> nodes) throws IOException {
 //        TEMPLATE_NAME
 //        TEMPLATE_UID
