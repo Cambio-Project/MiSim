@@ -1,0 +1,7 @@
+{
+  "name": "Minimal Scenario",
+  "duration": 180,
+  "artifact": "gateway",
+  "component": "ALL ENDPOINTS",
+  "stimulus": "LOAD~ ./src/test/resources/PaperExample/paper_limbo.csv AND KILL service1 @40"
+}
