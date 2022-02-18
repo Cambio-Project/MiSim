@@ -15,12 +15,10 @@ import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class KubeScheduler extends NamedEntity implements IScheduler {
 
@@ -33,7 +31,6 @@ public class KubeScheduler extends NamedEntity implements IScheduler {
 
     Cluster cluster;
     List<Pod> podWaitingQueue = new ArrayList<>();
-    List<Pod> podFailedWaitingQueue = new ArrayList<>();
     static int COUNTER = 1;
 
     private static final KubeScheduler instance = new KubeScheduler();
@@ -46,7 +43,7 @@ public class KubeScheduler extends NamedEntity implements IScheduler {
 
         try {
             String nodeList = KubeJSONCreator.createNodeList(cluster.getNodes());
-            post(nodeList, 0, "", PATH_NODES);
+            post(nodeList, 0, "", "", PATH_NODES);
 
 
         } catch (IOException e) {
@@ -158,14 +155,17 @@ public class KubeScheduler extends NamedEntity implements IScheduler {
     @Override
     public void schedulePods() {
         System.out.println("Itertation: " + COUNTER++);
-        if (podWaitingQueue.isEmpty() && podFailedWaitingQueue.isEmpty()) {
+        if (podWaitingQueue.isEmpty()) {
             sendTraceNote(this.getQuotedName() + " has no pods left for scheduling");
             return;
+        } else {
+            sendTraceNote(this.getQuotedName() + " has the following pods (" + podWaitingQueue.size() + ") left in its waiting queue:\n" + podWaitingQueue.toString());
         }
         try {
 
 
             List<String> podList = new ArrayList<>();
+            Map<String, String> deletedPodMap = new HashMap<>();
             List<String> podNames = new ArrayList<>();
             int numberOfPendingPods = podWaitingQueue.size();
             while (podWaitingQueue.size() != 0) {
@@ -173,7 +173,9 @@ public class KubeScheduler extends NamedEntity implements IScheduler {
                 podNames.add(nextPodFromWaitingQueue.getName());
                 String pendingPod = KubeJSONCreator.createPod(nextPodFromWaitingQueue, false);
                 String watchStreamShellForJSONPod = KubeJSONCreator.createWatchStreamShellForJSONPod(pendingPod, "ADDED");
+                String deletedWatchStreamShellForJSONPod = KubeJSONCreator.createWatchStreamShellForJSONPod(pendingPod, "DELETED");
                 podList.add(watchStreamShellForJSONPod);
+                deletedPodMap.put(nextPodFromWaitingQueue.getName(), deletedWatchStreamShellForJSONPod);
             }
 
             //TODO modify pods instead of adding. Kube scheduler knows which one he is holding
@@ -190,10 +192,11 @@ public class KubeScheduler extends NamedEntity implements IScheduler {
                 finalPodString += podJSON;
             }
 
+
             String podNamesJSON = new Gson().toJson(podNames);
 
 
-            JSONObject response = post(finalPodString, numberOfPendingPods, podNamesJSON, PATH_PODS);
+            JSONObject response = post(finalPodString, numberOfPendingPods, podNamesJSON, new JSONObject(deletedPodMap).toString(), PATH_PODS);
 
             Map<String, Object> responseMap = response.toMap();
             ArrayList<Map<String, String>> bindList = (ArrayList) responseMap.get("bindingList");
@@ -217,44 +220,20 @@ public class KubeScheduler extends NamedEntity implements IScheduler {
 
                 System.out.println(podName + " was bound on " + bindedNode);
 
-                sendTraceNote(this.getQuotedName() + " has deployed " + pod.getQuotedName() + " on node " + candidateNode);
+                sendTraceNote(this.getQuotedName() + " has scheduled " + pod.getQuotedName() + " on node " + candidateNode);
             }
 
 
             ArrayList<Map<String, String>> failedList = (ArrayList) responseMap.get("failedList");
-            podList.clear();
-            podNames.clear();
             for (Map<String, String> map : failedList) {
                 String podName = map.get("podName");
                 //TODO catch null value for pod
                 Pod pod = ManagementPlane.getInstance().getPodByName(podName);
-
-                //Update scheduler and tell him that he should remove them from his cache.
-                String pendingPod = KubeJSONCreator.createPod(pod, false);
-                String watchStreamShellForJSONPod = KubeJSONCreator.createWatchStreamShellForJSONPod(pendingPod, "DELETED");
-                podList.add(watchStreamShellForJSONPod);
-                podNames.add(pod.getName());
-
-
                 podWaitingQueue.add(pod);
                 System.out.println(this.getQuotedName() + " was not able to schedule pod " + pod + ". Reason: " + map.get("status"));
                 sendTraceNote(this.getQuotedName() + " was not able to schedule pod " + pod + ". Reason: " + map.get("status"));
                 sendTraceNote(this.getQuotedName() + " has send " + pod + " back to the Pod Waiting Queue");
             }
-
-            finalPodString = "";
-
-            for (String podJSON : podList) {
-                finalPodString += podJSON;
-            }
-
-            podNamesJSON = new Gson().toJson(podNames);
-
-
-            response = post(finalPodString, numberOfPendingPods, podNamesJSON, PATH_DELETE_PODS);
-
-//            responseMap = response.toMap();
-
         } catch (IOException | KubeSchedulerException e) {
             e.printStackTrace();
             System.exit(1);
@@ -263,7 +242,7 @@ public class KubeScheduler extends NamedEntity implements IScheduler {
 
 
     //    https://www.baeldung.com/httpurlconnection-post
-    public JSONObject post(String content, int numberPendingPods, String podNames, String path) throws IOException {
+    public JSONObject post(String content, int numberPendingPods, String podNames, String deletedPods, String path) throws IOException {
         URL url = new URL(API_URL + path);
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("POST");
@@ -276,6 +255,7 @@ public class KubeScheduler extends NamedEntity implements IScheduler {
         jsonInputString.put("data", content);
         jsonInputString.put("numberPendingPods", numberPendingPods);
         jsonInputString.put("podNames", podNames);
+        jsonInputString.put("deletedPods", deletedPods);
         try (OutputStream os = con.getOutputStream()) {
             byte[] input = jsonInputString.toString().getBytes(StandardCharsets.UTF_8);
             os.write(input, 0, input.length);

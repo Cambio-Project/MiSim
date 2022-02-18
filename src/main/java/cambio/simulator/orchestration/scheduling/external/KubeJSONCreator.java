@@ -76,22 +76,22 @@ public class KubeJSONCreator {
         Deployment deploymentForPod = ManagementPlane.getInstance().getDeploymentForPod(pod);
         Affinity affinity = deploymentForPod.getAffinity();
         Set<String> nodeAffinities = affinity.getNodeAffinities();
-        if(affinity.getKey()!=null && !nodeAffinities.isEmpty()){
+        if (affinity.getKey() != null && !nodeAffinities.isEmpty()) {
             String affinityTemplateString = getFileContent("src/main/java/cambio/simulator/orchestration/scheduling/external/affinity.json");
 
             String nodeAffinitiesString = "[";
 
             for (String nodeAffinity : nodeAffinities) {
-                nodeAffinitiesString += '"'+nodeAffinity+ '"' + ",";
+                nodeAffinitiesString += '"' + nodeAffinity + '"' + ",";
             }
-            nodeAffinitiesString = nodeAffinitiesString.substring(0,nodeAffinitiesString.length() - 1);
+            nodeAffinitiesString = nodeAffinitiesString.substring(0, nodeAffinitiesString.length() - 1);
             nodeAffinitiesString += "]";
 
-            affinityTemplateString = affinityTemplateString.replace("TEMPLATE_NODE_NAME" , nodeAffinitiesString);
-            affinityTemplateString = affinityTemplateString.replace("TEMPLATE_KEY" , affinity.getKey());
+            affinityTemplateString = affinityTemplateString.replace("TEMPLATE_NODE_NAME", nodeAffinitiesString);
+            affinityTemplateString = affinityTemplateString.replace("TEMPLATE_KEY", affinity.getKey());
 
             podTemplateString = podTemplateString.replace("TEMPLATE_NODE_AFFINITY", affinityTemplateString);
-        }else {
+        } else {
             podTemplateString = podTemplateString.replace("TEMPLATE_NODE_AFFINITY", "{}");
         }
 
@@ -108,9 +108,20 @@ public class KubeJSONCreator {
     public static String createWatchStreamShellForJSONPod(String podAsJson, String type) throws IOException {
         String watchStreamShell = getFileContent("src/main/java/cambio/simulator/orchestration/scheduling/external/watchStreamShell.json");
         podAsJson = podAsJson.replaceFirst("\\{", "");
-        podAsJson = podAsJson.substring(0,podAsJson.lastIndexOf("}"));
+        podAsJson = podAsJson.substring(0, podAsJson.lastIndexOf("}"));
         watchStreamShell = watchStreamShell.replace("TEMPLATE_TYPE", type);
         watchStreamShell = watchStreamShell.replace("TEMPLATE_POD", podAsJson);
+
+
+        if (type.equals("DELTED")) {
+            int position = watchStreamShell.indexOf("'creationTimestamp': '2022-01-26T14:02:05Z'");
+            StringBuilder sb = new StringBuilder(watchStreamShell);
+            sb.insert(position, ",\"deletionTimestamp\": \"2022-01-26T14:04:05Z\"," +
+                    "\"deletionGracePeriodSeconds\": 0");
+            watchStreamShell = sb.toString();
+
+        }
+
         return watchStreamShell;
 
     }

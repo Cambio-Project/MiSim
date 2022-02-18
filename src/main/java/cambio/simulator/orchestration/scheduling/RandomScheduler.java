@@ -59,7 +59,7 @@ public class RandomScheduler extends NamedEntity implements IScheduler {
             }
             if (candidateNote != null) {
                 candidateNote.addPod(pod);
-                sendTraceNote(this.getQuotedName() + " has deployed " + pod.getQuotedName() + " on node " + candidateNote);
+                sendTraceNote(this.getQuotedName() + " has scheduled " + pod.getQuotedName() + " on node " + candidateNote);
                 return true;
             } else {
                 podWaitingQueue.add(pod);
