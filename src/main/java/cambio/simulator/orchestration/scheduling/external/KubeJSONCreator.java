@@ -113,11 +113,14 @@ public class KubeJSONCreator {
         watchStreamShell = watchStreamShell.replace("TEMPLATE_POD", podAsJson);
 
 
-        if (type.equals("DELTED")) {
-            int position = watchStreamShell.indexOf("'creationTimestamp': '2022-01-26T14:02:05Z'");
+        if (type.equals("DELETED")) {
+            //geht auch ohne??!
+//            Index needs to be shifted by string length
+            String creationTimestamp = "\"creationTimestamp\": \"2022-01-26T14:02:05Z\"";
+            int position = watchStreamShell.lastIndexOf(creationTimestamp);
             StringBuilder sb = new StringBuilder(watchStreamShell);
-            sb.insert(position, ",\"deletionTimestamp\": \"2022-01-26T14:04:05Z\"," +
-                    "\"deletionGracePeriodSeconds\": 0");
+            sb.insert(position + creationTimestamp.length(), ",\n\"deletionTimestamp\": \"2022-01-26T14:04:05Z\",\n" +
+                    "\"deletionGracePeriodSeconds\": 0\n");
             watchStreamShell = sb.toString();
 
         }

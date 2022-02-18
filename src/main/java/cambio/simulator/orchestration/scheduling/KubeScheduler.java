@@ -178,6 +178,7 @@ public class KubeScheduler extends NamedEntity implements IScheduler {
                 deletedPodMap.put(nextPodFromWaitingQueue.getName(), deletedWatchStreamShellForJSONPod);
             }
 
+            //TODO Gelöschte Pods muss ich mitteilen. Erst dann weiß scheduler, ob Platz frei. Entweder in extra call, oder zusammen falls möglich
             //TODO modify pods instead of adding. Kube scheduler knows which one he is holding
 
 //            for (Pod pod : ManagementPlane.getInstance().getAllPodsPlacedOnNodes()) {
