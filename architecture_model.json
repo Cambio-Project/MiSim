@@ -50,7 +50,7 @@
     },
     {
       "name": "frontend",
-      "instances": 2,
+      "instances": 5,
       "patterns": [],
       "capacity": 3,
       "operations": [

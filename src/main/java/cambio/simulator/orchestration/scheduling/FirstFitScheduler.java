@@ -3,12 +3,14 @@ package cambio.simulator.orchestration.scheduling;
 import cambio.simulator.entities.NamedEntity;
 import cambio.simulator.orchestration.environment.*;
 import cambio.simulator.orchestration.management.ManagementPlane;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.LinkedList;
 
-public class FirstFitScheduler extends NamedEntity implements IScheduler {
+public class FirstFitScheduler extends NamedEntity implements IScheduler, Comparable<IScheduler> {
     Cluster cluster;
     LinkedList<Pod> podWaitingQueue = new LinkedList<>();
+    static int PRIO = Integer.MAX_VALUE;
 
     private static final FirstFitScheduler instance = new FirstFitScheduler();
 
@@ -68,6 +70,7 @@ public class FirstFitScheduler extends NamedEntity implements IScheduler {
     public SchedulerType getSchedulerType() {
         return SchedulerType.FIRSTFIT;
     }
+
     @Override
     public Pod getNextPodFromWaitingQueue() {
         if (podWaitingQueue.isEmpty()) {
@@ -75,8 +78,24 @@ public class FirstFitScheduler extends NamedEntity implements IScheduler {
         }
         return podWaitingQueue.poll();
     }
+
     @Override
     public LinkedList<Pod> getPodWaitingQueue() {
         return podWaitingQueue;
+    }
+
+    @Override
+    public int getPrio() {
+        return PRIO;
+    }
+
+    @Override
+    public void setPrio(int value) {
+        PRIO = value;
+    }
+
+    @Override
+    public int compareTo(@NotNull IScheduler iScheduler) {
+        return this.getPrio() < iScheduler.getPrio() ? -1 : 1;
     }
 }

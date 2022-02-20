@@ -2,6 +2,7 @@ package cambio.simulator.models;
 
 import java.io.File;
 import java.io.IOException;
+import java.rmi.UnexpectedException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +11,7 @@ import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.events.ISelfScheduled;
 import cambio.simulator.events.SimulationEndEvent;
 import cambio.simulator.export.MultiDataPointReporter;
+import cambio.simulator.orchestration.Util;
 import cambio.simulator.orchestration.environment.Cluster;
 import cambio.simulator.orchestration.management.ManagementPlane;
 import cambio.simulator.orchestration.management.MasterTasksExecutor;
@@ -17,6 +19,8 @@ import cambio.simulator.orchestration.environment.Node;
 import cambio.simulator.orchestration.parsing.ConfigDto;
 import cambio.simulator.orchestration.parsing.ParsingException;
 import cambio.simulator.orchestration.parsing.YAMLParser;
+import cambio.simulator.orchestration.scheduling.IScheduler;
+import cambio.simulator.orchestration.scheduling.SchedulerType;
 import cambio.simulator.parsing.ModelLoader;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
@@ -112,6 +116,13 @@ public class MiSimModel extends Model {
         ManagementPlane.getInstance().setModel(this);
         ManagementPlane.getInstance().setCluster(cluster);
 
+        try {
+            assignPriosToSchedulers(configDto);
+        } catch (UnexpectedException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+
         final YAMLParser yamlParser = YAMLParser.getInstance();
         yamlParser.setArchitectureModel(architectureModel);
         yamlParser.setConfigDto(configDto);
@@ -132,7 +143,7 @@ public class MiSimModel extends Model {
     public List<Node> createNodesFromConfigDto(ConfigDto configDto) {
         List<Node> nodes = new ArrayList<>();
         for (int i = 0; i < configDto.getNodes().getAmount(); i++) {
-            nodes.add(new Node(getModel(), "Node"+i, traceIsOn(), configDto.getNodes().getCpu()));
+            nodes.add(new Node(getModel(), "Node" + i, traceIsOn(), configDto.getNodes().getCpu()));
         }
 
         if (configDto.getCustomNodes() != null) {
@@ -143,6 +154,15 @@ public class MiSimModel extends Model {
 
 
         return nodes;
+    }
+
+    public void assignPriosToSchedulers(ConfigDto configDto) throws UnexpectedException {
+        for (ConfigDto.SchedulerPrio schedulerPrio : configDto.getSchedulerPrio()) {
+            String name = schedulerPrio.getName();
+            SchedulerType schedulerType1 = SchedulerType.fromString(name);
+            IScheduler schedulerInstanceByType = Util.getInstance().getSchedulerInstanceByType(schedulerType1);
+            schedulerInstanceByType.setPrio(schedulerPrio.getPrio());
+        }
     }
 
     public ArchitectureModel getArchitectureModel() {

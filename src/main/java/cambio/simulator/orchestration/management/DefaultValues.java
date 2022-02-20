@@ -27,16 +27,16 @@ public class DefaultValues {
         final SchedulerType schedulerType = SchedulerType.fromString(configDto.getScheduler());
         if (schedulerType != null) {
             scheduler = schedulerType.getName();
-        } else{
+        } else {
             final List<String> possibleValues = Arrays.stream(SchedulerType.values()).map(schedulerType1 -> schedulerType1.getName()).collect(Collectors.toList());
-            throw new ParsingException("Unknown SchedulerType in config file: "+ configDto.getScheduler() + "\nPossible values are: " + possibleValues);
+            throw new ParsingException("Unknown SchedulerType in config file: " + configDto.getScheduler() + "\nPossible values are: " + possibleValues);
         }
         final LoadBalancerType loadBalancerType = LoadBalancerType.fromString(configDto.getLoadBalancer());
-        if(loadBalancerType!=null){
+        if (loadBalancerType != null) {
             loadBalancer = configDto.loadBalancer;
         } else {
             final List<String> possibleValues = Arrays.stream(LoadBalancerType.values()).map(loadBalancerType1 -> loadBalancerType1.getConfigName()).collect(Collectors.toList());
-            throw new ParsingException("Unknown LoadBalancerType in config file: "+ configDto.loadBalancer + "\nPossible values are: " + possibleValues);
+            throw new ParsingException("Unknown LoadBalancerType in config file: " + configDto.loadBalancer + "\nPossible values are: " + possibleValues);
         }
     }
 

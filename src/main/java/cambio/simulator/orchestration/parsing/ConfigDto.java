@@ -9,6 +9,7 @@ public class ConfigDto {
     public String loadBalancer;
     public String scheduler;
     public List<CustomNodes> customNodes;
+    public List<SchedulerPrio> schedulerPrio;
 
     public static class CustomNodes {
         String name;
@@ -28,6 +29,27 @@ public class ConfigDto {
 
         public void setCpu(int cpu) {
             this.cpu = cpu;
+        }
+    }
+
+    public static class SchedulerPrio {
+        String name;
+        int prio;
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public int getPrio() {
+            return prio;
+        }
+
+        public void setPrio(int prio) {
+            this.prio = prio;
         }
     }
 
@@ -111,5 +133,13 @@ public class ConfigDto {
 
     public void setCustomNodes(List<CustomNodes> customNodes) {
         this.customNodes = customNodes;
+    }
+
+    public List<SchedulerPrio> getSchedulerPrio() {
+        return schedulerPrio;
+    }
+
+    public void setSchedulerPrio(List<SchedulerPrio> schedulerPrio) {
+        this.schedulerPrio = schedulerPrio;
     }
 }

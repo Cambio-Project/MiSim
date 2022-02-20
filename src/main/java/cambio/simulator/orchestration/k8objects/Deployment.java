@@ -108,10 +108,9 @@ public class Deployment extends K8Object {
             return;
         }
         final Pod podToRemove = optionalPod.get();
-        final Optional<Node> first = ManagementPlane.getInstance().getNodeForPod(podToRemove);
-        if (first.isPresent()) {
-            final Node node = first.get();
-            node.startRemovingPod(podToRemove);
+        Node lastKnownNode = podToRemove.getLastKnownNode();
+        if (lastKnownNode != null) {
+            lastKnownNode.startRemovingPod(podToRemove);
         } else {
             throw new IllegalStateException("There is no node which knows the pod " + podToRemove.getQuotedPlainName());
         }

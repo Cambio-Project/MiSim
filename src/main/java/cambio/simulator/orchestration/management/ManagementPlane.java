@@ -15,7 +15,8 @@ import java.rmi.UnexpectedException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class ManagementPlane {
+public class
+ManagementPlane {
     List<Deployment> deployments;
     Cluster cluster;
     Model model;
@@ -56,7 +57,9 @@ public class ManagementPlane {
      * Each scheduler will try to schedule the pending pods that are waiting in its queue
      */
     public void checkForPendingPods() {
-        schedulerMap.values().forEach(IScheduler::schedulePods);
+        List<IScheduler> values = schedulerMap.values().stream().collect(Collectors.toList());
+        Collections.sort(values, Comparator.comparingInt(IScheduler::getPrio));
+        values.forEach(IScheduler::schedulePods);
 
         String nodeInfo = "NAME | CPUAvail | CPURes | #pods";
         getModel().sendTraceNote(nodeInfo);
@@ -80,10 +83,6 @@ public class ManagementPlane {
                 System.exit(1);
             }
         }
-    }
-
-    public Optional<Node> getNodeForPod(Pod pod) {
-        return getCluster().getNodes().stream().filter(node -> node.getPods().contains(pod)).findFirst();
     }
 
     /**
@@ -118,6 +117,7 @@ public class ManagementPlane {
                 System.exit(1);
             }
         });
+
         getModel().sendTraceNote("[INFO] Active Schedulers: " + schedulerMap.values());
 
     }

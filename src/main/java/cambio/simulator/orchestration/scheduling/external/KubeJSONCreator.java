@@ -58,9 +58,9 @@ public class KubeJSONCreator {
 
         if (running) {
             String runningStatus = getFileContent("src/main/java/cambio/simulator/orchestration/scheduling/external/status_running.json");
-            Optional<Node> nodeForPod = ManagementPlane.getInstance().getNodeForPod(pod);
-            if (nodeForPod.isPresent()) {
-                Node node = nodeForPod.get();
+            Node nodeForPod = pod.getLastKnownNode();
+            if (nodeForPod!=null) {
+                Node node = nodeForPod;
                 runningStatus = runningStatus.replace("TEMPLATE_HOST_IP", node.getNodeIpAddress());
                 podTemplateString = podTemplateString.replace("TEMPLATE_STATUS", runningStatus);
                 podTemplateString = podTemplateString.replace("TEMPLATE_NODE_NAME", "\"nodeName\": \"" + node.getPlainName() + "\",");

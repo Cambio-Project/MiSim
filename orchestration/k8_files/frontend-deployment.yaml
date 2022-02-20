@@ -5,7 +5,7 @@ metadata:
   labels:
     app: frontend
 spec:
-  replicas: 2
+  replicas: 5
   selector:
     matchLabels:
       app: frontend
@@ -14,7 +14,7 @@ spec:
       labels:
         app: frontend
     spec:
-      schedulerName: kube
+      schedulerName: firstFit
       containers:
         - name: frontend
           image: frontendApp:1.14.2

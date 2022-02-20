@@ -8,30 +8,29 @@ import cambio.simulator.orchestration.management.ManagementPlane;
 import cambio.simulator.orchestration.scheduling.external.KubeJSONCreator;
 import cambio.simulator.orchestration.scheduling.external.KubeSchedulerException;
 import com.google.gson.Gson;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
 import java.io.*;
-import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
-public class KubeScheduler extends NamedEntity implements IScheduler {
+public class KubeScheduler extends NamedEntity implements IScheduler, Comparable<IScheduler> {
 
     static String API_URL = "http://127.0.0.1:8000/";
     static String PATH_PODS = "update/ADD";
-    static String PATH_DELETE_PODS = "update/DELETE";
     static String PATH_NODES = "updateNodes";
 
     private static int counter = 1;
 
     Cluster cluster;
     List<Pod> podWaitingQueue = new ArrayList<>();
+    //mirrors the internal cache of running pods that are known by the scheduler
+    Set<Pod> internalRunningPods = new HashSet<>();
     static int COUNTER = 1;
+    static int PRIO = Integer.MAX_VALUE;
 
     private static final KubeScheduler instance = new KubeScheduler();
 
@@ -43,7 +42,7 @@ public class KubeScheduler extends NamedEntity implements IScheduler {
 
         try {
             String nodeList = KubeJSONCreator.createNodeList(cluster.getNodes());
-            post(nodeList, 0, "", "", PATH_NODES);
+            post(nodeList, 0, "", PATH_NODES);
 
 
         } catch (IOException e) {
@@ -61,97 +60,7 @@ public class KubeScheduler extends NamedEntity implements IScheduler {
         return SchedulerType.KUBE;
     }
 
-//    //TODO Plugins für Scheduler testen, schreiben: Scheduler verhält sich anders und deswegen auch MiSim
-//    @Override
-//    public void schedulePods() {
-//        System.out.println("Itertation: " + COUNTER++);
-//        if (podWaitingQueue.isEmpty()) {
-//            sendTraceNote(this.getQuotedName() + " has no pods left for scheduling");
-//            return;
-//        }
-//        try {
-////            String[] cmd_Scheduler = {"/bin/sh", "-c", "cd /home/ittaq/Documents/Uni/Masterarbeit/scheduler; ./kube-scheduler --master 127.0.0.1:8000 --config config.txt"};
-////            Process process_Scheduler = Runtime.getRuntime().exec(cmd_Scheduler);
-//
-//            List<String> podList = new ArrayList<>();
-//            int numberOfPendingPods = 1;
-//
-//            Pod nextPodFromWaitingQueue = getNextPodFromWaitingQueue();
-//            String pendingPod = KubeJSONCreator.createPod(nextPodFromWaitingQueue, false);
-//
-//            podList.add(pendingPod);
-//            System.out.print("Gebe mit: "+nextPodFromWaitingQueue.getQuotedName());
-////            List<String> podList = new ArrayList<>();
-////            int numberOfPendingPods = podWaitingQueue.size();
-////            while (podWaitingQueue.size() != 0) {
-////                String pendingPod = KubeJSONCreator.createPod(getNextPodFromWaitingQueue(), false);
-////                podList.add(pendingPod);
-////            }
-//
-//            for (Pod pod : ManagementPlane.getInstance().getAllPodsPlacedOnNodes()) {
-//                String runningPod = KubeJSONCreator.createPod(pod, true);
-//                podList.add(runningPod);
-//            }
-//
-//            if (!podList.isEmpty()) {
-//                String podListTemplateString = KubeJSONCreator.getPodListTemplate();
-//                podListTemplateString = podListTemplateString.replace("TEMPLATE_RESOURCE_VERSION", String.valueOf(counter++));
-//                podListTemplateString = podListTemplateString.replace("TEMPLATE_POD_LIST", podList.toString());
-//                JSONObject response = post(podListTemplateString, numberOfPendingPods, PATH_PODS);
-//
-//                Map<String, Object> responseMap = response.toMap();
-//                ArrayList<Map<String, String>> bindList = (ArrayList) responseMap.get("bindingList");
-//                for (Map<String, String> map : bindList) {
-//                    String bindedNode = map.get("bindedNode");
-//                    String podName = map.get("podName");
-//
-//
-//                    Node candidateNode = ManagementPlane.getInstance().getCluster().getNodeByName(bindedNode);
-//                    Pod pod = ManagementPlane.getInstance().getPodByName(podName);
-//
-//                    if (candidateNode == null) {
-//                        throw new KubeSchedulerException("The node that was selected by the kube-scheduler does not exist in the Simulation");
-//                    } else if (pod == null) {
-//                        throw new KubeSchedulerException("The pod that was selected by the kube-scheduler does not exist in the Simulation");
-//                    }
-//
-//                    if (!candidateNode.addPod(pod)) {
-//                        throw new KubeSchedulerException("The selected node has not enough resources to run the selected pod. The kube-scheduler must have calculated wrong");
-//                    }
-//                    sendTraceNote(this.getQuotedName() + " has deployed " + pod.getQuotedName() + " on node " + candidateNode);
-//                }
-//
-//
-//                ArrayList<Map<String, String>> failedList = (ArrayList) responseMap.get("failedList");
-//                for (Map<String, String> map : failedList) {
-//                    String podName = map.get("podName");
-//                    //TODO catch null value for pod
-//                    Pod pod = ManagementPlane.getInstance().getPodByName(podName);
-//                    podWaitingQueue.add(pod);
-//                    sendTraceNote(this.getQuotedName() + " was not able to schedule pod " + pod + ". Reason: " + map.get("status"));
-//                    sendTraceNote(this.getQuotedName() + " has send " + pod + " back to the Pod Waiting Queue");
-//                }
-//            }
-//
-////            String[] cmd = {"/bin/sh", "-c", "kill `pidof kube-scheduler`"};
-////            Runtime.getRuntime().exec(cmd);
-////
-////            process_Scheduler.destroy();
-//
-//        } catch (IOException | KubeSchedulerException e) {
-////            String[] cmd = {"/bin/sh", "-c", "kill `pidof kube-scheduler`"};
-////            try {
-////                Runtime.getRuntime().exec(cmd);
-////            } catch (IOException ex) {
-////                ex.printStackTrace();
-////            }
-//            e.printStackTrace();
-//            System.exit(1);
-//        }
-//    }
 
-
-    //TODO Plugins für Scheduler testen, schreiben: Scheduler verhält sich anders und deswegen auch MiSim
     @Override
     public void schedulePods() {
         System.out.println("Itertation: " + COUNTER++);
@@ -168,6 +77,8 @@ public class KubeScheduler extends NamedEntity implements IScheduler {
             Map<String, String> deletedPodMap = new HashMap<>();
             List<String> podNames = new ArrayList<>();
             int numberOfPendingPods = podWaitingQueue.size();
+
+            //Add pods from the waiting queue
             while (podWaitingQueue.size() != 0) {
                 Pod nextPodFromWaitingQueue = getNextPodFromWaitingQueue();
                 podNames.add(nextPodFromWaitingQueue.getName());
@@ -178,26 +89,39 @@ public class KubeScheduler extends NamedEntity implements IScheduler {
                 deletedPodMap.put(nextPodFromWaitingQueue.getName(), deletedWatchStreamShellForJSONPod);
             }
 
-            //TODO Gelöschte Pods muss ich mitteilen. Erst dann weiß scheduler, ob Platz frei. Entweder in extra call, oder zusammen falls möglich
-            //TODO modify pods instead of adding. Kube scheduler knows which one he is holding
+            //Inform the scheduler that pods have been removed from nodes
+            List<Pod> allPodsPlacedOnNodes = ManagementPlane.getInstance().getAllPodsPlacedOnNodes();
+            List<Pod> foundToRemove = new ArrayList<Pod>();
+            for( Pod pod : internalRunningPods){
+                //If MiSim does not hold the pod from the scheduler cache anymore, tell the scheduler that it was deleted
+                if(!allPodsPlacedOnNodes.contains(pod)){
+                    String pendingPod = KubeJSONCreator.createPod(pod, true);
+                    String deletedWatchStreamShellForJSONPod = KubeJSONCreator.createWatchStreamShellForJSONPod(pendingPod, "DELETED");
+                    podList.add(0,deletedWatchStreamShellForJSONPod);
+                    foundToRemove.add(pod);
+                }
+            }
+            internalRunningPods.removeAll(foundToRemove);
 
-//            for (Pod pod : ManagementPlane.getInstance().getAllPodsPlacedOnNodes()) {
-//                String runningPod = KubeJSONCreator.createPod(pod, true);
-//                podList.add(runningPod);
-//            }
-
-
-            String finalPodString = "";
-
-            for (String podJSON : podList) {
-                finalPodString += podJSON;
+            //Tell the scheduler that pods are already running on nodes (Scheduled by other schedulers)
+            for (Pod pod : allPodsPlacedOnNodes) {
+                if(!internalRunningPods.contains(pod)){
+                    String runningPod = KubeJSONCreator.createPod(pod, true);
+                    String watchStreamShellForJSONPod = KubeJSONCreator.createWatchStreamShellForJSONPod(runningPod, "ADDED");
+                    podList.add(0,watchStreamShellForJSONPod);
+                    internalRunningPods.add(pod);
+                }
             }
 
 
+            String finalPodString = "";
+            for (String podJSON : podList) {
+                finalPodString += podJSON;
+            }
             String podNamesJSON = new Gson().toJson(podNames);
 
 
-            JSONObject response = post(finalPodString, numberOfPendingPods, podNamesJSON, new JSONObject(deletedPodMap).toString(), PATH_PODS);
+            JSONObject response = post(finalPodString, numberOfPendingPods, new JSONObject(deletedPodMap).toString(), PATH_PODS);
 
             Map<String, Object> responseMap = response.toMap();
             ArrayList<Map<String, String>> bindList = (ArrayList) responseMap.get("bindingList");
@@ -218,6 +142,8 @@ public class KubeScheduler extends NamedEntity implements IScheduler {
                 if (!candidateNode.addPod(pod)) {
                     throw new KubeSchedulerException("The selected node has not enough resources to run the selected pod. The kube-scheduler must have calculated wrong");
                 }
+
+                internalRunningPods.add(pod);
 
                 System.out.println(podName + " was bound on " + bindedNode);
 
@@ -243,7 +169,7 @@ public class KubeScheduler extends NamedEntity implements IScheduler {
 
 
     //    https://www.baeldung.com/httpurlconnection-post
-    public JSONObject post(String content, int numberPendingPods, String podNames, String deletedPods, String path) throws IOException {
+    public JSONObject post(String content, int numberPendingPods, String deletedPods, String path) throws IOException {
         URL url = new URL(API_URL + path);
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("POST");
@@ -255,7 +181,6 @@ public class KubeScheduler extends NamedEntity implements IScheduler {
         JSONObject jsonInputString = new JSONObject();
         jsonInputString.put("data", content);
         jsonInputString.put("numberPendingPods", numberPendingPods);
-        jsonInputString.put("podNames", podNames);
         jsonInputString.put("deletedPods", deletedPods);
         try (OutputStream os = con.getOutputStream()) {
             byte[] input = jsonInputString.toString().getBytes(StandardCharsets.UTF_8);
@@ -290,4 +215,18 @@ public class KubeScheduler extends NamedEntity implements IScheduler {
         return podWaitingQueue;
     }
 
+    @Override
+    public int getPrio() {
+        return PRIO;
+    }
+
+    @Override
+    public void setPrio(int value) {
+        PRIO =value;
+    }
+
+    @Override
+    public int compareTo(@NotNull IScheduler iScheduler) {
+        return this.getPrio() < iScheduler.getPrio()? -1: 1;
+    }
 }

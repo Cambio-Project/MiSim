@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 public class Pod extends NamedEntity {
     private PodState podState;
     private Set<Container> containers;
+    private Node lastKnownNode;
     // Map<Container, Integer> restartBackoff = new HashMap<>();
 
     public Pod(Model model, String name, boolean showInTrace) {
@@ -67,5 +68,13 @@ public class Pod extends NamedEntity {
         } else if (podState == PodState.SUCCEEDED) {
             getContainers().forEach(container -> container.setContainerState(ContainerState.TERMINATED));
         }
+    }
+
+    public Node getLastKnownNode() {
+        return lastKnownNode;
+    }
+
+    public void setLastKnownNode(Node lastKnownNode) {
+        this.lastKnownNode = lastKnownNode;
     }
 }

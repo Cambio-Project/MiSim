@@ -12,4 +12,9 @@ scaler:
   holdTimeUpScaler: 5
   holdTimeDownScaler: 3
 loadBalancer: random_orchestration
-scheduler: kube
+scheduler: firstFit
+schedulerPrio:
+  - name: kube
+    prio: 2
+  - name: firstFit
+    prio: 3

@@ -33,6 +33,7 @@ public class Node extends NamedEntity {
             pods.add(pod);
             final StartPodEvent startPodEvent = new StartPodEvent(getModel(), "StartPodEvent", traceIsOn());
             startPodEvent.schedule(pod, presentTime());
+            pod.setLastKnownNode(this);
             return true;
         }
         return false;
