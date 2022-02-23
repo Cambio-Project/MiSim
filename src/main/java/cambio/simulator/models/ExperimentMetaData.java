@@ -47,6 +47,9 @@ public class ExperimentMetaData {
     @SerializedName(value = "orchestration_dir")
     private String orchestrationDirectory;
 
+    @SerializedName(value = "orchestrate")
+    private boolean orchestrated;
+
     private transient long startOfSetup;
     private transient long startOfExperiment;
     private transient long startOfReport;
@@ -151,5 +154,13 @@ public class ExperimentMetaData {
 
     public void setOrchestrationDirectory(String orchestrationDirectory) {
         this.orchestrationDirectory = orchestrationDirectory;
+    }
+
+    public boolean isOrchestrated() {
+        return orchestrated;
+    }
+
+    public void setOrchestrated(boolean orchestrated) {
+        this.orchestrated = orchestrated;
     }
 }

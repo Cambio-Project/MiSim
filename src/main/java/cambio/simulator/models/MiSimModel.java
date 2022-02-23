@@ -76,7 +76,7 @@ public class MiSimModel extends Model {
     @Override
     public void init() {
         //check if orchestration mode should be active
-        this.orchestrated = getExperimentMetaData().getOrchestrationDirectory() != null;
+        this.orchestrated = getExperimentMetaData().getOrchestrationDirectory() != null && getExperimentMetaData().isOrchestrated();
         this.architectureModel = ModelLoader.loadArchitectureModel(this);
         this.experimentModel = ModelLoader.loadExperimentModel(this);
         this.experimentMetaData.setStartDate(LocalDateTime.now());

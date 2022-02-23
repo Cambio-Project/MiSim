@@ -2,6 +2,7 @@
   "simulation_meta_data": {
     "experiment_name": "ABCDE Experiment",
     "model_name": "architecture_model",
+    "orchestrate": true,
     "orchestration_dir": "orchestration",
     "duration": 60,
     "report": "",
