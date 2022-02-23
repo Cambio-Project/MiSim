@@ -87,7 +87,7 @@ public class Util {
         return SchedulerType.fromString(DefaultValues.getInstance().getScheduler());
     }
 
-    public IScheduler getSchedulerInstanceByType(SchedulerType schedulerType) throws UnexpectedException {
+    public Scheduler getSchedulerInstanceByType(SchedulerType schedulerType) throws UnexpectedException {
         if(schedulerType.equals(SchedulerType.RANDOM)){
             return RandomScheduler.getInstance();
         } else if(schedulerType.equals(SchedulerType.FIRSTFIT)){

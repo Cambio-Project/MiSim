@@ -18,6 +18,7 @@ import java.util.Arrays;
 public class Container extends NamedEntity {
     private MicroserviceInstance microserviceInstance;
     private ContainerState containerState;
+
     private int backOffDelay = 10;
     private static int LIMIT_BACK_OFF_DELAY = 300;
     private static int RESET_BACK_OFF_DELAY_AFTER_TIME = 600;
@@ -65,6 +66,10 @@ public class Container extends NamedEntity {
         return backOffDelay;
     }
 
+    /**
+     * returns the TimeInstant when the next attempt of restarting this container is planned
+     * @return TimeInstant
+     */
     public TimeInstant getPlannedExecutionTime() {
         return new TimeInstant(getBackOffDelay() + getModel().presentTime().getTimeAsDouble());
     }

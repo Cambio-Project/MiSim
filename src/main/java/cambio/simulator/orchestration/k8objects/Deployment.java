@@ -8,7 +8,7 @@ import cambio.simulator.orchestration.management.ManagementPlane;
 import cambio.simulator.orchestration.environment.*;
 import cambio.simulator.orchestration.parsing.K8Kind;
 import cambio.simulator.orchestration.scaling.AutoScaler;
-import cambio.simulator.orchestration.scheduling.IScheduler;
+import cambio.simulator.orchestration.scheduling.Scheduler;
 import cambio.simulator.orchestration.scheduling.SchedulerType;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
@@ -90,7 +90,7 @@ public class Deployment extends K8Object {
             Pod pod = optionalPendingPod.get();
             //find corresponding waiting queue and remove pod there as well
             try {
-                IScheduler scheduler = Util.getInstance().getSchedulerInstanceByType(this.schedulerType);
+                Scheduler scheduler = Util.getInstance().getSchedulerInstanceByType(this.schedulerType);
                 scheduler.getPodWaitingQueue().remove(pod);
                 this.getReplicaSet().remove(optionalPendingPod.get());
                 sendTraceNote("A pending pod was removed from "+this.getPlainName()+" and from " + scheduler.getSchedulerType().getDisplayName());

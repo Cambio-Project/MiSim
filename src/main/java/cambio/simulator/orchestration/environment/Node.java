@@ -11,7 +11,6 @@ import java.util.List;
 
 public class Node extends NamedEntity {
 
-    private static final int DEFAULT_CPU_CAPACITY = 1500;
     private static final String BASE_IP_ADDRESS = "192.168.49.";
     private String nodeIpAddress;
     private static int IP_ADDRESS_COUNTER = 1;
@@ -40,13 +39,13 @@ public class Node extends NamedEntity {
     }
 
     public void startRemovingPod(Pod pod){
-        pod.setPodState(PodState.TERMINATING);
+        pod.setPodStateAndApplyEffects(PodState.TERMINATING);
         final CheckPodRemovableEvent checkPodRemovableEvent = new CheckPodRemovableEvent(getModel(), "Check if pod can be removed", traceIsOn());
         checkPodRemovableEvent.schedule(pod, this, new TimeSpan(0));
     }
 
     public void removePod(Pod pod){
-        pod.setPodState(PodState.SUCCEEDED);
+        pod.setPodStateAndApplyEffects(PodState.SUCCEEDED);
         this.reserved -= pod.getCPUDemand();
         if (pods.remove(pod)) {
             sendTraceNote(pod.getQuotedName() + " was removed from " + this.getQuotedName());

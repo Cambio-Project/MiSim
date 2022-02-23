@@ -1,9 +1,6 @@
 package cambio.simulator.orchestration.environment;
 
 import cambio.simulator.entities.NamedEntity;
-import cambio.simulator.entities.microservice.InstanceState;
-import cambio.simulator.entities.microservice.MicroserviceInstance;
-import cambio.simulator.entities.patterns.InstanceOwnedPattern;
 import desmoj.core.simulator.Model;
 
 import java.util.HashSet;
@@ -15,7 +12,6 @@ public class Pod extends NamedEntity {
     private PodState podState;
     private Set<Container> containers;
     private Node lastKnownNode;
-    // Map<Container, Integer> restartBackoff = new HashMap<>();
 
     public Pod(Model model, String name, boolean showInTrace) {
         super(model, name, showInTrace);
@@ -28,15 +24,11 @@ public class Pod extends NamedEntity {
     }
 
     public void die() {
-        containers.forEach(Container::die);
-        setPodState(PodState.FAILED);
+        setPodStateAndApplyEffects(PodState.FAILED);
     }
 
     public void startAllContainers() {
-        List<Container> collect = getContainers().stream().filter(container -> !container.getContainerState().equals(ContainerState.RUNNING)).collect(Collectors.toList());
-        collect.forEach(container -> container.setContainerState(ContainerState.RUNNING));
-        collect.forEach(container -> container.getMicroserviceInstance().start());
-        setPodState(PodState.RUNNING);
+        setPodStateAndApplyEffects(PodState.RUNNING);
     }
 
     /**
@@ -63,10 +55,20 @@ public class Pod extends NamedEntity {
 
     public void setPodState(PodState podState) {
         this.podState = podState;
+    }
+
+    public void setPodStateAndApplyEffects(PodState podState) {
+        this.podState = podState;
         if (podState == PodState.TERMINATING) {
             getContainers().forEach(container -> container.getMicroserviceInstance().startShutdown());
         } else if (podState == PodState.SUCCEEDED) {
             getContainers().forEach(container -> container.setContainerState(ContainerState.TERMINATED));
+        } else if (podState == PodState.FAILED) {
+            getContainers().forEach(Container::die);
+        } else if (podState == PodState.RUNNING) {
+            List<Container> collect = getContainers().stream().filter(container -> !container.getContainerState().equals(ContainerState.RUNNING)).collect(Collectors.toList());
+            collect.forEach(container -> container.setContainerState(ContainerState.RUNNING));
+            collect.forEach(container -> container.getMicroserviceInstance().start());
         }
     }
 

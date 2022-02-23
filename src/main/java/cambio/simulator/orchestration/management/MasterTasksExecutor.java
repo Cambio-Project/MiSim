@@ -25,7 +25,7 @@ public class MasterTasksExecutor extends NamedEntity implements ISelfScheduled {
     }
 
     public void executeManagementTasks(){
-        final PeriodicTasksEvent periodicTasksEvent = new PeriodicTasksEvent(getModel(), "Apply Periodic Tasks (schedule Pending pods, apply scaling)", traceIsOn());
+        final PeriodicTasksEvent periodicTasksEvent = new PeriodicTasksEvent(getModel(), "Apply Periodic Tasks", traceIsOn());
         periodicTasksEvent.schedule(getModel().presentTime());
     }
 

@@ -19,7 +19,7 @@ import cambio.simulator.orchestration.environment.Node;
 import cambio.simulator.orchestration.parsing.ConfigDto;
 import cambio.simulator.orchestration.parsing.ParsingException;
 import cambio.simulator.orchestration.parsing.YAMLParser;
-import cambio.simulator.orchestration.scheduling.IScheduler;
+import cambio.simulator.orchestration.scheduling.Scheduler;
 import cambio.simulator.orchestration.scheduling.SchedulerType;
 import cambio.simulator.parsing.ModelLoader;
 import desmoj.core.simulator.Model;
@@ -160,8 +160,8 @@ public class MiSimModel extends Model {
         for (ConfigDto.SchedulerPrio schedulerPrio : configDto.getSchedulerPrio()) {
             String name = schedulerPrio.getName();
             SchedulerType schedulerType1 = SchedulerType.fromString(name);
-            IScheduler schedulerInstanceByType = Util.getInstance().getSchedulerInstanceByType(schedulerType1);
-            schedulerInstanceByType.setPrio(schedulerPrio.getPrio());
+            Scheduler schedulerInstanceByType = Util.getInstance().getSchedulerInstanceByType(schedulerType1);
+            schedulerInstanceByType.setPRIO(schedulerPrio.getPrio());
         }
     }
 

@@ -7,17 +7,13 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.LinkedList;
 
-public class FirstFitScheduler extends NamedEntity implements IScheduler, Comparable<IScheduler> {
-    Cluster cluster;
-    LinkedList<Pod> podWaitingQueue = new LinkedList<>();
-    static int PRIO = Integer.MAX_VALUE;
+public class FirstFitScheduler extends Scheduler {
 
     private static final FirstFitScheduler instance = new FirstFitScheduler();
 
     //private constructor to avoid client applications to use constructor
     private FirstFitScheduler() {
-        super(ManagementPlane.getInstance().getModel(), "FirstFitScheduler", ManagementPlane.getInstance().getModel().traceIsOn());
-        this.cluster = ManagementPlane.getInstance().getCluster();
+        this.rename("FirstFitScheduler");
     }
 
     public static FirstFitScheduler getInstance() {
@@ -57,7 +53,7 @@ public class FirstFitScheduler extends NamedEntity implements IScheduler, Compar
                 return true;
             } else {
                 podWaitingQueue.add(pod);
-                sendTraceNote(this.getQuotedName() + " was not able to schedule pod " + pod + ". Unsufficient resources!");
+                sendTraceNote(this.getQuotedName() + " was not able to schedule pod " + pod + ". Insufficient resources!");
                 sendTraceNote(this.getQuotedName() + " has send " + pod + " back to the Pod Waiting Queue");
                 return false;
             }
@@ -71,31 +67,5 @@ public class FirstFitScheduler extends NamedEntity implements IScheduler, Compar
         return SchedulerType.FIRSTFIT;
     }
 
-    @Override
-    public Pod getNextPodFromWaitingQueue() {
-        if (podWaitingQueue.isEmpty()) {
-            return null;
-        }
-        return podWaitingQueue.poll();
-    }
 
-    @Override
-    public LinkedList<Pod> getPodWaitingQueue() {
-        return podWaitingQueue;
-    }
-
-    @Override
-    public int getPrio() {
-        return PRIO;
-    }
-
-    @Override
-    public void setPrio(int value) {
-        PRIO = value;
-    }
-
-    @Override
-    public int compareTo(@NotNull IScheduler iScheduler) {
-        return this.getPrio() < iScheduler.getPrio() ? -1 : 1;
-    }
 }

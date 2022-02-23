@@ -12,18 +12,14 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-public class RandomScheduler extends NamedEntity implements IScheduler, Comparable<IScheduler> {
-    Cluster cluster;
-    LinkedList<Pod> podWaitingQueue = new LinkedList<>();
-
-    static int PRIO = Integer.MAX_VALUE;
+public class RandomScheduler extends Scheduler{
 
     private static final RandomScheduler instance = new RandomScheduler();
 
     //private constructor to avoid client applications to use constructor
     private RandomScheduler() {
-        super(ManagementPlane.getInstance().getModel(), "RandomScheduler", ManagementPlane.getInstance().getModel().traceIsOn());
-        this.cluster = ManagementPlane.getInstance().getCluster();
+        this.rename("RandomScheduler");
+
     }
 
     public static RandomScheduler getInstance() {
@@ -80,31 +76,4 @@ public class RandomScheduler extends NamedEntity implements IScheduler, Comparab
         return SchedulerType.RANDOM;
     }
 
-    @Override
-    public Pod getNextPodFromWaitingQueue() {
-        if (podWaitingQueue.isEmpty()) {
-            return null;
-        }
-        return podWaitingQueue.poll();
-    }
-
-    @Override
-    public LinkedList<Pod> getPodWaitingQueue() {
-        return podWaitingQueue;
-    }
-
-    @Override
-    public int getPrio() {
-        return PRIO;
-    }
-
-    @Override
-    public void setPrio(int value) {
-        PRIO = value;
-    }
-
-    @Override
-    public int compareTo(@NotNull IScheduler iScheduler) {
-        return this.getPrio() < iScheduler.getPrio() ? -1 : 1;
-    }
 }

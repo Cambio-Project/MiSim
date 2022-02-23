@@ -6,7 +6,7 @@ import cambio.simulator.orchestration.Util;
 import cambio.simulator.orchestration.environment.*;
 import cambio.simulator.orchestration.events.CheckPodRemovableEvent;
 import cambio.simulator.orchestration.k8objects.Deployment;
-import cambio.simulator.orchestration.scheduling.IScheduler;
+import cambio.simulator.orchestration.scheduling.Scheduler;
 import cambio.simulator.orchestration.scheduling.SchedulerType;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeSpan;
@@ -20,7 +20,7 @@ ManagementPlane {
     List<Deployment> deployments;
     Cluster cluster;
     Model model;
-    Map<SchedulerType, IScheduler> schedulerMap;
+    Map<SchedulerType, Scheduler> schedulerMap;
     Map<String, String> defaultValues;
 
     private static final ManagementPlane instance = new ManagementPlane();
@@ -57,9 +57,7 @@ ManagementPlane {
      * Each scheduler will try to schedule the pending pods that are waiting in its queue
      */
     public void checkForPendingPods() {
-        List<IScheduler> values = schedulerMap.values().stream().collect(Collectors.toList());
-        Collections.sort(values, Comparator.comparingInt(IScheduler::getPrio));
-        values.forEach(IScheduler::schedulePods);
+        schedulerMap.values().stream().sorted().forEach(Scheduler::schedulePods);
 
         String nodeInfo = "NAME | CPUAvail | CPURes | #pods";
         getModel().sendTraceNote(nodeInfo);
@@ -72,7 +70,7 @@ ManagementPlane {
     }
 
     public void addPodToSpecificSchedulerQueue(Pod pod, SchedulerType schedulerType) {
-        final IScheduler scheduler = schedulerMap.get(schedulerType);
+        final Scheduler scheduler = schedulerMap.get(schedulerType);
         if (scheduler != null) {
             scheduler.getPodWaitingQueue().add(pod);
         } else {
@@ -118,7 +116,7 @@ ManagementPlane {
             }
         });
 
-        getModel().sendTraceNote("[INFO] Active Schedulers: " + schedulerMap.values());
+        getModel().sendTraceNote("[INFO] Active Schedulers: " + schedulerMap.values().stream().sorted().collect(Collectors.toList()));
 
     }
 
@@ -144,15 +142,6 @@ ManagementPlane {
 
     public Deployment getDeploymentForPod(Pod pod){
         Optional<Deployment> first = deployments.stream().filter(deployment -> deployment.getReplicaSet().contains(pod)).findFirst();
-        if(first.isPresent()){
-            return first.get();
-        }
-        return null;
-    }
-
-    public Pod getPodForContainer(Container container){
-        List<Pod> collect = deployments.stream().map(deployment -> deployment.getReplicaSet()).flatMap(Collection::stream).collect(Collectors.toList());
-        Optional<Pod> first = collect.stream().filter(pod -> pod.getContainers().contains(container)).findFirst();
         if(first.isPresent()){
             return first.get();
         }
