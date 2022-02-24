@@ -15,6 +15,6 @@ loadBalancer: random_orchestration
 scheduler: firstFit
 schedulerPrio:
   - name: kube
-    prio: 2
+    prio: 4
   - name: firstFit
     prio: 3

@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-users-deployment
+  labels:
+    app: frontend-users
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: frontend-users
+  template:
+    metadata:
+      labels:
+        app: frontend-users
+    spec:
+      schedulerName: firstFit
+      containers:
+        - name: frontend
+          image: frontendApp:1.14.2
+        - name: users
+          image: usersApp:1

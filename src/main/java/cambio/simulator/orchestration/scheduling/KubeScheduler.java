@@ -63,7 +63,7 @@ public class KubeScheduler extends Scheduler {
             sendTraceNote(this.getQuotedName() + " has no pods left for scheduling");
             return;
         } else {
-            sendTraceNote(this.getQuotedName() + " has the following pods (" + podWaitingQueue.size() + ") left in its waiting queue:\n" + podWaitingQueue.toString());
+            sendTraceNote(this.getQuotedName() + " has the following pods (" + podWaitingQueue.size() + ") left in its waiting queue:\n" + podWaitingQueue);
         }
         try {
 
@@ -95,6 +95,7 @@ public class KubeScheduler extends Scheduler {
                     String deletedWatchStreamShellForJSONPod = KubeJSONCreator.createWatchStreamShellForJSONPod(runningPod, "DELETED");
                     podList.add(0,deletedWatchStreamShellForJSONPod);
                     foundToRemove.add(pod);
+                    System.out.println("In this iteration the following pod will be removed " + pod.getQuotedName());
                 }
             }
             internalRunningPods.removeAll(foundToRemove);
