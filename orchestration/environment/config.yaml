@@ -18,3 +18,8 @@ schedulerPrio:
     prio: 4
   - name: firstFit
     prio: 3
+startUpTimeContainer:
+  - name: books
+    time: 4
+  - name: frontend
+    time: 3

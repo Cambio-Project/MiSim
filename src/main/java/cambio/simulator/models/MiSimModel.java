@@ -6,11 +6,13 @@ import java.rmi.UnexpectedException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.events.ISelfScheduled;
 import cambio.simulator.events.SimulationEndEvent;
 import cambio.simulator.export.MultiDataPointReporter;
+import cambio.simulator.orchestration.MicroserviceOrchestration;
 import cambio.simulator.orchestration.Util;
 import cambio.simulator.orchestration.environment.Cluster;
 import cambio.simulator.orchestration.management.ManagementPlane;
@@ -118,6 +120,7 @@ public class MiSimModel extends Model {
 
         try {
             assignPriosToSchedulers(configDto);
+            assignStartUpTimesToInstances(configDto);
         } catch (UnexpectedException e) {
             e.printStackTrace();
             System.exit(1);
@@ -162,6 +165,16 @@ public class MiSimModel extends Model {
             SchedulerType schedulerType1 = SchedulerType.fromString(name);
             Scheduler schedulerInstanceByType = Util.getInstance().getSchedulerInstanceByType(schedulerType1);
             schedulerInstanceByType.setPRIO(schedulerPrio.getPrio());
+        }
+    }
+
+    public void assignStartUpTimesToInstances(ConfigDto configDto) throws UnexpectedException {
+        for (ConfigDto.StartUpTimeContainer startUpTimeContainer: configDto.getStartUpTimeContainer()) {
+            String name = startUpTimeContainer.getName();
+            Microservice service = architectureModel.getMicroservices().stream().filter(microservice -> microservice.getPlainName().equals(name)).findAny().orElse(null);
+            if(service != null){
+                ((MicroserviceOrchestration) service).setStartTime(startUpTimeContainer.getTime());
+            }
         }
     }
 

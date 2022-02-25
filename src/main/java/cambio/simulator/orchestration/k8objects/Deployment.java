@@ -64,14 +64,17 @@ public class Deployment extends K8Object {
 
     public synchronized void createPod() {
 
-        //first try to restart failed pods
-        final Optional<Pod> first = replicaSet.stream().filter(pod -> pod.getPodState().equals(PodState.FAILED)).findFirst();
-        if(first.isPresent()){
-            final Pod pod = first.get();
-            final RestartPodEvent restartPodEvent = new RestartPodEvent(getModel(), "RestartPodEvent", traceIsOn());
-            restartPodEvent.schedule(pod, presentTime());
-            return;
-        }
+        //will be handled automatically by the container restart policy
+        //do we then start another one and let the scaler do the rest?
+
+//        //first try to restart failed pods
+//        final Optional<Pod> first = replicaSet.stream().filter(pod -> pod.getPodState().equals(PodState.FAILED)).findFirst();
+//        if(first.isPresent()){
+//            final Pod pod = first.get();
+//            final RestartPodEvent restartPodEvent = new RestartPodEvent(getModel(), "RestartPodEvent", traceIsOn());
+//            restartPodEvent.schedule(pod, presentTime());
+//            return;
+//        }
 
         final Pod pod = new Pod(getModel(), "Pod-"+this.getPlainName(), traceIsOn());
         for (MicroserviceOrchestration microserviceOrchestration : services) {
@@ -118,7 +121,7 @@ public class Deployment extends K8Object {
 
 
     public synchronized void killPodInstances(final int numberOfInstances) {
-        final int maxKills = Math.max(0, Math.min(numberOfInstances, getCurrentRunningOrPendingReplicaCount()));
+        final int maxKills = Math.max(0, Math.min(numberOfInstances, getRunningReplicas().size()));
         for (int i = 0; i < maxKills; i++) {
             killPodInstance();
         }
@@ -129,7 +132,7 @@ public class Deployment extends K8Object {
      */
     public synchronized void killPodInstance() {
         Pod instanceToKill =
-                getCurrentRunningOrPendingReplicas().stream().findAny().orElse(null); //selects an element of the stream, not
+                getRunningReplicas().stream().findFirst().orElse(null); //selects an element of the stream, not
         if (instanceToKill == null) {
             return;
         }

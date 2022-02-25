@@ -11,7 +11,7 @@ public class CheckPodRemovableEvent  extends EventOf2Entities<Pod, Node> {
 
     public CheckPodRemovableEvent(Model model, String name, boolean showInTrace) {
         super(model, name, showInTrace);
-        this.setSchedulingPriority(Priority.HIGH);
+//        this.setSchedulingPriority(Priority.HIGH);
     }
 
     @Override

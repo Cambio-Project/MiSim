@@ -148,6 +148,15 @@ ManagementPlane {
         return null;
     }
 
+    public Pod getPodForContainer(Container container){
+        List<Pod> collect = deployments.stream().map(deployment -> deployment.getReplicaSet()).flatMap(Collection::stream).collect(Collectors.toList());
+        Optional<Pod> first = collect.stream().filter(pod -> pod.getContainers().contains(container)).findFirst();
+        if(first.isPresent()){
+            return first.get();
+        }
+        return null;
+    }
+
     public List<Deployment> getDeployments() {
         return deployments;
     }

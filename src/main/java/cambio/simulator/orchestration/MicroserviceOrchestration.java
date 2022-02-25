@@ -15,6 +15,8 @@ public class MicroserviceOrchestration extends Microservice {
 
     LoadBalancerOrchestration loadBalancerOrchestration;
 
+    private int startTime = 5;
+
     /**
      * Creates a new instance of a {@link Microservice}.
      */
@@ -33,13 +35,12 @@ public class MicroserviceOrchestration extends Microservice {
     @Override
     public synchronized void killInstance() {
         MicroserviceInstance instanceToKill =
-                instancesSet.stream().findAny().orElse(null); //selects an element of the stream, not
+                instancesSet.stream().filter(microserviceInstance -> microserviceInstance.getState().equals(InstanceState.RUNNING)).findFirst().orElse(null); //selects an element of the stream, not
         if (instanceToKill == null) {
             return;
         }
         instanceToKill.die();
         instancesSet.remove(instanceToKill);
-        reporter.addDatapoint("InstanceCount", presentTime(), instancesSet.size());
 
         for (Pod pod : getDeployment().getReplicaSet()) {
             for (Container container : pod.getContainers()) {
@@ -51,14 +52,14 @@ public class MicroserviceOrchestration extends Microservice {
                     if (count == 0){
                         pod.setPodState(PodState.FAILED);
                         sendTraceNote("Pod " +  pod.getQuotedName() + " was set to FAILED because it has not a single running container inside");
-                        //Return because the orchestration tasks will recognize the failed pod and tries to restart it and all of its containers. Like in the event of a ChaosMonkeyForPodsEvent
-                        return;
+//                        //Return because the orchestration tasks will recognize the failed pod and tries to restart it and all of its containers. Like in the event of a ChaosMonkeyForPodsEvent
+//                        return;
                     }
 
                     //Restart terminated container regarding restart policy https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/
                     container.applyBackOffDelayResetIfNecessary();
                     final RestartContainerEvent restartContainerEvent = new RestartContainerEvent(getModel(), "Restart " + container.getQuotedPlainName(), traceIsOn());
-                    restartContainerEvent.schedule(container, container.getPlannedExecutionTime());
+                    restartContainerEvent.schedule(container, container.getPlannedExecutionTime(container.getBackOffDelay()));
                     return;
                 }
             }
@@ -90,4 +91,11 @@ public class MicroserviceOrchestration extends Microservice {
         this.loadBalancerOrchestration = loadBalancerOrchestration;
     }
 
+    public int getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(int startTime) {
+        this.startTime = startTime;
+    }
 }

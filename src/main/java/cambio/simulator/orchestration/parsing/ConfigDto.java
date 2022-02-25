@@ -10,6 +10,7 @@ public class ConfigDto {
     public String scheduler;
     public List<CustomNodes> customNodes;
     public List<SchedulerPrio> schedulerPrio;
+    public List<StartUpTimeContainer> startUpTimeContainer;
 
     public static class CustomNodes {
         String name;
@@ -50,6 +51,27 @@ public class ConfigDto {
 
         public void setPrio(int prio) {
             this.prio = prio;
+        }
+    }
+
+    public static class StartUpTimeContainer {
+        String name;
+        int time;
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public int getTime() {
+            return time;
+        }
+
+        public void setTime(int time) {
+            this.time = time;
         }
     }
 
@@ -141,5 +163,13 @@ public class ConfigDto {
 
     public void setSchedulerPrio(List<SchedulerPrio> schedulerPrio) {
         this.schedulerPrio = schedulerPrio;
+    }
+
+    public List<StartUpTimeContainer> getStartUpTimeContainer() {
+        return startUpTimeContainer;
+    }
+
+    public void setStartUpTimeContainer(List<StartUpTimeContainer> startUpTimeContainer) {
+        this.startUpTimeContainer = startUpTimeContainer;
     }
 }

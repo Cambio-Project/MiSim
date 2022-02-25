@@ -14,7 +14,7 @@ spec:
       labels:
         app: users
     spec:
-      schedulerName: kube
+      schedulerName: firstFit
       containers:
         - name: users
           image: nginx:1.14.2

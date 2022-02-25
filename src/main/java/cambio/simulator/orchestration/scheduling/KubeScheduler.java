@@ -95,7 +95,7 @@ public class KubeScheduler extends Scheduler {
                     String deletedWatchStreamShellForJSONPod = KubeJSONCreator.createWatchStreamShellForJSONPod(runningPod, "DELETED");
                     podList.add(0,deletedWatchStreamShellForJSONPod);
                     foundToRemove.add(pod);
-                    System.out.println("In this iteration the following pod will be removed " + pod.getQuotedName());
+                    System.out.println("In this iteration the following pod will be removed " + pod.getQuotedName() + " from node " +pod.getLastKnownNode().getQuotedName());
                 }
             }
             internalRunningPods.removeAll(foundToRemove);

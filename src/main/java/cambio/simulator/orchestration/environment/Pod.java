@@ -31,15 +31,13 @@ public class Pod extends NamedEntity {
         setPodStateAndApplyEffects(PodState.RUNNING);
     }
 
-    /**
-     * Should be called when a Pod has died due to a ChaosMonkeyForPodsEvents.
-     * It restarts all containers that belong to this pod.
-     */
-    public void restartAllContainers() {
-        containers.forEach(container -> container.restart());
-        setPodState(PodState.RUNNING);
-        sendTraceNote(this.getQuotedName() + " was restarted");
-    }
+//    /**
+//     * Should be called when a Pod has died due to a ChaosMonkeyForPodsEvents.
+//     * It restarts all containers that belong to this pod.
+//     */
+//    public void restartAllContainers() {
+//        containers.forEach(container -> container.restartTerminatedContainer());
+//    }
 
     public Set<Container> getContainers() {
         return containers;
@@ -67,8 +65,7 @@ public class Pod extends NamedEntity {
             getContainers().forEach(Container::die);
         } else if (podState == PodState.RUNNING) {
             List<Container> collect = getContainers().stream().filter(container -> !container.getContainerState().equals(ContainerState.RUNNING)).collect(Collectors.toList());
-            collect.forEach(container -> container.setContainerState(ContainerState.RUNNING));
-            collect.forEach(container -> container.getMicroserviceInstance().start());
+            collect.forEach(container -> container.start());
         }
     }
 
