@@ -97,7 +97,6 @@ public class ConfigurableNamedTypeAdapter<T> extends TypeAdapter<T> {
             return newObject;
         } else if (token == JsonToken.BEGIN_OBJECT) {
 
-
             TypeNameAssociatedConfigurationData typeNameAssociatedConfigurationData =
                 gson.fromJson(in, TypeNameAssociatedConfigurationData.class);
 
@@ -107,6 +106,10 @@ public class ConfigurableNamedTypeAdapter<T> extends TypeAdapter<T> {
             Class<? extends T> targetType =
                 JsonTypeNameResolver.resolveFromJsonTypeName(typeNameAssociatedConfigurationData.type,
                     superClassType);
+            if (targetType == null) {
+                throw new ParsingException(String.format("Could not find json type '%s' of super class %s",
+                    typeNameAssociatedConfigurationData.type, superClassType.getName()));
+            }
             return gson.fromJson(typeNameAssociatedConfigurationData.getConfigAsJsonString(), targetType);
         }
 

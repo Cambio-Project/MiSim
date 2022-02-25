@@ -53,6 +53,11 @@ public class ChaosMonkeyEvent extends SelfScheduledExperimentAction {
     @Override
     public void eventRoutine() throws SuspendExecution {
 
+        if (microservice == null) {
+            throw new IllegalStateException(
+                "No or non existing microservice specified for ChaosMonkeyEvent " + getQuotedName());
+        }
+
         microservice.killInstances(instances);
 
         boolean hasServicesLeft = microservice.getInstancesCount() > 0;

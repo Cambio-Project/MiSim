@@ -13,7 +13,7 @@ import cambio.simulator.parsing.JsonTypeName;
 class UtilizationBalanceStrategy implements ILoadBalancingStrategy {
 
     /**
-     * Returns a the instance of the list, which currently has the lowest demand left.
+     * Returns the instance of the given list, which currently has the lowest demand left.
      */
     @Override
     public MicroserviceInstance getNextInstance(Collection<MicroserviceInstance> runningInstances) {

@@ -85,7 +85,7 @@ public class Microservice extends NamedEntity {
         super(model, name, showInTrace);
         //default load balancer
         loadBalancer = new LoadBalancer(model, "Loadbalancer", traceIsOn(), null);
-        reporter = new ContinuousMultiDataPointReporter(String.format("S[%s]_", name));
+        reporter = new MultiDataPointReporter(String.format("S[%s]_", name));
     }
 
     /**

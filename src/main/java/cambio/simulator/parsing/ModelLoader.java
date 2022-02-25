@@ -109,10 +109,15 @@ public final class ModelLoader {
 
         } catch (FileNotFoundException e) {
             throw new ParsingException(
-                String.format("[Error]  Cannot start the simulation. Model file %s was not found!",
+                String.format("Cannot start the simulation. Model file %s was not found!",
                     targetFile.getAbsolutePath()), e);
         } catch (JsonSyntaxException e) {
-            throw new ParsingException(e);
+            throw new ParsingException(
+                String.format("Cannot start the simulation. Model file %s contains Json Syntax errors!",
+                    targetFile.getAbsolutePath()), e);
+        } catch (ParsingException e) {
+            throw new ParsingException(String.format("Error parsing model file %s\n%s", targetFile.getAbsolutePath(),
+                e.getMessage()), e);
         }
     }
 }
