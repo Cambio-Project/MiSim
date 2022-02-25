@@ -1,0 +1,37 @@
+{
+  "simulation_meta_data": {
+    "experiment_name": "Retry Demonstration",
+    "model_name": "Scenario Retry",
+    "duration": 180,
+    "seed": 404
+  },
+  "request_generators": [
+    {
+      "type": "interval",
+      "config": {
+        "microservice": "gateway",
+        "operation": "INTERNAL_DEP",
+        "interval": 0.1
+      }
+    }
+  ],
+  "chaos_monkeys": [
+    {
+      "type": "chaosmonkey",
+      "config": {
+        "microservice": "example-service",
+        "time": 30
+      }
+    }
+  ],
+  "summoner_monkeys": [
+    {
+      "type": "summoner",
+      "config": {
+        "microservice": "example-service",
+        "instances": 1,
+        "time": 120
+      }
+    }
+  ]
+}

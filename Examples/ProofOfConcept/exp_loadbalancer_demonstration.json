@@ -1,0 +1,17 @@
+{
+  "simulation_meta_data": {
+    "experiment_name": "Loadbalancer Demonstration",
+    "model_name": "Scenario Loadbalancer",
+    "duration": 180,
+    "seed": 404
+  },
+  "generators": [
+    {
+      "type": "limbo",
+      "config": {
+        "target_operation": "gateway.INTERNAL_DEP",
+        "limbo_model": "./Examples/ProofOfConcept/linear_peaksArrivalRates.csv"
+      }
+    }
+  ]
+}
