@@ -56,6 +56,12 @@ public final class ExperimentStartupConfig {
         description = "Turns on debug output of the simulator.")
     private final boolean debugOutput;
 
+    @CLIOption(
+        opt = "t",
+        longOpt = "no_traces",
+        description = "Turns off the DESMO-J trace output of the simulator.")
+    private final boolean noTraces;
+
     /**
      * Creates a new {@link ExperimentStartupConfig}.
      *
@@ -72,13 +78,14 @@ public final class ExperimentStartupConfig {
      * @param debugOutput     enables debug output
      */
     public ExperimentStartupConfig(@NotNull String archDesc, String expDesc, String scenario, String reportLocation,
-                                   boolean showProgressBar, boolean debugOutput) {
+                                   boolean showProgressBar, boolean debugOutput, boolean noTraces) {
         this.archDesc = archDesc;
         this.expDesc = expDesc;
         this.scenario = scenario;
         this.reportLocation = reportLocation;
         this.showProgressBar = showProgressBar;
         this.debugOutput = debugOutput;
+        this.noTraces = noTraces;
 
         if (expDesc == null && scenario == null) {
             throw new RuntimeException("Either a experiment description location or scenario description "
@@ -109,5 +116,9 @@ public final class ExperimentStartupConfig {
 
     public boolean debugOutputOn() {
         return debugOutput;
+    }
+
+    public boolean noTraces() {
+        return noTraces;
     }
 }

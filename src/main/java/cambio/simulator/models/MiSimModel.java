@@ -40,7 +40,7 @@ public class MiSimModel extends Model {
      * @param experimentModelOrScenarioLocation Location of the experiment description.
      */
     public MiSimModel(File architectureModelLocation, File experimentModelOrScenarioLocation) {
-        super(null, "MiSimModel", true, true);
+        super(null, "MiSimModel", false, false);
         this.architectureModelLocation = architectureModelLocation;
         this.experimentModelOrScenarioLocation = experimentModelOrScenarioLocation;
 

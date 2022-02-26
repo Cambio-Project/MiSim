@@ -154,17 +154,15 @@ public final class CLI {
                 String optName = !option.opt().equals("") ? option.opt() : option.longOpt();
                 Object value = cl.getParsedOptionValue(optName);
 
-                if (value == null) {
-                    continue;
-                } else if (boolean.class.isAssignableFrom(targetType)) {
-                    targetField.set(targetObject, true);
+                if (value == null && targetType == Boolean.TYPE) {
+                    targetField.set(targetObject, cl.hasOption(optName));
                 } else if (String.class.isAssignableFrom(targetType)) {
                     targetField.set(targetObject, value);
                 } else if (String[].class.isAssignableFrom(targetType)) {
                     targetField.set(targetObject, value);
                 } else {
-                    throw new ClassCastException("Can only parse CLI options to the types of boolean, String or "
-                        + "String[].");
+                    throw new ClassCastException("Can only parse CLI options to the types of boolean/Boolean, String "
+                        + "or String[].");
                 }
             } catch (ParseException | IllegalAccessException e) {
                 e.printStackTrace();

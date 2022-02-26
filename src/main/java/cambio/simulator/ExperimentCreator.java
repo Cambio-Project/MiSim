@@ -42,11 +42,6 @@ public final class ExperimentCreator {
             tryGetDescription(expDescLocation, "experiment/scenario");
 
         MiSimModel model = new MiSimModel(architectureDescription, experimentDescription);
-
-        if (config.debugOutputOn()) {
-            model.debugOn();
-        }
-
         return setupExperiment(config, model);
     }
 
@@ -75,12 +70,20 @@ public final class ExperimentCreator {
         exp.setShowProgressBarAutoclose(true);
         exp.setShowProgressBar(config.showProgressBarOn());
         exp.stop(new TimeInstant(metaData.getDuration(), metaData.getTimeUnit()));
-        exp.tracePeriod(new TimeInstant(0, metaData.getTimeUnit()),
-            new TimeInstant(metaData.getDuration(), metaData.getTimeUnit()));
+
+        if (config.noTraces()) {
+            exp.traceOff(new TimeInstant(0, metaData.getTimeUnit()));
+        } else {
+            exp.tracePeriod(new TimeInstant(0, metaData.getTimeUnit()),
+                new TimeInstant(metaData.getDuration(), metaData.getTimeUnit()));
+        }
+
         if (config.debugOutputOn()) {
             exp.debugPeriod(new TimeInstant(0, metaData.getTimeUnit()),
                 new TimeInstant(metaData.getDuration(), metaData.getTimeUnit()));
             exp.debugOn(new TimeInstant(0, metaData.getTimeUnit()));
+        } else {
+            exp.debugOff(new TimeInstant(0, metaData.getTimeUnit()));
         }
 
         return exp;
