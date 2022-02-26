@@ -1,8 +1,8 @@
 {
   "type": "TEMPLATE_TYPE",
   "object": {
-    "kind": "Pod",
+    "kind": "TEMPLATE_KIND",
     "apiVersion": "v1",
-    TEMPLATE_POD
+    TEMPLATE_K8_OBJECT
   }
 }

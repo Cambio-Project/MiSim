@@ -35,11 +35,21 @@ public class KubeScheduler extends Scheduler {
     private KubeScheduler() {
         this.rename("KubeScheduler");
 
+        List<String> nodeList = new ArrayList<>();
         try {
-            String nodeList = KubeJSONCreator.createNodeList(cluster.getNodes());
-            post(nodeList, 0, "", PATH_NODES);
+            for (Node node : cluster.getNodes()) {
 
+                String nodeJSON = KubeJSONCreator.createNode(node);
+                String watchStreamShellForJSONNode = KubeJSONCreator.createWatchStreamShellForJSONPod(nodeJSON, "ADDED", "Node");
+                nodeList.add(watchStreamShellForJSONNode);
 
+            }
+
+            String finalNodeString = "";
+            for (String nodeJSON : nodeList) {
+                finalNodeString += nodeJSON;
+            }
+            post(finalNodeString, 0, "", PATH_NODES);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -78,9 +88,9 @@ public class KubeScheduler extends Scheduler {
                 Pod nextPodFromWaitingQueue = getNextPodFromWaitingQueue();
                 podNames.add(nextPodFromWaitingQueue.getName());
                 String pendingPod = KubeJSONCreator.createPod(nextPodFromWaitingQueue, false);
-                String watchStreamShellForJSONPod = KubeJSONCreator.createWatchStreamShellForJSONPod(pendingPod, "ADDED");
+                String watchStreamShellForJSONPod = KubeJSONCreator.createWatchStreamShellForJSONPod(pendingPod, "ADDED", "Pod");
                 //Already prepare DELETED objects for the watchstream. The API can then give this objects to the scheduler by itself
-                String deletedWatchStreamShellForJSONPod = KubeJSONCreator.createWatchStreamShellForJSONPod(pendingPod, "DELETED");
+                String deletedWatchStreamShellForJSONPod = KubeJSONCreator.createWatchStreamShellForJSONPod(pendingPod, "DELETED", "Pod");
                 podList.add(watchStreamShellForJSONPod);
                 deletedPodMap.put(nextPodFromWaitingQueue.getName(), deletedWatchStreamShellForJSONPod);
             }
@@ -88,24 +98,24 @@ public class KubeScheduler extends Scheduler {
             //Inform the scheduler that pods have been removed from nodes
             List<Pod> allPodsPlacedOnNodes = ManagementPlane.getInstance().getAllPodsPlacedOnNodes();
             List<Pod> foundToRemove = new ArrayList<>();
-            for( Pod pod : internalRunningPods){
+            for (Pod pod : internalRunningPods) {
                 //If MiSim does not hold the pod from the scheduler cache anymore, tell the scheduler that it was deleted
-                if(!allPodsPlacedOnNodes.contains(pod)){
+                if (!allPodsPlacedOnNodes.contains(pod)) {
                     String runningPod = KubeJSONCreator.createPod(pod, true);
-                    String deletedWatchStreamShellForJSONPod = KubeJSONCreator.createWatchStreamShellForJSONPod(runningPod, "DELETED");
-                    podList.add(0,deletedWatchStreamShellForJSONPod);
+                    String deletedWatchStreamShellForJSONPod = KubeJSONCreator.createWatchStreamShellForJSONPod(runningPod, "DELETED", "Pod");
+                    podList.add(0, deletedWatchStreamShellForJSONPod);
                     foundToRemove.add(pod);
-                    System.out.println("In this iteration the following pod will be removed " + pod.getQuotedName() + " from node " +pod.getLastKnownNode().getQuotedName());
+                    System.out.println("In this iteration the following pod will be removed " + pod.getQuotedName() + " from node " + pod.getLastKnownNode().getQuotedName());
                 }
             }
             internalRunningPods.removeAll(foundToRemove);
 
             //Tell the scheduler that pods are already running on nodes (Scheduled by other schedulers)
             for (Pod pod : allPodsPlacedOnNodes) {
-                if(!internalRunningPods.contains(pod)){
+                if (!internalRunningPods.contains(pod)) {
                     String runningPod = KubeJSONCreator.createPod(pod, true);
-                    String watchStreamShellForJSONPod = KubeJSONCreator.createWatchStreamShellForJSONPod(runningPod, "ADDED");
-                    podList.add(0,watchStreamShellForJSONPod);
+                    String watchStreamShellForJSONPod = KubeJSONCreator.createWatchStreamShellForJSONPod(runningPod, "ADDED", "Pod");
+                    podList.add(0, watchStreamShellForJSONPod);
                     internalRunningPods.add(pod);
                 }
             }

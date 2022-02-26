@@ -105,12 +105,13 @@ public class KubeJSONCreator {
 
     }
 
-    public static String createWatchStreamShellForJSONPod(String podAsJson, String type) throws IOException {
+    public static String createWatchStreamShellForJSONPod(String k8Object, String type, String kind) throws IOException {
         String watchStreamShell = getFileContent("src/main/java/cambio/simulator/orchestration/scheduling/external/watchStreamShell.json");
-        podAsJson = podAsJson.replaceFirst("\\{", "");
-        podAsJson = podAsJson.substring(0, podAsJson.lastIndexOf("}"));
+        k8Object = k8Object.replaceFirst("\\{", "");
+        k8Object = k8Object.substring(0, k8Object.lastIndexOf("}"));
         watchStreamShell = watchStreamShell.replace("TEMPLATE_TYPE", type);
-        watchStreamShell = watchStreamShell.replace("TEMPLATE_POD", podAsJson);
+        watchStreamShell = watchStreamShell.replace("TEMPLATE_KIND", kind);
+        watchStreamShell = watchStreamShell.replace("TEMPLATE_K8_OBJECT", k8Object);
 
 
         if (type.equals("DELETED")) {
@@ -127,6 +128,25 @@ public class KubeJSONCreator {
 
         return watchStreamShell;
 
+    }
+
+    public static String createNode(Node node) throws IOException {
+
+        ArrayList<String> nodeList = new ArrayList<>();
+
+
+            String name = node.getPlainName();
+            String cpu = String.valueOf(node.getTotalCPU());
+            String nodeIpAddress = node.getNodeIpAddress();
+            String machineId = "MachineID-" + name;
+            String nodeTemplateString = getFileContent("src/main/java/cambio/simulator/orchestration/scheduling/external/node.json");
+            nodeTemplateString = nodeTemplateString.replace("TEMPLATE_NAME", name);
+            nodeTemplateString = nodeTemplateString.replace("TEMPLATE_UID", name);
+            nodeTemplateString = nodeTemplateString.replace("TEMPLATE_CPU", cpu);
+            nodeTemplateString = nodeTemplateString.replace("TEMPLATE_IP_ADDRESS", nodeIpAddress);
+            nodeTemplateString = nodeTemplateString.replace("TEMPLATE_MACHINE_ID", machineId);
+            nodeList.add(nodeTemplateString);
+        return nodeTemplateString;
     }
 
     public static String createNodeList(List<Node> nodes) throws IOException {
