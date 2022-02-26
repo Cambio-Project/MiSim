@@ -2,6 +2,7 @@ package cambio.simulator.orchestration.management;
 
 
 import cambio.simulator.entities.microservice.InstanceState;
+import cambio.simulator.models.MiSimModel;
 import cambio.simulator.orchestration.Util;
 import cambio.simulator.orchestration.environment.*;
 import cambio.simulator.orchestration.events.CheckPodRemovableEvent;
@@ -171,6 +172,10 @@ ManagementPlane {
 
     public Model getModel() {
         return model;
+    }
+
+    public int getExperimentSeed(){
+        return ((MiSimModel) getModel()).getExperimentMetaData().getSeed();
     }
 
     public void setModel(Model model) {

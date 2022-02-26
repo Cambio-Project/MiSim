@@ -3,11 +3,13 @@ package cambio.simulator.orchestration.loadbalancing;
 import cambio.simulator.entities.microservice.MicroserviceInstance;
 import cambio.simulator.entities.microservice.NoInstanceAvailableException;
 import cambio.simulator.entities.patterns.ILoadBalancingStrategy;
+import cambio.simulator.models.MiSimModel;
 import cambio.simulator.orchestration.environment.Container;
 import cambio.simulator.orchestration.environment.ContainerState;
 import cambio.simulator.orchestration.environment.Pod;
 import cambio.simulator.orchestration.environment.PodState;
 import cambio.simulator.orchestration.MicroserviceOrchestration;
+import cambio.simulator.orchestration.management.ManagementPlane;
 import cambio.simulator.parsing.JsonTypeName;
 
 import java.util.*;
@@ -24,7 +26,7 @@ public class RandomLoadBalanceStrategyOrchestration implements ILoadBalancingStr
         final Set<Pod> replicaSet = microserviceOrchestration.getDeployment().getRunningReplicas();
 
         List<Pod> pods = new ArrayList<>(replicaSet);
-        Collections.shuffle(pods);
+        Collections.shuffle(pods, new Random(ManagementPlane.getInstance().getExperimentSeed()));
 
         for (Pod pod : pods) {
             final Set<Container> containers = pod.getContainers();

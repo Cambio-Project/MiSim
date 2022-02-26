@@ -197,8 +197,9 @@ public class Microservice extends NamedEntity {
      */
     public synchronized void killInstance() {
         //TODO: use UniformDistribution form desmoj
+        //FindFirst to preserve repeatable experiments
         MicroserviceInstance instanceToKill =
-            instancesSet.stream().findAny().orElse(null); //selects an element of the stream, not
+            instancesSet.stream().findFirst().orElse(null); //selects an element of the stream, not
         if (instanceToKill == null) {
             return;
         }

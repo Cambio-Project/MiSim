@@ -1,16 +1,14 @@
 package cambio.simulator.orchestration.scheduling;
 
 import cambio.simulator.entities.NamedEntity;
+import cambio.simulator.models.MiSimModel;
 import cambio.simulator.orchestration.environment.Cluster;
 import cambio.simulator.orchestration.environment.Node;
 import cambio.simulator.orchestration.environment.Pod;
 import cambio.simulator.orchestration.management.ManagementPlane;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class RandomScheduler extends Scheduler{
 
@@ -49,7 +47,7 @@ public class RandomScheduler extends Scheduler{
             int cpuDemand = pod.getCPUDemand();
             //Doing the same like FirstFitScheduler but nodes are shuffled.
             List<Node> nodes = new ArrayList<>(cluster.getNodes());
-            Collections.shuffle(nodes);
+            Collections.shuffle(nodes, new Random(ManagementPlane.getInstance().getExperimentSeed()));
             for (Node node : nodes) {
                 if (node.getReserved() + cpuDemand <= node.getTotalCPU()) {
                     candidateNote = node;
