@@ -9,10 +9,7 @@ import cambio.simulator.orchestration.k8objects.K8Object;
 import cambio.simulator.orchestration.loadbalancing.LoadBalancerType;
 import cambio.simulator.orchestration.management.DefaultValues;
 import cambio.simulator.orchestration.management.ManagementPlane;
-import cambio.simulator.orchestration.parsing.converter.DtoToDeploymentMapper;
-import cambio.simulator.orchestration.parsing.converter.DtoToObjectMapper;
-import cambio.simulator.orchestration.parsing.converter.HPAManipulator;
-import cambio.simulator.orchestration.parsing.converter.K8ObjectManipulator;
+import cambio.simulator.orchestration.parsing.converter.*;
 import cambio.simulator.orchestration.scaling.HorizontalPodAutoscaler;
 import cambio.simulator.orchestration.scheduling.SchedulerType;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -82,9 +79,12 @@ public class YAMLParser {
                 targetClass = K8DeploymentDto.class;
                 break;
             case HORIZONTALPODAUTOSCALER:
+            case RANDOMAUTOSCALER:
                 //Will be dealt with after k8objects have been initialized.
                 remainingFilePaths.add(src);
                 return null;
+            default:
+                throw new ParsingException("Could not identify kind " + k8Kind + " from file " + src);
         }
 
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
@@ -118,6 +118,10 @@ public class YAMLParser {
             case HORIZONTALPODAUTOSCALER:
                 targetClass = K8HPADto.class;
                 k8ObjectManipulator = HPAManipulator.getInstance();
+                break;
+            case RANDOMAUTOSCALER:
+                targetClass = K8HPADto.class;
+                k8ObjectManipulator = RandomAutoScalerManipulator.getInstance();
                 break;
             default:
                 throw new ParsingException("Could not identify kind '" + s + "' of Kubernetes Object in YAML file at " + src);

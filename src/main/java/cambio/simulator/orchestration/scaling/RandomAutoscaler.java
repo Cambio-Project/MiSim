@@ -1,26 +1,23 @@
 package cambio.simulator.orchestration.scaling;
 
-import cambio.simulator.orchestration.environment.*;
 import cambio.simulator.orchestration.k8objects.Deployment;
+import cambio.simulator.orchestration.management.ManagementPlane;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Random;
 
-public class HorizontalPodAutoscaler extends AutoScaler {
+public class RandomAutoscaler extends AutoScaler {
+    Random random = new Random(ManagementPlane.getInstance().getExperimentSeed());
 
 
-    public HorizontalPodAutoscaler() {
-        this.rename("HPA");
+    public RandomAutoscaler() {
+        this.rename("RandomAutoScaler");
+        holdTimeUp = 0;
+        holdTimeDown = 0;
     }
 
     @Override
     public void apply(Deployment deployment) {
-        //https://github.com/kubernetes/kubernetes/blob/8caeec429ee1d2a9df7b7a41b21c626346b456fb/docs/design/horizontal-pod-autoscaler.md#autoscaling-algorithm
-//        Scale-up can only happen if there was no rescaling within the last 3 minutes. Scale-down will wait for 5 minutes from the last rescaling.
-//        Moreover any scaling will only be made if: avg(CurrentPodsConsumption) / Target drops below 0.9 or increases above 1.1 (10% tolerance)
-
         final double lastRescaling = deployment.getLastRescaling().getTimeAsDouble();
-
         final double timePassed = presentTime().getTimeAsDouble() - lastRescaling;
         boolean upscalingAllowed = timePassed >= holdTimeUp;
         boolean downscalingAllowed = timePassed >= holdTimeDown;
@@ -31,31 +28,9 @@ public class HorizontalPodAutoscaler extends AutoScaler {
             downscalingAllowed = true;
         }
 
-        double target = deployment.getAverageUtilization(); //in percent
 
         if (upscalingAllowed || downscalingAllowed) {
-            List<Double> podConsumptions = new ArrayList<>();
-            for (Pod pod : deployment.getReplicaSet()) {
-                if (pod.getPodState() == PodState.RUNNING) {
-                    double podCPUUtilization = 0;
-                    for (Container container : pod.getContainers()) {
-                        if (container.getContainerState() == ContainerState.RUNNING) {
-                            double relativeWorkDemand = container.getMicroserviceInstance().getRelativeWorkDemand();
-                            podCPUUtilization += relativeWorkDemand;
-                        }
-                    }
-                    podConsumptions.add(podCPUUtilization);
-                }
-            }
-            double avg2Target = podConsumptions.stream().mapToDouble(d -> d).average().orElse(0) / target;
-            if (avg2Target > 0.9 && avg2Target < 1.1) {
-                sendTraceNote("No Scaling required for " + deployment + ".");
-                return;
-            }
-
-            double sumOfRelativeCPUUsage = podConsumptions.stream().mapToDouble(d-> d).sum();
-
-            int desiredReplicas = (int) Math.ceil((sumOfRelativeCPUUsage / target));
+            int desiredReplicas = random.nextInt();
 
             desiredReplicas = Math.min(desiredReplicas, deployment.getMaxReplicaCount());
             desiredReplicas = Math.max(deployment.getMinReplicaCount(), desiredReplicas);

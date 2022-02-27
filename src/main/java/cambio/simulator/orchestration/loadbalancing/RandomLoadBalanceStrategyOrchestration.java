@@ -16,6 +16,9 @@ import java.util.*;
 
 @JsonTypeName("random_orchestration")
 public class RandomLoadBalanceStrategyOrchestration implements ILoadBalancingStrategy {
+
+    Random random = new Random(ManagementPlane.getInstance().getExperimentSeed());
+
     @Override
     public MicroserviceInstance getNextInstance(Collection<MicroserviceInstance> runningInstances) throws NoInstanceAvailableException {
         throw new UnsupportedOperationException("Not supposed to be called in orchestration mode");
@@ -26,7 +29,7 @@ public class RandomLoadBalanceStrategyOrchestration implements ILoadBalancingStr
         final Set<Pod> replicaSet = microserviceOrchestration.getDeployment().getRunningReplicas();
 
         List<Pod> pods = new ArrayList<>(replicaSet);
-        Collections.shuffle(pods, new Random(ManagementPlane.getInstance().getExperimentSeed()));
+        Collections.shuffle(pods, random);
 
         for (Pod pod : pods) {
             final Set<Container> containers = pod.getContainers();

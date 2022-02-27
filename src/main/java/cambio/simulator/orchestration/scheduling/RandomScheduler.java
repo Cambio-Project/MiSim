@@ -12,6 +12,8 @@ import java.util.*;
 
 public class RandomScheduler extends Scheduler{
 
+    Random random = new Random(ManagementPlane.getInstance().getExperimentSeed());
+
     private static final RandomScheduler instance = new RandomScheduler();
 
     //private constructor to avoid client applications to use constructor
@@ -47,7 +49,7 @@ public class RandomScheduler extends Scheduler{
             int cpuDemand = pod.getCPUDemand();
             //Doing the same like FirstFitScheduler but nodes are shuffled.
             List<Node> nodes = new ArrayList<>(cluster.getNodes());
-            Collections.shuffle(nodes, new Random(ManagementPlane.getInstance().getExperimentSeed()));
+            Collections.shuffle(nodes, random);
             for (Node node : nodes) {
                 if (node.getReserved() + cpuDemand <= node.getTotalCPU()) {
                     candidateNote = node;
