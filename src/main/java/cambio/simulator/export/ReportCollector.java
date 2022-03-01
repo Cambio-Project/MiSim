@@ -14,7 +14,11 @@ import desmoj.core.report.Reporter;
  * @author Lion Wagner
  */
 public class ReportCollector extends ReportManager {
+
     private static final ReportCollector instance = new ReportCollector("Main");
+
+    //this requires instance to exist, so all static DataPointReporters need to be initialized here
+    public static final MultiDataPointReporter USER_REQUEST_REPORTER = new MultiDataPointReporter("R");
 
 
     public ReportCollector(String name) {
@@ -67,8 +71,8 @@ public class ReportCollector extends ReportManager {
             if (reporter instanceof MultiDataPointReporter) {
                 ((MultiDataPointReporter) reporter).reset();
             }
+            this.deRegister(reporter);
         });
-        this.elements().forEach(this::deRegister);
+        this.register(USER_REQUEST_REPORTER);
     }
-
 }

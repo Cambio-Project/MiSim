@@ -55,7 +55,7 @@ public class SimulationEndEvent extends NamedExternalEvent {
                 + " only contains information gathered before the simulation started.");
         }
 
-        clReport();
+        writeCommandLineReport();
     }
 
     private void triggerReport() {
@@ -63,9 +63,10 @@ public class SimulationEndEvent extends NamedExternalEvent {
         TreeMap<String, TreeMap<Double, Object>> sortedData = new TreeMap<>(data);
         ReportWriter.writeReporterCollectorOutput(sortedData,
             model.getExperimentMetaData().getReportLocation());
+        ReportCollector.getInstance().reset(); //reset the collector for static usage
     }
 
-    private void clReport() {
+    private void writeCommandLineReport() {
         ExperimentMetaData metaData = model.getExperimentMetaData();
         System.out.println("\n*** MiSim Report ***");
         System.out.println("Simulation of Architecture: "
