@@ -54,9 +54,10 @@ def write_dataset(ax: Axes, ax2: Axes, dataset: DataFrame):
                color="blue",
                label="Failed")
 
-    mask = np.isfinite(dataset["Successrate"])
-    ax2.plot(dataset["Simulation Time"][mask],
-             dataset["Successrate"][mask],
+    mask = np.logical_and(np.isfinite(dataset["Successrate"]), np.logical_not(np.isnan(dataset["Successrate"])))
+    succ_data = dataset[mask].sort_values(by=["Simulation Time"]).reset_index(drop=True)
+    ax2.plot(succ_data["Simulation Time"],
+             succ_data["Successrate"],
              color="black",
              linewidth=2,
              label="Successrate")
