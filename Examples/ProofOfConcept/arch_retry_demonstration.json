@@ -80,7 +80,7 @@
     {
       "name": "example-service",
       "instances": 1,
-      "capacity": 2147483647,
+      "capacity": 20000,
       "operations": [
         {
           "name": "example-service.DB_WRITE",
@@ -109,7 +109,7 @@
     {
       "name": "example-service2",
       "instances": 1,
-      "capacity": 2147483647,
+      "capacity": 20000,
       "operations": [
         {
           "name": "example-service2.get",
