@@ -1,195 +1,190 @@
 {
   "microservices": [
     {
-      "name": "users",
-      "instances": 3,
+      "name": "frontend",
+      "instances": 1,
 	  "loadbalancer_strategy": "leastUtil_orchestration",
       "patterns": [],
-      "capacity": 5,
+      "capacity": 2,
       "operations": [
         {
-          "name": "authentication",
+          "name": "createUser",
           "demand": 1,
-          "dependencies": []
+          "dependencies": [{
+            "service": "backend",
+            "operation": "createUser",
+            "probability": 1.0
+          }
+          ]
         },
         {
-          "name": "users.GET",
-          "demand": 5,
-          "dependencies": []
+          "name": "deleteUser",
+          "demand": 1,
+          "dependencies": [{
+            "service": "backend",
+            "operation": "deleteUser",
+            "probability": 1.0
+          }]
         },
         {
-          "name": "users.POST",
-          "demand": 2,
-          "dependencies": []
+          "name": "login",
+          "demand": 1,
+          "dependencies": [{
+            "service": "backend",
+            "operation": "login",
+            "probability": 1.0
+          }]
+        },
+        {
+          "name": "createPost",
+          "demand": 1,
+          "dependencies": [{
+            "service": "backend",
+            "operation": "createPost",
+            "probability": 1.0
+          }]
+        },
+        {
+          "name": "deletePost",
+          "demand": 1,
+          "dependencies": [{
+            "service": "backend",
+            "operation": "deletePost",
+            "probability": 1.0
+          }]
+        },
+        {
+          "name": "displayPosts",
+          "demand": 1,
+          "dependencies": [{
+            "service": "backend",
+            "operation": "displayPosts",
+            "probability": 1.0
+          }]
+        },
+        {
+          "name": "likePost",
+          "demand": 1,
+          "dependencies": [{
+            "service": "backend",
+            "operation": "likePost",
+            "probability": 1.0
+          }]
         }
       ]
     },
     {
-      "name": "customers",
+      "name": "backend",
       "instances": 1,
       "loadbalancer_strategy": "leastUtil_orchestration",
-      "patterns": [],
-      "capacity": 10,
-      "operations": [
-        {
-          "name": "authentication",
-          "demand": 5,
-          "dependencies": []
-        },
-        {
-          "name": "customers.GET",
-          "demand": 5,
-          "dependencies": []
-        },
-        {
-          "name": "customers.POST",
-          "demand": 2,
-          "dependencies": []
-        }
-      ]
-    },
-    {
-      "name": "frontend",
-      "instances": 5,
       "patterns": [],
       "capacity": 3,
       "operations": [
         {
-          "name": "getUsers",
-          "demand": 1,
-          "circuitBreaker": {
-            "rollingWindow": 10,
-            "requestVolumeThreshold": 3,
-            "errorThresholdPercentage": 0.5,
-            "timeout": 20,
-            "sleepWindow": 5
-          },
-          "dependencies": [
-            {
-              "service": "users",
-              "operation": "authentication",
-              "probability": 1.0
-            },
-            {
-              "service": "users",
-              "operation": "users.GET",
-              "probability": 1.0
-            }
-          ]
-        },
-        {
-          "name": "getCatalog",
-          "demand": 2,
-          "circuitBreaker": {
-            "rollingWindow": 10,
-            "requestVolumeThreshold": 3,
-            "errorThresholdPercentage": 0.5,
-            "timeout": 20,
-            "sleepWindow": 5
-          },
-          "dependencies": [
-            {
-              "service": "users",
-              "operation": "authentication",
-              "probability": 1.0
-            },
-            {
-              "service": "books",
-              "operation": "books.GET",
-              "probability": 1.0
-            }
-          ]
-        },
-        {
-          "name": "createBook",
-          "demand": 1,
-          "circuitBreaker": {
-            "rollingWindow": 10,
-            "requestVolumeThreshold": 3,
-            "errorThresholdPercentage": 0.5,
-            "timeout": 40,
-            "sleepWindow": 5
-          },
-          "dependencies": [
-            {
-              "service": "users",
-              "operation": "authentication",
-              "probability": 1.0
-            },
-            {
-              "service": "books",
-              "operation": "books.POST",
-              "probability": 1.0
-            }
-          ]
-        },
-		 {
-          "name": "deleteBook",
-          "demand": 1,
-          "circuitBreaker": {
-            "rollingWindow": 10,
-            "requestVolumeThreshold": 3,
-            "errorThresholdPercentage": 0.5,
-            "timeout": 20,
-            "sleepWindow": 5
-          },
-          "dependencies": [
-            {
-              "service": "books",
-              "operation": "books.GET",
-              "probability": 1.0
-            },
-            {
-              "service": "books",
-              "operation": "books.DELETE",
-              "probability": 1.0
-            }
-          ]
-        },
-        {
           "name": "createUser",
-          "demand": 2,
-          "circuitBreaker": {
-            "rollingWindow": 10,
-            "requestVolumeThreshold": 3,
-            "errorThresholdPercentage": 0.5,
-            "timeout": 40,
-            "sleepWindow": 5
+          "demand": 3,
+          "dependencies": [{
+            "service": "db",
+            "operation": "usersGET",
+            "probability": 1.0
           },
-          "dependencies": [
             {
-              "service": "users",
-              "operation": "authentication",
-              "probability": 1.0
-            },
-            {
-              "service": "users",
-              "operation": "users.POST",
-              "probability": 1.0
-            }
+            "service": "db",
+            "operation": "usersPOST",
+            "probability": 1.0
+          }
           ]
+        },
+        {
+          "name": "deleteUser",
+          "demand": 2,
+          "dependencies": [{
+            "service": "db",
+            "operation": "usersDELETE",
+            "probability": 1.0
+          }]
+        },
+        {
+          "name": "login",
+          "demand": 2,
+          "dependencies": [{
+            "service": "db",
+            "operation": "usersGET",
+            "probability": 1.0
+          }]
+        },
+        {
+          "name": "createPost",
+          "demand": 1,
+          "dependencies": [{
+            "service": "db",
+            "operation": "postsPOST",
+            "probability": 1.0
+          }]
+        },
+        {
+          "name": "deletePost",
+          "demand": 1,
+          "dependencies": [{
+            "service": "db",
+            "operation": "postsDELETE",
+            "probability": 1.0
+          }]
+        },
+        {
+          "name": "displayPosts",
+          "demand": 3,
+          "dependencies": [{
+            "service": "db",
+            "operation": "postsGET",
+            "probability": 1.0
+          }]
+        },
+        {
+          "name": "likePost",
+          "demand": 1,
+          "dependencies": [{
+            "service": "db",
+            "operation": "postsPOST",
+            "probability": 1.0
+          }]
         }
       ]
     },
     {
-      "name": "books",
+      "name": "db",
       "instances": 1,
       "patterns": [],
       "capacity": 5,
       "operations": [
         {
-          "name": "books.GET",
-          "demand": 4,
+          "name": "usersPOST",
+          "demand": 3,
           "dependencies": []
         },
         {
-          "name": "books.POST",
-          "demand": 4,
+          "name": "usersDELETE",
+          "demand": 1,
           "dependencies": []
         },
-		{
-          "name": "books.DELETE",
-          "demand": 5,
+        {
+          "name": "usersGET",
+          "demand": 2,
+          "dependencies": []
+        },
+        {
+          "name": "postsPOST",
+          "demand": 3,
+          "dependencies": []
+        },
+        {
+          "name": "postsDELETE",
+          "demand": 1,
+          "dependencies": []
+        },
+        {
+          "name": "postsGET",
+          "demand": 2,
           "dependencies": []
         }
       ]

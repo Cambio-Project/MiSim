@@ -1,77 +1,45 @@
 {
   "simulation_meta_data": {
-    "experiment_name": "ABCDE Experiment",
+    "experiment_name": "Blog Posts Experiment",
     "model_name": "architecture_model",
     "orchestrate": true,
     "orchestration_dir": "orchestration",
-    "duration": 60,
+    "duration": 300,
     "report": "",
     "datapoints": 20,
     "seed": 979
   },
   "request_generators": [
     {
-      "type": "interval",
+      "type": "limbo",
       "config": {
         "microservice": "frontend",
-        "operation": "createBook",
-        "interval": 5
+        "operation": "createUser",
+        "model": "./Examples/Orchestration/Load/createUsers.csv"
       }
     },
     {
-      "type": "interval",
+      "type": "limbo",
       "config": {
-        "microservice": "books",
-        "operation": "books.GET",
-        "interval": 10
-      }
-    }
-  ],
-  
-
-
-  "chaos_monkeys": [
-    {
-      "type": "monkey",
-      "config":     {
-        "microservice": "books",
-        "instances": 1,
-        "time": 5
+        "microservice": "frontend",
+        "operation": "deleteUser",
+        "model": "./Examples/Orchestration/Load/deleteUser.csv"
       }
     },
     {
-      "type": "monkey",
-      "config":     {
-        "microservice": "books",
-        "instances": 1,
-        "time": 20
+      "type": "limbo",
+      "config": {
+        "microservice": "frontend",
+        "operation": "displayPosts",
+        "model": "./Examples/Orchestration/Load/main_phase.csv"
       }
     },
     {
-      "type": "monkey",
-      "config":     {
-        "microservice": "books",
-        "instances": 1,
-        "time": 60
-      }
-    },
-    {
-      "type": "monkey",
-      "config":     {
-        "microservice": "books",
-        "instances": 1,
-        "time": 900
-      }
-    }
-  ],
-
-  "chaos_monkeys_pods": [
-    {
-      "type": "monkey_pods",
-      "config":     {
-        "deployment": "frontend-deployment",
-        "instances": 1,
-        "time": 30
+      "type": "limbo",
+      "config": {
+        "microservice": "frontend",
+        "operation": "likePost",
+        "model": "./Examples/Orchestration/Load/main_phase.csv"
       }
     }
   ]

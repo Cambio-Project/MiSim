@@ -1,13 +1,17 @@
 nodes:
-  amount: 10
-  cpu: 20
+  amount: 1
+  cpu: 10
 customNodes:
   - name: Test5Node
-    cpu: 0
+    cpu: 5
+  - name: Test6Node
+    cpu: 6
+  - name: Large
+    cpu: 10
 scaler:
   holdTimeUpScaler: 5
   holdTimeDownScaler: 3
-loadBalancer: leastUtil_orchestration
+loadBalancer: random_orchestration
 scheduler: firstFit
 schedulerPrio:
   - name: kube
@@ -15,5 +19,7 @@ schedulerPrio:
   - name: firstFit
     prio: 3
 startUpTimeContainer:
+  - name: books
+    time: 4
   - name: frontend
-    time: 5
+    time: 3

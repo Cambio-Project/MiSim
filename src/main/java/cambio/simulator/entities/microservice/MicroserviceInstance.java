@@ -24,6 +24,8 @@ import cambio.simulator.entities.patterns.InstanceOwnedPattern;
 import cambio.simulator.entities.patterns.InstanceOwnedPatternConfiguration;
 import cambio.simulator.entities.patterns.Retry;
 import cambio.simulator.export.MultiDataPointReporter;
+import cambio.simulator.models.MiSimModel;
+import cambio.simulator.orchestration.MicroserviceOrchestration;
 import cambio.simulator.resources.cpu.CPU;
 import cambio.simulator.resources.cpu.CPUProcess;
 import cambio.simulator.resources.cpu.scheduling.FIFOScheduler;
@@ -219,7 +221,14 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
 
         } else if (request.getDependencies().isEmpty() || request.areDependenciesCompleted()) {
             CPUProcess newProcess = new CPUProcess(request);
-            cpu.submitProcess(newProcess);
+            if (MiSimModel.orchestrated){
+                MicroserviceOrchestration owner = (MicroserviceOrchestration) this.getOwner();
+                MicroserviceInstance nextAvailableInstance = owner.getNextAvailableInstance();
+                nextAvailableInstance.getCpu().submitProcess(newProcess);
+            }else{
+                cpu.submitProcess(newProcess);
+            }
+
         } else {
             for (NetworkDependency dependency : request.getDependencies()) {
                 currentlyOpenDependencies.add(dependency);

@@ -18,6 +18,7 @@ import cambio.simulator.orchestration.environment.Cluster;
 import cambio.simulator.orchestration.management.ManagementPlane;
 import cambio.simulator.orchestration.management.MasterTasksExecutor;
 import cambio.simulator.orchestration.environment.Node;
+import cambio.simulator.orchestration.management.StatsTasksExecutor;
 import cambio.simulator.orchestration.parsing.ConfigDto;
 import cambio.simulator.orchestration.parsing.ParsingException;
 import cambio.simulator.orchestration.parsing.YAMLParser;
@@ -138,6 +139,9 @@ public class MiSimModel extends Model {
 
         final MasterTasksExecutor masterTasksExecutor = new MasterTasksExecutor(getModel(), "MasterTaskExecutor", getModel().traceIsOn());
         masterTasksExecutor.doInitialSelfSchedule();
+        final StatsTasksExecutor statsTasksExecutor = new StatsTasksExecutor(getModel(), "StatsExecutor", getModel().traceIsOn());
+        statsTasksExecutor.doInitialSelfSchedule();
+
         System.out.println("### Initialization of Container Orchestration finished ###");
         System.out.println();
 

@@ -1,13 +1,13 @@
 apiVersion: autoscaling/v2beta2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: users-hpa
+  name: db-hpa
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: users-deployment
-  minReplicas: 2
+    name: db-deployment
+  minReplicas: 1
   maxReplicas: 10
   metrics:
     - type: Resource
@@ -15,4 +15,4 @@ spec:
         name: cpu
         target:
           type: Utilization
-          averageUtilization: 10
+          averageUtilization: 20

@@ -90,10 +90,9 @@ ManagementPlane {
      */
     public void checkIfPodRemovableFromNode(Pod pod, Node node) {
         for (Container container : pod.getContainers()) {
-            if (container.getMicroserviceInstance().getState() != InstanceState.SHUTDOWN) {
-
-                double relativeWorkDemand = container.getMicroserviceInstance().getRelativeWorkDemand();
-                getModel().sendTraceNote("Cannot remove pod with " +container.getMicroserviceInstance().getName() + " because at least one container is still calculating. Current Relative WorkDemand: " + relativeWorkDemand);
+            double relativeWorkDemand = container.getMicroserviceInstance().getRelativeWorkDemand();
+            if (relativeWorkDemand > 0) {
+                getModel().sendTraceNote("Cannot remove pod with " + container.getMicroserviceInstance().getName() + " because at least one container is still calculating. Current Relative WorkDemand: " + relativeWorkDemand);
                 final CheckPodRemovableEvent checkPodRemovableEvent = new CheckPodRemovableEvent(getModel(), "Check if pod can be removed", getModel().traceIsOn());
                 checkPodRemovableEvent.schedule(pod, node, new TimeSpan(2));
                 return;
@@ -141,18 +140,18 @@ ManagementPlane {
         return collect;
     }
 
-    public Deployment getDeploymentForPod(Pod pod){
+    public Deployment getDeploymentForPod(Pod pod) {
         Optional<Deployment> first = deployments.stream().filter(deployment -> deployment.getReplicaSet().contains(pod)).findFirst();
-        if(first.isPresent()){
+        if (first.isPresent()) {
             return first.get();
         }
         return null;
     }
 
-    public Pod getPodForContainer(Container container){
+    public Pod getPodForContainer(Container container) {
         List<Pod> collect = deployments.stream().map(deployment -> deployment.getReplicaSet()).flatMap(Collection::stream).collect(Collectors.toList());
         Optional<Pod> first = collect.stream().filter(pod -> pod.getContainers().contains(container)).findFirst();
-        if(first.isPresent()){
+        if (first.isPresent()) {
             return first.get();
         }
         return null;
@@ -174,7 +173,7 @@ ManagementPlane {
         return model;
     }
 
-    public int getExperimentSeed(){
+    public int getExperimentSeed() {
         return ((MiSimModel) getModel()).getExperimentMetaData().getSeed();
     }
 

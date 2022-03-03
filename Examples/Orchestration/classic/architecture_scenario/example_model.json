@@ -1,0 +1,78 @@
+{
+  "simulation_meta_data": {
+    "experiment_name": "ABCDE Experiment",
+    "model_name": "architecture_model",
+    "orchestrate": true,
+    "orchestration_dir": "orchestration",
+    "duration": 60,
+    "report": "",
+    "datapoints": 20,
+    "seed": 979
+  },
+  "request_generators": [
+    {
+      "type": "interval",
+      "config": {
+        "microservice": "frontend",
+        "operation": "createBook",
+        "interval": 5
+      }
+    },
+    {
+      "type": "interval",
+      "config": {
+        "microservice": "books",
+        "operation": "books.GET",
+        "interval": 10
+      }
+    }
+  ],
+  
+
+
+  "chaos_monkeys": [
+    {
+      "type": "monkey",
+      "config":     {
+        "microservice": "books",
+        "instances": 1,
+        "time": 5
+      }
+    },
+    {
+      "type": "monkey",
+      "config":     {
+        "microservice": "books",
+        "instances": 1,
+        "time": 20
+      }
+    },
+    {
+      "type": "monkey",
+      "config":     {
+        "microservice": "books",
+        "instances": 1,
+        "time": 60
+      }
+    },
+    {
+      "type": "monkey",
+      "config":     {
+        "microservice": "books",
+        "instances": 1,
+        "time": 900
+      }
+    }
+  ],
+
+  "chaos_monkeys_pods": [
+    {
+      "type": "monkey_pods",
+      "config":     {
+        "deployment": "frontend-deployment",
+        "instances": 1,
+        "time": 30
+      }
+    }
+  ]
+}

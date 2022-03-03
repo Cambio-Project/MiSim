@@ -15,6 +15,7 @@ import desmoj.core.simulator.TimeInstant;
 
 import java.rmi.UnexpectedException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -76,10 +77,10 @@ public class Deployment extends K8Object {
 //            return;
 //        }
 
-        final Pod pod = new Pod(getModel(), "Pod-"+this.getPlainName(), traceIsOn());
+        final Pod pod = new Pod(getModel(), "Pod-" + this.getPlainName(), traceIsOn());
         for (MicroserviceOrchestration microserviceOrchestration : services) {
             final MicroserviceInstance microServiceInstance = microserviceOrchestration.createMicroServiceInstance();
-            final Container container = new Container(getModel(), "Container[" + microserviceOrchestration.getPlainName()+"]", traceIsOn(), microServiceInstance);
+            final Container container = new Container(getModel(), "Container[" + microserviceOrchestration.getPlainName() + "]", traceIsOn(), microServiceInstance);
             pod.getContainers().add(container);
         }
         replicaSet.add(pod);
@@ -96,7 +97,7 @@ public class Deployment extends K8Object {
                 Scheduler scheduler = Util.getInstance().getSchedulerInstanceByType(this.schedulerType);
                 scheduler.getPodWaitingQueue().remove(pod);
                 this.getReplicaSet().remove(optionalPendingPod.get());
-                sendTraceNote("A pending pod was removed from "+this.getPlainName()+" and from " + scheduler.getSchedulerType().getDisplayName());
+                sendTraceNote("A pending pod was removed from " + this.getPlainName() + " and from " + scheduler.getSchedulerType().getDisplayName());
             } catch (UnexpectedException e) {
                 e.printStackTrace();
                 System.exit(1);
@@ -104,13 +105,36 @@ public class Deployment extends K8Object {
             return;
         }
 
-        final Optional<Pod> optionalPod = replicaSet.stream().filter(pod -> pod.getPodState() == PodState.RUNNING).findFirst();
-        if (!optionalPod.isPresent()) {
-            //Should not happen. If there is neither a pending or running pod, then this method should not have been called
+        final List<Pod> pods = replicaSet.stream().filter(pod -> pod.getPodState() == PodState.RUNNING).collect(Collectors.toList());
+        if (pods.isEmpty()) {
+            //Should not happen. If there is neither a pending nor a running pod, then this method should not have been called
             sendTraceNote("There is no pod that could be removed");
             return;
         }
-        final Pod podToRemove = optionalPod.get();
+        Pod podWithLeastConsumption = null;
+        double podCPUUtilizationLeast = 0;
+        for (Pod pod : pods) {
+            double podCPUUtilization = 0;
+            for (Container container : pod.getContainers()) {
+                if (container.getContainerState() == ContainerState.RUNNING) {
+                    double relativeWorkDemand = container.getMicroserviceInstance().getRelativeWorkDemand();
+                    podCPUUtilization += relativeWorkDemand;
+                }
+            }
+
+            if (podWithLeastConsumption != null){
+                if(podCPUUtilization < podCPUUtilizationLeast){
+                    podCPUUtilizationLeast = podCPUUtilization;
+                    podWithLeastConsumption = pod;
+                }
+
+            } else{
+                podWithLeastConsumption = pod;
+                podCPUUtilizationLeast = podCPUUtilization;
+            }
+        }
+
+        final Pod podToRemove = podWithLeastConsumption;
         Node lastKnownNode = podToRemove.getLastKnownNode();
         if (lastKnownNode != null) {
             lastKnownNode.startRemovingPod(podToRemove);
@@ -140,8 +164,8 @@ public class Deployment extends K8Object {
 
     }
 
-    public void scale(){
-        if(autoScaler!=null){
+    public void scale() {
+        if (autoScaler != null) {
             autoScaler.apply(this);
         }
     }
@@ -174,11 +198,11 @@ public class Deployment extends K8Object {
         return getCurrentRunningOrPendingReplicas().size();
     }
 
-    public Set<Pod> getCurrentRunningOrPendingReplicas(){
+    public Set<Pod> getCurrentRunningOrPendingReplicas() {
         return getReplicaSet().stream().filter(pod -> pod.getPodState() == PodState.RUNNING || pod.getPodState() == PodState.PENDING).collect(Collectors.toSet());
     }
 
-    public Set<Pod> getRunningReplicas(){
+    public Set<Pod> getRunningReplicas() {
         return getReplicaSet().stream().filter(pod -> pod.getPodState() == PodState.RUNNING).collect(Collectors.toSet());
     }
 

@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: frontend-deployment
+  name: backend-deployment
   labels:
-    app: frontend
+    app: backend
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: frontend
+      app: backend
   template:
     metadata:
       labels:
-        app: frontend
+        app: backend
     spec:
       schedulerName: firstFit
       containers:
-        - name: frontend
+        - name: backend
