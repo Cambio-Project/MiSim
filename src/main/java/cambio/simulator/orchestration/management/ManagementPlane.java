@@ -157,6 +157,15 @@ ManagementPlane {
         return null;
     }
 
+    public int getAmountOfWaitingPods(){
+        int amountPodsWaiting = 0;
+        for (SchedulerType schedulerType : schedulerMap.keySet()) {
+            Scheduler scheduler = schedulerMap.get(schedulerType);
+            amountPodsWaiting += scheduler.getPodWaitingQueue().size();
+        }
+        return amountPodsWaiting;
+    }
+
     public List<Deployment> getDeployments() {
         return deployments;
     }

@@ -1,6 +1,6 @@
 nodes:
-  amount: 10
-  cpu: 20
+  amount: 2
+  cpu: 10
 customNodes:
   - name: Test5Node
     cpu: 0

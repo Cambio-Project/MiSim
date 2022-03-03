@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -22,6 +24,7 @@ import cambio.simulator.orchestration.Stats;
 import cambio.simulator.orchestration.k8objects.Deployment;
 import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.ExternalEvent;
+import desmoj.core.simulator.Model;
 
 import static java.nio.file.Files.*;
 
@@ -70,6 +73,11 @@ public class SimulationEndEvent extends NamedExternalEvent {
         createOrchestrationReport(currentRunName);
     }
 
+    public SimulationEndEvent(Model model, String name, boolean showInTrace, MiSimModel model1) {
+        super(model, name, showInTrace);
+        this.model = model1;
+    }
+
     public void createOrchestrationReport(String currentRunName) {
         //Create orchestration record directory
 
@@ -87,8 +95,14 @@ public class SimulationEndEvent extends NamedExternalEvent {
             // If you require it to make the entire directory path including parents,
             // use directory.mkdirs(); here instead.
         }
+        //copy run specific config files
+        try {
+            copyDirectory("orchestration", directoryScalingSpecificRun.getPath());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-        //Create Data for scaling
+        //###Create Data for scaling###
 
         String directoryNameScaling = "Scaling";
         File directoryScaling = new File(directoryScalingSpecificRun.getPath() + "/" + directoryNameScaling);
@@ -96,13 +110,6 @@ public class SimulationEndEvent extends NamedExternalEvent {
             directoryScaling.mkdir();
             // If you require it to make the entire directory path including parents,
             // use directory.mkdirs(); here instead.
-        }
-
-
-        try {
-            copyDirectory("orchestration", directoryScalingSpecificRun.getPath());
-        } catch (IOException e) {
-            e.printStackTrace();
         }
 
         Map<Deployment, List<Stats.ScalingRecord>> deploymentRecordsMap = Stats.getInstance().getDeploymentRecordsMap();
@@ -127,7 +134,51 @@ public class SimulationEndEvent extends NamedExternalEvent {
                 e.printStackTrace();
             }
         }
+
+        //###END of: Create Data for scaling###
+
+        //###Create Data for scheduling###
+        String directoryNameScheduling = "Scheduling";
+        File directoryScheduling = new File(directoryScalingSpecificRun.getPath() + "/" + directoryNameScheduling);
+        if (!directoryScheduling.exists()) {
+            directoryScheduling.mkdir();
+            // If you require it to make the entire directory path including parents,
+            // use directory.mkdirs(); here instead.
+        }
+
+        List<Stats.SchedulingRecord> schedulingRecords = Stats.getInstance().getSchedulingRecords();
+
+        File csvOutputFile = new File(directoryScheduling.getPath() + "/" + "scheduling_results.csv");
+
+
+        try (PrintWriter pw = new PrintWriter(csvOutputFile)) {
+            ArrayList<String> content = new ArrayList<>();
+            content.add("Time");
+            content.add("Capacity");
+            content.add("Reserved");
+            content.add("#PodsOnNodes");
+            content.add("#PodsWaiting");
+            content.add("Utilization");
+            pw.println(convertToCSV(content));
+            for (Stats.SchedulingRecord schedulingRecord : schedulingRecords) {
+                content.clear();
+                content.add(String.valueOf(schedulingRecord.getTime()));
+                content.add(String.valueOf(schedulingRecord.getCapacityTogether()));
+                content.add(String.valueOf(schedulingRecord.getReservedTogether()));
+                content.add(String.valueOf(schedulingRecord.getAmountPodsOnNodes()));
+                content.add(String.valueOf(schedulingRecord.getAmountPodsWaiting()));
+                double utilization = (double) schedulingRecord.getAmountPodsOnNodes() / (schedulingRecord.getAmountPodsOnNodes() + schedulingRecord.getAmountPodsWaiting());
+                utilization = BigDecimal.valueOf(utilization)
+                        .setScale(2, RoundingMode.HALF_UP)
+                        .doubleValue();
+                content.add(String.valueOf(utilization));
+                pw.println(convertToCSV(content));
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
+
 
     public static void copyDirectory(String sourceDirectoryLocation, String destinationDirectoryLocation)
             throws IOException {
