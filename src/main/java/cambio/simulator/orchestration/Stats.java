@@ -1,5 +1,6 @@
 package cambio.simulator.orchestration;
 
+import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.orchestration.environment.*;
 import cambio.simulator.orchestration.k8objects.Deployment;
 import cambio.simulator.orchestration.management.ManagementPlane;
@@ -8,7 +9,10 @@ import desmoj.core.simulator.Model;
 import java.util.*;
 
 public class Stats {
+    //only for MiSim
+    Map<Microservice, List<ScalingRecord>> microServiceRecordsMap = new HashMap<>();
 
+    //only in orchestration mode
     Map<Deployment, List<ScalingRecord>> deploymentRecordsMap = new HashMap<>();
     List<SchedulingRecord> schedulingRecords = new ArrayList<>();
 
@@ -171,5 +175,13 @@ public class Stats {
                 deploymentRecordsMap.put(deployment, scalingRecordList);
             }
         }
+    }
+
+    public Map<Microservice, List<ScalingRecord>> getMicroServiceRecordsMap() {
+        return microServiceRecordsMap;
+    }
+
+    public void setMicroServiceRecordsMap(Map<Microservice, List<ScalingRecord>> microServiceRecordsMap) {
+        this.microServiceRecordsMap = microServiceRecordsMap;
     }
 }

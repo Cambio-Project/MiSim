@@ -3,151 +3,175 @@
     {
       "name": "frontend",
       "instances": 1,
-	  "loadbalancer_strategy": "leastUtil_orchestration",
       "patterns": [],
       "capacity": 2,
       "operations": [
         {
           "name": "createUser",
           "demand": 1,
-          "dependencies": [{
-            "service": "backend",
-            "operation": "createUser",
-            "probability": 1.0
-          }
+          "dependencies": [
+            {
+              "service": "backend",
+              "operation": "createUser",
+              "probability": 1.0
+            }
           ]
         },
         {
           "name": "deleteUser",
           "demand": 1,
-          "dependencies": [{
-            "service": "backend",
-            "operation": "deleteUser",
-            "probability": 1.0
-          }]
+          "dependencies": [
+            {
+              "service": "backend",
+              "operation": "deleteUser",
+              "probability": 1.0
+            }
+          ]
         },
         {
           "name": "login",
           "demand": 1,
-          "dependencies": [{
-            "service": "backend",
-            "operation": "login",
-            "probability": 1.0
-          }]
+          "dependencies": [
+            {
+              "service": "backend",
+              "operation": "login",
+              "probability": 1.0
+            }
+          ]
         },
         {
           "name": "createPost",
           "demand": 1,
-          "dependencies": [{
-            "service": "backend",
-            "operation": "createPost",
-            "probability": 1.0
-          }]
+          "dependencies": [
+            {
+              "service": "backend",
+              "operation": "createPost",
+              "probability": 1.0
+            }
+          ]
         },
         {
           "name": "deletePost",
           "demand": 1,
-          "dependencies": [{
-            "service": "backend",
-            "operation": "deletePost",
-            "probability": 1.0
-          }]
+          "dependencies": [
+            {
+              "service": "backend",
+              "operation": "deletePost",
+              "probability": 1.0
+            }
+          ]
         },
         {
           "name": "displayPosts",
           "demand": 1,
-          "dependencies": [{
-            "service": "backend",
-            "operation": "displayPosts",
-            "probability": 1.0
-          }]
+          "dependencies": [
+            {
+              "service": "backend",
+              "operation": "displayPosts",
+              "probability": 1.0
+            }
+          ]
         },
         {
           "name": "likePost",
           "demand": 1,
-          "dependencies": [{
-            "service": "backend",
-            "operation": "likePost",
-            "probability": 1.0
-          }]
+          "dependencies": [
+            {
+              "service": "backend",
+              "operation": "likePost",
+              "probability": 1.0
+            }
+          ]
         }
       ]
     },
     {
       "name": "backend",
       "instances": 1,
-      "loadbalancer_strategy": "leastUtil_orchestration",
       "patterns": [],
       "capacity": 3,
       "operations": [
         {
           "name": "createUser",
           "demand": 3,
-          "dependencies": [{
-            "service": "db",
-            "operation": "usersGET",
-            "probability": 1.0
-          },
+          "dependencies": [
             {
-            "service": "db",
-            "operation": "usersPOST",
-            "probability": 1.0
-          }
+              "service": "db",
+              "operation": "usersGET",
+              "probability": 1.0
+            },
+            {
+              "service": "db",
+              "operation": "usersPOST",
+              "probability": 1.0
+            }
           ]
         },
         {
           "name": "deleteUser",
           "demand": 2,
-          "dependencies": [{
-            "service": "db",
-            "operation": "usersDELETE",
-            "probability": 1.0
-          }]
+          "dependencies": [
+            {
+              "service": "db",
+              "operation": "usersDELETE",
+              "probability": 1.0
+            }
+          ]
         },
         {
           "name": "login",
           "demand": 2,
-          "dependencies": [{
-            "service": "db",
-            "operation": "usersGET",
-            "probability": 1.0
-          }]
+          "dependencies": [
+            {
+              "service": "db",
+              "operation": "usersGET",
+              "probability": 1.0
+            }
+          ]
         },
         {
           "name": "createPost",
           "demand": 1,
-          "dependencies": [{
-            "service": "db",
-            "operation": "postsPOST",
-            "probability": 1.0
-          }]
+          "dependencies": [
+            {
+              "service": "db",
+              "operation": "postsPOST",
+              "probability": 1.0
+            }
+          ]
         },
         {
           "name": "deletePost",
           "demand": 1,
-          "dependencies": [{
-            "service": "db",
-            "operation": "postsDELETE",
-            "probability": 1.0
-          }]
+          "dependencies": [
+            {
+              "service": "db",
+              "operation": "postsDELETE",
+              "probability": 1.0
+            }
+          ]
         },
         {
           "name": "displayPosts",
           "demand": 3,
-          "dependencies": [{
-            "service": "db",
-            "operation": "postsGET",
-            "probability": 1.0
-          }]
+          "dependencies": [
+            {
+              "service": "db",
+              "operation": "postsGET",
+              "probability": 1.0
+            }
+          ]
         },
         {
           "name": "likePost",
           "demand": 1,
-          "dependencies": [{
-            "service": "db",
-            "operation": "postsPOST",
-            "probability": 1.0
-          }]
+          "dependencies": [
+            {
+              "service": "db",
+              "operation": "postsPOST",
+              "probability": 1.0
+            }
+          ]
         }
       ]
     },

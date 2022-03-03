@@ -1,6 +1,6 @@
 nodes:
   amount: 2
-  cpu: 10
+  cpu: 100
 customNodes:
   - name: Test5Node
     cpu: 0
@@ -16,4 +16,8 @@ schedulerPrio:
     prio: 3
 startUpTimeContainer:
   - name: frontend
-    time: 5
+    time: 0
+  - name: backend
+    time: 0
+  - name: db
+    time: 0

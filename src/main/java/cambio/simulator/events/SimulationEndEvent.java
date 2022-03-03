@@ -70,12 +70,71 @@ public class SimulationEndEvent extends NamedExternalEvent {
         clReport();
 
         String currentRunName = "A1";
-        createOrchestrationReport(currentRunName);
+        if (MiSimModel.orchestrated) {
+            createOrchestrationReport(currentRunName);
+        } else {
+            createPureMiSimReport(currentRunName);
+        }
     }
 
     public SimulationEndEvent(Model model, String name, boolean showInTrace, MiSimModel model1) {
         super(model, name, showInTrace);
         this.model = model1;
+    }
+
+    public void createPureMiSimReport(String currentRunName) {
+        //Create orchestration record directory
+
+        String directoryName = "pure_MiSim_records";
+        File directory = new File(directoryName);
+        if (!directory.exists()) {
+            directory.mkdir();
+            // If you require it to make the entire directory path including parents,
+            // use directory.mkdirs(); here instead.
+        }
+
+        File directoryScalingSpecificRun = new File(directory.getPath() + "/" + currentRunName);
+        if (!directoryScalingSpecificRun.exists()) {
+            directoryScalingSpecificRun.mkdir();
+            // If you require it to make the entire directory path including parents,
+            // use directory.mkdirs(); here instead.
+        }
+
+        //###Create Data for scaling###
+
+        String directoryNameScaling = "Scaling";
+        File directoryScaling = new File(directoryScalingSpecificRun.getPath() + "/" + directoryNameScaling);
+        if (!directoryScaling.exists()) {
+            directoryScaling.mkdir();
+            // If you require it to make the entire directory path including parents,
+            // use directory.mkdirs(); here instead.
+        }
+
+        Map<Microservice, List<Stats.ScalingRecord>> microServiceRecordsMap = Stats.getInstance().getMicroServiceRecordsMap();
+
+        for (Microservice microservice : microServiceRecordsMap.keySet()) {
+            List<Stats.ScalingRecord> scalingRecords = microServiceRecordsMap.get(microservice);
+            File csvOutputFile = new File(directoryScaling.getPath() + "/" + microservice.getPlainName() + ".csv");
+            try (PrintWriter pw = new PrintWriter(csvOutputFile)) {
+                ArrayList<String> content = new ArrayList<>();
+                content.add("Time");
+                content.add("AvgConsumption");
+                content.add("#Instances");
+                pw.println(convertToCSV(content));
+                for (Stats.ScalingRecord scalingRecord : scalingRecords) {
+                    content.clear();
+                    content.add(String.valueOf(scalingRecord.getTime()));
+                    content.add(String.valueOf(scalingRecord.getAvgConsumption()));
+                    content.add(String.valueOf(scalingRecord.getAmountPods()));
+                    pw.println(convertToCSV(content));
+                }
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+
+        //###END of: Create Data for scaling###
+
     }
 
     public void createOrchestrationReport(String currentRunName) {
@@ -174,6 +233,38 @@ public class SimulationEndEvent extends NamedExternalEvent {
                 content.add(String.valueOf(utilization));
                 pw.println(convertToCSV(content));
             }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        //###End of: Create Data for scheduling###
+
+        //###Create Data for Performance###
+        String directoryNamePerformance = "Performance";
+        File directoryPerformance = new File(directoryScalingSpecificRun.getPath() + "/" + directoryNamePerformance);
+        if (!directoryPerformance.exists()) {
+            directoryPerformance.mkdir();
+            // If you require it to make the entire directory path including parents,
+            // use directory.mkdirs(); here instead.
+        }
+
+
+        File csvOutputFilePerformance = new File(directoryPerformance.getPath() + "/" + "performance_results.csv");
+
+
+        try (PrintWriter pw = new PrintWriter(csvOutputFilePerformance)) {
+            ArrayList<String> content = new ArrayList<>();
+            content.add("Setup_time");
+            content.add("Experiment_time");
+            content.add("Report_time");
+            content.add("Execution_time");
+            pw.println(convertToCSV(content));
+            content.clear();
+            ExperimentMetaData metaData = model.getExperimentMetaData();
+            content.add(String.valueOf(cambio.simulator.orchestration.Util.nanoSecondsToMilliSeconds(metaData.getSetupDuration())));
+            content.add(String.valueOf(cambio.simulator.orchestration.Util.nanoSecondsToMilliSeconds(metaData.getExperimentDuration())));
+            content.add(String.valueOf(cambio.simulator.orchestration.Util.nanoSecondsToMilliSeconds(metaData.getReportDuration())));
+            content.add(String.valueOf(cambio.simulator.orchestration.Util.nanoSecondsToMilliSeconds(metaData.getExecutionDuration())));
+            pw.println(convertToCSV(content));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }

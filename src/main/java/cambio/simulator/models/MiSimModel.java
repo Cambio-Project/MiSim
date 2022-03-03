@@ -12,6 +12,7 @@ import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.events.ISelfScheduled;
 import cambio.simulator.events.SimulationEndEvent;
 import cambio.simulator.export.MultiDataPointReporter;
+import cambio.simulator.orchestration.MiSimSpecific.StatsMiSimTasksExecutor;
 import cambio.simulator.orchestration.MicroserviceOrchestration;
 import cambio.simulator.orchestration.Util;
 import cambio.simulator.orchestration.environment.Cluster;
@@ -94,6 +95,8 @@ public class MiSimModel extends Model {
         } else {
             System.out.println("Using MiSim WITHOUT Container Orchestration");
             architectureModel.getMicroservices().forEach(Microservice::start);
+            final StatsMiSimTasksExecutor statsMiSimTasksExecutor = new StatsMiSimTasksExecutor(getModel(), "StatsMiSimExecutor", getModel().traceIsOn());
+            statsMiSimTasksExecutor.doInitialSelfSchedule();
         }
 
         for (ISelfScheduled selfScheduledEvent : experimentModel.getAllSelfSchedulesEntities()) {

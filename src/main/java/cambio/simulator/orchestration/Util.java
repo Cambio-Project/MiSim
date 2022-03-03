@@ -15,6 +15,7 @@ import cambio.simulator.orchestration.scheduling.*;
 import java.io.File;
 import java.rmi.UnexpectedException;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -112,5 +113,9 @@ public class Util {
         } else {
             throw new UnexpectedException("Unknown Load Balancing Strategy: " + loadBalancingStrategy);
         }
+    }
+
+    public static long nanoSecondsToMilliSeconds(long nanosecs) {
+        return TimeUnit.MILLISECONDS.convert(nanosecs, TimeUnit.NANOSECONDS);
     }
 }
