@@ -34,7 +34,7 @@ import desmoj.core.simulator.TimeInstant;
  * MicroserviceInstance}.
  *
  * @author Lion Wagner
- * @see CircuitBreakerState
+ * @see CountingCircuitBreakerState
  * @see Microservice
  * @see MicroserviceInstance
  */
@@ -42,7 +42,7 @@ import desmoj.core.simulator.TimeInstant;
 public final class CircuitBreaker extends InstanceOwnedPattern implements IRequestUpdateListener {
 
     private final Set<ServiceDependencyInstance> activeConnections = new HashSet<>();
-    private final Map<Microservice, CircuitBreakerState> breakerStates = new HashMap<>();
+    private final Map<Microservice, TimingWindowCircuitBreakerState> breakerStates = new HashMap<>();
     private final Map<Microservice, Integer> activeConnectionCount = new HashMap<>();
     private final MultiDataPointReporter reporter;
 
@@ -53,8 +53,6 @@ public final class CircuitBreaker extends InstanceOwnedPattern implements IReque
     private double errorThresholdPercentage = Double.POSITIVE_INFINITY;
     @Expose
     private double sleepWindow = 0.500;
-    @Expose
-    private int timeout = Integer.MAX_VALUE;
     @Expose
     private int rollingWindow = 20; //window over which error rates are collected
 
@@ -86,9 +84,9 @@ public final class CircuitBreaker extends InstanceOwnedPattern implements IReque
         Microservice target = dep.getTargetService();
         activeConnections.add(dep);
         activeConnectionCount.merge(target, 1, Integer::sum);
-        CircuitBreakerState state = breakerStates.computeIfAbsent(target,
-            monitoredService -> new CircuitBreakerState(monitoredService, this.errorThresholdPercentage, rollingWindow,
-                sleepWindow));
+        TimingWindowCircuitBreakerState state = breakerStates.computeIfAbsent(target,
+            monitoredService -> new TimingWindowCircuitBreakerState(monitoredService, this.errorThresholdPercentage,
+                rollingWindow, sleepWindow));
 
 
         boolean consumed = false;
@@ -103,7 +101,7 @@ public final class CircuitBreaker extends InstanceOwnedPattern implements IReque
         } else {
             int currentActiveConnections = activeConnectionCount.get(target);
             if (currentActiveConnections > requestVolumeThreshold) {
-                state.notifyArrivalFailure();
+                state.notifyArrivalFailure(when);
                 owner.updateListenerProxy
                     .onRequestFailed(request, when, RequestFailedReason.CONNECTION_VOLUME_LIMIT_REACHED);
                 consumed = true;
@@ -135,7 +133,7 @@ public final class CircuitBreaker extends InstanceOwnedPattern implements IReque
         activeConnections.remove(dep);
         activeConnectionCount.merge(target, -1, Integer::sum);
 
-        breakerStates.get(target).notifySuccessfulCompletion();
+        breakerStates.get(target).notifySuccessfulCompletion(when);
 
         collectData(when);
         return false;
@@ -157,7 +155,7 @@ public final class CircuitBreaker extends InstanceOwnedPattern implements IReque
 
         Microservice target = dep.getTargetService();
         if (activeConnections.remove(dep)) {
-            breakerStates.get(target).notifyArrivalFailure();
+            breakerStates.get(target).notifyArrivalFailure(when);
         }
 
         collectData(when);
@@ -166,11 +164,26 @@ public final class CircuitBreaker extends InstanceOwnedPattern implements IReque
 
 
     private void collectData(TimeInstant when) {
-        for (Map.Entry<Microservice, CircuitBreakerState> entry : breakerStates.entrySet()) {
+        for (Map.Entry<Microservice, TimingWindowCircuitBreakerState> entry : breakerStates.entrySet()) {
             Microservice microservice = entry.getKey();
-            CircuitBreakerState circuitBreakerState = entry.getValue();
+            TimingWindowCircuitBreakerState circuitBreakerState = entry.getValue();
             reporter.addDatapoint(String.format("[%s]", microservice.getName()), when,
                 circuitBreakerState.getCurrentStatistics());
+        }
+    }
+
+    @Override
+    public void onInitializedCompleted() {
+        super.onInitializedCompleted();
+        if (errorThresholdPercentage != Double.POSITIVE_INFINITY
+            && errorThresholdPercentage > 1) {
+            if (errorThresholdPercentage <= 100) {
+                System.out.println("Warning: errorThresholdPercentage is in between 1 and 100, dividing it by 100");
+                errorThresholdPercentage /= 100.0;
+            } else {
+                throw new IllegalArgumentException(
+                    "errorThresholdPercentage must be in between 0.0 and 1.0 or 1 and 100");
+            }
         }
     }
 }
