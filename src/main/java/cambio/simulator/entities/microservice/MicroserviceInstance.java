@@ -71,6 +71,9 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
     private InstanceState state;
     private Set<InstanceOwnedPattern> patterns = new HashSet<>();
 
+    private long notComputed = 0;
+    private long waiting = 0;
+
 
     MicroserviceInstance(Model model, String name, boolean showInTrace, Microservice microservice,
                          int instanceID) {
@@ -193,6 +196,8 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
 
         if (currentRequestsToHandle.add(request)) { //register request and stamp as received if not already known
             request.setHandler(this);
+            notComputed++;
+            waiting++;
         }
 
         //three possiblities:
@@ -201,6 +206,7 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
         //   The CPU will "send" it back to this method once its done.
         //3. request does have dependencies -> create internal request
         if (request.isCompleted()) {
+            notComputed--;
             RequestAnswer answer = new RequestAnswer(request, this);
             sendRequest("Request_Answer_" + request.getPlainName(), answer, request.getRequester());
 
@@ -218,6 +224,7 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
             }
 
         } else if (request.getDependencies().isEmpty() || request.areDependenciesCompleted()) {
+            waiting--;
             CPUProcess newProcess = new CPUProcess(request);
             cpu.submitProcess(newProcess);
         } else {
@@ -248,7 +255,7 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
      * Starts this instance, reading it to receive requests.
      *
      * <p>
-     * Currently the startup process completes immediately.
+     * Currently, the startup process completes immediately.
      */
     public void start() {
         if (!(this.state == InstanceState.CREATED || this.state == InstanceState.SHUTDOWN)) {
@@ -334,16 +341,6 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
 
 
     private void collectQueueStatistics() {
-        int notComputed = 0;
-        int waiting = 0;
-        for (Request request : currentRequestsToHandle) {
-            if (!request.isDependenciesCompleted()) {
-                waiting++;
-                notComputed++;
-            } else if (!request.isComputationCompleted()) {
-                notComputed++;
-            }
-        }
         reporter.addDatapoint("SendOff_Internal_Requests", presentTime(), currentlyOpenDependencies.size());
         reporter.addDatapoint("Requests_InSystem", presentTime(), currentRequestsToHandle.size());
         reporter.addDatapoint("Requests_NotComputed", presentTime(), notComputed);
