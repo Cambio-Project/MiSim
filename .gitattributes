@@ -1,1 +1,1 @@
-kube-api filter=lfs diff=lfs merge=lfs -text
+orchestration/scheduler/api-server/kube-apiserver filter=lfs diff=lfs merge=lfs -text
