@@ -38,7 +38,7 @@ class ReactiveAutoscalingPolicy implements IAutoscalingPolicy {
         if (currentInstanceCount <= 0) { //starts a instances if there are none
             owner.setInstancesCount(1);
         } else if (avg >= upperBound) {
-            owner.scaleToInstancesCount(currentInstanceCount + 1);
+            owner.scaleToInstancesCount((int) (currentInstanceCount + Math.ceil(avg)));
             lastScaleUp = presentTime;
         } else if (avg <= lowerBound
             && currentInstanceCount > 1
