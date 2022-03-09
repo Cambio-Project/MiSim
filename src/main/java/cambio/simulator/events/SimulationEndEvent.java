@@ -148,15 +148,27 @@ public class SimulationEndEvent extends NamedExternalEvent {
             // use directory.mkdirs(); here instead.
         }
 
-        File directoryScalingSpecificRun = new File(directory.getPath() + "/" + currentRunName);
-        if (!directoryScalingSpecificRun.exists()) {
-            directoryScalingSpecificRun.mkdir();
+        File directorySpecificRun = new File(directory.getPath() + "/" + currentRunName);
+        if (!directorySpecificRun.exists()) {
+            directorySpecificRun.mkdir();
             // If you require it to make the entire directory path including parents,
             // use directory.mkdirs(); here instead.
         }
+
         //copy run specific config files
         try {
-            copyDirectory("orchestration", directoryScalingSpecificRun.getPath());
+            File directoryConfigFiles = new File(directorySpecificRun.getPath() + "/" + "configFiles");
+            if (!directoryConfigFiles.exists()) {
+                directoryConfigFiles.mkdir();
+                // If you require it to make the entire directory path including parents,
+                // use directory.mkdirs(); here instead.
+            }
+
+
+
+            copyDirectory("orchestration", directoryConfigFiles.getPath(), "scheduler");
+            copyDirectory("misimFiles", directoryConfigFiles.getPath(), "scheduler");
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -164,7 +176,7 @@ public class SimulationEndEvent extends NamedExternalEvent {
         //###Create Data for scaling###
 
         String directoryNameScaling = "Scaling";
-        File directoryScaling = new File(directoryScalingSpecificRun.getPath() + "/" + directoryNameScaling);
+        File directoryScaling = new File(directorySpecificRun.getPath() + "/" + directoryNameScaling);
         if (!directoryScaling.exists()) {
             directoryScaling.mkdir();
             // If you require it to make the entire directory path including parents,
@@ -198,7 +210,7 @@ public class SimulationEndEvent extends NamedExternalEvent {
 
         //###Create Data for scheduling###
         String directoryNameScheduling = "Scheduling";
-        File directoryScheduling = new File(directoryScalingSpecificRun.getPath() + "/" + directoryNameScheduling);
+        File directoryScheduling = new File(directorySpecificRun.getPath() + "/" + directoryNameScheduling);
         if (!directoryScheduling.exists()) {
             directoryScheduling.mkdir();
             // If you require it to make the entire directory path including parents,
@@ -217,7 +229,7 @@ public class SimulationEndEvent extends NamedExternalEvent {
             content.add("Reserved");
             content.add("#PodsOnNodes");
             content.add("#PodsWaiting");
-            content.add("Utilization");
+            content.add("PecentageScheduledPods");
             pw.println(convertToCSV(content));
             for (Stats.SchedulingRecord schedulingRecord : schedulingRecords) {
                 content.clear();
@@ -226,11 +238,11 @@ public class SimulationEndEvent extends NamedExternalEvent {
                 content.add(String.valueOf(schedulingRecord.getReservedTogether()));
                 content.add(String.valueOf(schedulingRecord.getAmountPodsOnNodes()));
                 content.add(String.valueOf(schedulingRecord.getAmountPodsWaiting()));
-                double utilization = (double) schedulingRecord.getAmountPodsOnNodes() / (schedulingRecord.getAmountPodsOnNodes() + schedulingRecord.getAmountPodsWaiting());
-                utilization = BigDecimal.valueOf(utilization)
+                double pecentageScheduledPods = (double) schedulingRecord.getAmountPodsOnNodes() / (schedulingRecord.getAmountPodsOnNodes() + schedulingRecord.getAmountPodsWaiting());
+                pecentageScheduledPods = BigDecimal.valueOf(pecentageScheduledPods)
                         .setScale(2, RoundingMode.HALF_UP)
                         .doubleValue();
-                content.add(String.valueOf(utilization));
+                content.add(String.valueOf(pecentageScheduledPods));
                 pw.println(convertToCSV(content));
             }
         } catch (FileNotFoundException e) {
@@ -240,7 +252,7 @@ public class SimulationEndEvent extends NamedExternalEvent {
 
         //###Create Data for Performance###
         String directoryNamePerformance = "Performance";
-        File directoryPerformance = new File(directoryScalingSpecificRun.getPath() + "/" + directoryNamePerformance);
+        File directoryPerformance = new File(directorySpecificRun.getPath() + "/" + directoryNamePerformance);
         if (!directoryPerformance.exists()) {
             directoryPerformance.mkdir();
             // If you require it to make the entire directory path including parents,
@@ -270,10 +282,9 @@ public class SimulationEndEvent extends NamedExternalEvent {
         }
     }
 
-
-    public static void copyDirectory(String sourceDirectoryLocation, String destinationDirectoryLocation)
+    public static void copyDirectory(String sourceDirectoryLocation, String destinationDirectoryLocation, String removeFilter)
             throws IOException {
-        walk(Paths.get(sourceDirectoryLocation))
+        walk(Paths.get(sourceDirectoryLocation)).filter(source -> !source.getFileName().toString().equals(removeFilter))
                 .forEach(source -> {
                     Path destination = Paths.get(destinationDirectoryLocation, source.toString()
                             .substring(sourceDirectoryLocation.length()));

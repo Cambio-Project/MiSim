@@ -28,7 +28,7 @@ public class NetworkRequestTimeoutEvent extends NetworkRequestEvent implements I
     public NetworkRequestTimeoutEvent(Model model, String name, boolean showInTrace, Request request) {
         super(model, name, showInTrace, request);
         this.setSchedulingPriority(Priority.LOW);
-        this.schedule(new TimeSpan(Integer.MAX_VALUE, TimeUnit.SECONDS));
+        this.schedule(new TimeSpan(8, TimeUnit.SECONDS));
     }
 
     @Override

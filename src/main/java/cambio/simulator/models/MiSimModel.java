@@ -196,4 +196,12 @@ public class MiSimModel extends Model {
     public ExperimentMetaData getExperimentMetaData() {
         return experimentMetaData;
     }
+
+    public File getArchitectureModelLocation() {
+        return architectureModelLocation;
+    }
+
+    public File getExperimentModelOrScenarioLocation() {
+        return experimentModelOrScenarioLocation;
+    }
 }

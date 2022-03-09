@@ -4,7 +4,7 @@
       "name": "frontend",
       "instances": 1,
       "patterns": [],
-      "capacity": 2,
+      "capacity": 20,
       "operations": [
         {
           "name": "createUser",
@@ -89,7 +89,7 @@
       "name": "backend",
       "instances": 1,
       "patterns": [],
-      "capacity": 3,
+      "capacity": 10,
       "operations": [
         {
           "name": "createUser",

@@ -51,7 +51,8 @@ public class KubeScheduler extends Scheduler {
             }
             post(finalNodeString, 0, "", PATH_NODES);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("[INFO]: No connection to API server established. The kube scheduler is not supported in this run");
+            //e.printStackTrace();
         }
     }
 
