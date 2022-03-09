@@ -25,6 +25,14 @@ public final class Main {
             System.exit(1);
         }
 
+        startExperiment(startupConfig);
+    }
+
+    public static void startExperiment(String cliString) {
+        main(cliString.split(" "));
+    }
+
+    public static void startExperiment(ExperimentStartupConfig startupConfig) {
         Experiment experiment = ExperimentCreator.createSimulationExperiment(startupConfig);
         experiment.start();
         experiment.finish();
