@@ -23,20 +23,23 @@ for file in glob.glob(os.path.join(".", "raw", "S*_Load_Distribution.csv")):
         arr = dat[1:-1].split(", ")
 
         for key in arr:
+            key = key[key.rindex("_")+1:]
             if not key in dataMap:
                 dataMap[key] = 0
             dataMap[key] += 1
 
-    datasets.append([file, dataMap])
+    dataPairs = sorted(dataMap.items(), key=lambda x: int(x[0][1:]))
+    datasets.append([file, dataPairs])
 
 
 def plot(ax, dataset):
-    keys = list(dataset.keys())
-    y_pos = np.arange(len(keys))
-    ax.bar(y_pos, dataset.values(), color="blue")
+    labels = list(map(lambda x: x[0], dataset))
+    values = list(map(lambda x: x[1], dataset))
+    y_pos = np.arange(len(dataset))
+    ax.bar(y_pos, values, color="blue")
     ax.tick_params('x', rotation=90)
     ax.set_xticks(y_pos)
-    ax.set_xticklabels(keys)
+    ax.set_xticklabels(labels)
     ax.relim()
     ax.set_xlim(xmin=0.1, xmax=max(y_pos))
 
