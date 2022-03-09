@@ -1,7 +1,10 @@
 package cambio.simulator.entities.networking;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.misc.Priority;
 import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.Model;
@@ -18,6 +21,10 @@ import desmoj.core.simulator.TimeSpan;
  * </p>
  */
 public class NetworkRequestTimeoutEvent extends NetworkRequestEvent implements IRequestUpdateListener {
+
+    public static Map<Microservice, Integer> microservicetimoutmap = new HashMap<>();
+
+    public static int counter = 0;
     private boolean canceled = false;
 
     /**
@@ -36,10 +43,22 @@ public class NetworkRequestTimeoutEvent extends NetworkRequestEvent implements I
         if (canceled) {
             return;
         }
+
+        Microservice owner = getTravelingRequest().getHandler().getOwner();
+        if (owner != null) {
+            if (microservicetimoutmap.get(owner) != null) {
+                microservicetimoutmap.put(owner, microservicetimoutmap.get(owner) + 1);
+            } else {
+                microservicetimoutmap.put(owner, 1);
+            }
+        }
+
+
+        counter++;
         NetworkRequestEvent cancelEvent =
-            new NetworkRequestCanceledEvent(getModel(), "RequestCancel", getModel().traceIsOn(), travelingRequest,
-                RequestFailedReason.TIMEOUT,
-                "Request " + travelingRequest.getName() + " was canceled due to a timeout.");
+                new NetworkRequestCanceledEvent(getModel(), "RequestCancel", getModel().traceIsOn(), travelingRequest,
+                        RequestFailedReason.TIMEOUT,
+                        "Request " + travelingRequest.getName() + " was canceled due to a timeout.");
         cancelEvent.schedule(new TimeSpan(0));
     }
 

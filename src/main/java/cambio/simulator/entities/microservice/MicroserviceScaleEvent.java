@@ -10,7 +10,7 @@ import desmoj.core.simulator.Model;
  * @author Lion Wagner
  */
 public class MicroserviceScaleEvent extends NamedExternalEvent {
-
+    public static int counter = 0;
     private final Microservice microservice;
     private final int targetInstanceCount;
 
@@ -22,6 +22,7 @@ public class MicroserviceScaleEvent extends NamedExternalEvent {
         super(model, name, showInTrace);
         this.microservice = microservice;
         this.targetInstanceCount = targetInstanceCount;
+        counter++;
     }
 
     @Override

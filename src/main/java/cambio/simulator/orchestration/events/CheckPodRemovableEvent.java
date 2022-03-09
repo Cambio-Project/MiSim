@@ -7,10 +7,11 @@ import desmoj.core.simulator.EventOf2Entities;
 import desmoj.core.simulator.Model;
 
 public class CheckPodRemovableEvent  extends EventOf2Entities<Pod, Node> {
-
+    public static int counter = 0;
 
     public CheckPodRemovableEvent(Model model, String name, boolean showInTrace) {
         super(model, name, showInTrace);
+        counter++;
 //        this.setSchedulingPriority(Priority.HIGH);
     }
 

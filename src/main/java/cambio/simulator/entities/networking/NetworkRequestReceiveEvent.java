@@ -13,7 +13,7 @@ import desmoj.core.simulator.Model;
  * @author Lion Wagner
  */
 public class NetworkRequestReceiveEvent extends NetworkRequestEvent {
-
+    public static int counter = 0;
     private final MicroserviceInstance receivingInstance;
 
     public NetworkRequestReceiveEvent(Model model, String name, boolean showInTrace,
@@ -36,6 +36,7 @@ public class NetworkRequestReceiveEvent extends NetworkRequestEvent {
             }
 
             updateListener.onRequestArrivalAtTarget(travelingRequest, presentTime());
+            counter++;
         } catch (IllegalStateException e) {
             NetworkRequestEvent event = new NetworkRequestCanceledEvent(getModel(),
                 String.format("CANCEL Event for %s", travelingRequest.getQuotedName()), traceIsOn(), travelingRequest,

@@ -10,6 +10,7 @@ import desmoj.core.simulator.Model;
  * @author Lion Wagner
  */
 public class InstanceShutdownEndEvent extends Event<MicroserviceInstance> {
+    public static int counter = 0;
 
     public InstanceShutdownEndEvent(Model model, String name, boolean showInTrace) {
         super(model, name, showInTrace);
@@ -18,5 +19,6 @@ public class InstanceShutdownEndEvent extends Event<MicroserviceInstance> {
     @Override
     public void eventRoutine(MicroserviceInstance microserviceInstance) throws SuspendExecution {
         microserviceInstance.endShutdown();
+        counter++;
     }
 }

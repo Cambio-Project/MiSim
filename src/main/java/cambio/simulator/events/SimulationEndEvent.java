@@ -12,7 +12,14 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import cambio.simulator.entities.NamedExternalEvent;
+import cambio.simulator.entities.microservice.InstanceShutdownEndEvent;
+import cambio.simulator.entities.microservice.InstanceStartupEvent;
 import cambio.simulator.entities.microservice.Microservice;
+import cambio.simulator.entities.microservice.MicroserviceScaleEvent;
+import cambio.simulator.entities.networking.NetworkRequestCanceledEvent;
+import cambio.simulator.entities.networking.NetworkRequestReceiveEvent;
+import cambio.simulator.entities.networking.NetworkRequestSendEvent;
+import cambio.simulator.entities.networking.NetworkRequestTimeoutEvent;
 import cambio.simulator.export.ExportUtils;
 import cambio.simulator.export.ReportCollector;
 import cambio.simulator.export.ReportWriter;
@@ -21,6 +28,7 @@ import cambio.simulator.misc.Util;
 import cambio.simulator.models.ExperimentMetaData;
 import cambio.simulator.models.MiSimModel;
 import cambio.simulator.orchestration.Stats;
+import cambio.simulator.orchestration.events.*;
 import cambio.simulator.orchestration.k8objects.Deployment;
 import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.ExternalEvent;
@@ -93,9 +101,9 @@ public class SimulationEndEvent extends NamedExternalEvent {
             // use directory.mkdirs(); here instead.
         }
 
-        File directoryScalingSpecificRun = new File(directory.getPath() + "/" + currentRunName);
-        if (!directoryScalingSpecificRun.exists()) {
-            directoryScalingSpecificRun.mkdir();
+        File directorySpecificRun = new File(directory.getPath() + "/" + currentRunName);
+        if (!directorySpecificRun.exists()) {
+            directorySpecificRun.mkdir();
             // If you require it to make the entire directory path including parents,
             // use directory.mkdirs(); here instead.
         }
@@ -103,7 +111,7 @@ public class SimulationEndEvent extends NamedExternalEvent {
         //###Create Data for scaling###
 
         String directoryNameScaling = "Scaling";
-        File directoryScaling = new File(directoryScalingSpecificRun.getPath() + "/" + directoryNameScaling);
+        File directoryScaling = new File(directorySpecificRun.getPath() + "/" + directoryNameScaling);
         if (!directoryScaling.exists()) {
             directoryScaling.mkdir();
             // If you require it to make the entire directory path including parents,
@@ -135,6 +143,40 @@ public class SimulationEndEvent extends NamedExternalEvent {
 
         //###END of: Create Data for scaling###
 
+        //###Create Data for Performance###
+        String directoryNamePerformance = "Performance";
+        File directoryPerformance = new File(directorySpecificRun.getPath() + "/" + directoryNamePerformance);
+        if (!directoryPerformance.exists()) {
+            directoryPerformance.mkdir();
+            // If you require it to make the entire directory path including parents,
+            // use directory.mkdirs(); here instead.
+        }
+
+        File csvOutputFilePerformance = new File(directoryPerformance.getPath() + "/" + "performance_results.csv");
+
+
+        try (PrintWriter pw = new PrintWriter(csvOutputFilePerformance)) {
+            ArrayList<String> content = new ArrayList<>();
+            content.add("Setup_time");
+            content.add("Experiment_time");
+            content.add("Report_time");
+            content.add("Execution_time");
+            pw.println(convertToCSV(content));
+            content.clear();
+            ExperimentMetaData metaData = model.getExperimentMetaData();
+            content.add(String.valueOf(cambio.simulator.orchestration.Util.nanoSecondsToMilliSeconds(metaData.getSetupDuration())));
+            content.add(String.valueOf(cambio.simulator.orchestration.Util.nanoSecondsToMilliSeconds(metaData.getExperimentDuration())));
+            content.add(String.valueOf(cambio.simulator.orchestration.Util.nanoSecondsToMilliSeconds(metaData.getReportDuration())));
+            content.add(String.valueOf(cambio.simulator.orchestration.Util.nanoSecondsToMilliSeconds(metaData.getExecutionDuration())));
+            pw.println(convertToCSV(content));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        //Add events csv
+        addEventsResult(directoryPerformance);
+
+
     }
 
     public void createOrchestrationReport(String currentRunName) {
@@ -165,7 +207,6 @@ public class SimulationEndEvent extends NamedExternalEvent {
             }
 
 
-
             copyDirectory("orchestration", directoryConfigFiles.getPath(), "scheduler");
             copyDirectory("misimFiles", directoryConfigFiles.getPath(), "scheduler");
 
@@ -193,12 +234,31 @@ public class SimulationEndEvent extends NamedExternalEvent {
                 content.add("Time");
                 content.add("AvgConsumption");
                 content.add("#Pods");
+
+                List<Microservice> microservices = null;
+                //Add containerWithTimeoutRequests
+                if(scalingRecords.size()!=0){
+                    microservices = scalingRecords.get(0).getMicroservicetimoutmap().keySet().stream().collect(Collectors.toList());
+                    for(Microservice microservice : microservices){
+                        content.add("NetworkRequestTimeoutEvent_"+microservice.getPlainName());
+                    }
+                }
+
+
                 pw.println(convertToCSV(content));
                 for (Stats.ScalingRecord scalingRecord : scalingRecords) {
                     content.clear();
                     content.add(String.valueOf(scalingRecord.getTime()));
                     content.add(String.valueOf(scalingRecord.getAvgConsumption()));
                     content.add(String.valueOf(scalingRecord.getAmountPods()));
+                    //Add containerWithTimeoutRequests
+                    if(scalingRecords.size()!=0){
+                        if(microservices!=null){
+                            for(Microservice microservice : microservices){
+                                content.add(String.valueOf(scalingRecord.getMicroservicetimoutmap().get(microservice)));
+                            }
+                        }
+                    }
                     pw.println(convertToCSV(content));
                 }
             } catch (FileNotFoundException e) {
@@ -259,7 +319,6 @@ public class SimulationEndEvent extends NamedExternalEvent {
             // use directory.mkdirs(); here instead.
         }
 
-
         File csvOutputFilePerformance = new File(directoryPerformance.getPath() + "/" + "performance_results.csv");
 
 
@@ -276,6 +335,59 @@ public class SimulationEndEvent extends NamedExternalEvent {
             content.add(String.valueOf(cambio.simulator.orchestration.Util.nanoSecondsToMilliSeconds(metaData.getExperimentDuration())));
             content.add(String.valueOf(cambio.simulator.orchestration.Util.nanoSecondsToMilliSeconds(metaData.getReportDuration())));
             content.add(String.valueOf(cambio.simulator.orchestration.Util.nanoSecondsToMilliSeconds(metaData.getExecutionDuration())));
+            pw.println(convertToCSV(content));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        //Add events csv
+        addEventsResult(directoryPerformance);
+
+
+
+    }
+
+    public void addEventsResult(File pathName){
+        File csvOutputFileEvents = new File(pathName.getPath() + "/" + "events_results.csv");
+
+
+        try (PrintWriter pw = new PrintWriter(csvOutputFileEvents)) {
+            ArrayList<String> content = new ArrayList<>();
+            //order: Ensure that titles are added before
+            content.add("CheckPodRemovableEvent");
+            content.add("PeriodicTasksEvent");
+            content.add("RestartContainerEvent");
+            content.add("RestartStartContainerAndMicroServiceInstanceEvent");
+            content.add("StartContainerAndMicroServiceInstanceEvent");
+            content.add("StartPodEvent");
+
+            content.add("InstanceShutdownEndEvent");
+            content.add("InstanceStartupEvent");
+            content.add("MicroserviceScaleEvent");
+            content.add("NetworkRequestCanceledEvent");
+            content.add("NetworkRequestReceiveEvent");
+            content.add("NetworkRequestSendEvent");
+            content.add("NetworkRequestTimeoutEvent");
+
+            pw.println(convertToCSV(content));
+            content.clear();
+            //Orchestration Events
+            content.add(String.valueOf(CheckPodRemovableEvent.counter));
+            content.add(String.valueOf(PeriodicTasksEvent.counter));
+            content.add(String.valueOf(RestartContainerEvent.counter));
+            content.add(String.valueOf(RestartStartContainerAndMicroServiceInstanceEvent.counter));
+            content.add(String.valueOf(StartContainerAndMicroServiceInstanceEvent.counter));
+            content.add(String.valueOf(StartPodEvent.counter));
+
+            //Original Events
+            content.add(String.valueOf(InstanceShutdownEndEvent.counter));
+            content.add(String.valueOf(InstanceStartupEvent.counter));
+            content.add(String.valueOf(MicroserviceScaleEvent.counter));
+            content.add(String.valueOf(NetworkRequestCanceledEvent.counter));
+            content.add(String.valueOf(NetworkRequestReceiveEvent.counter));
+            content.add(String.valueOf(NetworkRequestSendEvent.getCounterSendEvents()));
+            content.add(String.valueOf(NetworkRequestTimeoutEvent.counter));
+
             pw.println(convertToCSV(content));
         } catch (FileNotFoundException e) {
             e.printStackTrace();

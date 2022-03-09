@@ -13,10 +13,11 @@ import desmoj.extensions.experimentation.util.Run;
 import java.util.stream.Collectors;
 
 public class RestartStartContainerAndMicroServiceInstanceEvent extends Event<Container> {
-
+    public static int counter = 0;
     public RestartStartContainerAndMicroServiceInstanceEvent(Model model, String name, boolean showInTrace) {
         super(model, name, showInTrace);
         this.setSchedulingPriority(Priority.HIGH);
+        counter++;
     }
 
     @Override

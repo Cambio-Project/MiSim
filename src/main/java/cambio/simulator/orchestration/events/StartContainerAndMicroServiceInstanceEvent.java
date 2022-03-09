@@ -9,10 +9,11 @@ import desmoj.core.simulator.EventOf2Entities;
 import desmoj.core.simulator.Model;
 
 public class StartContainerAndMicroServiceInstanceEvent extends Event<Container> {
-
+    public static int counter = 0;
     public StartContainerAndMicroServiceInstanceEvent(Model model, String name, boolean showInTrace) {
         super(model, name, showInTrace);
         this.setSchedulingPriority(Priority.HIGH);
+        counter++;
     }
 
     @Override

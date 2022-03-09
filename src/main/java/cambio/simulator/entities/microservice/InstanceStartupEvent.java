@@ -11,10 +11,12 @@ import desmoj.core.simulator.Model;
  * @author Lion Wagner
  */
 public class InstanceStartupEvent extends Event<MicroserviceInstance> {
+    public static int counter = 0;
 
     public InstanceStartupEvent(Model model, String name, boolean showInTrace) {
         super(model, name, showInTrace);
         this.setSchedulingPriority(Priority.HIGH);
+        counter++;
     }
 
     @Override

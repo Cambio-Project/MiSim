@@ -10,7 +10,7 @@ import desmoj.core.simulator.Model;
  * @author Lion Wagner
  */
 public class NetworkRequestCanceledEvent extends NetworkRequestEvent {
-
+    public static int counter = 0;
     private final RequestFailedReason reason;
     private final String details;
 
@@ -42,5 +42,6 @@ public class NetworkRequestCanceledEvent extends NetworkRequestEvent {
             sendTraceNote(String.format("Details: %s", details));
         }
         updateListener.onRequestFailed(travelingRequest, presentTime(), reason);
+        counter++;
     }
 }

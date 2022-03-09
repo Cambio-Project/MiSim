@@ -8,6 +8,8 @@ import desmoj.core.simulator.Model;
 
 import java.util.*;
 
+import static cambio.simulator.entities.networking.NetworkRequestTimeoutEvent.microservicetimoutmap;
+
 public class Stats {
     //only for MiSim
     Map<Microservice, List<ScalingRecord>> microServiceRecordsMap = new HashMap<>();
@@ -68,6 +70,7 @@ public class Stats {
         int time;
         double avgConsumption;
         int amountPods;
+        Map<Microservice, Integer> microservicetimoutmap = new HashMap<>();
 
         public ScalingRecord(){}
 
@@ -93,6 +96,14 @@ public class Stats {
 
         public void setAmountPods(int amountPods) {
             this.amountPods = amountPods;
+        }
+
+        public Map<Microservice, Integer> getMicroservicetimoutmap() {
+            return microservicetimoutmap;
+        }
+
+        public void setMicroservicetimoutmap(Map<Microservice, Integer> microservicetimoutmap) {
+            this.microservicetimoutmap = microservicetimoutmap;
         }
     }
 
@@ -152,7 +163,19 @@ public class Stats {
             for (Pod pod : deployment.getRunningReplicas()) {
                 if (pod.getPodState() == PodState.RUNNING) {
                     double podCPUUtilization = 0;
+
                     for (Container container : pod.getContainers()) {
+
+                        //add event info
+                        Microservice owner = container.getMicroserviceInstance().getOwner();
+                        Integer integer = microservicetimoutmap.get(owner);
+                        if(integer!=null){
+                            scalingRecord.getMicroservicetimoutmap().put(owner, Integer.valueOf(integer));
+                        } else{
+                            scalingRecord.getMicroservicetimoutmap().put(owner, 0);
+                        }
+
+
                         if (container.getContainerState() == ContainerState.RUNNING) {
                             double relativeWorkDemand = container.getMicroserviceInstance().getRelativeWorkDemand();
                             podCPUUtilization += relativeWorkDemand;
@@ -165,6 +188,7 @@ public class Stats {
 //            sendTraceNote("Average for  " + deployment.getQuotedName() + " has the current work demand: " + avg);
             scalingRecord.setAvgConsumption(avg);
             scalingRecord.setAmountPods(deployment.getRunningReplicas().size());
+
 
             List<Stats.ScalingRecord> scalingRecords = deploymentRecordsMap.get(deployment);
             if (scalingRecords != null) {

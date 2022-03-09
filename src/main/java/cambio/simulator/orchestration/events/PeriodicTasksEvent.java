@@ -9,11 +9,12 @@ import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.Model;
 
 public class PeriodicTasksEvent extends NamedExternalEvent {
-
+    public static int counter = 0;
 
     public PeriodicTasksEvent(Model model, String name, boolean showInTrace) {
         super(model, name, showInTrace);
         this.setSchedulingPriority(Priority.HIGH);
+        counter++;
     }
 
     @Override
