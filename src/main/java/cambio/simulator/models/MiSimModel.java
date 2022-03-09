@@ -43,6 +43,7 @@ public class MiSimModel extends Model {
     public static MultiDataPointReporter generalReporter = new MultiDataPointReporter();
 
     public static boolean orchestrated;
+    public static boolean createOrchestratedReport = true;
 
     private final transient File architectureModelLocation;
     private final transient File experimentModelOrScenarioLocation;
@@ -142,8 +143,13 @@ public class MiSimModel extends Model {
 
         final MasterTasksExecutor masterTasksExecutor = new MasterTasksExecutor(getModel(), "MasterTaskExecutor", getModel().traceIsOn());
         masterTasksExecutor.doInitialSelfSchedule();
-        final StatsTasksExecutor statsTasksExecutor = new StatsTasksExecutor(getModel(), "StatsExecutor", getModel().traceIsOn());
-        statsTasksExecutor.doInitialSelfSchedule();
+        if(MiSimModel.createOrchestratedReport) {
+            System.out.println("[INFO]: Orchestration Report will be created afterwards\n");
+            final StatsTasksExecutor statsTasksExecutor = new StatsTasksExecutor(getModel(), "StatsExecutor", getModel().traceIsOn());
+            statsTasksExecutor.doInitialSelfSchedule();
+        } else {
+            System.out.println("[WARNING]: Orchestration Report will NOT be created afterwards\n");
+        }
 
         System.out.println("### Initialization of Container Orchestration finished ###");
         System.out.println();

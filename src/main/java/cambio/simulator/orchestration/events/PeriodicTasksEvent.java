@@ -2,6 +2,7 @@ package cambio.simulator.orchestration.events;
 
 import cambio.simulator.entities.NamedExternalEvent;
 import cambio.simulator.misc.Priority;
+import cambio.simulator.models.MiSimModel;
 import cambio.simulator.orchestration.Stats;
 import cambio.simulator.orchestration.management.ManagementPlane;
 import co.paralleluniverse.fibers.SuspendExecution;
@@ -23,8 +24,5 @@ public class PeriodicTasksEvent extends NamedExternalEvent {
         ManagementPlane.getInstance().maintainDeployments();
         //go to scheduler and assign new created or pending pods to nodes
         ManagementPlane.getInstance().checkForPendingPods();
-
-        //create stats
-        Stats.getInstance().createSchedulingStats(getModel());
     }
 }
