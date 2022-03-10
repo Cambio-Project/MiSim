@@ -17,6 +17,29 @@ public class Stats {
     //only in orchestration mode
     Map<Deployment, List<ScalingRecord>> deploymentRecordsMap = new HashMap<>();
     List<SchedulingRecord> schedulingRecords = new ArrayList<>();
+    Map<Node, List<NodePodSchedulingRecord>> node2PodMap = new HashMap<>();
+
+
+    public static class NodePodSchedulingRecord {
+        int time;
+        Map<Deployment, Integer> deploymentPodScheduledMap = new HashMap<>();
+
+        public int getTime() {
+            return time;
+        }
+
+        public void setTime(int time) {
+            this.time = time;
+        }
+
+        public Map<Deployment, Integer> getDeploymentPodScheduledMap() {
+            return deploymentPodScheduledMap;
+        }
+
+        public void setDeploymentPodScheduledMap(Map<Deployment, Integer> deploymentPodScheduledMap) {
+            this.deploymentPodScheduledMap = deploymentPodScheduledMap;
+        }
+    }
 
     public static class SchedulingRecord {
         int time;
@@ -72,7 +95,8 @@ public class Stats {
         int amountPods;
         Map<Microservice, Integer> microservicetimoutmap = new HashMap<>();
 
-        public ScalingRecord(){}
+        public ScalingRecord() {
+        }
 
         public int getTime() {
             return time;
@@ -110,7 +134,8 @@ public class Stats {
     private static final Stats instance = new Stats();
 
     //private constructor to avoid client applications to use constructor
-    private Stats() {}
+    private Stats() {
+    }
 
     public static Stats getInstance() {
         return instance;
@@ -132,12 +157,12 @@ public class Stats {
         this.deploymentRecordsMap = deploymentRecordsMap;
     }
 
-    public void createSchedulingStats(Model model){
+    public void createSchedulingStats(Model model) {
         int time = (int) model.presentTime().getTimeAsDouble();
         Stats.SchedulingRecord schedulingRecord = new SchedulingRecord();
         schedulingRecord.setTime(time);
         int totalCPU = 0;
-        int toalReserved =0;
+        int toalReserved = 0;
         for (Node node : ManagementPlane.getInstance().getCluster().getNodes()) {
             totalCPU += node.getTotalCPU();
             toalReserved += node.getReserved();
@@ -148,9 +173,46 @@ public class Stats {
         schedulingRecord.setAmountPodsOnNodes(ManagementPlane.getInstance().getAllPodsPlacedOnNodes().size());
         schedulingRecord.setAmountPodsWaiting(ManagementPlane.getInstance().getAmountOfWaitingPods());
         schedulingRecords.add(schedulingRecord);
+
+        //Add node2pod records
+
+
+        List<Deployment> deployments = ManagementPlane.getInstance().getDeployments();
+        List<Node> nodes = ManagementPlane.getInstance().getCluster().getNodes();
+        for (Node node : nodes) {
+            NodePodSchedulingRecord nodePodSchedulingRecord = new NodePodSchedulingRecord();
+            nodePodSchedulingRecord.setTime(time);
+            Map<Deployment, Integer> deploymentPodScheduledMap = nodePodSchedulingRecord.getDeploymentPodScheduledMap();
+
+            for (Deployment deployment : deployments) {
+                deploymentPodScheduledMap.put(deployment, 0);
+            }
+
+            for (Pod pod : node.getPods()) {
+                Deployment deploymentForPod = ManagementPlane.getInstance().getDeploymentForPod(pod);
+                if (deploymentForPod != null) {
+                    if (deployments.contains(deploymentForPod)) {
+                        if (deploymentPodScheduledMap.get(deploymentForPod) != null) {
+                            deploymentPodScheduledMap.put(deploymentForPod, deploymentPodScheduledMap.get(deploymentForPod) + 1);
+                        }
+                    }
+                }
+            }
+
+            List<NodePodSchedulingRecord> nodePodSchedulingRecords = node2PodMap.get(node);
+            if (nodePodSchedulingRecords != null) {
+                nodePodSchedulingRecords.add(nodePodSchedulingRecord);
+            } else {
+                ArrayList<NodePodSchedulingRecord> schedulingRecords = new ArrayList<>();
+                schedulingRecords.add(nodePodSchedulingRecord);
+                node2PodMap.put(node, schedulingRecords);
+            }
+        }
+
+
     }
 
-    public void createScalingStats(Model model){
+    public void createScalingStats(Model model) {
         int time = (int) model.presentTime().getTimeAsDouble();
 
         List<Deployment> deployments = ManagementPlane.getInstance().getDeployments();
@@ -169,9 +231,9 @@ public class Stats {
                         //add event info
                         Microservice owner = container.getMicroserviceInstance().getOwner();
                         Integer integer = microservicetimoutmap.get(owner);
-                        if(integer!=null){
+                        if (integer != null) {
                             scalingRecord.getMicroservicetimoutmap().put(owner, Integer.valueOf(integer));
-                        } else{
+                        } else {
                             scalingRecord.getMicroservicetimoutmap().put(owner, 0);
                         }
 
@@ -207,5 +269,13 @@ public class Stats {
 
     public void setMicroServiceRecordsMap(Map<Microservice, List<ScalingRecord>> microServiceRecordsMap) {
         this.microServiceRecordsMap = microServiceRecordsMap;
+    }
+
+    public Map<Node, List<NodePodSchedulingRecord>> getNode2PodMap() {
+        return node2PodMap;
+    }
+
+    public void setNode2PodMap(Map<Node, List<NodePodSchedulingRecord>> node2PodMap) {
+        this.node2PodMap = node2PodMap;
     }
 }

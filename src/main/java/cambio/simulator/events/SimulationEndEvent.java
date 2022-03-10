@@ -28,6 +28,7 @@ import cambio.simulator.misc.Util;
 import cambio.simulator.models.ExperimentMetaData;
 import cambio.simulator.models.MiSimModel;
 import cambio.simulator.orchestration.Stats;
+import cambio.simulator.orchestration.environment.Node;
 import cambio.simulator.orchestration.events.*;
 import cambio.simulator.orchestration.k8objects.Deployment;
 import co.paralleluniverse.fibers.SuspendExecution;
@@ -237,24 +238,24 @@ public class SimulationEndEvent extends NamedExternalEvent {
 
                 List<Microservice> microservices = null;
                 //Add containerWithTimeoutRequests
-                if(scalingRecords.size()!=0){
+                if (scalingRecords.size() != 0) {
                     microservices = scalingRecords.get(0).getMicroservicetimoutmap().keySet().stream().collect(Collectors.toList());
-                    for(Microservice microservice : microservices){
-                        content.add("NetworkRequestTimeoutEvent_"+microservice.getPlainName());
+                    for (Microservice microservice : microservices) {
+                        content.add("NetworkRequestTimeoutEvent_" + microservice.getPlainName());
                     }
                 }
 
-
                 pw.println(convertToCSV(content));
+
                 for (Stats.ScalingRecord scalingRecord : scalingRecords) {
                     content.clear();
                     content.add(String.valueOf(scalingRecord.getTime()));
                     content.add(String.valueOf(scalingRecord.getAvgConsumption()));
                     content.add(String.valueOf(scalingRecord.getAmountPods()));
                     //Add containerWithTimeoutRequests
-                    if(scalingRecords.size()!=0){
-                        if(microservices!=null){
-                            for(Microservice microservice : microservices){
+                    if (scalingRecords.size() != 0) {
+                        if (microservices != null) {
+                            for (Microservice microservice : microservices) {
                                 content.add(String.valueOf(scalingRecord.getMicroservicetimoutmap().get(microservice)));
                             }
                         }
@@ -280,7 +281,6 @@ public class SimulationEndEvent extends NamedExternalEvent {
         List<Stats.SchedulingRecord> schedulingRecords = Stats.getInstance().getSchedulingRecords();
 
         File csvOutputFile = new File(directoryScheduling.getPath() + "/" + "scheduling_results.csv");
-
 
         try (PrintWriter pw = new PrintWriter(csvOutputFile)) {
             ArrayList<String> content = new ArrayList<>();
@@ -308,6 +308,59 @@ public class SimulationEndEvent extends NamedExternalEvent {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
+
+
+        //### Get Node and Pod distribution
+
+        String directoryNameSchedulingNodes = "NodesAndPods";
+        File directorySchedulingNodes = new File(directoryScheduling.getPath() + "/" + directoryNameSchedulingNodes);
+        if (!directorySchedulingNodes.exists()) {
+            directorySchedulingNodes.mkdir();
+            // If you require it to make the entire directory path including parents,
+            // use directory.mkdirs(); here instead.
+        }
+
+        Map<Node, List<Stats.NodePodSchedulingRecord>> node2PodMap = Stats.getInstance().getNode2PodMap();
+
+        for (Node node : node2PodMap.keySet()) {
+            List<Stats.NodePodSchedulingRecord> nodePodSchedulingRecords = node2PodMap.get(node);
+
+            File csvOutputFile4Node = new File(directorySchedulingNodes.getPath() + "/" + node.getPlainName() + "_results.csv");
+
+            try (PrintWriter pw = new PrintWriter(csvOutputFile4Node)) {
+                ArrayList<String> content = new ArrayList<>();
+                content.add("Time");
+
+                if (!nodePodSchedulingRecords.isEmpty()) {
+                    Stats.NodePodSchedulingRecord nodePodSchedulingRecord = nodePodSchedulingRecords.get(0);
+                    Map<Deployment, Integer> deploymentPodScheduledMap = nodePodSchedulingRecord.getDeploymentPodScheduledMap();
+                    List<Deployment> deployments = deploymentPodScheduledMap.keySet().stream().collect(Collectors.toList());
+                    for (Deployment deployment : deployments) {
+                        content.add(deployment.getPlainName());
+                    }
+
+                    pw.println(convertToCSV(content));
+                    for (Stats.NodePodSchedulingRecord podSchedulingRecord : nodePodSchedulingRecords) {
+                        content.clear();
+                        content.add(String.valueOf(podSchedulingRecord.getTime()));
+
+                        for(Deployment deployment : deployments){
+                            Integer integer = podSchedulingRecord.getDeploymentPodScheduledMap().get(deployment);
+                            content.add(String.valueOf(integer));
+                        }
+
+                        pw.println(convertToCSV(content));
+                    }
+
+                }
+
+
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+
+
         //###End of: Create Data for scheduling###
 
         //###Create Data for Performance###
@@ -344,10 +397,9 @@ public class SimulationEndEvent extends NamedExternalEvent {
         addEventsResult(directoryPerformance);
 
 
-
     }
 
-    public void addEventsResult(File pathName){
+    public void addEventsResult(File pathName) {
         File csvOutputFileEvents = new File(pathName.getPath() + "/" + "events_results.csv");
 
 
