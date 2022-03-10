@@ -8,6 +8,7 @@ public class ConfigDto {
     public Scaler scaler;
     public String loadBalancer;
     public String scheduler;
+    public int healthCheckInterval;
     public List<CustomNodes> customNodes;
     public List<SchedulerPrio> schedulerPrio;
     public List<StartUpTimeContainer> startUpTimeContainer;
@@ -171,5 +172,13 @@ public class ConfigDto {
 
     public void setStartUpTimeContainer(List<StartUpTimeContainer> startUpTimeContainer) {
         this.startUpTimeContainer = startUpTimeContainer;
+    }
+
+    public int getHealthCheckInterval() {
+        return healthCheckInterval;
+    }
+
+    public void setHealthCheckInterval(int healthCheckInterval) {
+        this.healthCheckInterval = healthCheckInterval;
     }
 }

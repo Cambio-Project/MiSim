@@ -11,15 +11,14 @@ import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 
 public class MasterTasksExecutor extends NamedEntity implements ISelfScheduled {
-
     private final Model model;
     IntervalLoadGeneratorDescription intervalLoadGeneratorDescription;
 
-    public MasterTasksExecutor(Model model, String name, boolean showInTrace) {
+    public MasterTasksExecutor(Model model, String name, boolean showInTrace, int interval) {
         super(model, name, showInTrace);
         this.model = model;
         intervalLoadGeneratorDescription = new IntervalLoadGeneratorDescription();
-        intervalLoadGeneratorDescription.setInterval(1);
+        intervalLoadGeneratorDescription.setInterval(interval);
         intervalLoadGeneratorDescription.initializeArrivalRateModel();
 
     }
@@ -67,6 +66,5 @@ public class MasterTasksExecutor extends NamedEntity implements ISelfScheduled {
             }
         }
     }
-
 
 }

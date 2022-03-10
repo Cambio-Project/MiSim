@@ -9,6 +9,7 @@ scaler:
   holdTimeDownScaler: 20
 loadBalancer: leastUtil_orchestration
 scheduler: firstFit
+healthCheckInterval: 30
 schedulerPrio:
   - name: kube
     prio: 4

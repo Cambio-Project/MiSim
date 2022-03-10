@@ -141,7 +141,7 @@ public class MiSimModel extends Model {
             System.exit(1);
         }
 
-        final MasterTasksExecutor masterTasksExecutor = new MasterTasksExecutor(getModel(), "MasterTaskExecutor", getModel().traceIsOn());
+        final MasterTasksExecutor masterTasksExecutor = new MasterTasksExecutor(getModel(), "MasterTaskExecutor", getModel().traceIsOn(),configDto.getHealthCheckInterval());
         masterTasksExecutor.doInitialSelfSchedule();
         if(MiSimModel.createOrchestratedReport) {
             System.out.println("[INFO]: Orchestration Report will be created afterwards\n");
