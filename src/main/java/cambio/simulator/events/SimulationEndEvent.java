@@ -12,10 +12,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import cambio.simulator.entities.NamedExternalEvent;
-import cambio.simulator.entities.microservice.InstanceShutdownEndEvent;
-import cambio.simulator.entities.microservice.InstanceStartupEvent;
-import cambio.simulator.entities.microservice.Microservice;
-import cambio.simulator.entities.microservice.MicroserviceScaleEvent;
+import cambio.simulator.entities.microservice.*;
 import cambio.simulator.entities.networking.NetworkRequestCanceledEvent;
 import cambio.simulator.entities.networking.NetworkRequestReceiveEvent;
 import cambio.simulator.entities.networking.NetworkRequestSendEvent;
@@ -29,8 +26,10 @@ import cambio.simulator.models.ExperimentMetaData;
 import cambio.simulator.models.MiSimModel;
 import cambio.simulator.orchestration.Stats;
 import cambio.simulator.orchestration.environment.Node;
+import cambio.simulator.orchestration.environment.Pod;
 import cambio.simulator.orchestration.events.*;
 import cambio.simulator.orchestration.k8objects.Deployment;
+import cambio.simulator.orchestration.management.ManagementPlane;
 import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.ExternalEvent;
 import desmoj.core.simulator.Model;
@@ -237,11 +236,26 @@ public class SimulationEndEvent extends NamedExternalEvent {
                 content.add("#Pods");
 
                 List<Microservice> microservices = null;
+                List<Pod> pods = null;
                 //Add containerWithTimeoutRequests
                 if (scalingRecords.size() != 0) {
                     microservices = scalingRecords.get(0).getMicroservicetimoutmap().keySet().stream().collect(Collectors.toList());
                     for (Microservice microservice : microservices) {
                         content.add("NetworkRequestTimeoutEvent_" + microservice.getPlainName());
+                    }
+
+                    //Add individual cpuconsumption
+                    pods = deployment.getReplicaSet().stream().collect(Collectors.toList());
+                    Collections.sort(pods, new Comparator<Pod>() {
+                        @Override
+                        public int compare(Pod pod, Pod t1) {
+                            String numberPod1 = pod.getQuotedName().split("#")[1];
+                            String numberPod2 = t1.getQuotedName().split("#")[1];
+                            return numberPod1.compareTo(numberPod2);
+                        }
+                    });
+                    for (Pod pod : pods) {
+                        content.add(pod.getQuotedName());
                     }
                 }
 
@@ -252,13 +266,21 @@ public class SimulationEndEvent extends NamedExternalEvent {
                     content.add(String.valueOf(scalingRecord.getTime()));
                     content.add(String.valueOf(scalingRecord.getAvgConsumption()));
                     content.add(String.valueOf(scalingRecord.getAmountPods()));
-                    //Add containerWithTimeoutRequests
                     if (scalingRecords.size() != 0) {
+                        //Add containerWithTimeoutRequests
                         if (microservices != null) {
                             for (Microservice microservice : microservices) {
                                 content.add(String.valueOf(scalingRecord.getMicroservicetimoutmap().get(microservice)));
                             }
                         }
+                        //Add microServiceInstance individual cpuconsumption
+                        if (pods != null) {
+                            for (Pod pod : pods) {
+                                content.add(String.valueOf(scalingRecord.getPodDoubleHashMap().get(pod)));
+
+                            }
+                        }
+
                     }
                     pw.println(convertToCSV(content));
                 }
@@ -344,7 +366,7 @@ public class SimulationEndEvent extends NamedExternalEvent {
                         content.clear();
                         content.add(String.valueOf(podSchedulingRecord.getTime()));
 
-                        for(Deployment deployment : deployments){
+                        for (Deployment deployment : deployments) {
                             Integer integer = podSchedulingRecord.getDeploymentPodScheduledMap().get(deployment);
                             content.add(String.valueOf(integer));
                         }

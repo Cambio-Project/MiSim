@@ -1,12 +1,12 @@
 nodes:
   amount: 2
-  cpu: 100
+  cpu: 1000000000
 customNodes:
   - name: Test5Node
     cpu: 0
 scaler:
-  holdTimeUpScaler: 5
-  holdTimeDownScaler: 3
+  holdTimeUpScaler: 0
+  holdTimeDownScaler: 20
 loadBalancer: leastUtil_orchestration
 scheduler: firstFit
 schedulerPrio:

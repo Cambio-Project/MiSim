@@ -4,42 +4,18 @@
     "model_name": "architecture_model",
     "orchestrate": true,
     "orchestration_dir": "orchestration",
-    "duration": 300,
+    "duration": 250,
     "report": "",
     "datapoints": 20,
-    "seed": 979
+    "seed": 404
   },
   "request_generators": [
     {
       "type": "limbo",
       "config": {
-        "microservice": "frontend",
-        "operation": "createUser",
-        "model": "./Examples/Orchestration/Load/createUsers.csv"
-      }
-    },
-    {
-      "type": "limbo",
-      "config": {
-        "microservice": "frontend",
-        "operation": "deleteUser",
-        "model": "./Examples/Orchestration/Load/deleteUser.csv"
-      }
-    },
-    {
-      "type": "limbo",
-      "config": {
-        "microservice": "frontend",
-        "operation": "displayPosts",
-        "model": "./Examples/Orchestration/Load/main_phase.csv"
-      }
-    },
-    {
-      "type": "limbo",
-      "config": {
-        "microservice": "frontend",
-        "operation": "likePost",
-        "model": "./Examples/Orchestration/Load/main_phase.csv"
+        "microservice": "gateway",
+        "operation": "INTERNAL_DEP",
+        "model": "./Examples/Calibration/load_profile_linear_rising.csv"
       }
     }
   ]

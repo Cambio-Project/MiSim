@@ -15,7 +15,7 @@ public class MicroserviceOrchestration extends Microservice {
 
     LoadBalancerOrchestration loadBalancerOrchestration;
 
-    private int startTime = 5;
+    private int startTime = 0;
 
     /**
      * Creates a new instance of a {@link Microservice}.

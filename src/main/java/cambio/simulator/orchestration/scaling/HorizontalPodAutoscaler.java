@@ -1,5 +1,6 @@
 package cambio.simulator.orchestration.scaling;
 
+import cambio.simulator.entities.microservice.MicroserviceInstance;
 import cambio.simulator.orchestration.environment.*;
 import cambio.simulator.orchestration.k8objects.Deployment;
 
@@ -32,7 +33,7 @@ public class HorizontalPodAutoscaler extends AutoScaler {
         }
 
         double target = deployment.getAverageUtilization(); //in percent
-
+        target = target / 100;
         if (upscalingAllowed || downscalingAllowed) {
             List<Double> podConsumptions = new ArrayList<>();
             for (Pod pod : deployment.getReplicaSet()) {

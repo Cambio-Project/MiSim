@@ -1,214 +1,63 @@
 {
   "microservices": [
     {
-      "name": "frontend",
+      "name": "gateway",
       "instances": 1,
-      "patterns": [],
-      "capacity": 20,
+      "capacity": 2000000,
       "operations": [
         {
-          "name": "createUser",
+          "name": "INTERNAL_DEP",
           "demand": 1,
           "dependencies": [
             {
-              "service": "backend",
-              "operation": "createUser",
-              "probability": 1.0
-            }
-          ]
-        },
-        {
-          "name": "deleteUser",
-          "demand": 1,
-          "dependencies": [
-            {
-              "service": "backend",
-              "operation": "deleteUser",
-              "probability": 1.0
-            }
-          ]
-        },
-        {
-          "name": "login",
-          "demand": 1,
-          "dependencies": [
-            {
-              "service": "backend",
-              "operation": "login",
-              "probability": 1.0
-            }
-          ]
-        },
-        {
-          "name": "createPost",
-          "demand": 1,
-          "dependencies": [
-            {
-              "service": "backend",
-              "operation": "createPost",
-              "probability": 1.0
-            }
-          ]
-        },
-        {
-          "name": "deletePost",
-          "demand": 1,
-          "dependencies": [
-            {
-              "service": "backend",
-              "operation": "deletePost",
-              "probability": 1.0
-            }
-          ]
-        },
-        {
-          "name": "displayPosts",
-          "demand": 1,
-          "dependencies": [
-            {
-              "service": "backend",
-              "operation": "displayPosts",
-              "probability": 1.0
-            }
-          ]
-        },
-        {
-          "name": "likePost",
-          "demand": 1,
-          "dependencies": [
-            {
-              "service": "backend",
-              "operation": "likePost",
-              "probability": 1.0
+              "service": "example-service",
+              "operation": "call_example-service2"
             }
           ]
         }
       ]
     },
     {
-      "name": "backend",
+      "name": "example-service",
       "instances": 1,
-      "patterns": [],
-      "capacity": 10,
+      "capacity": 100,
       "operations": [
         {
-          "name": "createUser",
-          "demand": 3,
-          "dependencies": [
-            {
-              "service": "db",
-              "operation": "usersGET",
-              "probability": 1.0
-            },
-            {
-              "service": "db",
-              "operation": "usersPOST",
-              "probability": 1.0
-            }
-          ]
+          "name": "example-service.DB_WRITE",
+          "demand": 1,
+          "dependencies": []
         },
         {
-          "name": "deleteUser",
-          "demand": 2,
-          "dependencies": [
-            {
-              "service": "db",
-              "operation": "usersDELETE",
-              "probability": 1.0
-            }
-          ]
+          "name": "example-service.DB_READ",
+          "demand": 1,
+          "dependencies": []
         },
         {
-          "name": "login",
-          "demand": 2,
-          "dependencies": [
-            {
-              "service": "db",
-              "operation": "usersGET",
-              "probability": 1.0
-            }
-          ]
-        },
-        {
-          "name": "createPost",
+          "name": "call_example-service2",
           "demand": 1,
           "dependencies": [
             {
-              "service": "db",
-              "operation": "postsPOST",
-              "probability": 1.0
+              "service": "example-service2",
+              "operation": "example-service2.get"
             }
           ]
         },
         {
-          "name": "deletePost",
+          "name": "call_external_service",
           "demand": 1,
-          "dependencies": [
-            {
-              "service": "db",
-              "operation": "postsDELETE",
-              "probability": 1.0
-            }
-          ]
-        },
-        {
-          "name": "displayPosts",
-          "demand": 3,
-          "dependencies": [
-            {
-              "service": "db",
-              "operation": "postsGET",
-              "probability": 1.0
-            }
-          ]
-        },
-        {
-          "name": "likePost",
-          "demand": 1,
-          "dependencies": [
-            {
-              "service": "db",
-              "operation": "postsPOST",
-              "probability": 1.0
-            }
-          ]
+          "dependencies": []
         }
       ]
     },
     {
-      "name": "db",
+      "name": "example-service2",
       "instances": 1,
       "patterns": [],
-      "capacity": 5,
+      "capacity": 32000,
       "operations": [
         {
-          "name": "usersPOST",
-          "demand": 3,
-          "dependencies": []
-        },
-        {
-          "name": "usersDELETE",
+          "name": "example-service2.get",
           "demand": 1,
-          "dependencies": []
-        },
-        {
-          "name": "usersGET",
-          "demand": 2,
-          "dependencies": []
-        },
-        {
-          "name": "postsPOST",
-          "demand": 3,
-          "dependencies": []
-        },
-        {
-          "name": "postsDELETE",
-          "demand": 1,
-          "dependencies": []
-        },
-        {
-          "name": "postsGET",
-          "demand": 2,
           "dependencies": []
         }
       ]

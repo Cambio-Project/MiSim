@@ -19,7 +19,7 @@ public class MasterTasksExecutor extends NamedEntity implements ISelfScheduled {
         super(model, name, showInTrace);
         this.model = model;
         intervalLoadGeneratorDescription = new IntervalLoadGeneratorDescription();
-        intervalLoadGeneratorDescription.setInterval(15);
+        intervalLoadGeneratorDescription.setInterval(1);
         intervalLoadGeneratorDescription.initializeArrivalRateModel();
 
     }

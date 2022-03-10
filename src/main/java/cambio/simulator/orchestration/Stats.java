@@ -1,6 +1,7 @@
 package cambio.simulator.orchestration;
 
 import cambio.simulator.entities.microservice.Microservice;
+import cambio.simulator.entities.microservice.MicroserviceInstance;
 import cambio.simulator.orchestration.environment.*;
 import cambio.simulator.orchestration.k8objects.Deployment;
 import cambio.simulator.orchestration.management.ManagementPlane;
@@ -94,6 +95,8 @@ public class Stats {
         double avgConsumption;
         int amountPods;
         Map<Microservice, Integer> microservicetimoutmap = new HashMap<>();
+        Map<Pod, Double> podDoubleHashMap = new HashMap<>();
+
 
         public ScalingRecord() {
         }
@@ -128,6 +131,14 @@ public class Stats {
 
         public void setMicroservicetimoutmap(Map<Microservice, Integer> microservicetimoutmap) {
             this.microservicetimoutmap = microservicetimoutmap;
+        }
+
+        public Map<Pod, Double> getPodDoubleHashMap() {
+            return podDoubleHashMap;
+        }
+
+        public void setPodDoubleHashMap(Map<Pod, Double> podDoubleHashMap) {
+            this.podDoubleHashMap = podDoubleHashMap;
         }
     }
 
@@ -244,6 +255,7 @@ public class Stats {
                         }
                     }
                     podConsumptions.add(podCPUUtilization);
+                    scalingRecord.getPodDoubleHashMap().put(pod, podCPUUtilization);
                 }
             }
             double avg = podConsumptions.stream().mapToDouble(d -> d).average().orElse(0);
