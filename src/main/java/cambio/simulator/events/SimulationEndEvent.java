@@ -76,8 +76,10 @@ public class SimulationEndEvent extends NamedExternalEvent {
 
         clReport();
 
-        String currentRunName = "A1";
-        createReport(currentRunName);
+        if(MiSimModel.createOrchestratedReport) {
+            String currentRunName = "A1";
+            createReport(currentRunName);
+        }
     }
 
     public SimulationEndEvent(Model model, String name, boolean showInTrace, MiSimModel model1) {
@@ -160,8 +162,8 @@ public class SimulationEndEvent extends NamedExternalEvent {
             }
 
 
-            copyDirectory("orchestration", directoryConfigFiles.getPath(), "scheduler");
-            copyDirectory("misimFiles", directoryConfigFiles.getPath(), "scheduler");
+            copyDirectory("orchestration", directoryConfigFiles.getPath(), Arrays.asList("scheduler, lastsave"));
+            copyDirectory("misimFiles", directoryConfigFiles.getPath(), Arrays.asList(""));
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -200,7 +202,7 @@ public class SimulationEndEvent extends NamedExternalEvent {
         addEventsResult(directoryPerformance);
 
 
-        if (MiSimModel.orchestrated && MiSimModel.createOrchestratedReport) {
+        if (MiSimModel.orchestrated) {
             createOrchestrationReport(directorySpecificRun);
         } else {
             createPureMiSimReport(directorySpecificRun);
@@ -439,9 +441,9 @@ public class SimulationEndEvent extends NamedExternalEvent {
         }
     }
 
-    public static void copyDirectory(String sourceDirectoryLocation, String destinationDirectoryLocation, String removeFilter)
+    public static void copyDirectory(String sourceDirectoryLocation, String destinationDirectoryLocation, List<String> removeFilters)
             throws IOException {
-        walk(Paths.get(sourceDirectoryLocation)).filter(source -> !source.getFileName().toString().equals(removeFilter))
+        walk(Paths.get(sourceDirectoryLocation)).filter(source -> !removeFilters.contains(source))
                 .forEach(source -> {
                     Path destination = Paths.get(destinationDirectoryLocation, source.toString()
                             .substring(sourceDirectoryLocation.length()));

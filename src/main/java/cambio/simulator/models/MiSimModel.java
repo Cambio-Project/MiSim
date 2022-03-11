@@ -141,9 +141,9 @@ public class MiSimModel extends Model {
             System.exit(1);
         }
 
-        final MasterTasksExecutor masterTasksExecutor = new MasterTasksExecutor(getModel(), "MasterTaskExecutor", getModel().traceIsOn(),configDto.getHealthCheckInterval());
+        final MasterTasksExecutor masterTasksExecutor = new MasterTasksExecutor(getModel(), "MasterTaskExecutor", getModel().traceIsOn(), configDto.getHealthCheckInterval());
         masterTasksExecutor.doInitialSelfSchedule();
-        if(MiSimModel.createOrchestratedReport) {
+        if (MiSimModel.createOrchestratedReport) {
             System.out.println("[INFO]: Orchestration Report will be created afterwards\n");
             final StatsTasksExecutor statsTasksExecutor = new StatsTasksExecutor(getModel(), "StatsExecutor", getModel().traceIsOn());
             statsTasksExecutor.doInitialSelfSchedule();
@@ -173,20 +173,24 @@ public class MiSimModel extends Model {
     }
 
     public void assignPriosToSchedulers(ConfigDto configDto) throws UnexpectedException {
-        for (ConfigDto.SchedulerPrio schedulerPrio : configDto.getSchedulerPrio()) {
-            String name = schedulerPrio.getName();
-            SchedulerType schedulerType1 = SchedulerType.fromString(name);
-            Scheduler schedulerInstanceByType = Util.getInstance().getSchedulerInstanceByType(schedulerType1);
-            schedulerInstanceByType.setPRIO(schedulerPrio.getPrio());
+        if (configDto.getSchedulerPrio() != null) {
+            for (ConfigDto.SchedulerPrio schedulerPrio : configDto.getSchedulerPrio()) {
+                String name = schedulerPrio.getName();
+                SchedulerType schedulerType1 = SchedulerType.fromString(name);
+                Scheduler schedulerInstanceByType = Util.getInstance().getSchedulerInstanceByType(schedulerType1);
+                schedulerInstanceByType.setPRIO(schedulerPrio.getPrio());
+            }
         }
     }
 
     public void assignStartUpTimesToInstances(ConfigDto configDto) throws UnexpectedException {
-        for (ConfigDto.StartUpTimeContainer startUpTimeContainer: configDto.getStartUpTimeContainer()) {
-            String name = startUpTimeContainer.getName();
-            Microservice service = architectureModel.getMicroservices().stream().filter(microservice -> microservice.getPlainName().equals(name)).findAny().orElse(null);
-            if(service != null){
-                ((MicroserviceOrchestration) service).setStartTime(startUpTimeContainer.getTime());
+        if (configDto.getStartUpTimeContainer() != null) {
+            for (ConfigDto.StartUpTimeContainer startUpTimeContainer : configDto.getStartUpTimeContainer()) {
+                String name = startUpTimeContainer.getName();
+                Microservice service = architectureModel.getMicroservices().stream().filter(microservice -> microservice.getPlainName().equals(name)).findAny().orElse(null);
+                if (service != null) {
+                    ((MicroserviceOrchestration) service).setStartTime(startUpTimeContainer.getTime());
+                }
             }
         }
     }
