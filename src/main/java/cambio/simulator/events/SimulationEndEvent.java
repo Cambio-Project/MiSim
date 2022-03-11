@@ -42,42 +42,5 @@ public class SimulationEndEvent extends NamedExternalEvent {
     @Override
     public void eventRoutine() throws SuspendExecution {
         model.getArchitectureModel().getMicroservices().forEach(Microservice::finalizeStatistics);
-
-        model.getExperimentMetaData().markStartOfReport(System.nanoTime());
-        triggerReport();
-        model.getExperimentMetaData().markEndOfExecution(System.nanoTime());
-
-        //update the report metadata
-        try {
-            ExportUtils.updateMetaData(model.getExperimentMetaData());
-        } catch (IOException e) {
-            System.out.println("[Error] could not write final metadata. The write-out you will find in the results may"
-                + " only contains information gathered before the simulation started.");
-        }
-
-        writeCommandLineReport();
-    }
-
-    private void triggerReport() {
-        HashMap<String, TreeMap<Double, Object>> data = ReportCollector.getInstance().collectData();
-        TreeMap<String, TreeMap<Double, Object>> sortedData = new TreeMap<>(data);
-        ReportWriter.writeReporterCollectorOutput(sortedData,
-            model.getExperimentMetaData().getReportLocation());
-        ReportCollector.getInstance().reset(); //reset the collector for static usage
-    }
-
-    private void writeCommandLineReport() {
-        ExperimentMetaData metaData = model.getExperimentMetaData();
-        System.out.println("\n*** MiSim Report ***");
-        System.out.println("Simulation of Architecture: "
-            + metaData.getArchitectureDescriptionLocation().getAbsolutePath());
-        System.out.println("Executed Experiment:        "
-            + metaData.getExperimentDescriptionLocation().getAbsolutePath());
-        System.out.println("Report Location:            "
-            + metaData.getReportLocation().toAbsolutePath());
-        System.out.println("Setup took:                 " + Util.timeFormat(metaData.getSetupDuration()));
-        System.out.println("Experiment took:            " + Util.timeFormat(metaData.getExperimentDuration()));
-        System.out.println("Report took:                " + Util.timeFormat(metaData.getReportDuration()));
-        System.out.println("Execution took:             " + Util.timeFormat(metaData.getExecutionDuration()));
     }
 }

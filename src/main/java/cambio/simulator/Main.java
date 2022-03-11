@@ -1,5 +1,7 @@
 package cambio.simulator;
 
+import cambio.simulator.export.ReportCollector;
+import cambio.simulator.models.MiSimModel;
 import desmoj.core.simulator.Experiment;
 import org.apache.commons.cli.ParseException;
 
@@ -34,7 +36,14 @@ public final class Main {
 
     public static void startExperiment(ExperimentStartupConfig startupConfig) {
         Experiment experiment = ExperimentCreator.createSimulationExperiment(startupConfig);
+        System.out.printf("[INFO] Starting simulation at approximately %s%n", java.time.LocalDateTime.now());
         experiment.start();
         experiment.finish();
+        if (experiment.isAborted()) {
+            System.out.println("[INFO] Simulation failed.");
+        } else {
+            System.out.println("[INFO] Simulation finished successfully.");
+        }
+        ReportCollector.getInstance().printReport((MiSimModel) experiment.getModel());
     }
 }

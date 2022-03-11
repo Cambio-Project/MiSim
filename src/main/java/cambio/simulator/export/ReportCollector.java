@@ -1,9 +1,13 @@
 package cambio.simulator.export;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
+import cambio.simulator.misc.Util;
+import cambio.simulator.models.ExperimentMetaData;
+import cambio.simulator.models.MiSimModel;
 import desmoj.core.report.ReportManager;
 import desmoj.core.report.Reporter;
 
@@ -75,4 +79,44 @@ public class ReportCollector extends ReportManager {
         });
         this.register(USER_REQUEST_REPORTER);
     }
+
+    public void printReport(MiSimModel model) {
+        model.getExperimentMetaData().markStartOfReport(System.nanoTime());
+        sortAndWriteReport(model);
+        model.getExperimentMetaData().markEndOfExecution(System.nanoTime());
+
+        //update the report metadata
+        try {
+            ExportUtils.updateMetaData(model.getExperimentMetaData());
+        } catch (IOException e) {
+            System.out.println("[Error] could not write final metadata. The write-out you will find in the results may"
+                + " only contains information gathered before the simulation started.");
+        }
+
+        writeCommandLineReport(model);
+    }
+
+    private void sortAndWriteReport(MiSimModel model) {
+        HashMap<String, TreeMap<Double, Object>> data = ReportCollector.getInstance().collectData();
+        TreeMap<String, TreeMap<Double, Object>> sortedData = new TreeMap<>(data);
+        ReportWriter.writeReporterCollectorOutput(sortedData,
+            model.getExperimentMetaData().getReportLocation());
+        ReportCollector.getInstance().reset(); //reset the collector for static usage
+    }
+
+    private void writeCommandLineReport(MiSimModel model) {
+        ExperimentMetaData metaData = model.getExperimentMetaData();
+        System.out.println("\n*** MiSim Report ***");
+        System.out.println("Simulation of Architecture: "
+            + metaData.getArchitectureDescriptionLocation().getAbsolutePath());
+        System.out.println("Executed Experiment:        "
+            + metaData.getExperimentDescriptionLocation().getAbsolutePath());
+        System.out.println("Report Location:            "
+            + metaData.getReportLocation().toAbsolutePath());
+        System.out.println("Setup took:                 " + Util.timeFormat(metaData.getSetupDuration()));
+        System.out.println("Experiment took:            " + Util.timeFormat(metaData.getExperimentDuration()));
+        System.out.println("Report took:                " + Util.timeFormat(metaData.getReportDuration()));
+        System.out.println("Execution took:             " + Util.timeFormat(metaData.getExecutionDuration()));
+    }
+
 }
