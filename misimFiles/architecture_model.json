@@ -1,64 +1,255 @@
 {
   "microservices": [
     {
-      "name": "gateway",
-      "instances": 1,
-      "capacity": 2000000,
-      "operations": [
-        {
-          "name": "INTERNAL_DEP",
-          "demand": 1,
-          "dependencies": [
-            {
-              "service": "example-service",
-              "operation": "call_example-service2"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "example-service",
-      "instances": 1,
-      "capacity": 100,
-      "operations": [
-        {
-          "name": "example-service.DB_WRITE",
-          "demand": 1,
-          "dependencies": []
-        },
-        {
-          "name": "example-service.DB_READ",
-          "demand": 1,
-          "dependencies": []
-        },
-        {
-          "name": "call_example-service2",
-          "demand": 1,
-          "dependencies": [
-            {
-              "service": "example-service2",
-              "operation": "example-service2.get"
-            }
-          ]
-        },
-        {
-          "name": "call_external_service",
-          "demand": 1,
-          "dependencies": []
-        }
-      ]
-    },
-    {
-      "name": "example-service2",
+      "name": "frontend",
       "instances": 1,
       "patterns": [],
-      "capacity": 32000,
+      "capacity": 500,
+      "loadbalancer_strategy": "util",
       "operations": [
         {
-          "name": "example-service2.get",
+          "name": "createUser",
+          "demand": 3,
+          "dependencies": [
+            {
+              "service": "backend",
+              "operation": "createUser",
+              "probability": 1.0
+            }
+          ]
+        },
+        {
+          "name": "deleteUser",
+          "demand": 1,
+          "dependencies": [
+            {
+              "service": "backend",
+              "operation": "deleteUser",
+              "probability": 1.0
+            }
+          ]
+        },
+        {
+          "name": "login",
+          "demand": 3,
+          "dependencies": [
+            {
+              "service": "backend",
+              "operation": "login",
+              "probability": 1.0
+            }
+          ]
+        },
+        {
+          "name": "createPost",
+          "demand": 2,
+          "dependencies": [
+            {
+              "service": "backend",
+              "operation": "createPost",
+              "probability": 1.0
+            }
+          ]
+        },
+        {
+          "name": "deletePost",
+          "demand": 1,
+          "dependencies": [
+            {
+              "service": "backend",
+              "operation": "deletePost",
+              "probability": 1.0
+            }
+          ]
+        },
+        {
+          "name": "displayPosts",
+          "demand": 2,
+          "dependencies": [
+            {
+              "service": "backend",
+              "operation": "displayPosts",
+              "probability": 1.0
+            }
+          ]
+        },
+        {
+          "name": "likePost",
+          "demand": 5,
+          "dependencies": [
+            {
+              "service": "backend",
+              "operation": "likePost",
+              "probability": 1.0
+            }
+          ]
+        }
+      ],
+      "service_patterns": [
+        {
+          "type": "autoscaling",
+          "strategy": {
+            "type": "reactive",
+            "config": {
+              "lower_bound": 0.5,
+              "upper_bound": 0.5
+            }
+          }
+        }
+      ]
+
+    },
+    {
+      "name": "backend",
+      "instances": 1,
+      "patterns": [],
+      "capacity": 1000,
+      "loadbalancer_strategy": "util",
+      "operations": [
+        {
+          "name": "createUser",
+          "demand": 10,
+          "dependencies": [
+            {
+              "service": "db",
+              "operation": "usersGET",
+              "probability": 1.0
+            },
+            {
+              "service": "db",
+              "operation": "usersPOST",
+              "probability": 1.0
+            }
+          ]
+        },
+        {
+          "name": "deleteUser",
+          "demand": 10,
+          "dependencies": [
+            {
+              "service": "db",
+              "operation": "usersDELETE",
+              "probability": 1.0
+            }
+          ]
+        },
+        {
+          "name": "login",
+          "demand": 30,
+          "dependencies": [
+            {
+              "service": "db",
+              "operation": "usersGET",
+              "probability": 1.0
+            }
+          ]
+        },
+        {
+          "name": "createPost",
+          "demand": 20,
+          "dependencies": [
+            {
+              "service": "db",
+              "operation": "postsPOST",
+              "probability": 1.0
+            }
+          ]
+        },
+        {
+          "name": "deletePost",
+          "demand": 10,
+          "dependencies": [
+            {
+              "service": "db",
+              "operation": "postsDELETE",
+              "probability": 1.0
+            }
+          ]
+        },
+        {
+          "name": "displayPosts",
+          "demand": 30,
+          "dependencies": [
+            {
+              "service": "db",
+              "operation": "postsGET",
+              "probability": 1.0
+            }
+          ]
+        },
+        {
+          "name": "likePost",
+          "demand": 10,
+          "dependencies": [
+            {
+              "service": "db",
+              "operation": "postsPOST",
+              "probability": 1.0
+            }
+          ]
+        }
+      ],
+      "service_patterns": [
+        {
+          "type": "autoscaling",
+          "strategy": {
+            "type": "reactive",
+            "config": {
+              "lower_bound": 0.5,
+              "upper_bound": 0.5
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "db",
+      "instances": 1,
+      "patterns": [],
+      "capacity": 150,
+      "loadbalancer_strategy": "util",
+      "operations": [
+        {
+          "name": "usersPOST",
           "demand": 1,
           "dependencies": []
+        },
+        {
+          "name": "usersDELETE",
+          "demand": 1,
+          "dependencies": []
+        },
+        {
+          "name": "usersGET",
+          "demand": 1,
+          "dependencies": []
+        },
+        {
+          "name": "postsPOST",
+          "demand": 1,
+          "dependencies": []
+        },
+        {
+          "name": "postsDELETE",
+          "demand": 1,
+          "dependencies": []
+        },
+        {
+          "name": "postsGET",
+          "demand": 1,
+          "dependencies": []
+        }
+      ],
+      "service_patterns": [
+        {
+          "type": "autoscaling",
+          "strategy": {
+            "type": "reactive",
+            "config": {
+              "lower_bound": 0.5,
+              "upper_bound": 0.5
+            }
+          }
         }
       ]
     }

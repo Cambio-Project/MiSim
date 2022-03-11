@@ -15,7 +15,7 @@
       "config": {
         "microservice": "frontend",
         "operation": "createUser",
-        "model": "./Examples/Orchestration/Load/sinus_avg5_1to9_length_120.csv"
+        "model": "./Examples/Orchestration/Load/linear_0_60.csv"
       }
     },
     {
@@ -23,7 +23,7 @@
       "config": {
         "microservice": "frontend",
         "operation": "deleteUser",
-        "model": "./Examples/Orchestration/Load/sinus_avg5_1to9_length_120.csv"
+        "model": "./Examples/Orchestration/Load/linear_0_30.csv"
       }
     },
     {
@@ -31,7 +31,7 @@
       "config": {
         "microservice": "frontend",
         "operation": "displayPosts",
-        "model": "./Examples/Orchestration/Load/sinus_avg5_1to9_length_120.csv"
+        "model": "./Examples/Orchestration/Load/linear_0_60.csv"
       }
     },
     {
@@ -39,7 +39,7 @@
       "config": {
         "microservice": "frontend",
         "operation": "likePost",
-        "model": "./Examples/Orchestration/Load/sinus_avg5_1to9_length_120.csv"
+        "model": "./Examples/Orchestration/Load/linear_0_30.csv"
       }
     }
   ]

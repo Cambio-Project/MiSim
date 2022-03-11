@@ -4,11 +4,11 @@
       "name": "frontend",
       "instances": 1,
       "patterns": [],
-      "capacity": 200,
+      "capacity": 500,
       "operations": [
         {
           "name": "createUser",
-          "demand": 1,
+          "demand": 3,
           "dependencies": [
             {
               "service": "backend",
@@ -30,7 +30,7 @@
         },
         {
           "name": "login",
-          "demand": 1,
+          "demand": 3,
           "dependencies": [
             {
               "service": "backend",
@@ -41,7 +41,7 @@
         },
         {
           "name": "createPost",
-          "demand": 1,
+          "demand": 2,
           "dependencies": [
             {
               "service": "backend",
@@ -63,7 +63,7 @@
         },
         {
           "name": "displayPosts",
-          "demand": 1,
+          "demand": 2,
           "dependencies": [
             {
               "service": "backend",
@@ -74,7 +74,7 @@
         },
         {
           "name": "likePost",
-          "demand": 1,
+          "demand": 5,
           "dependencies": [
             {
               "service": "backend",
@@ -89,11 +89,11 @@
       "name": "backend",
       "instances": 1,
       "patterns": [],
-      "capacity": 300,
+      "capacity": 1000,
       "operations": [
         {
           "name": "createUser",
-          "demand": 1,
+          "demand": 10,
           "dependencies": [
             {
               "service": "db",
@@ -109,7 +109,7 @@
         },
         {
           "name": "deleteUser",
-          "demand": 1,
+          "demand": 10,
           "dependencies": [
             {
               "service": "db",
@@ -120,7 +120,7 @@
         },
         {
           "name": "login",
-          "demand": 1,
+          "demand": 30,
           "dependencies": [
             {
               "service": "db",
@@ -131,7 +131,7 @@
         },
         {
           "name": "createPost",
-          "demand": 1,
+          "demand": 20,
           "dependencies": [
             {
               "service": "db",
@@ -142,7 +142,7 @@
         },
         {
           "name": "deletePost",
-          "demand": 1,
+          "demand": 10,
           "dependencies": [
             {
               "service": "db",
@@ -153,7 +153,7 @@
         },
         {
           "name": "displayPosts",
-          "demand": 1,
+          "demand": 30,
           "dependencies": [
             {
               "service": "db",
@@ -164,7 +164,7 @@
         },
         {
           "name": "likePost",
-          "demand": 1,
+          "demand": 10,
           "dependencies": [
             {
               "service": "db",
@@ -179,7 +179,7 @@
       "name": "db",
       "instances": 1,
       "patterns": [],
-      "capacity": 30,
+      "capacity": 150,
       "operations": [
         {
           "name": "usersPOST",
@@ -188,7 +188,7 @@
         },
         {
           "name": "usersDELETE",
-          "demand": 2,
+          "demand": 1,
           "dependencies": []
         },
         {
@@ -203,7 +203,7 @@
         },
         {
           "name": "postsDELETE",
-          "demand": 2,
+          "demand": 1,
           "dependencies": []
         },
         {

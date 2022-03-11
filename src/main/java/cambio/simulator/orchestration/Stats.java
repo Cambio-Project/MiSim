@@ -96,6 +96,7 @@ public class Stats {
         int amountPods;
         Map<Microservice, Integer> microservicetimoutmap = new HashMap<>();
         Map<Pod, Double> podDoubleHashMap = new HashMap<>();
+        Map<MicroserviceInstance, Double> microserviceInstanceDoubleHashMap = new HashMap<>();
 
 
         public ScalingRecord() {
@@ -139,6 +140,14 @@ public class Stats {
 
         public void setPodDoubleHashMap(Map<Pod, Double> podDoubleHashMap) {
             this.podDoubleHashMap = podDoubleHashMap;
+        }
+
+        public Map<MicroserviceInstance, Double> getMicroserviceInstanceDoubleHashMap() {
+            return microserviceInstanceDoubleHashMap;
+        }
+
+        public void setMicroserviceInstanceDoubleHashMap(Map<MicroserviceInstance, Double> microserviceInstanceDoubleHashMap) {
+            this.microserviceInstanceDoubleHashMap = microserviceInstanceDoubleHashMap;
         }
     }
 

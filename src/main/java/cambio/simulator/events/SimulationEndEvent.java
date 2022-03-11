@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -76,8 +77,8 @@ public class SimulationEndEvent extends NamedExternalEvent {
 
         clReport();
 
-        if(MiSimModel.createOrchestratedReport) {
-            String currentRunName = "A1";
+        if (MiSimModel.createOrchestratedReport) {
+            String currentRunName = "A6";
             createReport(currentRunName);
         }
     }
@@ -117,14 +118,40 @@ public class SimulationEndEvent extends NamedExternalEvent {
                 content.add("Time");
                 content.add("AvgConsumption");
                 content.add("#Instances");
+                content.add("NetworkRequestTimeoutEvent_" + microservice.getPlainName());
+
+                //Add individual cpuconsumption
+                List<MicroserviceInstance> collect = microservice.getInstancesSet().stream().collect(Collectors.toList());
+                Collections.sort(collect, new Comparator<MicroserviceInstance>() {
+                    @Override
+                    public int compare(MicroserviceInstance microservice1, MicroserviceInstance t1) {
+                        String ms1 = microservice1.getQuotedName().split("#")[1];
+                        String ms2 = t1.getQuotedName().split("#")[1];
+                        return ms1.compareTo(ms2);
+                    }
+                });
+
+                for (MicroserviceInstance microserviceInstance : collect) {
+                    content.add(String.valueOf(microserviceInstance.getQuotedName()));
+                }
+
+
                 pw.println(convertToCSV(content));
                 for (Stats.ScalingRecord scalingRecord : scalingRecords) {
                     content.clear();
                     content.add(String.valueOf(scalingRecord.getTime()));
                     content.add(String.valueOf(scalingRecord.getAvgConsumption()));
                     content.add(String.valueOf(scalingRecord.getAmountPods()));
+                    content.add(String.valueOf(scalingRecord.getMicroservicetimoutmap().get(microservice)));
+
+
+                    for (MicroserviceInstance microserviceInstance : collect) {
+                        content.add(String.valueOf(scalingRecord.getMicroserviceInstanceDoubleHashMap().get(microserviceInstance)));
+                    }
                     pw.println(convertToCSV(content));
                 }
+
+
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
@@ -150,6 +177,13 @@ public class SimulationEndEvent extends NamedExternalEvent {
             directorySpecificRun.mkdir();
             // If you require it to make the entire directory path including parents,
             // use directory.mkdirs(); here instead.
+        } else {
+            try {
+                throw new FileAlreadyExistsException("File with the name " + currentRunName + " already exists");
+            } catch (FileAlreadyExistsException e) {
+                e.printStackTrace();
+                System.exit(1);
+            }
         }
 
         //copy run specific config files

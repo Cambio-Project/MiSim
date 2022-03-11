@@ -2,6 +2,7 @@ package cambio.simulator.orchestration.MiSimSpecific;
 
 import cambio.simulator.entities.NamedExternalEvent;
 import cambio.simulator.entities.microservice.Microservice;
+import cambio.simulator.entities.microservice.MicroserviceInstance;
 import cambio.simulator.misc.Priority;
 import cambio.simulator.models.MiSimModel;
 import cambio.simulator.orchestration.Stats;
@@ -18,6 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static cambio.simulator.entities.networking.NetworkRequestTimeoutEvent.microservicetimoutmap;
+
 public class StatsMiSimEvent extends NamedExternalEvent {
 
 
@@ -32,10 +35,10 @@ public class StatsMiSimEvent extends NamedExternalEvent {
     }
 
 
-    public void createScalingStats(){
+    public void createScalingStats() {
         int time = (int) getModel().presentTime().getTimeAsDouble();
 
-        List<Microservice> microservices = ((MiSimModel)getModel()).getArchitectureModel().getMicroservices().stream().collect(Collectors.toList());
+        List<Microservice> microservices = ((MiSimModel) getModel()).getArchitectureModel().getMicroservices().stream().collect(Collectors.toList());
         for (Microservice microservice : microservices) {
             Stats.ScalingRecord scalingRecord = new Stats.ScalingRecord();
             scalingRecord.setTime(time);
@@ -43,6 +46,20 @@ public class StatsMiSimEvent extends NamedExternalEvent {
             double avg = microservice.getAverageRelativeUtilization();
             scalingRecord.setAvgConsumption(avg);
             scalingRecord.setAmountPods(microservice.getInstancesCount());
+
+
+            //add event info
+            Integer integer = microservicetimoutmap.get(microservice);
+            if (integer != null) {
+                scalingRecord.getMicroservicetimoutmap().put(microservice, Integer.valueOf(integer));
+            } else {
+                scalingRecord.getMicroservicetimoutmap().put(microservice, 0);
+            }
+
+            for(MicroserviceInstance microserviceInstance : microservice.getInstancesSet()){
+                scalingRecord.getMicroserviceInstanceDoubleHashMap().put(microserviceInstance, microserviceInstance.getRelativeWorkDemand());
+            }
+
 
             List<Stats.ScalingRecord> scalingRecords = Stats.getInstance().getMicroServiceRecordsMap().get(microservice);
             if (scalingRecords != null) {
@@ -54,6 +71,4 @@ public class StatsMiSimEvent extends NamedExternalEvent {
             }
         }
     }
-
-
 }
