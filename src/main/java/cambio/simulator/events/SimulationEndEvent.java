@@ -29,7 +29,6 @@ import cambio.simulator.orchestration.environment.Node;
 import cambio.simulator.orchestration.environment.Pod;
 import cambio.simulator.orchestration.events.*;
 import cambio.simulator.orchestration.k8objects.Deployment;
-import cambio.simulator.orchestration.management.ManagementPlane;
 import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.ExternalEvent;
 import desmoj.core.simulator.Model;
@@ -78,11 +77,7 @@ public class SimulationEndEvent extends NamedExternalEvent {
         clReport();
 
         String currentRunName = "A1";
-        if (MiSimModel.orchestrated && MiSimModel.createOrchestratedReport) {
-            createOrchestrationReport(currentRunName);
-        } else {
-            createPureMiSimReport(currentRunName);
-        }
+        createReport(currentRunName);
     }
 
     public SimulationEndEvent(Model model, String name, boolean showInTrace, MiSimModel model1) {
@@ -90,20 +85,12 @@ public class SimulationEndEvent extends NamedExternalEvent {
         this.model = model1;
     }
 
-    public void createPureMiSimReport(String currentRunName) {
-        //Create orchestration record directory
+    public void createPureMiSimReport(File lastDirectory) {
 
-        String directoryName = "pure_MiSim_records";
-        File directory = new File(directoryName);
-        if (!directory.exists()) {
-            directory.mkdir();
-            // If you require it to make the entire directory path including parents,
-            // use directory.mkdirs(); here instead.
-        }
-
-        File directorySpecificRun = new File(directory.getPath() + "/" + currentRunName);
-        if (!directorySpecificRun.exists()) {
-            directorySpecificRun.mkdir();
+        String directoryNameMiSim = "pure_MiSim_records";
+        File directoryMiSim = new File(lastDirectory.getPath() + "/" + directoryNameMiSim);
+        if (!directoryMiSim.exists()) {
+            directoryMiSim.mkdir();
             // If you require it to make the entire directory path including parents,
             // use directory.mkdirs(); here instead.
         }
@@ -111,7 +98,7 @@ public class SimulationEndEvent extends NamedExternalEvent {
         //###Create Data for scaling###
 
         String directoryNameScaling = "Scaling";
-        File directoryScaling = new File(directorySpecificRun.getPath() + "/" + directoryNameScaling);
+        File directoryScaling = new File(directoryMiSim.getPath() + "/" + directoryNameScaling);
         if (!directoryScaling.exists()) {
             directoryScaling.mkdir();
             // If you require it to make the entire directory path including parents,
@@ -143,43 +130,9 @@ public class SimulationEndEvent extends NamedExternalEvent {
 
         //###END of: Create Data for scaling###
 
-        //###Create Data for Performance###
-        String directoryNamePerformance = "Performance";
-        File directoryPerformance = new File(directorySpecificRun.getPath() + "/" + directoryNamePerformance);
-        if (!directoryPerformance.exists()) {
-            directoryPerformance.mkdir();
-            // If you require it to make the entire directory path including parents,
-            // use directory.mkdirs(); here instead.
-        }
-
-        File csvOutputFilePerformance = new File(directoryPerformance.getPath() + "/" + "performance_results.csv");
-
-
-        try (PrintWriter pw = new PrintWriter(csvOutputFilePerformance)) {
-            ArrayList<String> content = new ArrayList<>();
-            content.add("Setup_time");
-            content.add("Experiment_time");
-            content.add("Report_time");
-            content.add("Execution_time");
-            pw.println(convertToCSV(content));
-            content.clear();
-            ExperimentMetaData metaData = model.getExperimentMetaData();
-            content.add(String.valueOf(cambio.simulator.orchestration.Util.nanoSecondsToMilliSeconds(metaData.getSetupDuration())));
-            content.add(String.valueOf(cambio.simulator.orchestration.Util.nanoSecondsToMilliSeconds(metaData.getExperimentDuration())));
-            content.add(String.valueOf(cambio.simulator.orchestration.Util.nanoSecondsToMilliSeconds(metaData.getReportDuration())));
-            content.add(String.valueOf(cambio.simulator.orchestration.Util.nanoSecondsToMilliSeconds(metaData.getExecutionDuration())));
-            pw.println(convertToCSV(content));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        //Add events csv
-        addEventsResult(directoryPerformance);
-
-
     }
 
-    public void createOrchestrationReport(String currentRunName) {
+    public void createReport(String currentRunName) {
         //Create orchestration record directory
 
         String directoryName = "orchestration_records";
@@ -214,10 +167,62 @@ public class SimulationEndEvent extends NamedExternalEvent {
             e.printStackTrace();
         }
 
+        //###Create Data for Performance###
+        String directoryNamePerformance = "Performance";
+        File directoryPerformance = new File(directorySpecificRun.getPath() + "/" + directoryNamePerformance);
+        if (!directoryPerformance.exists()) {
+            directoryPerformance.mkdir();
+            // If you require it to make the entire directory path including parents,
+            // use directory.mkdirs(); here instead.
+        }
+
+        File csvOutputFilePerformance = new File(directoryPerformance.getPath() + "/" + "performance_results.csv");
+
+
+        try (PrintWriter pw = new PrintWriter(csvOutputFilePerformance)) {
+            ArrayList<String> content = new ArrayList<>();
+            content.add("Setup_time");
+            content.add("Experiment_time");
+            content.add("Report_time");
+            content.add("Execution_time");
+            pw.println(convertToCSV(content));
+            content.clear();
+            ExperimentMetaData metaData = model.getExperimentMetaData();
+            content.add(String.valueOf(cambio.simulator.orchestration.Util.nanoSecondsToMilliSeconds(metaData.getSetupDuration())));
+            content.add(String.valueOf(cambio.simulator.orchestration.Util.nanoSecondsToMilliSeconds(metaData.getExperimentDuration())));
+            content.add(String.valueOf(cambio.simulator.orchestration.Util.nanoSecondsToMilliSeconds(metaData.getReportDuration())));
+            content.add(String.valueOf(cambio.simulator.orchestration.Util.nanoSecondsToMilliSeconds(metaData.getExecutionDuration())));
+            pw.println(convertToCSV(content));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        //Add events csv
+        addEventsResult(directoryPerformance);
+
+
+        if (MiSimModel.orchestrated && MiSimModel.createOrchestratedReport) {
+            createOrchestrationReport(directorySpecificRun);
+        } else {
+            createPureMiSimReport(directorySpecificRun);
+        }
+
+    }
+
+    public void createOrchestrationReport(File lastDirectory) {
+
+        String directoryNameOrchestration = "Orchestration";
+        File directoryOrchestration = new File(lastDirectory.getPath() + "/" + directoryNameOrchestration);
+        if (!directoryOrchestration.exists()) {
+            directoryOrchestration.mkdir();
+            // If you require it to make the entire directory path including parents,
+            // use directory.mkdirs(); here instead.
+        }
+
+
         //###Create Data for scaling###
 
         String directoryNameScaling = "Scaling";
-        File directoryScaling = new File(directorySpecificRun.getPath() + "/" + directoryNameScaling);
+        File directoryScaling = new File(directoryOrchestration.getPath() + "/" + directoryNameScaling);
         if (!directoryScaling.exists()) {
             directoryScaling.mkdir();
             // If you require it to make the entire directory path including parents,
@@ -293,7 +298,7 @@ public class SimulationEndEvent extends NamedExternalEvent {
 
         //###Create Data for scheduling###
         String directoryNameScheduling = "Scheduling";
-        File directoryScheduling = new File(directorySpecificRun.getPath() + "/" + directoryNameScheduling);
+        File directoryScheduling = new File(directoryOrchestration.getPath() + "/" + directoryNameScheduling);
         if (!directoryScheduling.exists()) {
             directoryScheduling.mkdir();
             // If you require it to make the entire directory path including parents,
@@ -384,40 +389,6 @@ public class SimulationEndEvent extends NamedExternalEvent {
 
 
         //###End of: Create Data for scheduling###
-
-        //###Create Data for Performance###
-        String directoryNamePerformance = "Performance";
-        File directoryPerformance = new File(directorySpecificRun.getPath() + "/" + directoryNamePerformance);
-        if (!directoryPerformance.exists()) {
-            directoryPerformance.mkdir();
-            // If you require it to make the entire directory path including parents,
-            // use directory.mkdirs(); here instead.
-        }
-
-        File csvOutputFilePerformance = new File(directoryPerformance.getPath() + "/" + "performance_results.csv");
-
-
-        try (PrintWriter pw = new PrintWriter(csvOutputFilePerformance)) {
-            ArrayList<String> content = new ArrayList<>();
-            content.add("Setup_time");
-            content.add("Experiment_time");
-            content.add("Report_time");
-            content.add("Execution_time");
-            pw.println(convertToCSV(content));
-            content.clear();
-            ExperimentMetaData metaData = model.getExperimentMetaData();
-            content.add(String.valueOf(cambio.simulator.orchestration.Util.nanoSecondsToMilliSeconds(metaData.getSetupDuration())));
-            content.add(String.valueOf(cambio.simulator.orchestration.Util.nanoSecondsToMilliSeconds(metaData.getExperimentDuration())));
-            content.add(String.valueOf(cambio.simulator.orchestration.Util.nanoSecondsToMilliSeconds(metaData.getReportDuration())));
-            content.add(String.valueOf(cambio.simulator.orchestration.Util.nanoSecondsToMilliSeconds(metaData.getExecutionDuration())));
-            pw.println(convertToCSV(content));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        //Add events csv
-        addEventsResult(directoryPerformance);
-
 
     }
 
