@@ -6,8 +6,6 @@ import cambio.simulator.orchestration.management.ManagementPlane;
 import java.util.Random;
 
 public class RandomAutoscaler extends AutoScaler {
-    Random random = new Random(ManagementPlane.getInstance().getExperimentSeed());
-
 
     public RandomAutoscaler() {
         this.rename("RandomAutoScaler");
@@ -30,7 +28,7 @@ public class RandomAutoscaler extends AutoScaler {
 
 
         if (upscalingAllowed || downscalingAllowed) {
-            int desiredReplicas = random.nextInt();
+            int desiredReplicas = random.nextInt((deployment.getMaxReplicaCount() - deployment.getMinReplicaCount()) +1) + deployment.getMinReplicaCount();
 
             desiredReplicas = Math.min(desiredReplicas, deployment.getMaxReplicaCount());
             desiredReplicas = Math.max(deployment.getMinReplicaCount(), desiredReplicas);

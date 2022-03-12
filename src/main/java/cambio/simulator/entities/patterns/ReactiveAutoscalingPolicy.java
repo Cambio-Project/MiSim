@@ -18,8 +18,8 @@ class ReactiveAutoscalingPolicy implements IAutoscalingPolicy {
 
 
     private final transient MultiDataPointReporter reporter = new MultiDataPointReporter("AS");
-    private final double lowerBound = 0.3;
-    private final double upperBound = 0.8;
+    private double lowerBound = 0.3;
+    private double upperBound = 0.8;
     /**
      * Minimum time an instance has to run before it can be shutdown by down-scaling.
      */

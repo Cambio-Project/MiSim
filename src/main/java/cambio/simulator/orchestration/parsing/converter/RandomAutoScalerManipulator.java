@@ -7,6 +7,7 @@ import cambio.simulator.orchestration.parsing.*;
 import cambio.simulator.orchestration.scaling.RandomAutoscaler;
 
 import java.util.Optional;
+import java.util.Random;
 
 public class RandomAutoScalerManipulator implements K8ObjectManipulator {
 
@@ -33,6 +34,7 @@ public class RandomAutoScalerManipulator implements K8ObjectManipulator {
                     if (optionalDeployment.isPresent()) {
                         final Deployment deployment = optionalDeployment.get();
                         deployment.setAutoScaler(new RandomAutoscaler());
+                        deployment.getAutoScaler().setRandom(new Random(ManagementPlane.getInstance().getExperimentSeed()+deploymentName.hashCode()));
                         final int minReplicas = k8HPADto.getSpec().getMinReplicas();
                         final int maxReplicas = k8HPADto.getSpec().getMaxReplicas();
                         deployment.setMinReplicaCount(minReplicas);

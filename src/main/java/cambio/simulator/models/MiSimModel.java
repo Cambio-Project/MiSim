@@ -43,7 +43,7 @@ public class MiSimModel extends Model {
     public static MultiDataPointReporter generalReporter = new MultiDataPointReporter();
 
     public static boolean orchestrated;
-    public static boolean createOrchestratedReport = false;
+    public static boolean createOrchestratedReport = true;
 
     private final transient File architectureModelLocation;
     private final transient File experimentModelOrScenarioLocation;
