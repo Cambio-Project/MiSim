@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: frontend-deployment
+  name: subscriptionService-deployment
   labels:
-    app: frontend
+    app: subscriptionService
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: frontend
+      app: subscriptionService
   template:
     metadata:
       labels:
-        app: frontend
+        app: subscriptionService
     spec:
       containers:
-        - name: frontend
+        - name: subscriptionService
 #      affinity:
 #        nodeAffinity:
 #          requiredDuringSchedulingIgnoredDuringExecution:

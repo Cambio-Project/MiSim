@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: frontend-deployment
+  name: usersService-deployment
   labels:
-    app: frontend
+    app: usersService
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: frontend
+      app: usersService
   template:
     metadata:
       labels:
-        app: frontend
+        app: usersService
     spec:
       containers:
-        - name: frontend
+        - name: usersService
 #      affinity:
 #        nodeAffinity:
 #          requiredDuringSchedulingIgnoredDuringExecution:

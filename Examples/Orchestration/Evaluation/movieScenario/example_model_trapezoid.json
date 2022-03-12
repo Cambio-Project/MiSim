@@ -2,7 +2,7 @@
   "simulation_meta_data": {
     "experiment_name": "Movie Experiment",
     "model_name": "architecture_model",
-    "orchestrate": false,
+    "orchestrate": true,
     "orchestration_dir": "orchestration",
     "duration": 300,
     "report": "",
@@ -15,7 +15,7 @@
       "config": {
         "microservice": "frontend",
         "operation": "authenticate",
-        "model": "./Examples/Orchestration/Load/sinus_avg5_1to9_length_120.csv"
+        "model": "./Examples/Orchestration/Load/trapezoid_0to60.csv"
       }
     },
     {
@@ -23,7 +23,7 @@
       "config": {
         "microservice": "frontend",
         "operation": "loadHomeScreen",
-        "model": "./Examples/Orchestration/Load/useSinus_avg25_25_45_120.csv"
+        "model": "./Examples/Orchestration/Load/trapezoid_0to60.csv"
       }
     },
     {
@@ -31,7 +31,7 @@
       "config": {
         "microservice": "frontend",
         "operation": "manageAccount",
-        "model": "./Examples/Orchestration/Load/sinus_avg5_1to9_length_120.csv"
+        "model": "./Examples/Orchestration/Load/trapezoid_0to60.csv"
       }
     },
     {
@@ -39,7 +39,7 @@
       "config": {
         "microservice": "frontend",
         "operation": "watchMovie",
-        "model": "./Examples/Orchestration/Load/sinus_avg5_1to9_length_120.csv"
+        "model": "./Examples/Orchestration/Load/trapezoid_0to60.csv"
       }
     },
     {
@@ -47,7 +47,7 @@
       "config": {
         "microservice": "frontend",
         "operation": "stopMovie",
-        "model": "./Examples/Orchestration/Load/sinus_avg5_1to9_length_120.csv"
+        "model": "./Examples/Orchestration/Load/trapezoid_0to60.csv"
       }
     }
   ]

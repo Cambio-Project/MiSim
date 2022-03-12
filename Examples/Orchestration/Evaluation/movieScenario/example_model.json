@@ -2,7 +2,7 @@
   "simulation_meta_data": {
     "experiment_name": "Movie Experiment",
     "model_name": "architecture_model",
-    "orchestrate": false,
+    "orchestrate": true,
     "orchestration_dir": "orchestration",
     "duration": 300,
     "report": "",
