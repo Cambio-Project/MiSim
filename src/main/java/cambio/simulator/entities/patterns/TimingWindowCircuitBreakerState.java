@@ -2,7 +2,6 @@ package cambio.simulator.entities.patterns;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.LinkedList;
 
 import cambio.simulator.entities.microservice.Microservice;
 import desmoj.core.simulator.ExternalEvent;
