@@ -89,8 +89,6 @@ public final class IntervalLoadGeneratorDescription extends LoadGeneratorDescrip
                 currentLoadCounter--;
                 return lastTimeInstant;
             }
-
-
         }
     }
 }

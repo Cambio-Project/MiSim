@@ -3,6 +3,7 @@ package cambio.simulator.entities.generator;
 import java.io.File;
 import java.util.concurrent.TimeUnit;
 
+import desmoj.core.simulator.TimeInstant;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
@@ -26,7 +27,7 @@ class LimboLoadGeneratorDescriptionTest {
 
         for (int i = 0; i < 6; i++) {
             for (int j = 0; j < 2; j++) {
-                double targetTime = description.getNextTimeInstant().getTimeAsDouble();
+                double targetTime = description.getNextTimeInstant(new TimeInstant(i*2+j)).getTimeAsDouble();
                 Assertions.assertEquals(20.5 + i, targetTime);
                 System.out.println(targetTime);
             }

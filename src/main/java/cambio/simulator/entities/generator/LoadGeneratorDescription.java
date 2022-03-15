@@ -21,6 +21,9 @@ public abstract class LoadGeneratorDescription implements ISelfScheduled {
     @SerializedName(value = "start", alternate = {"initial_arrival_time", "arrival_time"})
     protected double initialArrivalTime = 0;
 
+    @SerializedName(value = "stop", alternate = {"final_time", "stop_time", "end", "end_time"})
+    protected double stopTime = Double.POSITIVE_INFINITY;
+
     @SerializedName(value = "repeating")
     protected boolean repeating = false;
 
@@ -30,7 +33,7 @@ public abstract class LoadGeneratorDescription implements ISelfScheduled {
     @SerializedName(value = "skip", alternate = {"repetition_skip", "repetition"})
     protected double repetitionSkip = 0.0d;
 
-    @SerializedName(value = "operation", alternate = {"target_operation"})
+    @SerializedName(value = "operation", alternate = {"target_operation", "target"})
     protected Operation targetOperation = null;
 
     @SerializedName(value = "name", alternate = {"generator_name"})
@@ -65,6 +68,21 @@ public abstract class LoadGeneratorDescription implements ISelfScheduled {
         arrivalRateModel = createArrivalRateModel();
     }
 
+
+    /**
+     * Returns the initial arrival time of the load generator,
+     * alias the "start" to which the arrival rate profile is shifted to.
+     *
+     * @return The initial arrival time of the load generator.
+     * @throws LoadGeneratorStopException when the arrival rate model has no defined arrivals.
+     */
+    public final TimeInstant getInitialArrivalTime() throws LoadGeneratorStopException {
+        if (!arrivalRateModel.hasNext()) {
+            throw new LoadGeneratorStopException("Load generator has no defined arrivals.");
+        }
+        return new TimeInstant(initialArrivalTime);
+    }
+
     /**
      * Grabs the next target time for when a new request should be sent.
      *
@@ -73,8 +91,11 @@ public abstract class LoadGeneratorDescription implements ISelfScheduled {
      *                                    does not describe any further arrival times.
      */
     @NotNull
-    @Contract("->!null")
-    public final TimeInstant getNextTimeInstant() throws LoadGeneratorStopException {
+    @Contract("_->!null")
+    public final TimeInstant getNextTimeInstant(TimeInstant presentTime) throws LoadGeneratorStopException {
+        if (presentTime.getTimeAsDouble() >= stopTime) {
+            throw new LoadGeneratorStopException("Load generator has finished (stop time reached).");
+        }
 
         if (arrivalRateModel.hasNext()) {
             double nextTarget = arrivalRateModel.getNextTimeInstant();
@@ -90,7 +111,7 @@ public abstract class LoadGeneratorDescription implements ISelfScheduled {
                 throw new LoadGeneratorStopException(String.format("Max Repetitions Reached (%s)", maxRepetitions));
             }
             arrivalRateModel.reset();
-            return getNextTimeInstant();
+            return getNextTimeInstant(presentTime);
         } else {
             throw new LoadGeneratorStopException("No more Arrival Rate definitions available.");
         }

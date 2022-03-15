@@ -8,8 +8,10 @@ import cambio.simulator.entities.networking.Request;
 import cambio.simulator.entities.networking.RequestFailedReason;
 import cambio.simulator.entities.networking.RequestSender;
 import cambio.simulator.entities.networking.UserRequest;
+import cambio.simulator.entities.patterns.IPatternLifeCycleHooks;
 import cambio.simulator.events.ISelfScheduled;
 import cambio.simulator.export.AccumulativeDataPointReporter;
+import cambio.simulator.parsing.ParsingException;
 import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
@@ -28,7 +30,7 @@ import org.jetbrains.annotations.NotNull;
  * @see LoadGeneratorDescription
  */
 public final class LoadGeneratorDescriptionExecutor extends RequestSender implements IRequestUpdateListener,
-    ISelfScheduled {
+    ISelfScheduled, IPatternLifeCycleHooks {
     private static final AccumulativeDataPointReporter allReporter = new AccumulativeDataPointReporter("GEN_ALL");
     private final Model model;
 
@@ -73,6 +75,7 @@ public final class LoadGeneratorDescriptionExecutor extends RequestSender implem
     public void doInitialSelfSchedule() {
         ISelfScheduled selfScheduled = new GeneratorDescriptionExecutorScheduler(getPlainName());
         selfScheduled.doInitialSelfSchedule();
+        this.start();
     }
 
     private void sendNewUserRequest() {
@@ -137,7 +140,7 @@ public final class LoadGeneratorDescriptionExecutor extends RequestSender implem
             sendNewUserRequest();
             accReporter.addDatapoint("Load", presentTime(), 1);
             try {
-                TimeInstant next = loadGeneratorDescription.getNextTimeInstant();
+                TimeInstant next = loadGeneratorDescription.getNextTimeInstant(presentTime());
                 this.hold(next);
             } catch (LoadGeneratorStopException e) {
                 model.sendTraceNote(String.format("Generator %s has stopped: %s", getName(), e.getMessage()));
@@ -148,7 +151,7 @@ public final class LoadGeneratorDescriptionExecutor extends RequestSender implem
         @Override
         public void doInitialSelfSchedule() {
             try {
-                TimeInstant nextTimeInstant = loadGeneratorDescription.getNextTimeInstant();
+                TimeInstant nextTimeInstant = loadGeneratorDescription.getInitialArrivalTime();
                 this.activate(nextTimeInstant);
             } catch (LoadGeneratorStopException e) {
                 sendWarning(String.format("Generator %s did not start.", this.getName()),

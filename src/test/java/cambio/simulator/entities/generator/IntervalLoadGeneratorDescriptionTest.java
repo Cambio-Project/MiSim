@@ -21,7 +21,7 @@ class IntervalLoadGeneratorDescriptionTest {
             IntervalLoadGeneratorDescription.class);
 
         for (int i = 0; i < 100; i++) {
-            TimeInstant next = description.getNextTimeInstant();
+            TimeInstant next = description.getNextTimeInstant(new TimeInstant(i));
             Assertions.assertEquals(20.5 + .5 * i, next.getTimeAsDouble());
         }
     }
@@ -41,7 +41,7 @@ class IntervalLoadGeneratorDescriptionTest {
 
         for (int i = 0; i < 100; i++) {
             for (int j = 0; j < 4; j++) {
-                TimeInstant next = description.getNextTimeInstant();
+                TimeInstant next = description.getNextTimeInstant(new TimeInstant(j+i*4));
                 Assertions.assertEquals(20.5 + 2 * i, next.getTimeAsDouble());
             }
         }
@@ -56,7 +56,7 @@ class IntervalLoadGeneratorDescriptionTest {
 
         IntervalLoadGeneratorDescription description = Utils.getLoadGeneratorDescription(config,
             IntervalLoadGeneratorDescription.class);
-        Assertions.assertThrows(LoadGeneratorStopException.class, description::getNextTimeInstant);
+        Assertions.assertThrows(LoadGeneratorStopException.class, () -> description.getNextTimeInstant(new TimeInstant(0)));
     }
 
     @Test
