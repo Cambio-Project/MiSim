@@ -11,7 +11,6 @@ import cambio.simulator.entities.networking.UserRequest;
 import cambio.simulator.entities.patterns.IPatternLifeCycleHooks;
 import cambio.simulator.events.ISelfScheduled;
 import cambio.simulator.export.AccumulativeDataPointReporter;
-import cambio.simulator.parsing.ParsingException;
 import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
