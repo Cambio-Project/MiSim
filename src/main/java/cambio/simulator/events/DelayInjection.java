@@ -27,6 +27,7 @@ public class DelayInjection extends SelfScheduledExperimentAction {
     @SerializedName(value = "delay", alternate = {"delay_distribution", "distribution"})
     private ContDistNormal delayDistribution;
     @Expose
+    @SerializedName(value = "microservice", alternate = {"target"})
     private Microservice microservice;
     @Expose
     private Operation operationSrc;
