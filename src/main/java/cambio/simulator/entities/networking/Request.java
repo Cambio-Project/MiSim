@@ -243,6 +243,7 @@ public abstract class Request extends NamedEntity {
      *
      * @param request child request of this request.
      * @return the {@link ServiceDependencyInstance} that is related to the given request, {@code null} otherwise.
+     * Returns {@code null} specifically, if the request was a child request, that has been canceled or replaced.
      */
     public ServiceDependencyInstance getRelatedDependency(Request request) {
         for (ServiceDependencyInstance serviceDependencyInstance : dependencies) {

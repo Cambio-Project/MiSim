@@ -164,7 +164,7 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
         }
 
         //if the instance is shutting down but already received the request it can continue to finish it.
-        // else the instance cant handle the instance
+        // else the instance can't handle the instance
         return state == InstanceState.SHUTTING_DOWN
             && (currentRequestsToHandle.contains(request) || currentRequestsToHandle.contains(request.getParent()));
     }
@@ -180,8 +180,12 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
         InternalRequest request = (InternalRequest) answeredRequest;
         ServiceDependencyInstance dep = request.getDependency();
 
-        if (!currentlyOpenDependencies.remove(dep) || !currentRequestsToHandle.contains(dep.getParentRequest())) {
-            throw new IllegalStateException("This Request is not handled by this Instance");
+
+        if (!currentlyOpenDependencies.remove(dep)
+            || !currentRequestsToHandle.contains(dep.getParentRequest())
+            || request.getParent().getRelatedDependency(request) == null) {
+            throw new IllegalStateException("This Request is not handled by this Instance (anymore). "
+                + "Maybe due to timeout.");
         } else if (getModel().debugIsOn()) {
             closedDependencies.add(dep);
         }
@@ -378,7 +382,7 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
         try {
             letRequestFail(request);
         } catch (IllegalArgumentException e) {
-            sendTraceNote("Could not cancel request " + request.getName() + ". Was this request cancled before?");
+            sendTraceNote("Could not cancel request " + request.getName() + ". Was this request canceled before?");
         }
 
 
@@ -443,11 +447,11 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
         //cancel parent
         NetworkRequestEvent cancelEvent
             = new NetworkRequestCanceledEvent(getModel(),
-            String.format("Canceling of request %s", parentToCancel.getQuotedName()),
+            "Canceling of request " + parentToCancel.getQuotedName(),
             traceIsOn(),
             parentToCancel,
             RequestFailedReason.DEPENDENCY_NOT_AVAILABLE,
-            String.format("Dependency %s", request.getQuotedName()));
+            "Dependency " + request.getQuotedName());
         cancelEvent.schedule(presentTime());
 
         //cancel all internal requests  of the parent that are underway
@@ -462,5 +466,4 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
         currentlyOpenDependencies.removeAll(parentToCancel.getDependencies());
         currentRequestsToHandle.remove(parentToCancel);
     }
-
 }

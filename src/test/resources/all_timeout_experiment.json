@@ -1,0 +1,27 @@
+{
+  "simulation_meta_data": {
+    "experiment_name": "Kill Backend",
+    "model_name": ":(",
+    "duration": 100
+  },
+  "generators": [
+    {
+      "type": "interval",
+      "config": {
+        "interval": 1,
+        "target": "gateway.DB_READ",
+        "start": 0,
+        "end": 0
+      }
+    }
+  ],
+  "delay": [
+    {
+      "type": "delay",
+      "config": {
+        "delay": 20,
+        "target": "gateway"
+      }
+    }
+  ]
+}

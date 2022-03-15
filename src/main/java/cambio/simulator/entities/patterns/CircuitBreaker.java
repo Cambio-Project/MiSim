@@ -112,21 +112,17 @@ public final class CircuitBreaker extends InstanceOwnedPattern implements IReque
     }
 
     @Override
-    public boolean onRequestArrivalAtTarget(Request request, TimeInstant when) {
-        collectData(when);
-        return false;
-    }
-
-    @Override
     public boolean onRequestResultArrivedAtRequester(Request request, TimeInstant when) {
         if (!(request instanceof InternalRequest)) {
             return false; //ignore everything except InternalRequests (e.g. RequestAnswers)
         }
 
         ServiceDependencyInstance dep = request.getParent().getRelatedDependency(request);
-        Microservice target = dep.getTargetService();
-
-        if (target == this.owner.getOwner()) { //prevents the circuit breaker from reacting to unpacked RequestAnswers
+        Microservice target;
+        if (dep == null || (target = dep.getTargetService()) == this.owner.getOwner()) {
+            //dep==null if the request is not related to any dependency anymore (e.g. due to a timeout and replacement)
+            //target==this.owner.getOwner() if its a local "send-to-self" request
+            //both cases we just ignore
             return false;
         }
 
@@ -146,16 +142,12 @@ public final class CircuitBreaker extends InstanceOwnedPattern implements IReque
         }
 
         InternalRequest internalRequest = (InternalRequest) request;
-
         ServiceDependencyInstance dep = internalRequest.getDependency();
-        if (dep.getChildRequest() != internalRequest) {
-            //dependency was asinged a new child Request already (e.g due to a retry), therefore we ignore the request
-            return false;
-        }
 
         Microservice target = dep.getTargetService();
         if (activeConnections.remove(dep)) {
             breakerStates.get(target).notifyArrivalFailure(when);
+            activeConnectionCount.merge(target, -1, Integer::sum);
         }
 
         collectData(when);

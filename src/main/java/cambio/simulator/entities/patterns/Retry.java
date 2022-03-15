@@ -70,8 +70,13 @@ public class Retry extends StrategicInstanceOwnedPattern<IRetryStrategy> impleme
 
             MicroserviceInstance handler = request.getHandler();
 
+            //wrap the dependency in a new request
+            //also updates the child request of the dependency
             Request newRequest = new InternalRequest(getModel(), this.traceIsOn(), dep,
-                request.getRequester()); //updates the dependency that had the original request as child
+                request.getRequester());
+
+            //if the request has a handler, it will be resent to the same one
+            // TODO: check whether this is the correct behavior
             if (handler == null || tries == maxTries - 1) {
                 owner.sendRequest(String.format("Collecting dependency %s", dep.getQuotedPlainName()), newRequest,
                     dep.getTargetService(), new TimeSpan(delay));
