@@ -5,16 +5,16 @@ import cambio.simulator.entities.NamedSimProcess;
 import cambio.simulator.entities.generator.IntervalLoadGeneratorDescription;
 import cambio.simulator.entities.generator.LoadGeneratorStopException;
 import cambio.simulator.events.ISelfScheduled;
-import cambio.simulator.orchestration.events.PeriodicTasksEvent;
+import cambio.simulator.orchestration.events.ScaleEvent;
 import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 
-public class MasterTasksExecutor extends NamedEntity implements ISelfScheduled {
+public class ScaleTaskExecutor extends NamedEntity implements ISelfScheduled {
     private final Model model;
     IntervalLoadGeneratorDescription intervalLoadGeneratorDescription;
 
-    public MasterTasksExecutor(Model model, String name, boolean showInTrace, int interval) {
+    public ScaleTaskExecutor(Model model, String name, boolean showInTrace, int interval) {
         super(model, name, showInTrace);
         this.model = model;
         intervalLoadGeneratorDescription = new IntervalLoadGeneratorDescription();
@@ -24,8 +24,8 @@ public class MasterTasksExecutor extends NamedEntity implements ISelfScheduled {
     }
 
     public void executeManagementTasks(){
-        final PeriodicTasksEvent periodicTasksEvent = new PeriodicTasksEvent(getModel(), "Apply Periodic Tasks", traceIsOn());
-        periodicTasksEvent.schedule(getModel().presentTime());
+        final ScaleEvent scaleEvent = new ScaleEvent(getModel(), "ScaleEvent", traceIsOn());
+        scaleEvent.schedule(getModel().presentTime());
     }
 
     @Override

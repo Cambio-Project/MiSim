@@ -7,11 +7,13 @@ import cambio.simulator.orchestration.Stats;
 import cambio.simulator.orchestration.management.ManagementPlane;
 import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.Model;
+import desmoj.core.simulator.TimeInstant;
+import desmoj.core.simulator.TimeSpan;
 
-public class PeriodicTasksEvent extends NamedExternalEvent {
+public class ScaleEvent extends NamedExternalEvent {
     public static int counter = 0;
 
-    public PeriodicTasksEvent(Model model, String name, boolean showInTrace) {
+    public ScaleEvent(Model model, String name, boolean showInTrace) {
         super(model, name, showInTrace);
         this.setSchedulingPriority(Priority.HIGH);
         counter++;
@@ -21,9 +23,7 @@ public class PeriodicTasksEvent extends NamedExternalEvent {
     public void eventRoutine() throws SuspendExecution {
         //changes desired state
         ManagementPlane.getInstance().checkForScaling();
-        //check if current state equals desired state and take actions (create or delete pods)
-        ManagementPlane.getInstance().maintainDeployments();
-        //go to scheduler and assign new created or pending pods to nodes
-        ManagementPlane.getInstance().checkForPendingPods();
+        HealthCheckEvent healthCheckEvent = new HealthCheckEvent(getModel(), "HealthCheckEvent - After Scaling", traceIsOn());
+        healthCheckEvent.schedule(new TimeSpan(HealthCheckEvent.delay));
     }
 }

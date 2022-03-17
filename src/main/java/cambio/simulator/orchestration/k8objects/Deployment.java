@@ -3,7 +3,6 @@ package cambio.simulator.orchestration.k8objects;
 import cambio.simulator.entities.microservice.MicroserviceInstance;
 import cambio.simulator.orchestration.MicroserviceOrchestration;
 import cambio.simulator.orchestration.Util;
-import cambio.simulator.orchestration.events.RestartPodEvent;
 import cambio.simulator.orchestration.management.ManagementPlane;
 import cambio.simulator.orchestration.environment.*;
 import cambio.simulator.orchestration.parsing.K8Kind;
@@ -64,18 +63,6 @@ public class Deployment extends K8Object {
     }
 
     public synchronized void createPod() {
-
-        //will be handled automatically by the container restart policy
-        //do we then start another one and let the scaler do the rest?
-
-//        //first try to restart failed pods
-//        final Optional<Pod> first = replicaSet.stream().filter(pod -> pod.getPodState().equals(PodState.FAILED)).findFirst();
-//        if(first.isPresent()){
-//            final Pod pod = first.get();
-//            final RestartPodEvent restartPodEvent = new RestartPodEvent(getModel(), "RestartPodEvent", traceIsOn());
-//            restartPodEvent.schedule(pod, presentTime());
-//            return;
-//        }
 
         final Pod pod = new Pod(getModel(), "Pod-" + this.getPlainName(), traceIsOn());
         for (MicroserviceOrchestration microserviceOrchestration : services) {

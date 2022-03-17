@@ -2,9 +2,9 @@
   "simulation_meta_data": {
     "experiment_name": "Movie Experiment",
     "model_name": "architecture_model",
-    "orchestrate": false,
+    "orchestrate": true,
     "orchestration_dir": "orchestration",
-    "duration": 300,
+    "duration": 600,
     "report": "",
     "datapoints": 20,
     "seed": 979
@@ -15,7 +15,7 @@
       "config": {
         "microservice": "frontend",
         "operation": "authenticate",
-        "model": "./Examples/Orchestration/Load/sinus_avg5_1to9_length_120.csv"
+        "model": "./Examples/Orchestration/Load/sinus_avg5_1to9_length90_tans70_10min.csv"
       }
     },
     {
@@ -23,7 +23,7 @@
       "config": {
         "microservice": "frontend",
         "operation": "loadHomeScreen",
-        "model": "./Examples/Orchestration/Load/useSinus_avg25_25_45_120.csv"
+        "model": "./Examples/Orchestration/Load/sinus_avg25_25to45_length90_tans70_10min.csv"
       }
     },
     {
@@ -31,7 +31,7 @@
       "config": {
         "microservice": "frontend",
         "operation": "manageAccount",
-        "model": "./Examples/Orchestration/Load/sinus_avg5_1to9_length_120.csv"
+        "model": "./Examples/Orchestration/Load/sinus_avg25_25to45_length90_tans70_10min.csv"
       }
     },
     {
@@ -39,7 +39,7 @@
       "config": {
         "microservice": "frontend",
         "operation": "watchMovie",
-        "model": "./Examples/Orchestration/Load/sinus_avg5_1to9_length_120.csv"
+        "model": "./Examples/Orchestration/Load/sinus_avg5_1to9_length90_tans70_10min.csv"
       }
     },
     {
@@ -47,7 +47,7 @@
       "config": {
         "microservice": "frontend",
         "operation": "stopMovie",
-        "model": "./Examples/Orchestration/Load/sinus_avg5_1to9_length_120.csv"
+        "model": "./Examples/Orchestration/Load/sinus_avg5_1to9_length90_tans70_10min.csv"
       }
     }
   ]

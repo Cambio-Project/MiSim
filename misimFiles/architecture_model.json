@@ -3,13 +3,13 @@
     {
       "name": "frontend",
       "instances": 1,
-      "loadbalancer_strategy": "util",
+      "loadbalancer_strategy": "leastUtil_orchestration",
       "patterns": [],
-      "capacity": 5000,
+      "capacity": 500,
       "operations": [
         {
           "name": "authenticate",
-          "demand": 70,
+          "demand": 7,
           "dependencies": [
             {
               "service": "authService",
@@ -25,7 +25,7 @@
         },
         {
           "name": "loadHomeScreen",
-          "demand": 60,
+          "demand": 6,
           "dependencies": [
             {
               "service": "movieService",
@@ -41,7 +41,7 @@
         },
         {
           "name": "manageAccount",
-          "demand": 50,
+          "demand": 5,
           "dependencies": [
             {
               "service": "usersService",
@@ -62,7 +62,7 @@
         },
         {
           "name": "watchMovie",
-          "demand": 50,
+          "demand": 5,
           "dependencies": [
             {
               "service": "movieService",
@@ -73,7 +73,7 @@
         },
         {
           "name": "stopMovie",
-          "demand": 40,
+          "demand": 4,
           "dependencies": [
             {
               "service": "movieService",
@@ -82,30 +82,18 @@
             }
           ]
         }
-      ],
-      "service_patterns": [
-        {
-          "type": "autoscaling",
-          "strategy": {
-            "type": "reactive",
-            "config": {
-              "lower_bound": 0.5,
-              "upper_bound": 0.5
-            }
-          }
-        }
       ]
     },
     {
       "name": "authService",
       "instances": 1,
-      "loadbalancer_strategy": "util",
+      "loadbalancer_strategy": "leastUtil_orchestration",
       "patterns": [],
-      "capacity": 5000,
+      "capacity": 500,
       "operations": [
         {
           "name": "register",
-          "demand": 190,
+          "demand": 19,
           "dependencies": [
             {
               "service": "db",
@@ -121,7 +109,7 @@
         },
         {
           "name": "login",
-          "demand": 100,
+          "demand": 10,
           "dependencies": [
             {
               "service": "db",
@@ -130,30 +118,18 @@
             }
           ]
         }
-      ],
-      "service_patterns": [
-        {
-          "type": "autoscaling",
-          "strategy": {
-            "type": "reactive",
-            "config": {
-              "lower_bound": 0.5,
-              "upper_bound": 0.5
-            }
-          }
-        }
       ]
     },
     {
       "name": "usersService",
       "instances": 1,
-      "loadbalancer_strategy": "util",
+      "loadbalancer_strategy": "leastUtil_orchestration",
       "patterns": [],
-      "capacity": 5000,
+      "capacity": 500,
       "operations": [
         {
           "name": "cancelSub",
-          "demand": 110,
+          "demand": 11,
           "dependencies": [
             {
               "service": "subscriptionService",
@@ -164,7 +140,7 @@
         },
         {
           "name": "changeSub",
-          "demand": 110,
+          "demand": 11,
           "dependencies": [
             {
               "service": "subscriptionService",
@@ -175,7 +151,7 @@
         },
         {
           "name": "changeName",
-          "demand": 90,
+          "demand": 9,
           "dependencies": [
             {
               "service": "db",
@@ -184,30 +160,18 @@
             }
           ]
         }
-      ],
-      "service_patterns": [
-        {
-          "type": "autoscaling",
-          "strategy": {
-            "type": "reactive",
-            "config": {
-              "lower_bound": 0.5,
-              "upper_bound": 0.5
-            }
-          }
-        }
       ]
     },
     {
       "name": "subscriptionService",
       "instances": 1,
-      "loadbalancer_strategy": "util",
+      "loadbalancer_strategy": "leastUtil_orchestration",
       "patterns": [],
-      "capacity": 5000,
+      "capacity": 500,
       "operations": [
         {
           "name": "cancelSub",
-          "demand": 120,
+          "demand": 12,
           "dependencies": [
             {
               "service": "db",
@@ -218,7 +182,7 @@
         },
         {
           "name": "changeSub",
-          "demand": 120,
+          "demand": 12,
           "dependencies": [
             {
               "service": "db",
@@ -227,30 +191,18 @@
             }
           ]
         }
-      ],
-      "service_patterns": [
-        {
-          "type": "autoscaling",
-          "strategy": {
-            "type": "reactive",
-            "config": {
-              "lower_bound": 0.5,
-              "upper_bound": 0.5
-            }
-          }
-        }
       ]
     },
     {
       "name": "movieService",
       "instances": 1,
-      "loadbalancer_strategy": "util",
+      "loadbalancer_strategy": "leastUtil_orchestration",
       "patterns": [],
-      "capacity": 5000,
+      "capacity": 500,
       "operations": [
         {
           "name": "getMovies",
-          "demand": 60,
+          "demand": 6,
           "dependencies": [
             {
               "service": "db",
@@ -261,7 +213,7 @@
         },
         {
           "name": "recommendMovies",
-          "demand": 80,
+          "demand": 8,
           "dependencies": [
             {
               "service": "recommendationService",
@@ -272,7 +224,7 @@
         },
         {
           "name": "startMovie",
-          "demand": 50,
+          "demand": 5,
           "dependencies": [
             {
               "service": "videoPlayerService",
@@ -283,7 +235,7 @@
         },
         {
           "name": "stopMovie",
-          "demand": 50,
+          "demand": 5,
           "dependencies": [
             {
               "service": "videoPlayerService",
@@ -292,30 +244,18 @@
             }
           ]
         }
-      ],
-      "service_patterns": [
-        {
-          "type": "autoscaling",
-          "strategy": {
-            "type": "reactive",
-            "config": {
-              "lower_bound": 0.5,
-              "upper_bound": 0.5
-            }
-          }
-        }
       ]
     },
     {
       "name": "recommendationService",
       "instances": 1,
-      "loadbalancer_strategy": "util",
+      "loadbalancer_strategy": "leastUtil_orchestration",
       "patterns": [],
-      "capacity": 5000,
+      "capacity": 500,
       "operations": [
         {
           "name": "recommendByMovie",
-          "demand": 150,
+          "demand": 15,
           "dependencies": [
             {
               "service": "db",
@@ -324,57 +264,33 @@
             }
           ]
         }
-      ],
-      "service_patterns": [
-        {
-          "type": "autoscaling",
-          "strategy": {
-            "type": "reactive",
-            "config": {
-              "lower_bound": 0.5,
-              "upper_bound": 0.5
-            }
-          }
-        }
       ]
     },
     {
       "name": "videoPlayerService",
       "instances": 1,
-      "loadbalancer_strategy": "util",
+      "loadbalancer_strategy": "leastUtil_orchestration",
       "patterns": [],
-      "capacity": 5000,
+      "capacity": 500,
       "operations": [
         {
           "name": "start",
-          "demand": 100,
+          "demand": 10,
           "dependencies": []
         },
         {
           "name": "stop",
-          "demand": 100,
+          "demand": 10,
           "dependencies": []
-        }
-      ],
-      "service_patterns": [
-        {
-          "type": "autoscaling",
-          "strategy": {
-            "type": "reactive",
-            "config": {
-              "lower_bound": 0.5,
-              "upper_bound": 0.5
-            }
-          }
         }
       ]
     },
     {
       "name": "db",
       "instances": 1,
-      "loadbalancer_strategy": "util",
+      "loadbalancer_strategy": "leastUtil_orchestration",
       "patterns": [],
-      "capacity": 5000,
+      "capacity": 500,
       "operations": [
         {
           "name": "usersPOST",
@@ -410,18 +326,6 @@
           "name": "moviesGET",
           "demand": 1,
           "dependencies": []
-        }
-      ],
-      "service_patterns": [
-        {
-          "type": "autoscaling",
-          "strategy": {
-            "type": "reactive",
-            "config": {
-              "lower_bound": 0.5,
-              "upper_bound": 0.5
-            }
-          }
         }
       ]
     }

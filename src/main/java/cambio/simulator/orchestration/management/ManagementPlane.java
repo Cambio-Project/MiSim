@@ -2,6 +2,7 @@ package cambio.simulator.orchestration.management;
 
 
 import cambio.simulator.entities.microservice.InstanceState;
+import cambio.simulator.entities.microservice.MicroserviceInstance;
 import cambio.simulator.models.MiSimModel;
 import cambio.simulator.orchestration.Util;
 import cambio.simulator.orchestration.environment.*;
@@ -23,6 +24,7 @@ ManagementPlane {
     Model model;
     Map<SchedulerType, Scheduler> schedulerMap;
     Map<String, String> defaultValues;
+    public int podsRemovedFromNode = 0;
 
     private static final ManagementPlane instance = new ManagementPlane();
 
@@ -103,6 +105,7 @@ ManagementPlane {
 
     public void removePodFromNode(Pod pod, Node node) {
         node.removePod(pod);
+        podsRemovedFromNode++;
     }
 
     public void populateSchedulers() {
@@ -157,7 +160,16 @@ ManagementPlane {
         return null;
     }
 
-    public int getAmountOfWaitingPods(){
+    public Container getContainerForMicroServiceInstance(MicroserviceInstance microserviceInstance) {
+        Optional<Container> any = deployments.stream().map(deployment -> deployment.getReplicaSet()).flatMap(Collection::stream).map(pod -> pod.getContainers()).flatMap(Collection::stream).filter(container -> container.getMicroserviceInstance().equals(microserviceInstance)).findAny();
+        if (any.isPresent()) {
+            return any.get();
+        }
+        return null;
+
+    }
+
+    public int getAmountOfWaitingPods() {
         int amountPodsWaiting = 0;
         for (SchedulerType schedulerType : schedulerMap.keySet()) {
             Scheduler scheduler = schedulerMap.get(schedulerType);

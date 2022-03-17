@@ -1,5 +1,6 @@
 package cambio.simulator.orchestration.management;
 
+import cambio.simulator.orchestration.events.HealthCheckEvent;
 import cambio.simulator.orchestration.loadbalancing.LoadBalancerType;
 import cambio.simulator.orchestration.parsing.ConfigDto;
 import cambio.simulator.orchestration.parsing.ParsingException;
@@ -37,6 +38,9 @@ public class DefaultValues {
         } else {
             final List<String> possibleValues = Arrays.stream(LoadBalancerType.values()).map(loadBalancerType1 -> loadBalancerType1.getConfigName()).collect(Collectors.toList());
             throw new ParsingException("Unknown LoadBalancerType in config file: " + configDto.loadBalancer + "\nPossible values are: " + possibleValues);
+        }
+        if(configDto.getHealthCheckDelay()!=null){
+            HealthCheckEvent.delay = Integer.valueOf(configDto.getHealthCheckDelay());
         }
     }
 

@@ -30,6 +30,7 @@ import cambio.simulator.orchestration.environment.Node;
 import cambio.simulator.orchestration.environment.Pod;
 import cambio.simulator.orchestration.events.*;
 import cambio.simulator.orchestration.k8objects.Deployment;
+import cambio.simulator.orchestration.management.ManagementPlane;
 import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.ExternalEvent;
 import desmoj.core.simulator.Model;
@@ -78,7 +79,7 @@ public class SimulationEndEvent extends NamedExternalEvent {
         clReport();
 
         if (MiSimModel.createOrchestratedReport) {
-            String currentRunName = "A12";
+            String currentRunName = "Fake";
             createReport(currentRunName);
         }
     }
@@ -195,9 +196,19 @@ public class SimulationEndEvent extends NamedExternalEvent {
                 // use directory.mkdirs(); here instead.
             }
 
+            File directoryMiSimStandardReportFiles = new File(directorySpecificRun.getPath() + "/" + "misim_standard_report");
+            if (!directoryMiSimStandardReportFiles.exists()) {
+                directoryMiSimStandardReportFiles.mkdir();
+                // If you require it to make the entire directory path including parents,
+                // use directory.mkdirs(); here instead.
+            }
 
-            copyDirectory("orchestration", directoryConfigFiles.getPath(), Arrays.asList("scheduler, lastsave"));
+            ArrayList<String> removeFilters = new ArrayList<>();
+            removeFilters.add("scheduler");
+
+            copyDirectory("orchestration", directoryConfigFiles.getPath(), removeFilters);
             copyDirectory("misimFiles", directoryConfigFiles.getPath(), Arrays.asList(""));
+            copyDirectory(model.getExperimentMetaData().getReportLocation().toAbsolutePath().toString(), directoryMiSimStandardReportFiles.getPath(), Arrays.asList(""));
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -435,9 +446,9 @@ public class SimulationEndEvent extends NamedExternalEvent {
         try (PrintWriter pw = new PrintWriter(csvOutputFileEvents)) {
             ArrayList<String> content = new ArrayList<>();
             //order: Ensure that titles are added before
-            content.add("CheckPodRemovableEvent");
-            content.add("PeriodicTasksEvent");
-            content.add("RestartContainerEvent");
+            content.add("PodsRemovedFromNode");
+            content.add("ScaleEvent");
+            content.add("TryToRestartContainerEvent");
             content.add("RestartStartContainerAndMicroServiceInstanceEvent");
             content.add("StartContainerAndMicroServiceInstanceEvent");
             content.add("StartPodEvent");
@@ -453,9 +464,9 @@ public class SimulationEndEvent extends NamedExternalEvent {
             pw.println(convertToCSV(content));
             content.clear();
             //Orchestration Events
-            content.add(String.valueOf(CheckPodRemovableEvent.counter));
-            content.add(String.valueOf(PeriodicTasksEvent.counter));
-            content.add(String.valueOf(RestartContainerEvent.counter));
+            content.add(String.valueOf(ManagementPlane.getInstance().podsRemovedFromNode));
+            content.add(String.valueOf(ScaleEvent.counter));
+            content.add(String.valueOf(TryToRestartContainerEvent.counter));
             content.add(String.valueOf(RestartStartContainerAndMicroServiceInstanceEvent.counter));
             content.add(String.valueOf(StartContainerAndMicroServiceInstanceEvent.counter));
             content.add(String.valueOf(StartPodEvent.counter));
@@ -477,7 +488,7 @@ public class SimulationEndEvent extends NamedExternalEvent {
 
     public static void copyDirectory(String sourceDirectoryLocation, String destinationDirectoryLocation, List<String> removeFilters)
             throws IOException {
-        walk(Paths.get(sourceDirectoryLocation)).filter(source -> !removeFilters.contains(source))
+        walk(Paths.get(sourceDirectoryLocation)).filter(source -> !removeFilters.contains(source.getFileName().toString()))
                 .forEach(source -> {
                     Path destination = Paths.get(destinationDirectoryLocation, source.toString()
                             .substring(sourceDirectoryLocation.length()));

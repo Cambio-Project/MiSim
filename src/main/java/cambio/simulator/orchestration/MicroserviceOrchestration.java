@@ -2,7 +2,7 @@ package cambio.simulator.orchestration;
 
 import cambio.simulator.entities.microservice.*;
 import cambio.simulator.orchestration.environment.PodState;
-import cambio.simulator.orchestration.events.RestartContainerEvent;
+import cambio.simulator.orchestration.events.HealthCheckEvent;
 import cambio.simulator.orchestration.k8objects.Deployment;
 import cambio.simulator.orchestration.management.ManagementPlane;
 import cambio.simulator.orchestration.environment.Container;
@@ -10,6 +10,7 @@ import cambio.simulator.orchestration.environment.ContainerState;
 import cambio.simulator.orchestration.environment.Pod;
 import cambio.simulator.orchestration.loadbalancing.LoadBalancerOrchestration;
 import desmoj.core.simulator.Model;
+import desmoj.core.simulator.TimeSpan;
 
 public class MicroserviceOrchestration extends Microservice {
 
@@ -39,31 +40,8 @@ public class MicroserviceOrchestration extends Microservice {
         if (instanceToKill == null) {
             return;
         }
-        instanceToKill.die();
-        instancesSet.remove(instanceToKill);
-
-        for (Pod pod : getDeployment().getReplicaSet()) {
-            for (Container container : pod.getContainers()) {
-                if (container.getMicroserviceInstance().equals(instanceToKill)) {
-                    container.setContainerState(ContainerState.TERMINATED);
-
-                    long count = pod.getContainers().stream().filter(container1 -> container1.getContainerState().equals(ContainerState.RUNNING)).count();
-                    //If no container is running inside this pod, then mark this pod as FAILED
-                    if (count == 0){
-                        pod.setPodState(PodState.FAILED);
-                        sendTraceNote("Pod " +  pod.getQuotedName() + " was set to FAILED because it has not a single running container inside");
-//                        //Return because the orchestration tasks will recognize the failed pod and tries to restart it and all of its containers. Like in the event of a ChaosMonkeyForPodsEvent
-//                        return;
-                    }
-
-                    //Restart terminated container regarding restart policy https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/
-                    container.applyBackOffDelayResetIfNecessary();
-                    final RestartContainerEvent restartContainerEvent = new RestartContainerEvent(getModel(), "Restart " + container.getQuotedPlainName(), traceIsOn());
-                    restartContainerEvent.schedule(container, container.getPlannedExecutionTime(container.getBackOffDelay()));
-                    return;
-                }
-            }
-        }
+        Container containerForMicroServiceInstance = ManagementPlane.getInstance().getContainerForMicroServiceInstance(instanceToKill);
+        containerForMicroServiceInstance.die();
     }
 
     public MicroserviceInstance createMicroServiceInstance() {

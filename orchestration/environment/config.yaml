@@ -5,11 +5,12 @@ nodes:
 #  - name: Test5Node
 #    cpu: 0
 scaler:
-  holdTimeUpScaler: 12
-  holdTimeDownScaler: 20
+  holdTimeUpScaler: 0
+  holdTimeDownScaler: 300
 loadBalancer: leastUtil_orchestration
 scheduler: firstFit
-healthCheckInterval: 30
+scalingInterval: 15
+healthCheckDelay: 0
 #schedulerPrio:
 #  - name: kube
 #    prio: 4

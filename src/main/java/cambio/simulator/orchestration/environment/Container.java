@@ -1,16 +1,16 @@
 package cambio.simulator.orchestration.environment;
 
 import cambio.simulator.entities.NamedEntity;
-import cambio.simulator.entities.microservice.InstanceState;
 import cambio.simulator.entities.microservice.MicroserviceInstance;
-import cambio.simulator.entities.patterns.InstanceOwnedPattern;
 import cambio.simulator.orchestration.MicroserviceOrchestration;
-import cambio.simulator.orchestration.events.RestartContainerEvent;
+import cambio.simulator.orchestration.events.HealthCheckEvent;
+import cambio.simulator.orchestration.events.TryToRestartContainerEvent;
 import cambio.simulator.orchestration.events.RestartStartContainerAndMicroServiceInstanceEvent;
 import cambio.simulator.orchestration.events.StartContainerAndMicroServiceInstanceEvent;
 import cambio.simulator.orchestration.management.ManagementPlane;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
+import desmoj.core.simulator.TimeSpan;
 
 /**
  * Basically represents a 1:1-relationsship to @link{MicroserviceInstance} with a coupled @link{ContainerState}
@@ -33,12 +33,14 @@ public class Container extends NamedEntity {
 
     public void start() {
         StartContainerAndMicroServiceInstanceEvent startMicroServiceEvent = new StartContainerAndMicroServiceInstanceEvent(getModel(), "StartContainerEvent", traceIsOn());
-        startMicroServiceEvent.schedule(this, getPlannedExecutionTime(((MicroserviceOrchestration) getMicroserviceInstance().getOwner()).getStartTime()));
+        startMicroServiceEvent.schedule(this, new TimeSpan(((MicroserviceOrchestration) getMicroserviceInstance().getOwner()).getStartTime()));
     }
 
-    public void restart() {
-        RestartStartContainerAndMicroServiceInstanceEvent restartStartContainerAndMicroServiceInstanceEvent = new RestartStartContainerAndMicroServiceInstanceEvent(getModel(), "RestartContainerEvent", traceIsOn());
-        restartStartContainerAndMicroServiceInstanceEvent.schedule(this, getPlannedExecutionTime(((MicroserviceOrchestration) getMicroserviceInstance().getOwner()).getStartTime()));
+    //Restart terminated container regarding restart policy https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/
+    public void restart(){
+        applyBackOffDelayResetIfNecessary();
+        final TryToRestartContainerEvent tryToRestartContainerEvent = new TryToRestartContainerEvent(getModel(), "Restart " + getQuotedPlainName(), traceIsOn());
+        tryToRestartContainerEvent.schedule(this, new TimeSpan(getBackOffDelay()));
     }
 
     public void die() {
@@ -56,15 +58,14 @@ public class Container extends NamedEntity {
             if (count == 0) {
                 pod.setPodState(PodState.FAILED);
                 sendTraceNote("Pod " + pod.getQuotedName() + " was set to FAILED because it has not a single running container inside");
-//                        //Return because the orchestration tasks will recognize the failed pod and tries to restart it and all of its containers. Like in the event of a ChaosMonkeyForPodsEvent
-//                        return;
-            }
+                HealthCheckEvent healthCheckEvent = new HealthCheckEvent(getModel(), "HealthCheckEvent - After Pod failed", traceIsOn());
+                healthCheckEvent.schedule(new TimeSpan(HealthCheckEvent.delay));
 
-            //Restart terminated container regarding restart policy https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/
-            applyBackOffDelayResetIfNecessary();
-            final RestartContainerEvent restartContainerEvent = new RestartContainerEvent(getModel(), "Restart " + this.getQuotedPlainName(), traceIsOn());
-            restartContainerEvent.schedule(this, getPlannedExecutionTime(getBackOffDelay()));
-            return;
+            } else {
+                //Restart terminated container regarding restart policy https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/
+                restart();
+                return;
+            }
         } else {
             throw new IllegalStateException("Pod should never be null. When a container dies it must have been in a pod before.");
         }
@@ -101,46 +102,6 @@ public class Container extends NamedEntity {
         return backOffDelay;
     }
 
-    /**
-     * returns the TimeInstant when the next attempt of restarting this container is planned
-     *
-     * @param seconds
-     * @return
-     */
-    public TimeInstant getPlannedExecutionTime(int seconds) {
-        //Assuming that all scheduled containers are already running at simulation start
-        if (getModel().presentTime().getTimeAsDouble() == 0) {
-            return getModel().presentTime();
-        }
-        return new TimeInstant(seconds + getModel().presentTime().getTimeAsDouble());
-    }
-
-    /**
-     * Should be called when a Container has died due to a ChaosMonkeyEvent that has killed a
-     * MicroServiceInstance. This call regards the back off delay of each container.
-     */
-    public void restartTerminatedContainer() {
-        if (getContainerState().equals(ContainerState.TERMINATED)) {
-            incrementBackOffDelay();
-            lastRetry = presentTime();
-            restart();
-        } else {
-            sendTraceNote("No need to restart " + this.getQuotedPlainName() + " because it is not terminated");
-        }
-    }
-
-    public void restartContainer() {
-        MicroserviceInstance microserviceInstance = getMicroserviceInstance();
-        //state must be switched from KILLED to SHUTDOWN. Otherwise start method would throw error
-        microserviceInstance.setState(InstanceState.SHUTDOWN);
-        microserviceInstance.getPatterns().forEach(InstanceOwnedPattern::start);
-        microserviceInstance.start();
-        setContainerState(ContainerState.RUNNING);
-        //Needs to be added again to MicroServiceInstances. Otherwise, a following chaos monkey event would not find an instance to kill
-        microserviceInstance.getOwner().getInstancesSet().add(microserviceInstance);
-        sendTraceNote(microserviceInstance.getQuotedName() + " was restarted");
-    }
-
     public void applyBackOffDelayResetIfNecessary() {
         if (lastRetry != null) {
             final double timeAsDouble = presentTime().getTimeAsDouble();
@@ -148,5 +109,13 @@ public class Container extends NamedEntity {
                 resetBackOffDelay();
             }
         }
+    }
+
+    public TimeInstant getLastRetry() {
+        return lastRetry;
+    }
+
+    public void setLastRetry(TimeInstant lastRetry) {
+        this.lastRetry = lastRetry;
     }
 }

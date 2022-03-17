@@ -6,7 +6,6 @@ import java.rmi.UnexpectedException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.events.ISelfScheduled;
@@ -17,7 +16,7 @@ import cambio.simulator.orchestration.MicroserviceOrchestration;
 import cambio.simulator.orchestration.Util;
 import cambio.simulator.orchestration.environment.Cluster;
 import cambio.simulator.orchestration.management.ManagementPlane;
-import cambio.simulator.orchestration.management.MasterTasksExecutor;
+import cambio.simulator.orchestration.management.ScaleTaskExecutor;
 import cambio.simulator.orchestration.environment.Node;
 import cambio.simulator.orchestration.management.StatsTasksExecutor;
 import cambio.simulator.orchestration.parsing.ConfigDto;
@@ -143,8 +142,8 @@ public class MiSimModel extends Model {
             System.exit(1);
         }
 
-        final MasterTasksExecutor masterTasksExecutor = new MasterTasksExecutor(getModel(), "MasterTaskExecutor", getModel().traceIsOn(), configDto.getHealthCheckInterval());
-        masterTasksExecutor.doInitialSelfSchedule();
+        final ScaleTaskExecutor scaleTaskExecutor = new ScaleTaskExecutor(getModel(), "MasterTaskExecutor", getModel().traceIsOn(), configDto.getScalingInterval());
+        scaleTaskExecutor.doInitialSelfSchedule();
         if (MiSimModel.createOrchestratedReport) {
             System.out.println("[INFO]: Orchestration Report will be created afterwards\n");
             final StatsTasksExecutor statsTasksExecutor = new StatsTasksExecutor(getModel(), "StatsExecutor", getModel().traceIsOn());
