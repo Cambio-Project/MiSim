@@ -8,10 +8,9 @@
     {
       "type": "interval",
       "config": {
-        "interval": 1,
-        "target": "gateway.DB_READ",
-        "start": 0,
-        "end": 0
+        "load": 1,
+        "distribution": "spike",
+        "target": "gateway.INTERNAL_DEP"
       }
     }
   ],
@@ -19,8 +18,8 @@
     {
       "type": "delay",
       "config": {
-        "delay": 20,
-        "target": "gateway"
+        "delay": 10,
+        "target": "example-service"
       }
     }
   ]
