@@ -16,7 +16,7 @@ public class ExponentialBackoffRetryStrategy implements IRetryStrategy {
     @SuppressWarnings({"FieldMayBeFinal", "CanBeFinal", "FieldCanBeLocal"})
     private double maxBackoff = 1;
     @SuppressWarnings({"FieldMayBeFinal", "CanBeFinal", "FieldCanBeLocal"})
-    private int base = 3;
+    private double base = 3;
 
 
     @Override
