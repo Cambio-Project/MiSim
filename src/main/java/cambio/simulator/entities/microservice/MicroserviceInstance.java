@@ -465,5 +465,7 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
         }
         currentlyOpenDependencies.removeAll(parentToCancel.getDependencies());
         currentRequestsToHandle.remove(parentToCancel);
+        waiting--;
+        notComputed--;
     }
 }
