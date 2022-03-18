@@ -1,11 +1,11 @@
 {
   "simulation_meta_data": {
-    "experiment_name": "Retry Demonstration",
+    "experiment_name": "Autoscale Random Loadbalancer Demonstration",
     "model_name": "Scenario Autoscale",
     "duration": 180,
     "seed": 404
   },
   "artifact": "gateway",
   "component": "ALL ENDPOINTS",
-  "stimulus": "LOAD ./Examples/ProofOfConcept/linear_peaks_1000ArrivalRates.csv AND DELAY 7.0+-0.8@0~180"
+  "stimulus": "LOAD ./Examples/ProofOfConcept/linear_peaks_1000ArrivalRates.csv"
 }

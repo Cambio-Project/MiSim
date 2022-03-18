@@ -3,7 +3,7 @@
     {
       "name": "gateway",
       "instances": 1,
-      "capacity": 40000,
+      "capacity": 4000000,
       "loadbalancer_strategy": "even",
       "operations": [
         {
@@ -66,12 +66,14 @@
         {
           "type": "retry",
           "config": {
-            "max_retries": 3
+            "max_retries": 5
           },
           "strategy": {
             "type": "jittering",
             "config": {
-              "base": 1
+              "maxBackoff": "1",
+              "baseBackoff": 0.005,
+              "base": 1.2
             }
           }
         }
@@ -80,7 +82,7 @@
     {
       "name": "example-service",
       "instances": 1,
-      "capacity": 20000,
+      "capacity": 2000000,
       "operations": [
         {
           "name": "example-service.DB_WRITE",
@@ -109,7 +111,7 @@
     {
       "name": "example-service2",
       "instances": 1,
-      "capacity": 20000,
+      "capacity": 2000000,
       "operations": [
         {
           "name": "example-service2.get",

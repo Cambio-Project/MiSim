@@ -1,6 +1,6 @@
 {
   "simulation_meta_data": {
-    "experiment_name": "Retry Demonstration",
+    "experiment_name": "Retry Disabled Demonstration",
     "model_name": "Scenario Autoscale",
     "duration": 180,
     "seed": 404
