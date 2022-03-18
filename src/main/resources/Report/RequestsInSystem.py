@@ -38,6 +38,7 @@ def write_dataset(ax: Axes, dataset: DataFrame):
                     label="Waiting f. Dep.",
                     facecolor="pink")
     ax.set_ylim(bottom=0)
+    ax.legend()
 
 
 util.plot(datasets, write_dataset)
