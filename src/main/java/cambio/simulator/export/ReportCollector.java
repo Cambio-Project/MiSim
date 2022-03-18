@@ -4,12 +4,12 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import cambio.simulator.misc.Util;
 import cambio.simulator.models.ExperimentMetaData;
 import cambio.simulator.models.MiSimModel;
 import desmoj.core.report.ReportManager;
-import desmoj.core.report.Reporter;
 
 /**
  * Report Collector, utilizes desmojs' ReportManger to collect Reporters. Can combine data of multiple {@link
@@ -38,32 +38,27 @@ public class ReportCollector extends ReportManager {
      *
      * @return returns the values of all MultiDataPointReporters
      */
-    public HashMap<String, TreeMap<Double, Object>> collectData() {
+    public Map<String, TreeMap<Double, Object>> collectData() {
         //collect_datasets
-        HashMap<String, HashMap<Double, Object>> dataSets = new HashMap<>();
+        Map<String, Map<Double, Object>> dataSets = new ConcurrentHashMap<>();
 
-        for (Reporter reporter : elements()) {
-            if (reporter instanceof MultiDataPointReporter) {
-                MultiDataPointReporter castReporter = (MultiDataPointReporter) reporter;
-                HashMap<String, HashMap<Double, ?>> dataSetsOfReporter = castReporter.getDataSets();
-                for (Map.Entry<String, HashMap<Double, ?>> datasetsOfReporterEntry : dataSetsOfReporter.entrySet()) {
-                    String currentKey = datasetsOfReporterEntry.getKey();
-                    HashMap<Double, ?> dataSetOfReporter = datasetsOfReporterEntry.getValue();
+        elements().stream().parallel()
+            .filter(reporter -> reporter instanceof MultiDataPointReporter)
+            .map(reporter -> (MultiDataPointReporter) reporter)
+            .map(MultiDataPointReporter::getDataSets)
+            .flatMap(dataSetsOfReporter -> dataSetsOfReporter.entrySet().stream())
+            .forEach(datasetsOfReporterEntry -> {
+                String currentKey = datasetsOfReporterEntry.getKey();
+                HashMap<Double, ?> dataSetOfReporter = datasetsOfReporterEntry.getValue();
+                Map<Double, Object> targetDataSet =
+                    dataSets.computeIfAbsent(currentKey, key -> new ConcurrentHashMap<>());
+                dataSetOfReporter.entrySet().stream().parallel().forEach(entry -> targetDataSet
+                    .merge(entry.getKey(), entry.getValue(), (value1, value2) -> value1));
+            });
 
-                    HashMap<Double, Object> targetDataSet =
-                        dataSets.computeIfAbsent(currentKey, key -> new HashMap<>());
-
-                    for (Map.Entry<Double, ?> datasetEntry : dataSetOfReporter.entrySet()) {
-                        targetDataSet
-                            .merge(datasetEntry.getKey(), datasetEntry.getValue(), (value1, value2) -> value1);
-                    }
-
-                }
-            }
-        }
-
-        HashMap<String, TreeMap<Double, Object>> output = new HashMap<>();
-        dataSets.forEach((name, dataSet) -> output.put(name, new TreeMap<>(dataSet)));
+        Map<String, TreeMap<Double, Object>> output = new ConcurrentHashMap<>();
+        dataSets.entrySet().stream().parallel()
+            .forEach((entry) -> output.put(entry.getKey(), new TreeMap<>(entry.getValue())));
         return output;
     }
 
@@ -97,7 +92,7 @@ public class ReportCollector extends ReportManager {
     }
 
     private void sortAndWriteReport(MiSimModel model) {
-        HashMap<String, TreeMap<Double, Object>> data = ReportCollector.getInstance().collectData();
+        Map<String, TreeMap<Double, Object>> data = ReportCollector.getInstance().collectData();
         TreeMap<String, TreeMap<Double, Object>> sortedData = new TreeMap<>(data);
         ReportWriter.writeReporterCollectorOutput(sortedData,
             model.getExperimentMetaData().getReportLocation());
