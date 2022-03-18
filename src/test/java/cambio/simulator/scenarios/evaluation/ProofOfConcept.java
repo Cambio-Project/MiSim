@@ -33,21 +33,21 @@ public class ProofOfConcept {
     void CircuitBreakerDemonstration() throws Exception {
         File arch = FileLoaderUtil.loadFromExampleResources("ProofOfConcept", "arch_circuitbreaker_demonstration.json");
         File exp = FileLoaderUtil.loadFromExampleResources("ProofOfConcept", "exp_circuitbreaker_demonstration.json");
-        runSimulation(0, arch, exp, "-p", "-d", "-t");
+        runSimulation(0, arch, exp,  "-d", "-t");
     }
 
     @Test
     void RetryConceptDemonstration() throws Exception {
         File arch = FileLoaderUtil.loadFromExampleResources("ProofOfConcept", "arch_retry_demonstration.json");
         File exp = FileLoaderUtil.loadFromExampleResources("ProofOfConcept", "exp_retry_demonstration.json");
-        runSimulation(0, arch, exp, "-p", "-d", "-t");
+        runSimulation(0, arch, exp,  "-d", "-t");
     }
 
     @Test
     void RetryDisabledConceptDemonstration() throws Exception {
         File arch = FileLoaderUtil.loadFromExampleResources("ProofOfConcept", "arch_retry_disabled_demonstration.json");
         File exp = FileLoaderUtil.loadFromExampleResources("ProofOfConcept", "exp_retry_disabled_demonstration.json");
-        runSimulation(0, arch, exp, "-p", "-d", "-t");
+        runSimulation(0, arch, exp,  "-d", "-t");
     }
 
     @Test
@@ -56,7 +56,7 @@ public class ProofOfConcept {
             ".json");
         File exp = FileLoaderUtil.loadFromExampleResources("ProofOfConcept", "exp_loadbalancer_random_demonstration" +
             ".json");
-        runSimulation(0, arch, exp, "-p", "-d", "-t");
+        runSimulation(0, arch, exp,  "-d", "-t");
     }
 
     @Test
@@ -65,6 +65,6 @@ public class ProofOfConcept {
             ".json");
         File exp =
             FileLoaderUtil.loadFromExampleResources("ProofOfConcept", "exp_loadbalancer_util_demonstration.json");
-        runSimulation(0, arch, exp, "-p", "-d", "-t");
+        runSimulation(0, arch, exp,  "-d", "-t");
     }
 }
