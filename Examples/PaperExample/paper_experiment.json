@@ -1,25 +1,26 @@
 {
   "simulation_metadata": {
-    "name": "SSP Demonstration",
-    "description": "Shuts down 2 instances of Service_A at 45 STU.",
-    "report_location": "SSP_Report/",
-    "duration": 130,
+    "name": "Minimal Scenario",
+    "duration": 180,
     "seed": 42
   },
   "generators": [
     {
       "type": "limbo",
       "config": {
-        "model": "src/test/resources/SSPExample/SSP_Limbo.csv",
-        "target_operation": "gateway.API_Endpoint"
+        "model":
+        "./Examples/PaperExample/paper_limbo.csv",
+        "target_operation": "gateway.GET",
+        "repeating": true
       }
     }
   ],
-  "named_monkey": {
+  "Monkey#1": {
     "type": "chaos_monkey",
     "config": {
-      "arrival_time": 45,
-      "microservice": "Service_A"
+      "killed_instance_count": 2,
+      "arrival_time": 40,
+      "microservice": "service1"
     }
   }
 }
