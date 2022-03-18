@@ -1,14 +1,30 @@
 nodes:
-  amount: 1
-  cpu: 1000000000
+  amount: 8
+  cpu: 1500
 #customNodes:
-#  - name: Test5Node
-#    cpu: 0
+#  - name: authService
+#    cpu: 1000
+#  - name: db
+#    cpu: 1000
+#  - name: frontend
+#    cpu: 1000
+#  - name: movieService
+#    cpu: 1000
+#  - name: recommendationService
+#    cpu: 1000
+#  - name: subscriptionService
+#    cpu: 1000
+#  - name: usersService
+#    cpu: 1000
+#  - name: videoPlayerService
+#    cpu: 1000
+#  - name: extraNode
+#    cpu: 1000000000
 scaler:
   holdTimeUpScaler: 0
   holdTimeDownScaler: 300
 loadBalancer: leastUtil_orchestration
-scheduler: firstFit
+scheduler: kube
 scalingInterval: 15
 healthCheckDelay: 0
 #schedulerPrio:

@@ -79,7 +79,7 @@ public class SimulationEndEvent extends NamedExternalEvent {
         clReport();
 
         if (MiSimModel.createOrchestratedReport) {
-            String currentRunName = "Fake";
+            String currentRunName = "C3";
             createReport(currentRunName);
         }
     }

@@ -14,5 +14,15 @@ spec:
       labels:
         app: db
     spec:
+      schedulerName: firstFit
       containers:
         - name: db
+#      affinity:
+#        nodeAffinity:
+#          requiredDuringSchedulingIgnoredDuringExecution:
+#            nodeSelectorTerms:
+#              - matchExpressions:
+#                  - key: personalized/name
+#                    operator: In
+#                    values:
+#                      - db

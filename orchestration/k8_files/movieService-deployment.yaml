@@ -24,4 +24,4 @@ spec:
 #                  - key: personalized/name
 #                    operator: In
 #                    values:
-#                      - Node1
+#                      - movieService

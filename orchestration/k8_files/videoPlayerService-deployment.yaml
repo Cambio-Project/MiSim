@@ -14,6 +14,7 @@ spec:
       labels:
         app: videoPlayerService
     spec:
+      schedulerName: firstFit
       containers:
         - name: videoPlayerService
 #      affinity:
@@ -24,4 +25,4 @@ spec:
 #                  - key: personalized/name
 #                    operator: In
 #                    values:
-#                      - Node1
+#                      - videoPlayerService
