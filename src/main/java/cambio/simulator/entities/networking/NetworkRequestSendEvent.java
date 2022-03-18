@@ -110,7 +110,7 @@ public class NetworkRequestSendEvent extends NetworkRequestEvent {
         }
     }
 
-    private double customizeLatency(double nextDelay) {
+    private double customizeLatency(final double nextDelay) {
         if (this.travelingRequest instanceof UserRequest) {
             return 0;
         }
@@ -119,12 +119,13 @@ public class NetworkRequestSendEvent extends NetworkRequestEvent {
         if (travelingRequest.hasParent()) {
             ServiceDependencyInstance dep = travelingRequest.getParent().getRelatedDependency(travelingRequest);
             if (travelingRequest instanceof RequestAnswer) {
-                Request parent = ((RequestAnswer) travelingRequest).unpack();
-                dep = parent.getParent().getRelatedDependency(parent);
+                // Request parent = ((RequestAnswer) travelingRequest).unpack();
+                // dep = parent.getParent().getRelatedDependency(parent);
+                return nextDelay;
             }
 
             if (dep == null) {
-                return modifiedDelay;
+                return nextDelay;
             }
 
             if (dep.hasCustomDelay()) {
