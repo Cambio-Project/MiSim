@@ -2,7 +2,6 @@ package cambio.simulator.entities.microservice;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -28,6 +27,7 @@ import cambio.simulator.resources.cpu.CPU;
 import cambio.simulator.resources.cpu.CPUProcess;
 import cambio.simulator.resources.cpu.scheduling.FIFOScheduler;
 import desmoj.core.simulator.Model;
+import desmoj.core.simulator.Schedulable;
 import desmoj.core.simulator.TimeInstant;
 import desmoj.core.simulator.TimeSpan;
 
@@ -57,13 +57,13 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
     private final CPU cpu;
     private final int instanceID;
     //Queue with only unique entries
-    private final LinkedHashSet<Request> currentRequestsToHandle = new LinkedHashSet<>();
+    private final Set<Request> currentRequestsToHandle = new HashSet<>();
     //Queue with only unique entries
-    private final LinkedHashSet<ServiceDependencyInstance> currentlyOpenDependencies = new LinkedHashSet<>();
+    private final Set<ServiceDependencyInstance> currentlyOpenDependencies = new HashSet<>();
     //Contains all current outgoing answers
-    private final LinkedHashSet<RequestAnswer> currentAnswers = new LinkedHashSet<>();
+    private final Set<RequestAnswer> currentAnswers = new HashSet<>();
     //contains all current outgoing dependency requests
-    private final LinkedHashSet<InternalRequest> currentInternalSends = new LinkedHashSet<>();
+    private final Set<InternalRequest> currentInternalSends = new HashSet<>();
     private final MultiDataPointReporter reporter;
     //lists for debugging information
     private final List<ServiceDependencyInstance> closedDependencies = new LinkedList<>();
@@ -364,8 +364,8 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
         }
 
 
-        if (patterns.stream().anyMatch(pattern -> pattern instanceof CircuitBreaker)) {
-            if (reason == RequestFailedReason.CIRCUIT_IS_OPEN || reason == RequestFailedReason.REQUEST_VOLUME_REACHED) {
+        if (reason == RequestFailedReason.CIRCUIT_IS_OPEN || reason == RequestFailedReason.REQUEST_VOLUME_REACHED) {
+            if (patterns.stream().anyMatch(pattern -> pattern instanceof CircuitBreaker)) {
                 //TODO: activate fallback behavior
                 letRequestFail(request);
                 return true;
@@ -373,10 +373,9 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
         }
 
 
-        if (patterns.stream().anyMatch(pattern -> pattern instanceof Retry)) {
-            if (reason != RequestFailedReason.MAX_RETRIES_REACHED) {
-                return false;
-            }
+        if (reason != RequestFailedReason.MAX_RETRIES_REACHED
+            && patterns.stream().anyMatch(pattern -> pattern instanceof Retry)) {
+            return false;
         }
 
         try {
@@ -454,12 +453,13 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
             "Dependency " + request.getQuotedName());
         cancelEvent.schedule(presentTime());
 
-        //cancel all internal requests  of the parent that are underway
-        for (InternalRequest internalSend : currentInternalSends) {
-            if (internalSend.getParent() == parentToCancel) {
-                internalSend.cancelSending();
-            }
-        }
+        //cancel all other children of the parent
+        parentToCancel.getDependencies()
+            .stream()
+            .map(ServiceDependencyInstance::getChildRequest)
+            .filter(Schedulable::isScheduled)
+            .forEach(InternalRequest::cancel);
+
         if (getModel().debugIsOn()) {
             abortedDependencies.addAll(parentToCancel.getDependencies());
         }
