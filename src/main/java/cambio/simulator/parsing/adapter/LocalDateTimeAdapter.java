@@ -1,14 +1,10 @@
 package cambio.simulator.parsing.adapter;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
+import java.time.*;
 
 import com.google.gson.TypeAdapter;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
-import com.google.gson.stream.JsonWriter;
+import com.google.gson.stream.*;
 
 /**
  * Allows LocalDateTimes to be parsed to and from JSON. Only has a granularity of seconds.

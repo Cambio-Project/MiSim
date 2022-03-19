@@ -6,9 +6,7 @@ import java.util.TreeSet;
 import cambio.simulator.entities.NamedEntity;
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.entities.microservice.MicroserviceInstance;
-import desmoj.core.simulator.Model;
-import desmoj.core.simulator.TimeInstant;
-import desmoj.core.simulator.TimeSpan;
+import desmoj.core.simulator.*;
 
 /**
  * Class that provides the ability to send requests and register listeners to this requests.

@@ -1,35 +1,16 @@
 package cambio.simulator.entities.microservice;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import cambio.simulator.entities.networking.IRequestUpdateListener;
-import cambio.simulator.entities.networking.InternalRequest;
-import cambio.simulator.entities.networking.NetworkRequestCanceledEvent;
-import cambio.simulator.entities.networking.NetworkRequestEvent;
-import cambio.simulator.entities.networking.Request;
-import cambio.simulator.entities.networking.RequestAnswer;
-import cambio.simulator.entities.networking.RequestFailedReason;
-import cambio.simulator.entities.networking.RequestSender;
-import cambio.simulator.entities.networking.ServiceDependencyInstance;
-import cambio.simulator.entities.patterns.CircuitBreaker;
-import cambio.simulator.entities.patterns.InstanceOwnedPattern;
-import cambio.simulator.entities.patterns.InstanceOwnedPatternConfiguration;
-import cambio.simulator.entities.patterns.Retry;
+import cambio.simulator.entities.networking.*;
+import cambio.simulator.entities.patterns.*;
 import cambio.simulator.export.MultiDataPointReporter;
 import cambio.simulator.resources.cpu.CPU;
 import cambio.simulator.resources.cpu.CPUProcess;
 import cambio.simulator.resources.cpu.scheduling.FIFOScheduler;
-import desmoj.core.simulator.Model;
-import desmoj.core.simulator.Schedulable;
-import desmoj.core.simulator.TimeInstant;
-import desmoj.core.simulator.TimeSpan;
+import desmoj.core.simulator.*;
 
 /**
  * A {@link MicroserviceInstance} (in the following just called instance) represents an actual, running instance of a

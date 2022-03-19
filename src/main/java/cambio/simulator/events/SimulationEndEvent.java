@@ -1,17 +1,8 @@
 package cambio.simulator.events;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.TreeMap;
-
 import cambio.simulator.entities.NamedExternalEvent;
 import cambio.simulator.entities.microservice.Microservice;
-import cambio.simulator.export.ExportUtils;
-import cambio.simulator.export.ReportCollector;
-import cambio.simulator.export.ReportWriter;
 import cambio.simulator.misc.Priority;
-import cambio.simulator.misc.Util;
-import cambio.simulator.models.ExperimentMetaData;
 import cambio.simulator.models.MiSimModel;
 import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.ExternalEvent;

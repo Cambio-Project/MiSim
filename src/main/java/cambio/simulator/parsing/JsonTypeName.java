@@ -1,9 +1,6 @@
 package cambio.simulator.parsing;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 /**
  * Annotation to give a type name to class that represents it in a MiSim architecture or experiment description.

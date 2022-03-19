@@ -1,9 +1,6 @@
 package cambio.simulator.entities.patterns;
 
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import cambio.simulator.entities.microservice.MicroserviceInstance;
 import cambio.simulator.entities.microservice.NoInstanceAvailableException;

@@ -3,12 +3,7 @@ package cambio.simulator.entities.generator;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collector;
 
 import cambio.simulator.misc.CollectorImpl;

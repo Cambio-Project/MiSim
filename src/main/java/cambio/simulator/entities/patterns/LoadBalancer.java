@@ -1,13 +1,9 @@
 package cambio.simulator.entities.patterns;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
-import cambio.simulator.entities.microservice.InstanceState;
-import cambio.simulator.entities.microservice.MicroserviceInstance;
-import cambio.simulator.entities.microservice.NoInstanceAvailableException;
+import cambio.simulator.entities.microservice.*;
 import desmoj.core.simulator.Entity;
 import desmoj.core.simulator.Model;
 

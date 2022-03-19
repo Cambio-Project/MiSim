@@ -2,9 +2,7 @@ package cambio.simulator.entities.networking;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-import cambio.simulator.entities.microservice.Microservice;
-import cambio.simulator.entities.microservice.MicroserviceInstance;
-import cambio.simulator.entities.microservice.NoInstanceAvailableException;
+import cambio.simulator.entities.microservice.*;
 import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.dist.ContDistNormal;
 import desmoj.core.dist.NumericalDist;

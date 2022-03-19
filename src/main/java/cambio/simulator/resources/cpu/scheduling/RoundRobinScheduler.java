@@ -1,11 +1,6 @@
 package cambio.simulator.resources.cpu.scheduling;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 
 import cambio.simulator.resources.cpu.CPUProcess;
 import org.javatuples.Pair;

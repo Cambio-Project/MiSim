@@ -1,21 +1,12 @@
 package cambio.simulator.entities.microservice;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import cambio.simulator.entities.NamedEntity;
 import cambio.simulator.entities.networking.InternalRequest;
-import cambio.simulator.entities.patterns.ILoadBalancingStrategy;
-import cambio.simulator.entities.patterns.InstanceOwnedPattern;
-import cambio.simulator.entities.patterns.InstanceOwnedPatternConfiguration;
-import cambio.simulator.entities.patterns.LoadBalancer;
-import cambio.simulator.entities.patterns.ServiceOwnedPattern;
+import cambio.simulator.entities.patterns.*;
 import cambio.simulator.export.AccumulativeDataPointReporter;
 import cambio.simulator.export.MultiDataPointReporter;
 import com.google.gson.annotations.Expose;

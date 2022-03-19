@@ -4,9 +4,7 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 
 import cambio.simulator.entities.microservice.Microservice;
-import desmoj.core.simulator.ExternalEvent;
-import desmoj.core.simulator.TimeInstant;
-import desmoj.core.simulator.TimeSpan;
+import desmoj.core.simulator.*;
 import org.javatuples.Quartet;
 import org.javatuples.Tuple;
 

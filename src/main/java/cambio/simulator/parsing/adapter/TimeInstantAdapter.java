@@ -3,9 +3,7 @@ package cambio.simulator.parsing.adapter;
 import java.io.IOException;
 
 import com.google.gson.TypeAdapter;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
-import com.google.gson.stream.JsonWriter;
+import com.google.gson.stream.*;
 import desmoj.core.simulator.TimeInstant;
 
 /**

@@ -4,9 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 import com.google.gson.TypeAdapter;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
-import com.google.gson.stream.JsonWriter;
+import com.google.gson.stream.*;
 
 /**
  * Gson {@link TypeAdapter} for the {@link File} type.

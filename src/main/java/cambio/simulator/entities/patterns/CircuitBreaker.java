@@ -1,19 +1,10 @@
 package cambio.simulator.entities.patterns;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.entities.microservice.MicroserviceInstance;
-import cambio.simulator.entities.networking.IRequestUpdateListener;
-import cambio.simulator.entities.networking.InternalRequest;
-import cambio.simulator.entities.networking.NetworkRequestCanceledEvent;
-import cambio.simulator.entities.networking.NetworkRequestEvent;
-import cambio.simulator.entities.networking.Request;
-import cambio.simulator.entities.networking.RequestFailedReason;
-import cambio.simulator.entities.networking.ServiceDependencyInstance;
+import cambio.simulator.entities.networking.*;
 import cambio.simulator.export.MultiDataPointReporter;
 import cambio.simulator.misc.Priority;
 import cambio.simulator.parsing.JsonTypeName;

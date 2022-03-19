@@ -3,9 +3,7 @@ package cambio.simulator.entities.patterns;
 import java.util.LinkedList;
 
 import cambio.simulator.entities.microservice.Microservice;
-import desmoj.core.simulator.ExternalEvent;
-import desmoj.core.simulator.TimeInstant;
-import desmoj.core.simulator.TimeSpan;
+import desmoj.core.simulator.*;
 import org.javatuples.Quartet;
 import org.javatuples.Tuple;
 

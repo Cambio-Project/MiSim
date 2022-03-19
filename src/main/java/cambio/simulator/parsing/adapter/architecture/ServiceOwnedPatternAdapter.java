@@ -4,15 +4,11 @@ import java.io.IOException;
 
 import cambio.simulator.entities.patterns.ServiceOwnedPattern;
 import cambio.simulator.models.MiSimModel;
-import cambio.simulator.parsing.ParsingException;
-import cambio.simulator.parsing.PatternConfigurationParser;
-import cambio.simulator.parsing.TypeNameAssociatedConfigurationData;
+import cambio.simulator.parsing.*;
 import cambio.simulator.parsing.adapter.MiSimModelReferencingTypeAdapter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
-import com.google.gson.stream.JsonWriter;
+import com.google.gson.stream.*;
 import org.jetbrains.annotations.NotNull;
 
 /**

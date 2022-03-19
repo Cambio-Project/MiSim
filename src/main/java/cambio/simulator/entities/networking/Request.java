@@ -1,10 +1,6 @@
 package cambio.simulator.entities.networking;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.PriorityQueue;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 import cambio.simulator.entities.NamedEntity;
 import cambio.simulator.entities.microservice.MicroserviceInstance;

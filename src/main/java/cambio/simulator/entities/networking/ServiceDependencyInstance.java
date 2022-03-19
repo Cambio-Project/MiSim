@@ -1,9 +1,7 @@
 package cambio.simulator.entities.networking;
 
 import cambio.simulator.entities.NamedEntity;
-import cambio.simulator.entities.microservice.Microservice;
-import cambio.simulator.entities.microservice.MicroserviceInstance;
-import cambio.simulator.entities.microservice.Operation;
+import cambio.simulator.entities.microservice.*;
 import desmoj.core.simulator.Model;
 
 /**

@@ -1,9 +1,7 @@
 package cambio.simulator.export;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.*;
 import java.util.TreeMap;
 
 import cambio.simulator.models.MiSimModel;

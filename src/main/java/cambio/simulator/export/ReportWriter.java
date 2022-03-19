@@ -1,7 +1,6 @@
 package cambio.simulator.export;
 
 import java.nio.file.Path;
-import java.util.Map;
 import java.util.TreeMap;
 
 /**
