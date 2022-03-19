@@ -47,6 +47,7 @@ def write_dataset(ax: Axes, dataset: DataFrame):
     ax.plot(dataset["simulation_time_rounded_down"],
             dataset["mean_of_bin"],
             linewidth=1)
+    ax.set_ylim(bottom=0)
 
 
 util.plot(datasets, write_dataset)

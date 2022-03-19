@@ -12,7 +12,7 @@
       "config": {
         "model": "src/test/resources/SSPExample/SSP_Limbo.csv",
         "target_operation": "gateway.API_Endpoint"
-      }
+        }
     }
   ],
   "named_monkey": {

@@ -1,21 +1,14 @@
 package cambio.simulator.parsing;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.*;
 import java.util.function.Function;
 
-import cambio.simulator.models.ArchitectureModel;
-import cambio.simulator.models.ExperimentMetaData;
-import cambio.simulator.models.ExperimentModel;
-import cambio.simulator.models.MiSimModel;
+import cambio.simulator.models.*;
 import cambio.simulator.parsing.adapter.architecture.ArchitectureModelAdapter;
 import cambio.simulator.parsing.adapter.experiment.ExperimentMetaDataAdapter;
 import cambio.simulator.parsing.adapter.experiment.ExperimentModelAdapter;
 import cambio.simulator.parsing.adapter.scenario.ScenarioDescriptionAdapter;
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
-import com.google.gson.TypeAdapter;
+import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
 import org.jetbrains.annotations.Contract;
 
@@ -109,10 +102,15 @@ public final class ModelLoader {
 
         } catch (FileNotFoundException e) {
             throw new ParsingException(
-                String.format("[Error]  Cannot start the simulation. Model file %s was not found!",
+                String.format("Cannot start the simulation. Model file %s was not found!",
                     targetFile.getAbsolutePath()), e);
         } catch (JsonSyntaxException e) {
-            throw new ParsingException(e);
+            throw new ParsingException(
+                String.format("Cannot start the simulation. Model file %s contains Json Syntax errors!",
+                    targetFile.getAbsolutePath()), e);
+        } catch (ParsingException e) {
+            throw new ParsingException(String.format("Error parsing model file %s\n%s", targetFile.getAbsolutePath(),
+                e.getMessage()), e);
         }
     }
 }

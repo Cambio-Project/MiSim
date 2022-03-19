@@ -1,35 +1,16 @@
 package cambio.simulator.entities.microservice;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import cambio.simulator.entities.networking.IRequestUpdateListener;
-import cambio.simulator.entities.networking.InternalRequest;
-import cambio.simulator.entities.networking.NetworkRequestCanceledEvent;
-import cambio.simulator.entities.networking.NetworkRequestEvent;
-import cambio.simulator.entities.networking.Request;
-import cambio.simulator.entities.networking.RequestAnswer;
-import cambio.simulator.entities.networking.RequestFailedReason;
-import cambio.simulator.entities.networking.RequestSender;
-import cambio.simulator.entities.networking.ServiceDependencyInstance;
-import cambio.simulator.entities.patterns.CircuitBreaker;
-import cambio.simulator.entities.patterns.InstanceOwnedPattern;
-import cambio.simulator.entities.patterns.InstanceOwnedPatternConfiguration;
-import cambio.simulator.entities.patterns.Retry;
+import cambio.simulator.entities.networking.*;
+import cambio.simulator.entities.patterns.*;
 import cambio.simulator.export.MultiDataPointReporter;
 import cambio.simulator.resources.cpu.CPU;
 import cambio.simulator.resources.cpu.CPUProcess;
 import cambio.simulator.resources.cpu.scheduling.FIFOScheduler;
-import desmoj.core.simulator.Model;
-import desmoj.core.simulator.TimeInstant;
-import desmoj.core.simulator.TimeSpan;
+import desmoj.core.simulator.*;
 
 /**
  * A {@link MicroserviceInstance} (in the following just called instance) represents an actual, running instance of a
@@ -57,19 +38,22 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
     private final CPU cpu;
     private final int instanceID;
     //Queue with only unique entries
-    private final LinkedHashSet<Request> currentRequestsToHandle = new LinkedHashSet<>();
+    private final Set<Request> currentRequestsToHandle = new HashSet<>();
     //Queue with only unique entries
-    private final LinkedHashSet<ServiceDependencyInstance> currentlyOpenDependencies = new LinkedHashSet<>();
+    private final Set<ServiceDependencyInstance> currentlyOpenDependencies = new HashSet<>();
     //Contains all current outgoing answers
-    private final LinkedHashSet<RequestAnswer> currentAnswers = new LinkedHashSet<>();
+    private final Set<RequestAnswer> currentAnswers = new HashSet<>();
     //contains all current outgoing dependency requests
-    private final LinkedHashSet<InternalRequest> currentInternalSends = new LinkedHashSet<>();
+    private final Set<InternalRequest> currentInternalSends = new HashSet<>();
     private final MultiDataPointReporter reporter;
     //lists for debugging information
     private final List<ServiceDependencyInstance> closedDependencies = new LinkedList<>();
     private final List<ServiceDependencyInstance> abortedDependencies = new LinkedList<>();
     private InstanceState state;
     private Set<InstanceOwnedPattern> patterns = new HashSet<>();
+
+    private long notComputed = 0;
+    private long waiting = 0;
 
 
     MicroserviceInstance(Model model, String name, boolean showInTrace, Microservice microservice,
@@ -161,7 +145,7 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
         }
 
         //if the instance is shutting down but already received the request it can continue to finish it.
-        // else the instance cant handle the instance
+        // else the instance can't handle the instance
         return state == InstanceState.SHUTTING_DOWN
             && (currentRequestsToHandle.contains(request) || currentRequestsToHandle.contains(request.getParent()));
     }
@@ -177,8 +161,12 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
         InternalRequest request = (InternalRequest) answeredRequest;
         ServiceDependencyInstance dep = request.getDependency();
 
-        if (!currentlyOpenDependencies.remove(dep) || !currentRequestsToHandle.contains(dep.getParentRequest())) {
-            throw new IllegalStateException("This Request is not handled by this Instance");
+
+        if (!currentlyOpenDependencies.remove(dep)
+            || !currentRequestsToHandle.contains(dep.getParentRequest())
+            || request.getParent().getRelatedDependency(request) == null) {
+            throw new IllegalStateException("This Request is not handled by this Instance (anymore). "
+                + "Maybe due to timeout.");
         } else if (getModel().debugIsOn()) {
             closedDependencies.add(dep);
         }
@@ -193,6 +181,8 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
 
         if (currentRequestsToHandle.add(request)) { //register request and stamp as received if not already known
             request.setHandler(this);
+            notComputed++;
+            waiting++;
         }
 
         //three possiblities:
@@ -201,6 +191,7 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
         //   The CPU will "send" it back to this method once its done.
         //3. request does have dependencies -> create internal request
         if (request.isCompleted()) {
+            notComputed--;
             RequestAnswer answer = new RequestAnswer(request, this);
             sendRequest("Request_Answer_" + request.getPlainName(), answer, request.getRequester());
 
@@ -218,6 +209,7 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
             }
 
         } else if (request.getDependencies().isEmpty() || request.areDependenciesCompleted()) {
+            waiting--;
             CPUProcess newProcess = new CPUProcess(request);
             cpu.submitProcess(newProcess);
         } else {
@@ -248,7 +240,7 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
      * Starts this instance, reading it to receive requests.
      *
      * <p>
-     * Currently the startup process completes immediately.
+     * Currently, the startup process completes immediately.
      */
     public void start() {
         if (!(this.state == InstanceState.CREATED || this.state == InstanceState.SHUTDOWN)) {
@@ -334,16 +326,6 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
 
 
     private void collectQueueStatistics() {
-        int notComputed = 0;
-        int waiting = 0;
-        for (Request request : currentRequestsToHandle) {
-            if (!request.isDependenciesCompleted()) {
-                waiting++;
-                notComputed++;
-            } else if (!request.isComputationCompleted()) {
-                notComputed++;
-            }
-        }
         reporter.addDatapoint("SendOff_Internal_Requests", presentTime(), currentlyOpenDependencies.size());
         reporter.addDatapoint("Requests_InSystem", presentTime(), currentRequestsToHandle.size());
         reporter.addDatapoint("Requests_NotComputed", presentTime(), notComputed);
@@ -363,8 +345,8 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
         }
 
 
-        if (patterns.stream().anyMatch(pattern -> pattern instanceof CircuitBreaker)) {
-            if (reason == RequestFailedReason.CIRCUIT_IS_OPEN || reason == RequestFailedReason.REQUEST_VOLUME_REACHED) {
+        if (reason == RequestFailedReason.CIRCUIT_IS_OPEN || reason == RequestFailedReason.REQUEST_VOLUME_REACHED) {
+            if (patterns.stream().anyMatch(pattern -> pattern instanceof CircuitBreaker)) {
                 //TODO: activate fallback behavior
                 letRequestFail(request);
                 return true;
@@ -372,16 +354,15 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
         }
 
 
-        if (patterns.stream().anyMatch(pattern -> pattern instanceof Retry)) {
-            if (reason != RequestFailedReason.MAX_RETRIES_REACHED) {
-                return false;
-            }
+        if (reason != RequestFailedReason.MAX_RETRIES_REACHED
+            && patterns.stream().anyMatch(pattern -> pattern instanceof Retry)) {
+            return false;
         }
 
         try {
             letRequestFail(request);
         } catch (IllegalArgumentException e) {
-            sendTraceNote("Could not cancel request " + request.getName() + ". Was this request cancled before?");
+            sendTraceNote("Could not cancel request " + request.getName() + ". Was this request canceled before?");
         }
 
 
@@ -446,24 +427,26 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
         //cancel parent
         NetworkRequestEvent cancelEvent
             = new NetworkRequestCanceledEvent(getModel(),
-            String.format("Canceling of request %s", parentToCancel.getQuotedName()),
+            "Canceling of request " + parentToCancel.getQuotedName(),
             traceIsOn(),
             parentToCancel,
             RequestFailedReason.DEPENDENCY_NOT_AVAILABLE,
-            String.format("Dependency %s", request.getQuotedName()));
+            "Dependency " + request.getQuotedName());
         cancelEvent.schedule(presentTime());
 
-        //cancel all internal requests  of the parent that are underway
-        for (InternalRequest internalSend : currentInternalSends) {
-            if (internalSend.getParent() == parentToCancel) {
-                internalSend.cancelSending();
-            }
-        }
+        //cancel all other children of the parent
+        parentToCancel.getDependencies()
+            .stream()
+            .map(ServiceDependencyInstance::getChildRequest)
+            .filter(Schedulable::isScheduled)
+            .forEach(InternalRequest::cancel);
+
         if (getModel().debugIsOn()) {
             abortedDependencies.addAll(parentToCancel.getDependencies());
         }
         currentlyOpenDependencies.removeAll(parentToCancel.getDependencies());
         currentRequestsToHandle.remove(parentToCancel);
+        waiting--;
+        notComputed--;
     }
-
 }

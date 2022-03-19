@@ -40,8 +40,9 @@ def write_data(ax: Axes, ax2: Axes, dataset: DataFrame):
                     label="ActiveProcesses")
     ax.legend()
 
-    ax2.plot(dataset["Simulation Time"],
+    ax2.step(dataset["Simulation Time"],
              dataset["Value_Usage"],
+             where="post",
              label="Usage (%)",
              linewidth=0.25)
     ax2.scatter(x=dataset["Simulation Time"],

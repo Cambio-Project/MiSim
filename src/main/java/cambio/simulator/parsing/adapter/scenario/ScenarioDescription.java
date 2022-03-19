@@ -3,11 +3,8 @@ package cambio.simulator.parsing.adapter.scenario;
 import static cambio.simulator.misc.Util.injectField;
 
 import java.io.File;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -15,10 +12,7 @@ import cambio.simulator.entities.generator.LimboLoadGeneratorDescription;
 import cambio.simulator.entities.generator.LoadGeneratorDescription;
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.entities.microservice.Operation;
-import cambio.simulator.events.ChaosMonkeyEvent;
-import cambio.simulator.events.DelayInjection;
-import cambio.simulator.events.ISelfScheduled;
-import cambio.simulator.events.SummonerMonkeyEvent;
+import cambio.simulator.events.*;
 import cambio.simulator.misc.NameResolver;
 import cambio.simulator.models.ExperimentModel;
 import cambio.simulator.models.MiSimModel;
@@ -38,6 +32,7 @@ import org.jetbrains.annotations.NotNull;
 @SuppressWarnings("unused")
 public final class ScenarioDescription {
 
+    @SerializedName(value = "name", alternate = {"scenarioName", "experiment_name"})
     private String name;
     private String description;
     private String artifact;
@@ -59,11 +54,11 @@ public final class ScenarioDescription {
      *
      * @throws ParsingException if artifact, component or stimulus are missing
      */
-    private void checkState() {
+    private void checkState(MiSimModel model) {
         if (StringUtils.isEmpty(stimulus)
             || StringUtils.isEmpty(artifact)
             || StringUtils.isEmpty(component)
-            || StringUtils.isEmpty(name)) {
+            || (StringUtils.isEmpty(name) && model.getExperimentMetaData().getExperimentName() == null)) {
             throw new ParsingException("Scenario is missing parts! (stimulus, artifact, component, name)");
         } else if (StringUtils.isBlank(environment)
             || StringUtils.isBlank(response)
@@ -79,7 +74,11 @@ public final class ScenarioDescription {
      * @return a set of objects that describe the scenario.
      */
     public ExperimentModel parse(MiSimModel model) {
-        this.checkState();
+        this.checkState(model);
+
+        if (this.name == null) {
+            this.name = model.getExperimentMetaData().getExperimentName();
+        }
 
         Set<ISelfScheduled> scheduables = new HashSet<>();
 

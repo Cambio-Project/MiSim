@@ -1,10 +1,6 @@
 package cambio.simulator.entities.networking;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.PriorityQueue;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 import cambio.simulator.entities.NamedEntity;
 import cambio.simulator.entities.microservice.MicroserviceInstance;
@@ -243,6 +239,7 @@ public abstract class Request extends NamedEntity {
      *
      * @param request child request of this request.
      * @return the {@link ServiceDependencyInstance} that is related to the given request, {@code null} otherwise.
+     *     Returns {@code null} specifically, if the request was a child request, that has been canceled or replaced.
      */
     public ServiceDependencyInstance getRelatedDependency(Request request) {
         for (ServiceDependencyInstance serviceDependencyInstance : dependencies) {

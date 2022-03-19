@@ -1,21 +1,13 @@
 package cambio.simulator.entities.microservice;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import cambio.simulator.entities.NamedEntity;
 import cambio.simulator.entities.networking.InternalRequest;
-import cambio.simulator.entities.patterns.ILoadBalancingStrategy;
-import cambio.simulator.entities.patterns.InstanceOwnedPattern;
-import cambio.simulator.entities.patterns.InstanceOwnedPatternConfiguration;
-import cambio.simulator.entities.patterns.LoadBalancer;
-import cambio.simulator.entities.patterns.ServiceOwnedPattern;
-import cambio.simulator.export.ContinuousMultiDataPointReporter;
+import cambio.simulator.entities.patterns.*;
+import cambio.simulator.export.AccumulativeDataPointReporter;
 import cambio.simulator.export.MultiDataPointReporter;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -49,8 +41,10 @@ import desmoj.core.simulator.Model;
 public class Microservice extends NamedEntity {
     private final transient Set<MicroserviceInstance> instancesSet = new HashSet<>();
     private final transient MultiDataPointReporter reporter;
+    private final transient AccumulativeDataPointReporter accReporter;
+
     @Expose
-    @SerializedName(value = "loadbalancer_strategy", alternate = { "load_balancer", "loadbalancer"})
+    @SerializedName(value = "loadbalancer_strategy", alternate = {"load_balancer", "loadbalancer"})
     private final LoadBalancer loadBalancer;
     private transient boolean started = false;
     private transient int instanceSpawnCounter = 0; // running counter to create instance ID's
@@ -85,7 +79,8 @@ public class Microservice extends NamedEntity {
         super(model, name, showInTrace);
         //default load balancer
         loadBalancer = new LoadBalancer(model, "Loadbalancer", traceIsOn(), null);
-        reporter = new ContinuousMultiDataPointReporter(String.format("S[%s]_", name));
+        reporter = new MultiDataPointReporter(String.format("S[%s]_", name));
+        accReporter = new AccumulativeDataPointReporter(String.format("S[%s]_", name));
     }
 
     /**
@@ -233,9 +228,18 @@ public class Microservice extends NamedEntity {
             .orElse(null);
     }
 
-
+    /**
+     * Uses the loadbalancer of this microservice to find the next suitable target instance.
+     *
+     * @return a {@code MicroserviceInstance} that should receive the next request
+     * @throws NoInstanceAvailableException if no instance is available
+     */
     public MicroserviceInstance getNextAvailableInstance() throws NoInstanceAvailableException {
-        return loadBalancer.getNextInstance(instancesSet);
+        MicroserviceInstance nextInstance = loadBalancer.getNextInstance(instancesSet);
+        List<String> data = new ArrayList<>();
+        data.add(nextInstance.getPlainName());
+        accReporter.addDatapoint("Load_Distribution", presentTime(), data);
+        return nextInstance;
     }
 
 

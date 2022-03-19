@@ -1,24 +1,14 @@
 package cambio.simulator.entities.patterns;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import cambio.simulator.entities.microservice.MicroserviceInstance;
-import cambio.simulator.entities.networking.IRequestUpdateListener;
-import cambio.simulator.entities.networking.InternalRequest;
-import cambio.simulator.entities.networking.Request;
-import cambio.simulator.entities.networking.RequestAnswer;
-import cambio.simulator.entities.networking.RequestFailedReason;
-import cambio.simulator.entities.networking.ServiceDependencyInstance;
+import cambio.simulator.entities.networking.*;
 import cambio.simulator.export.MultiDataPointReporter;
 import cambio.simulator.misc.Priority;
 import cambio.simulator.parsing.JsonTypeName;
 import com.google.gson.annotations.Expose;
-import desmoj.core.simulator.Model;
-import desmoj.core.simulator.TimeInstant;
-import desmoj.core.simulator.TimeSpan;
+import desmoj.core.simulator.*;
 
 /**
  * Retry implementation that employs a full jitter based exponential backoff. Jittering can be turned off.
@@ -70,8 +60,13 @@ public class Retry extends StrategicInstanceOwnedPattern<IRetryStrategy> impleme
 
             MicroserviceInstance handler = request.getHandler();
 
+            //wrap the dependency in a new request
+            //also updates the child request of the dependency
             Request newRequest = new InternalRequest(getModel(), this.traceIsOn(), dep,
-                request.getRequester()); //updates the dependency that had the original request as child
+                request.getRequester());
+
+            //if the request has a handler, it will be resent to the same one
+            // TODO: check whether this is the correct behavior
             if (handler == null || tries == maxTries - 1) {
                 owner.sendRequest(String.format("Collecting dependency %s", dep.getQuotedPlainName()), newRequest,
                     dep.getTargetService(), new TimeSpan(delay));

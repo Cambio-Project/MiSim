@@ -1,8 +1,6 @@
 package cambio.simulator.entities.patterns;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 import cambio.simulator.entities.microservice.MicroserviceInstance;
 import cambio.simulator.entities.microservice.NoInstanceAvailableException;

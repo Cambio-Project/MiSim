@@ -6,13 +6,7 @@ import java.util.Map;
 
 import cambio.simulator.misc.Util;
 import com.google.gson.internal.UnsafeAllocator;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.OptionGroup;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.*;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -154,17 +148,15 @@ public final class CLI {
                 String optName = !option.opt().equals("") ? option.opt() : option.longOpt();
                 Object value = cl.getParsedOptionValue(optName);
 
-                if (value == null) {
-                    continue;
-                } else if (boolean.class.isAssignableFrom(targetType)) {
-                    targetField.set(targetObject, true);
+                if (value == null && targetType == Boolean.TYPE) {
+                    targetField.set(targetObject, cl.hasOption(optName));
                 } else if (String.class.isAssignableFrom(targetType)) {
                     targetField.set(targetObject, value);
                 } else if (String[].class.isAssignableFrom(targetType)) {
                     targetField.set(targetObject, value);
                 } else {
-                    throw new ClassCastException("Can only parse CLI options to the types of boolean, String or "
-                        + "String[].");
+                    throw new ClassCastException("Can only parse CLI options to the types of boolean/Boolean, String "
+                        + "or String[].");
                 }
             } catch (ParseException | IllegalAccessException e) {
                 e.printStackTrace();

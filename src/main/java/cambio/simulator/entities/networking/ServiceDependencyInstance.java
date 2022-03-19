@@ -1,11 +1,7 @@
 package cambio.simulator.entities.networking;
 
-import java.util.Objects;
-
 import cambio.simulator.entities.NamedEntity;
-import cambio.simulator.entities.microservice.Microservice;
-import cambio.simulator.entities.microservice.MicroserviceInstance;
-import cambio.simulator.entities.microservice.Operation;
+import cambio.simulator.entities.microservice.*;
 import desmoj.core.simulator.Model;
 
 /**
@@ -24,7 +20,7 @@ public class ServiceDependencyInstance extends NamedEntity {
     private final Operation targetOp;
     private final DependencyDescription dependencyDescription;
     private boolean completed;
-    private Request childRequest;
+    private InternalRequest childRequest;
 
     /**
      * Creates an actual instance of a {@link DependencyDescription}.
@@ -69,7 +65,7 @@ public class ServiceDependencyInstance extends NamedEntity {
         this.completed = true;
     }
 
-    public Request getChildRequest() {
+    public InternalRequest getChildRequest() {
         return childRequest;
     }
 
@@ -80,9 +76,10 @@ public class ServiceDependencyInstance extends NamedEntity {
      *
      * @param childRequest new child request that overwrites the current one
      */
-    public void updateChildRequest(Request childRequest) {
+    public void updateChildRequest(InternalRequest childRequest) {
         this.childRequest = childRequest;
-        //TODO: log
+        sendTraceNote(
+            String.format("Child request of dependency %s updated to %s", this.getName(), childRequest.getName()));
     }
 
     public double getNextExtraDelay() {
@@ -97,20 +94,20 @@ public class ServiceDependencyInstance extends NamedEntity {
         return dependencyDescription.getNextCustomDelay();
     }
 
-    @Override
-    public boolean equals(Object other) {
-        if (this == other) {
-            return true;
-        }
-        if (other == null || getClass() != other.getClass()) {
-            return false;
-        }
-        ServiceDependencyInstance that = (ServiceDependencyInstance) other;
-        return parentRequest.equals(that.parentRequest) && targetOp.equals(that.targetOp);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(parentRequest, targetOp);
-    }
+    //    @Override
+    //    public boolean equals(Object other) {
+    //        if (this == other) {
+    //            return true;
+    //        }
+    //        if (other == null || getClass() != other.getClass()) {
+    //            return false;
+    //        }
+    //        ServiceDependencyInstance that = (ServiceDependencyInstance) other;
+    //        return parentRequest.equals(that.parentRequest) && targetOp.equals(that.targetOp);
+    //    }
+    //
+    //    @Override
+    //    public int hashCode() {
+    //        return Objects.hash(parentRequest, targetOp);
+    //    }
 }

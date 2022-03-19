@@ -1,15 +1,9 @@
 package cambio.simulator.parsing;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
+import java.lang.reflect.*;
 import java.util.Arrays;
 
-import cambio.simulator.entities.patterns.IPatternLifeCycleHooks;
-import cambio.simulator.entities.patterns.IStrategy;
-import cambio.simulator.entities.patterns.IStrategyAcceptor;
-import cambio.simulator.entities.patterns.InstanceOwnedPattern;
-import cambio.simulator.entities.patterns.ServiceOwnedPattern;
+import cambio.simulator.entities.patterns.*;
 import com.google.gson.Gson;
 import desmoj.core.simulator.Model;
 import org.jetbrains.annotations.NotNull;

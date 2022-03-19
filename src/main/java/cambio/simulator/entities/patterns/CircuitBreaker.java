@@ -1,19 +1,10 @@
 package cambio.simulator.entities.patterns;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.entities.microservice.MicroserviceInstance;
-import cambio.simulator.entities.networking.IRequestUpdateListener;
-import cambio.simulator.entities.networking.InternalRequest;
-import cambio.simulator.entities.networking.NetworkRequestCanceledEvent;
-import cambio.simulator.entities.networking.NetworkRequestEvent;
-import cambio.simulator.entities.networking.Request;
-import cambio.simulator.entities.networking.RequestFailedReason;
-import cambio.simulator.entities.networking.ServiceDependencyInstance;
+import cambio.simulator.entities.networking.*;
 import cambio.simulator.export.MultiDataPointReporter;
 import cambio.simulator.misc.Priority;
 import cambio.simulator.parsing.JsonTypeName;
@@ -34,7 +25,7 @@ import desmoj.core.simulator.TimeInstant;
  * MicroserviceInstance}.
  *
  * @author Lion Wagner
- * @see CircuitBreakerState
+ * @see CountingCircuitBreakerState
  * @see Microservice
  * @see MicroserviceInstance
  */
@@ -42,7 +33,7 @@ import desmoj.core.simulator.TimeInstant;
 public final class CircuitBreaker extends InstanceOwnedPattern implements IRequestUpdateListener {
 
     private final Set<ServiceDependencyInstance> activeConnections = new HashSet<>();
-    private final Map<Microservice, CircuitBreakerState> breakerStates = new HashMap<>();
+    private final Map<Microservice, TimingWindowCircuitBreakerState> breakerStates = new HashMap<>();
     private final Map<Microservice, Integer> activeConnectionCount = new HashMap<>();
     private final MultiDataPointReporter reporter;
 
@@ -53,8 +44,6 @@ public final class CircuitBreaker extends InstanceOwnedPattern implements IReque
     private double errorThresholdPercentage = Double.POSITIVE_INFINITY;
     @Expose
     private double sleepWindow = 0.500;
-    @Expose
-    private int timeout = Integer.MAX_VALUE;
     @Expose
     private int rollingWindow = 20; //window over which error rates are collected
 
@@ -86,9 +75,9 @@ public final class CircuitBreaker extends InstanceOwnedPattern implements IReque
         Microservice target = dep.getTargetService();
         activeConnections.add(dep);
         activeConnectionCount.merge(target, 1, Integer::sum);
-        CircuitBreakerState state = breakerStates.computeIfAbsent(target,
-            monitoredService -> new CircuitBreakerState(monitoredService, this.errorThresholdPercentage, rollingWindow,
-                sleepWindow));
+        TimingWindowCircuitBreakerState state = breakerStates.computeIfAbsent(target,
+            monitoredService -> new TimingWindowCircuitBreakerState(monitoredService, this.errorThresholdPercentage,
+                rollingWindow, sleepWindow));
 
 
         boolean consumed = false;
@@ -103,7 +92,7 @@ public final class CircuitBreaker extends InstanceOwnedPattern implements IReque
         } else {
             int currentActiveConnections = activeConnectionCount.get(target);
             if (currentActiveConnections > requestVolumeThreshold) {
-                state.notifyArrivalFailure();
+                state.notifyArrivalFailure(when);
                 owner.updateListenerProxy
                     .onRequestFailed(request, when, RequestFailedReason.CONNECTION_VOLUME_LIMIT_REACHED);
                 consumed = true;
@@ -114,28 +103,24 @@ public final class CircuitBreaker extends InstanceOwnedPattern implements IReque
     }
 
     @Override
-    public boolean onRequestArrivalAtTarget(Request request, TimeInstant when) {
-        collectData(when);
-        return false;
-    }
-
-    @Override
     public boolean onRequestResultArrivedAtRequester(Request request, TimeInstant when) {
         if (!(request instanceof InternalRequest)) {
             return false; //ignore everything except InternalRequests (e.g. RequestAnswers)
         }
 
         ServiceDependencyInstance dep = request.getParent().getRelatedDependency(request);
-        Microservice target = dep.getTargetService();
-
-        if (target == this.owner.getOwner()) { //prevents the circuit breaker from reacting to unpacked RequestAnswers
+        Microservice target;
+        if (dep == null || (target = dep.getTargetService()) == this.owner.getOwner()) {
+            //dep==null if the request is not related to any dependency anymore (e.g. due to a timeout and replacement)
+            //target==this.owner.getOwner() if its a local "send-to-self" request
+            //both cases we just ignore
             return false;
         }
 
         activeConnections.remove(dep);
         activeConnectionCount.merge(target, -1, Integer::sum);
 
-        breakerStates.get(target).notifySuccessfulCompletion();
+        breakerStates.get(target).notifySuccessfulCompletion(when);
 
         collectData(when);
         return false;
@@ -148,16 +133,12 @@ public final class CircuitBreaker extends InstanceOwnedPattern implements IReque
         }
 
         InternalRequest internalRequest = (InternalRequest) request;
-
         ServiceDependencyInstance dep = internalRequest.getDependency();
-        if (dep.getChildRequest() != internalRequest) {
-            //dependency was asinged a new child Request already (e.g due to a retry), therefore we ignore the request
-            return false;
-        }
 
         Microservice target = dep.getTargetService();
         if (activeConnections.remove(dep)) {
-            breakerStates.get(target).notifyArrivalFailure();
+            breakerStates.get(target).notifyArrivalFailure(when);
+            activeConnectionCount.merge(target, -1, Integer::sum);
         }
 
         collectData(when);
@@ -166,11 +147,26 @@ public final class CircuitBreaker extends InstanceOwnedPattern implements IReque
 
 
     private void collectData(TimeInstant when) {
-        for (Map.Entry<Microservice, CircuitBreakerState> entry : breakerStates.entrySet()) {
+        for (Map.Entry<Microservice, TimingWindowCircuitBreakerState> entry : breakerStates.entrySet()) {
             Microservice microservice = entry.getKey();
-            CircuitBreakerState circuitBreakerState = entry.getValue();
+            TimingWindowCircuitBreakerState circuitBreakerState = entry.getValue();
             reporter.addDatapoint(String.format("[%s]", microservice.getName()), when,
                 circuitBreakerState.getCurrentStatistics());
+        }
+    }
+
+    @Override
+    public void onInitializedCompleted() {
+        super.onInitializedCompleted();
+        if (errorThresholdPercentage != Double.POSITIVE_INFINITY
+            && errorThresholdPercentage > 1) {
+            if (errorThresholdPercentage <= 100) {
+                System.out.println("Warning: errorThresholdPercentage is in between 1 and 100, dividing it by 100");
+                errorThresholdPercentage /= 100.0;
+            } else {
+                throw new IllegalArgumentException(
+                    "errorThresholdPercentage must be in between 0.0 and 1.0 or 1 and 100");
+            }
         }
     }
 }

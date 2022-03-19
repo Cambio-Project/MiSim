@@ -1,0 +1,26 @@
+{
+  "simulation_meta_data": {
+    "experiment_name": "Kill Backend",
+    "model_name": ":(",
+    "duration": 100
+  },
+  "generators": [
+    {
+      "type": "interval",
+      "config": {
+        "load": 1,
+        "distribution": "spike",
+        "target": "gateway.INTERNAL_DEP"
+      }
+    }
+  ],
+  "delay": [
+    {
+      "type": "delay",
+      "config": {
+        "delay": 10,
+        "target": "example-service"
+      }
+    }
+  ]
+}
