@@ -5,31 +5,326 @@
       "instances": 1,
       "loadbalancer_strategy": "leastUtil_orchestration",
       "patterns": [],
-      "capacity": 1000,
+      "capacity": 500,
       "operations": [
         {
-          "name": "call",
-          "demand": 25,
+          "name": "authenticate",
+          "demand": 7,
           "dependencies": [
             {
-              "service": "example-service",
-              "operation": "call-of-example-service",
+              "service": "authService",
+              "operation": "login",
               "probability": 1
+            },
+            {
+              "service": "authService",
+              "operation": "register",
+              "probability": 1
+            }
+          ]
+        },
+        {
+          "name": "loadHomeScreen",
+          "demand": 6,
+          "dependencies": [
+            {
+              "service": "movieService",
+              "operation": "getMovies",
+              "probability": 1.0
+            },
+            {
+              "service": "movieService",
+              "operation": "recommendMovies",
+              "probability": 1.0
+            }
+          ]
+        },
+        {
+          "name": "manageAccount",
+          "demand": 5,
+          "dependencies": [
+            {
+              "service": "usersService",
+              "operation": "cancelSub",
+              "probability": 1.0
+            },
+            {
+              "service": "usersService",
+              "operation": "changeSub",
+              "probability": 1.0
+            },
+            {
+              "service": "usersService",
+              "operation": "changeName",
+              "probability": 1.0
+            }
+          ]
+        },
+        {
+          "name": "watchMovie",
+          "demand": 5,
+          "dependencies": [
+            {
+              "service": "movieService",
+              "operation": "startMovie",
+              "probability": 1.0
+            }
+          ]
+        },
+        {
+          "name": "stopMovie",
+          "demand": 4,
+          "dependencies": [
+            {
+              "service": "movieService",
+              "operation": "stopMovie",
+              "probability": 1.0
             }
           ]
         }
       ]
     },
     {
-      "name": "example-service",
+      "name": "authService",
       "instances": 1,
       "loadbalancer_strategy": "leastUtil_orchestration",
       "patterns": [],
-      "capacity": 1000,
+      "capacity": 500,
       "operations": [
         {
-          "name": "call-of-example-service",
-          "demand": 50,
+          "name": "register",
+          "demand": 19,
+          "dependencies": [
+            {
+              "service": "db",
+              "operation": "usersGET",
+              "probability": 1.0
+            },
+            {
+              "service": "db",
+              "operation": "usersPOST",
+              "probability": 1.0
+            }
+          ]
+        },
+        {
+          "name": "login",
+          "demand": 10,
+          "dependencies": [
+            {
+              "service": "db",
+              "operation": "usersGET",
+              "probability": 1.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "usersService",
+      "instances": 1,
+      "loadbalancer_strategy": "leastUtil_orchestration",
+      "patterns": [],
+      "capacity": 500,
+      "operations": [
+        {
+          "name": "cancelSub",
+          "demand": 11,
+          "dependencies": [
+            {
+              "service": "subscriptionService",
+              "operation": "cancelSub",
+              "probability": 1.0
+            }
+          ]
+        },
+        {
+          "name": "changeSub",
+          "demand": 11,
+          "dependencies": [
+            {
+              "service": "subscriptionService",
+              "operation": "changeSub",
+              "probability": 1.0
+            }
+          ]
+        },
+        {
+          "name": "changeName",
+          "demand": 9,
+          "dependencies": [
+            {
+              "service": "db",
+              "operation": "usersUPDATE",
+              "probability": 1.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "subscriptionService",
+      "instances": 1,
+      "loadbalancer_strategy": "leastUtil_orchestration",
+      "patterns": [],
+      "capacity": 500,
+      "operations": [
+        {
+          "name": "cancelSub",
+          "demand": 12,
+          "dependencies": [
+            {
+              "service": "db",
+              "operation": "subsUPDATE",
+              "probability": 1.0
+            }
+          ]
+        },
+        {
+          "name": "changeSub",
+          "demand": 12,
+          "dependencies": [
+            {
+              "service": "db",
+              "operation": "subsUPDATE",
+              "probability": 1.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "movieService",
+      "instances": 1,
+      "loadbalancer_strategy": "leastUtil_orchestration",
+      "patterns": [],
+      "capacity": 500,
+      "operations": [
+        {
+          "name": "getMovies",
+          "demand": 6,
+          "dependencies": [
+            {
+              "service": "db",
+              "operation": "moviesGET",
+              "probability": 1.0
+            }
+          ]
+        },
+        {
+          "name": "recommendMovies",
+          "demand": 8,
+          "dependencies": [
+            {
+              "service": "recommendationService",
+              "operation": "recommendByMovie",
+              "probability": 1.0
+            }
+          ]
+        },
+        {
+          "name": "startMovie",
+          "demand": 5,
+          "dependencies": [
+            {
+              "service": "videoPlayerService",
+              "operation": "start",
+              "probability": 1.0
+            }
+          ]
+        },
+        {
+          "name": "stopMovie",
+          "demand": 5,
+          "dependencies": [
+            {
+              "service": "videoPlayerService",
+              "operation": "stop",
+              "probability": 1.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "recommendationService",
+      "instances": 1,
+      "loadbalancer_strategy": "leastUtil_orchestration",
+      "patterns": [],
+      "capacity": 500,
+      "operations": [
+        {
+          "name": "recommendByMovie",
+          "demand": 15,
+          "dependencies": [
+            {
+              "service": "db",
+              "operation": "moviesGET",
+              "probability": 1.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "videoPlayerService",
+      "instances": 1,
+      "loadbalancer_strategy": "leastUtil_orchestration",
+      "patterns": [],
+      "capacity": 500,
+      "operations": [
+        {
+          "name": "start",
+          "demand": 10,
+          "dependencies": []
+        },
+        {
+          "name": "stop",
+          "demand": 10,
+          "dependencies": []
+        }
+      ]
+    },
+    {
+      "name": "db",
+      "instances": 1,
+      "loadbalancer_strategy": "leastUtil_orchestration",
+      "patterns": [],
+      "capacity": 500,
+      "operations": [
+        {
+          "name": "usersPOST",
+          "demand": 1,
+          "dependencies": []
+        },
+        {
+          "name": "usersUPDATE",
+          "demand": 1,
+          "dependencies": []
+        },
+        {
+          "name": "usersGET",
+          "demand": 1,
+          "dependencies": []
+        },
+        {
+          "name": "subsUPDATE",
+          "demand": 1,
+          "dependencies": []
+        },
+        {
+          "name": "subsGET",
+          "demand": 1,
+          "dependencies": []
+        },
+        {
+          "name": "subsPOST",
+          "demand": 1,
+          "dependencies": []
+        },
+        {
+          "name": "moviesGET",
+          "demand": 1,
           "dependencies": []
         }
       ]

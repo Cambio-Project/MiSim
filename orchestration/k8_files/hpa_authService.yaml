@@ -1,12 +1,12 @@
 apiVersion: autoscaling/v2beta2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: frontend-hpa
+  name: authService-hpa
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: frontend-deployment
+    name: authService-deployment
   minReplicas: 1
   maxReplicas: 10
   metrics:

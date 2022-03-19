@@ -21,9 +21,8 @@
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 
-#Report folders
-*[Rr]eport*/
-!src/main/java/resources/**/Report/*
+# Report folder
+[Rr]eport/
 
 # target folder
 [Tt]arget/
@@ -32,7 +31,7 @@ hs_err_pid*
 [Ll]ib/
 
 #force add desmoj jar
-!libraries/*
+!libraries/DesmoJ/**.jar
 
 #Example Experiment results
 ABCDE Experiment_*.html
@@ -110,6 +109,7 @@ fabric.properties
 
 .idea/
 
-# java profiler files
+Report/
+
 *.hprof
 *.jfr

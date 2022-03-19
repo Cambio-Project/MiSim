@@ -4,7 +4,7 @@
     "model_name": "architecture_model",
     "orchestrate": true,
     "orchestration_dir": "orchestration",
-    "duration": 120,
+    "duration": 600,
     "report": "",
     "datapoints": 20,
     "seed": 979
@@ -14,8 +14,40 @@
       "type": "limbo",
       "config": {
         "microservice": "frontend",
-        "operation": "call",
-        "model": "./Examples/Orchestration/Load/jump.csv"
+        "operation": "authenticate",
+        "model": "./Examples/Orchestration/Load/linear_0_30_10min.csv"
+      }
+    },
+    {
+      "type": "limbo",
+      "config": {
+        "microservice": "frontend",
+        "operation": "loadHomeScreen",
+        "model": "./Examples/Orchestration/Load/linear_0_30_10min.csv"
+      }
+    },
+    {
+      "type": "limbo",
+      "config": {
+        "microservice": "frontend",
+        "operation": "manageAccount",
+        "model": "./Examples/Orchestration/Load/linear_0_30_10min.csv"
+      }
+    },
+    {
+      "type": "limbo",
+      "config": {
+        "microservice": "frontend",
+        "operation": "watchMovie",
+        "model": "./Examples/Orchestration/Load/linear_0_30_10min.csv"
+      }
+    },
+    {
+      "type": "limbo",
+      "config": {
+        "microservice": "frontend",
+        "operation": "stopMovie",
+        "model": "./Examples/Orchestration/Load/linear_0_30_10min.csv"
       }
     }
   ]

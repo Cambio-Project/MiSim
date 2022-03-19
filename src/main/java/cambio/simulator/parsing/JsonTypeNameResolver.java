@@ -7,7 +7,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.reflections.Reflections;
-import org.reflections.scanners.Scanners;
+import org.reflections.scanners.SubTypesScanner;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 
@@ -43,7 +43,7 @@ public class JsonTypeNameResolver {
                     new ConfigurationBuilder()
                         .setUrls(ClasspathHelper.forPackage(
                             actualBaseClass.getPackage().getName()))
-                        .setScanners(Scanners.SubTypes)
+                        .setScanners(new SubTypesScanner())
                 );
 
                 Set<Class<? extends U>> subtypesOfBaseClass = reflections.getSubTypesOf(actualBaseClass);

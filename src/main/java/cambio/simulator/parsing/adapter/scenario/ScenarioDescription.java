@@ -6,8 +6,6 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -35,7 +33,6 @@ import org.jetbrains.annotations.NotNull;
  *
  * @author Lion Wagner
  */
-@SuppressWarnings("unused")
 public final class ScenarioDescription {
 
     private String name;
@@ -64,10 +61,9 @@ public final class ScenarioDescription {
             || StringUtils.isEmpty(artifact)
             || StringUtils.isEmpty(component)
             || StringUtils.isEmpty(name)) {
-            throw new ParsingException("Scenario is missing parts! (stimulus, artifact, component, name)");
+            throw new ParsingException("Scenario is missing parts! (stimulus,artifact,component,name)");
         } else if (StringUtils.isBlank(environment)
             || StringUtils.isBlank(response)
-            || StringUtils.isBlank(source)
             || responseMeasures == null) {
             System.out.printf("[Info] Scenario %s is missing some ATAM-components%n", name);
         }
@@ -84,7 +80,7 @@ public final class ScenarioDescription {
         Set<ISelfScheduled> scheduables = new HashSet<>();
 
         stimulus = stimulus.replaceAll("\\s+", " ");
-        String[] stimuli = this.stimulus.split("AND");
+        String[] stimuli = stimulus.split("AND");
 
         for (String stimulus : stimuli) {
             if (stimulus.startsWith("LOAD")) {
@@ -100,14 +96,7 @@ public final class ScenarioDescription {
     private void parseWorkloads(Set<ISelfScheduled> scheduables, String stimuli,
                                 MiSimModel model) {
 
-        boolean tmp = false;
         String profile = stimuli.replace("LOAD", "");
-        if (profile.startsWith("~")) {
-            tmp = true;
-            profile = profile.replace("~", "");
-        }
-        final boolean repeating = tmp;
-        final String path = profile.replace(" ", "");
 
         Microservice service = NameResolver.resolveMicroserviceName(model, artifact);
 
@@ -115,35 +104,21 @@ public final class ScenarioDescription {
             throw new ParsingException(String.format("Could not find target service '%s'", artifact));
         }
 
-        final Consumer<String> componentResolverAndAdder = (final String component) -> {
-            final Operation target = NameResolver.resolveOperationName(model, component);
-            if (target == null) {
-                throw new ParsingException(String.format("Could not find target operation '%s'", component));
-            }
-            scheduables.add(createLimboGenerator(path, target, repeating));
-        };
-
         if (this.component.equals("ALL ENDPOINTS")) {
             for (Operation operation : service.getOperations()) {
-                scheduables.add(createLimboGenerator(path, operation, repeating));
-            }
-        } else if (component.contains(",")) {
-            String[] components = component.split(",");
-            for (String component : components) {
-                componentResolverAndAdder.accept(component);
+                scheduables.add(createLimboGenerator(profile, operation));
             }
         } else {
-            componentResolverAndAdder.accept(component);
+            Operation target = NameResolver.resolveOperationName(model, component);
+            scheduables.add(createLimboGenerator(profile, target));
         }
     }
 
     @Contract("_, _ -> new")
-    private @NotNull LoadGeneratorDescription createLimboGenerator(String profileLocation, Operation operation,
-                                                                   boolean reapeating) {
+    private @NotNull LoadGeneratorDescription createLimboGenerator(String profileLocation, Operation operation) {
         LoadGeneratorDescription description = new LimboLoadGeneratorDescription();
         injectField("modelFile", description, new File(profileLocation.trim()));
         injectField("targetOperation", description, operation);
-        injectField("repeating", description, reapeating);
         description.initializeArrivalRateModel();
         return description;
     }
@@ -184,7 +159,7 @@ public final class ScenarioDescription {
             } else if (stimuliArray.length == 3) {
                 service = NameResolver.resolveMicroserviceName(model, stimuliArray[1]);
                 instances = Integer.parseInt(stimuliArray[2]);
-            } else if (stimuliArray.length != 1) {
+            } else {
                 throw new ParsingException("KILL was not defined correctly (KILL [<service_name>] "
                     + "[<#instances>]@<target_time>)");
             }

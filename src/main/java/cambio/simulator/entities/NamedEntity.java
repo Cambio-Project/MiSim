@@ -18,14 +18,6 @@ public abstract class NamedEntity extends Entity {
 
     private String plainName;
 
-
-    /**
-     * Constructor for a named entity.
-     *
-     * @param model       The model this entity belongs to.
-     * @param name        The name of the entity.
-     * @param showInTrace Flag indicating whether the entity should be shown in the trace.
-     */
     public NamedEntity(Model model, String name, boolean showInTrace) {
         super(model, name, showInTrace);
         this.plainName = name;

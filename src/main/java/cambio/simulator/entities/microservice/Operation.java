@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 import cambio.simulator.entities.NamedEntity;
 import cambio.simulator.entities.networking.DependencyDescription;
-import cambio.simulator.entities.networking.ServiceDependencyInstance;
+import cambio.simulator.entities.networking.NetworkDependency;
 import com.google.gson.annotations.Expose;
 import desmoj.core.dist.NumericalDist;
 import desmoj.core.simulator.Model;
@@ -74,7 +74,7 @@ public class Operation extends NamedEntity {
      *
      * @param dist         {@link NumericalDist} of the delay.
      * @param operationTrg target {@link Operation} of this that should be affected, can be set to {@code null} to
-     *                     affect all outgoing {@link ServiceDependencyInstance}s
+     *                     affect all outgoing {@link NetworkDependency}s
      */
     public void applyExtraDelay(NumericalDist<Double> dist, Operation operationTrg) {
         if (operationTrg == null) {

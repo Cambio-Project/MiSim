@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: movieService-deployment
+  labels:
+    app: movieService
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: movieService
+  template:
+    metadata:
+      labels:
+        app: movieService
+    spec:
+      containers:
+        - name: movieService
+#      affinity:
+#        nodeAffinity:
+#          requiredDuringSchedulingIgnoredDuringExecution:
+#            nodeSelectorTerms:
+#              - matchExpressions:
+#                  - key: personalized/name
+#                    operator: In
+#                    values:
+#                      - Node1

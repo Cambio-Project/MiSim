@@ -117,7 +117,7 @@ public class NetworkRequestSendEvent extends NetworkRequestEvent {
 
         double modifiedDelay = nextDelay;
         if (travelingRequest.hasParent()) {
-            ServiceDependencyInstance dep = travelingRequest.getParent().getRelatedDependency(travelingRequest);
+            NetworkDependency dep = travelingRequest.getParent().getRelatedDependency(travelingRequest);
             if (travelingRequest instanceof RequestAnswer) {
                 Request parent = ((RequestAnswer) travelingRequest).unpack();
                 dep = parent.getParent().getRelatedDependency(parent);

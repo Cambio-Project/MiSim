@@ -30,8 +30,7 @@ public final class LoadBalancer extends Entity {
         if (loadBalancingStrategy != null) {
             this.loadBalancingStrategy = loadBalancingStrategy;
         } else {
-            System.out.println("[Warning] " + name + ": No load balancing strategy given, defaulting to randomized "
-                + "load balancing.");
+            System.out.println("[Warning] No load balancing strategy given, defaulting to randomized load balancing.");
             this.loadBalancingStrategy = new RandomLoadBalanceStrategy();
         }
     }

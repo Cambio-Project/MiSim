@@ -9,11 +9,11 @@ import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.entities.microservice.MicroserviceInstance;
 import cambio.simulator.entities.networking.IRequestUpdateListener;
 import cambio.simulator.entities.networking.InternalRequest;
+import cambio.simulator.entities.networking.NetworkDependency;
 import cambio.simulator.entities.networking.NetworkRequestCanceledEvent;
 import cambio.simulator.entities.networking.NetworkRequestEvent;
 import cambio.simulator.entities.networking.Request;
 import cambio.simulator.entities.networking.RequestFailedReason;
-import cambio.simulator.entities.networking.ServiceDependencyInstance;
 import cambio.simulator.export.MultiDataPointReporter;
 import cambio.simulator.misc.Priority;
 import cambio.simulator.parsing.JsonTypeName;
@@ -41,7 +41,7 @@ import desmoj.core.simulator.TimeInstant;
 @JsonTypeName("circuitbreaker")
 public final class CircuitBreaker extends InstanceOwnedPattern implements IRequestUpdateListener {
 
-    private final Set<ServiceDependencyInstance> activeConnections = new HashSet<>();
+    private final Set<NetworkDependency> activeConnections = new HashSet<>();
     private final Map<Microservice, CircuitBreakerState> breakerStates = new HashMap<>();
     private final Map<Microservice, Integer> activeConnectionCount = new HashMap<>();
     private final MultiDataPointReporter reporter;
@@ -50,7 +50,7 @@ public final class CircuitBreaker extends InstanceOwnedPattern implements IReque
     private int requestVolumeThreshold = Integer.MAX_VALUE;
     @Expose
     @SerializedName(value = "error_threshold_percentage", alternate = "threshold")
-    private double errorThresholdPercentage = 0.71;
+    private double errorThresholdPercentage = 0.7;
     @Expose
     private double sleepWindow = 30;
     @Expose
@@ -84,7 +84,7 @@ public final class CircuitBreaker extends InstanceOwnedPattern implements IReque
             return false; //ignore everything except InternalRequests (e.g. RequestAnswers)
         }
 
-        ServiceDependencyInstance dep = request.getParent().getRelatedDependency(request);
+        NetworkDependency dep = request.getParent().getRelatedDependency(request);
         Microservice target = dep.getTargetService();
         activeConnections.add(dep);
         activeConnectionCount.merge(target, 1, Integer::sum);
@@ -127,7 +127,7 @@ public final class CircuitBreaker extends InstanceOwnedPattern implements IReque
             return false; //ignore everything except InternalRequests (e.g. RequestAnswers)
         }
 
-        ServiceDependencyInstance dep = request.getParent().getRelatedDependency(request);
+        NetworkDependency dep = request.getParent().getRelatedDependency(request);
         Microservice target = dep.getTargetService();
 
         if (target == this.owner.getOwner()) { //prevents the circuit breaker from reacting to unpacked RequestAnswers
@@ -151,7 +151,7 @@ public final class CircuitBreaker extends InstanceOwnedPattern implements IReque
 
         InternalRequest internalRequest = (InternalRequest) request;
 
-        ServiceDependencyInstance dep = internalRequest.getDependency();
+        NetworkDependency dep = internalRequest.getDependency();
         if (dep.getChildRequest() != internalRequest) {
             //dependency was asinged a new child Request already (e.g due to a retry), therefore we ignore the request
             return false;

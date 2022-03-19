@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: recommendationService-deployment
+  labels:
+    app: recommendationService
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: recommendationService
+  template:
+    metadata:
+      labels:
+        app: recommendationService
+    spec:
+      containers:
+        - name: recommendationService
+#      affinity:
+#        nodeAffinity:
+#          requiredDuringSchedulingIgnoredDuringExecution:
+#            nodeSelectorTerms:
+#              - matchExpressions:
+#                  - key: personalized/name
+#                    operator: In
+#                    values:
+#                      - Node1
