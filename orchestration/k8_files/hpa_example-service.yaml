@@ -1,14 +1,14 @@
 apiVersion: autoscaling/v2beta2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: recommendationService-hpa
+  name: example-service-hpa
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: recommendationService-deployment
+    name: example-service-deployment
   minReplicas: 1
-  maxReplicas: 10
+  maxReplicas: 1
   metrics:
     - type: Resource
       resource:

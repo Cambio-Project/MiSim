@@ -1,6 +1,7 @@
 package cambio.simulator.orchestration.scheduling;
 
 import cambio.simulator.entities.NamedEntity;
+import cambio.simulator.orchestration.Stats;
 import cambio.simulator.orchestration.environment.*;
 import cambio.simulator.orchestration.management.ManagementPlane;
 import org.jetbrains.annotations.NotNull;
@@ -49,10 +50,35 @@ public class FirstFitScheduler extends Scheduler {
             }
             if (candidateNote != null) {
                 candidateNote.addPod(pod);
+
+                //only for reporting
+                Stats.NodePodEventRecord record = new Stats.NodePodEventRecord();
+                record.setTime((int) presentTime().getTimeAsDouble());
+                record.setPodName(pod.getName());
+                record.setNodeName(candidateNote.getPlainName());
+                record.setScheduler("firstFit");
+                record.setEvent("Binding");
+                record.setOutcome("Success");
+                record.setInfo("N/A");
+                Stats.getInstance().getNodePodEventRecords().add(record);
+
                 sendTraceNote(this.getQuotedName() + " has scheduled " + pod.getQuotedName() + " on node " + candidateNote);
                 return true;
             } else {
                 podWaitingQueue.add(pod);
+
+
+                //only for reporting
+                Stats.NodePodEventRecord record = new Stats.NodePodEventRecord();
+                record.setTime((int) presentTime().getTimeAsDouble());
+                record.setPodName(pod.getName());
+                record.setNodeName("N/A");
+                record.setScheduler("firstFit");
+                record.setEvent("Binding");
+                record.setOutcome("Failed");
+                record.setInfo("Insufficient resources");
+                Stats.getInstance().getNodePodEventRecords().add(record);
+
                 sendTraceNote(this.getQuotedName() + " was not able to schedule pod " + pod + ". Insufficient resources!");
                 sendTraceNote(this.getQuotedName() + " has send " + pod + " back to the Pod Waiting Queue");
                 return false;

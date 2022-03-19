@@ -1,6 +1,7 @@
 package cambio.simulator.orchestration.scheduling;
 
 import cambio.simulator.entities.NamedEntity;
+import cambio.simulator.orchestration.Stats;
 import cambio.simulator.orchestration.environment.Cluster;
 import cambio.simulator.orchestration.environment.Node;
 import cambio.simulator.orchestration.environment.Pod;
@@ -131,6 +132,7 @@ public class KubeScheduler extends Scheduler {
 
             Map<String, Object> responseMap = response.toMap();
             ArrayList<Map<String, String>> bindList = (ArrayList) responseMap.get("bindingList");
+
             for (Map<String, String> map : bindList) {
                 String boundNode = map.get("boundNode");
                 String podName = map.get("podName");
@@ -151,6 +153,17 @@ public class KubeScheduler extends Scheduler {
 
                 internalRunningPods.add(pod);
 
+                //only for reporting
+                Stats.NodePodEventRecord record = new Stats.NodePodEventRecord();
+                record.setTime((int) presentTime().getTimeAsDouble());
+                record.setPodName(podName);
+                record.setNodeName(boundNode);
+                record.setScheduler("kube");
+                record.setEvent("Binding");
+                record.setOutcome("Success");
+                record.setInfo("N/A");
+                Stats.getInstance().getNodePodEventRecords().add(record);
+
                 System.out.println(podName + " was bound on " + boundNode);
 
                 sendTraceNote(this.getQuotedName() + " has scheduled " + pod.getQuotedName() + " on node " + candidateNode);
@@ -162,6 +175,18 @@ public class KubeScheduler extends Scheduler {
                 String podName = map.get("podName");
                 Pod pod = ManagementPlane.getInstance().getPodByName(podName);
                 podWaitingQueue.add(pod);
+
+                //only for reporting
+                Stats.NodePodEventRecord record = new Stats.NodePodEventRecord();
+                record.setTime((int) presentTime().getTimeAsDouble());
+                record.setPodName(podName);
+                record.setNodeName("N/A");
+                record.setScheduler("kube");
+                record.setEvent("Binding");
+                record.setOutcome("Failed");
+                record.setInfo(map.get("status"));
+                Stats.getInstance().getNodePodEventRecords().add(record);
+
                 System.out.println(this.getQuotedName() + " was not able to schedule pod " + pod + ". Reason: " + map.get("status"));
                 sendTraceNote(this.getQuotedName() + " was not able to schedule pod " + pod + ". Reason: " + map.get("status"));
                 sendTraceNote(this.getQuotedName() + " has send " + pod + " back to the Pod Waiting Queue");

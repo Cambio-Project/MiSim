@@ -131,23 +131,34 @@ public class Deployment extends K8Object {
     }
 
 
-    public synchronized void killPodInstances(final int numberOfInstances) {
+    public synchronized void killPodInstances(final int numberOfInstances, final int retries, final String service) {
         final int maxKills = Math.max(0, Math.min(numberOfInstances, getRunningReplicas().size()));
         for (int i = 0; i < maxKills; i++) {
-            killPodInstance();
+            killPodInstance(retries, service);
         }
     }
 
     /**
      * Kills a random instance. Can be called on a deployment that has 0 running instances.
      */
-    public synchronized void killPodInstance() {
+    public synchronized void killPodInstance(final int retries, final String service) {
         Pod instanceToKill =
                 getRunningReplicas().stream().findFirst().orElse(null); //selects an element of the stream, not
         if (instanceToKill == null) {
             return;
         }
-        instanceToKill.die();
+        if(service!=null){
+            Optional<Container> any = instanceToKill.getContainers().stream().filter(container -> container.getMicroserviceInstance().getPlainName().contains(service)).findAny();
+            if(any.isPresent()){
+                Container container = any.get();
+                container.setRestartAttemptsLeft(retries);
+                container.die();
+            }else{
+                sendTraceNote("AimingChaosMonkeyForPods did not find the microService with the name " + service + ". Did not kill mircoServiceInstance");
+            }
+        }else{
+            instanceToKill.die();
+        }
 
     }
 

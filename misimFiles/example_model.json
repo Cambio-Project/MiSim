@@ -4,7 +4,7 @@
     "model_name": "architecture_model",
     "orchestrate": true,
     "orchestration_dir": "orchestration",
-    "duration": 600,
+    "duration": 120,
     "report": "",
     "datapoints": 20,
     "seed": 979
@@ -14,40 +14,8 @@
       "type": "limbo",
       "config": {
         "microservice": "frontend",
-        "operation": "authenticate",
-        "model": "./Examples/Orchestration/Load/sinus_avg5_1to9_length90_tans70_10min.csv"
-      }
-    },
-    {
-      "type": "limbo",
-      "config": {
-        "microservice": "frontend",
-        "operation": "loadHomeScreen",
-        "model": "./Examples/Orchestration/Load/sinus_avg25_25to45_length90_tans70_10min.csv"
-      }
-    },
-    {
-      "type": "limbo",
-      "config": {
-        "microservice": "frontend",
-        "operation": "manageAccount",
-        "model": "./Examples/Orchestration/Load/sinus_avg25_25to45_length90_tans70_10min.csv"
-      }
-    },
-    {
-      "type": "limbo",
-      "config": {
-        "microservice": "frontend",
-        "operation": "watchMovie",
-        "model": "./Examples/Orchestration/Load/sinus_avg5_1to9_length90_tans70_10min.csv"
-      }
-    },
-    {
-      "type": "limbo",
-      "config": {
-        "microservice": "frontend",
-        "operation": "stopMovie",
-        "model": "./Examples/Orchestration/Load/sinus_avg5_1to9_length90_tans70_10min.csv"
+        "operation": "call",
+        "model": "./Examples/Orchestration/Load/jump.csv"
       }
     }
   ]

@@ -1,8 +1,12 @@
 package cambio.simulator.orchestration.environment;
 
 import cambio.simulator.entities.NamedEntity;
+import cambio.simulator.orchestration.Stats;
 import cambio.simulator.orchestration.events.CheckPodRemovableEvent;
 import cambio.simulator.orchestration.events.StartPodEvent;
+import cambio.simulator.orchestration.k8objects.Deployment;
+import cambio.simulator.orchestration.management.ManagementPlane;
+import cambio.simulator.orchestration.scheduling.SchedulerType;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeSpan;
 
@@ -48,6 +52,25 @@ public class Node extends NamedEntity {
         pod.setPodStateAndApplyEffects(PodState.SUCCEEDED);
         this.reserved -= pod.getCPUDemand();
         if (pods.remove(pod)) {
+            //only for reporting
+            Stats.NodePodEventRecord record = new Stats.NodePodEventRecord();
+            record.setTime((int) presentTime().getTimeAsDouble());
+            record.setPodName(pod.getName());
+            record.setNodeName(this.getPlainName());
+
+            String schedulerName = "N/A";
+            Deployment deploymentForPod = ManagementPlane.getInstance().getDeploymentForPod(pod);
+            if(deploymentForPod!=null){
+                SchedulerType schedulerType = deploymentForPod.getSchedulerType();
+                if(schedulerType!=null){
+                    schedulerName = schedulerType.getName();
+                }
+            }
+            record.setScheduler(schedulerName);
+            record.setEvent("Pod Removal");
+            record.setOutcome("Success");
+            record.setInfo(pod.getName() + " was removed from " + this.getPlainName());
+            Stats.getInstance().getNodePodEventRecords().add(record);
             sendTraceNote(pod.getQuotedName() + " was removed from " + this.getQuotedName());
         } else {
             throw new IllegalArgumentException("Pod " + pod.getQuotedPlainName() + " does not belong to this node");

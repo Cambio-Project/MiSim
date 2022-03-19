@@ -14,10 +14,7 @@ import java.util.stream.Collectors;
 
 import cambio.simulator.entities.NamedExternalEvent;
 import cambio.simulator.entities.microservice.*;
-import cambio.simulator.entities.networking.NetworkRequestCanceledEvent;
-import cambio.simulator.entities.networking.NetworkRequestReceiveEvent;
-import cambio.simulator.entities.networking.NetworkRequestSendEvent;
-import cambio.simulator.entities.networking.NetworkRequestTimeoutEvent;
+import cambio.simulator.entities.networking.*;
 import cambio.simulator.export.ExportUtils;
 import cambio.simulator.export.ReportCollector;
 import cambio.simulator.export.ReportWriter;
@@ -79,7 +76,7 @@ public class SimulationEndEvent extends NamedExternalEvent {
         clReport();
 
         if (MiSimModel.createOrchestratedReport) {
-            String currentRunName = "C3";
+            String currentRunName = "C - nichts";
             createReport(currentRunName);
         }
     }
@@ -294,6 +291,7 @@ public class SimulationEndEvent extends NamedExternalEvent {
                     microservices = scalingRecords.get(0).getMicroservicetimoutmap().keySet().stream().collect(Collectors.toList());
                     for (Microservice microservice : microservices) {
                         content.add("NetworkRequestTimeoutEvent_" + microservice.getPlainName());
+                        content.add("NetworkRequestCanceledEvent_" + microservice.getPlainName());
                     }
 
                     //Add individual cpuconsumption
@@ -323,6 +321,7 @@ public class SimulationEndEvent extends NamedExternalEvent {
                         if (microservices != null) {
                             for (Microservice microservice : microservices) {
                                 content.add(String.valueOf(scalingRecord.getMicroservicetimoutmap().get(microservice)));
+                                content.add(String.valueOf(scalingRecord.getMicroserviceCanceledMap().get(microservice)));
                             }
                         }
                         //Add microServiceInstance individual cpuconsumption
@@ -435,6 +434,39 @@ public class SimulationEndEvent extends NamedExternalEvent {
         }
 
 
+        //### Get Node Pod Scheduler Event Report
+        List<Stats.NodePodEventRecord> nodePodEventRecords = Stats.getInstance().getNodePodEventRecords();
+
+        File csvOutputFile4NodePodSchedulerEventReport = new File(directoryScheduling.getPath() + "/" + "Node_Pod_Scheduler_Event_results.csv");
+
+        try (PrintWriter pw = new PrintWriter(csvOutputFile4NodePodSchedulerEventReport)) {
+            ArrayList<String> content = new ArrayList<>();
+            content.add("Time");
+            content.add("Pod");
+            content.add("Node");
+            content.add("Scheduler");
+            content.add("Event");
+            content.add("Status");
+            content.add("Details");
+            pw.println(convertToCSV(content));
+            for (Stats.NodePodEventRecord nodePodEventRecord : nodePodEventRecords) {
+                content.clear();
+                content.add(String.valueOf(nodePodEventRecord.getTime()));
+                content.add(String.valueOf(nodePodEventRecord.getPodName()));
+                content.add(String.valueOf(nodePodEventRecord.getNodeName()));
+                content.add(String.valueOf(nodePodEventRecord.getScheduler()));
+                content.add(String.valueOf(nodePodEventRecord.getEvent()));
+                content.add(String.valueOf(nodePodEventRecord.getOutcome()));
+                content.add(String.valueOf(nodePodEventRecord.getInfo()));
+                pw.println(convertToCSV(content));
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+
+
+
         //###End of: Create Data for scheduling###
 
     }
@@ -460,6 +492,8 @@ public class SimulationEndEvent extends NamedExternalEvent {
             content.add("NetworkRequestReceiveEvent");
             content.add("NetworkRequestSendEvent");
             content.add("NetworkRequestTimeoutEvent");
+            content.add("RequestAnswers");
+            content.add("UserRequests");
 
             pw.println(convertToCSV(content));
             content.clear();
@@ -479,6 +513,8 @@ public class SimulationEndEvent extends NamedExternalEvent {
             content.add(String.valueOf(NetworkRequestReceiveEvent.counter));
             content.add(String.valueOf(NetworkRequestSendEvent.getCounterSendEvents()));
             content.add(String.valueOf(NetworkRequestTimeoutEvent.counter));
+            content.add(String.valueOf(RequestAnswer.counter));
+            content.add(String.valueOf(UserRequest.counter));
 
             pw.println(convertToCSV(content));
         } catch (FileNotFoundException e) {

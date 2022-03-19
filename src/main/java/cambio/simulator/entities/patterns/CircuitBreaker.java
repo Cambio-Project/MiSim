@@ -50,13 +50,15 @@ public final class CircuitBreaker extends InstanceOwnedPattern implements IReque
     private int requestVolumeThreshold = Integer.MAX_VALUE;
     @Expose
     @SerializedName(value = "error_threshold_percentage", alternate = "threshold")
-    private double errorThresholdPercentage = Double.POSITIVE_INFINITY;
+    private double errorThresholdPercentage = 0.7;
     @Expose
-    private double sleepWindow = 0.500;
+    private double sleepWindow = 30;
     @Expose
     private int timeout = Integer.MAX_VALUE;
     @Expose
-    private int rollingWindow = 20; //window over which error rates are collected
+    private int rollingWindow = 3; //window over which error rates are collected
+
+    public boolean waitsForHalfOpen = false;
 
     public CircuitBreaker(Model model, String name, boolean showInTrace) {
         super(model, name, showInTrace);
@@ -88,7 +90,7 @@ public final class CircuitBreaker extends InstanceOwnedPattern implements IReque
         activeConnectionCount.merge(target, 1, Integer::sum);
         CircuitBreakerState state = breakerStates.computeIfAbsent(target,
             monitoredService -> new CircuitBreakerState(monitoredService, this.errorThresholdPercentage, rollingWindow,
-                sleepWindow));
+                sleepWindow, this));
 
 
         boolean consumed = false;

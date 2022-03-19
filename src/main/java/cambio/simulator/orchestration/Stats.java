@@ -10,6 +10,7 @@ import desmoj.core.simulator.Model;
 import java.util.*;
 
 import static cambio.simulator.entities.networking.NetworkRequestTimeoutEvent.microservicetimoutmap;
+import static cambio.simulator.entities.networking.NetworkRequestCanceledEvent.microserviceCanceledMap;
 
 public class Stats {
     //only for MiSim
@@ -19,6 +20,74 @@ public class Stats {
     Map<Deployment, List<ScalingRecord>> deploymentRecordsMap = new HashMap<>();
     List<SchedulingRecord> schedulingRecords = new ArrayList<>();
     Map<Node, List<NodePodSchedulingRecord>> node2PodMap = new HashMap<>();
+
+    List<NodePodEventRecord> nodePodEventRecords = new ArrayList<>();
+
+    public static class NodePodEventRecord{
+        int time;
+        String podName;
+        String nodeName;
+        String scheduler;
+        String event;
+        String outcome;
+        String info;
+
+        public int getTime() {
+            return time;
+        }
+
+        public void setTime(int time) {
+            this.time = time;
+        }
+
+        public String getPodName() {
+            return podName;
+        }
+
+        public void setPodName(String podName) {
+            this.podName = podName;
+        }
+
+        public String getNodeName() {
+            return nodeName;
+        }
+
+        public void setNodeName(String nodeName) {
+            this.nodeName = nodeName;
+        }
+
+        public String getScheduler() {
+            return scheduler;
+        }
+
+        public void setScheduler(String scheduler) {
+            this.scheduler = scheduler;
+        }
+
+        public String getEvent() {
+            return event;
+        }
+
+        public void setEvent(String event) {
+            this.event = event;
+        }
+
+        public String getInfo() {
+            return info;
+        }
+
+        public void setInfo(String info) {
+            this.info = info;
+        }
+
+        public String getOutcome() {
+            return outcome;
+        }
+
+        public void setOutcome(String outcome) {
+            this.outcome = outcome;
+        }
+    }
 
 
     public static class NodePodSchedulingRecord {
@@ -95,6 +164,7 @@ public class Stats {
         double avgConsumption;
         int amountPods;
         Map<Microservice, Integer> microservicetimoutmap = new HashMap<>();
+        Map<Microservice, Integer> microserviceCanceledMap = new HashMap<>();
         Map<Pod, Double> podDoubleHashMap = new HashMap<>();
         Map<MicroserviceInstance, Double> microserviceInstanceDoubleHashMap = new HashMap<>();
 
@@ -132,6 +202,14 @@ public class Stats {
 
         public void setMicroservicetimoutmap(Map<Microservice, Integer> microservicetimoutmap) {
             this.microservicetimoutmap = microservicetimoutmap;
+        }
+
+        public Map<Microservice, Integer> getMicroserviceCanceledMap() {
+            return microserviceCanceledMap;
+        }
+
+        public void setMicroserviceCanceledMap(Map<Microservice, Integer> microserviceCanceledMap) {
+            this.microserviceCanceledMap = microserviceCanceledMap;
         }
 
         public Map<Pod, Double> getPodDoubleHashMap() {
@@ -248,13 +326,22 @@ public class Stats {
 
                     for (Container container : pod.getContainers()) {
 
-                        //add event info
+                        //add event info timeoutEvent
                         Microservice owner = container.getMicroserviceInstance().getOwner();
                         Integer integer = microservicetimoutmap.get(owner);
                         if (integer != null) {
                             scalingRecord.getMicroservicetimoutmap().put(owner, Integer.valueOf(integer));
                         } else {
                             scalingRecord.getMicroservicetimoutmap().put(owner, 0);
+                        }
+
+                        //add event info canceledEvent
+                        owner = container.getMicroserviceInstance().getOwner();
+                        integer = microserviceCanceledMap.get(owner);
+                        if (integer != null) {
+                            scalingRecord.getMicroserviceCanceledMap().put(owner, Integer.valueOf(integer));
+                        } else {
+                            scalingRecord.getMicroserviceCanceledMap().put(owner, 0);
                         }
 
 
@@ -298,5 +385,13 @@ public class Stats {
 
     public void setNode2PodMap(Map<Node, List<NodePodSchedulingRecord>> node2PodMap) {
         this.node2PodMap = node2PodMap;
+    }
+
+    public List<NodePodEventRecord> getNodePodEventRecords() {
+        return nodePodEventRecords;
+    }
+
+    public void setNodePodEventRecords(List<NodePodEventRecord> nodePodEventRecords) {
+        this.nodePodEventRecords = nodePodEventRecords;
     }
 }

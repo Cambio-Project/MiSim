@@ -16,11 +16,13 @@ import desmoj.core.simulator.Model;
  * @see LoadGeneratorDescriptionExecutor
  */
 public class UserRequest extends Request {
+    public static int counter=0;
 
     private static final MultiDataPointReporter reporter = new MultiDataPointReporter("R");
 
     public UserRequest(Model model, String name, boolean showInTrace, Operation operation) {
         super(model, name, showInTrace, null, operation, null);
+        counter++;
     }
 
 

@@ -12,6 +12,7 @@ import cambio.simulator.entities.microservice.Operation;
  * @author Lion Wagner
  */
 public final class RequestAnswer extends Request {
+    public static int counter = 0;
 
     /**
      * Constructs a new {@link RequestAnswer}.
@@ -27,6 +28,10 @@ public final class RequestAnswer extends Request {
             new Operation(wrappedRequest.getModel(), "Dummy", false, null, 0),
             answerSender); //inserting dummy operation
         this.getUpdateListeners().addAll(wrappedRequest.getUpdateListeners());
+//This answeres the load generator
+        if(wrappedRequest.getParent()==null){
+            counter++;
+        }
     }
 
     public MicroserviceInstance getAnswerSender() {

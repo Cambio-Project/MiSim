@@ -28,5 +28,6 @@ public class HalfOpenBreakerEvent extends NamedExternalEvent {
     @Override
     public void eventRoutine() throws SuspendExecution {
         stateToChange.toHalfOpen();
+        stateToChange.circuitBreaker.waitsForHalfOpen = false;
     }
 }

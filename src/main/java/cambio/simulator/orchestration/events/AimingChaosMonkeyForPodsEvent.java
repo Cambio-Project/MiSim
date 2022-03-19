@@ -10,8 +10,8 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import desmoj.core.simulator.Model;
 
-@JsonTypeName(value = "chaosmonkey_pods", alternativeNames = {"chaos_monkey_pods", "monkey_pods"})
-public class ChaosMonkeyForPodsEvent extends SelfScheduledExperimentAction {
+@JsonTypeName(value = "aiming_chaos_monkey_pods")
+public class AimingChaosMonkeyForPodsEvent extends SelfScheduledExperimentAction {
     @Expose
     @SerializedName(value = "instances", alternate = {"instance_count", "killed_instance_count", "killed_instances"})
     private int instances;
@@ -20,7 +20,15 @@ public class ChaosMonkeyForPodsEvent extends SelfScheduledExperimentAction {
     @SerializedName(value = "deployment")
     private String deploymentName;
 
-    public ChaosMonkeyForPodsEvent(Model model, String name, boolean showInTrace) {
+    @Expose
+    @SerializedName(value = "service")
+    private String service;
+
+    @Expose
+    @SerializedName(value = "retries")
+    private int retries;
+
+    public AimingChaosMonkeyForPodsEvent(Model model, String name, boolean showInTrace) {
         super(model, name, showInTrace);
     }
 
@@ -34,11 +42,13 @@ public class ChaosMonkeyForPodsEvent extends SelfScheduledExperimentAction {
      * @param instances      int: The number of instances of the specified deployment you want to shut down, can be
      *                       greater than the number of currently running instances
      */
-    public ChaosMonkeyForPodsEvent(Model owner, String name, boolean showInTrace, String deploymentName, int instances, int retries) {
+    public AimingChaosMonkeyForPodsEvent(Model owner, String name, boolean showInTrace, String deploymentName, int instances, String service, int retries) {
         super(owner, name, showInTrace);
 
         this.deploymentName = deploymentName;
         this.instances = instances;
+        this.service = service;
+        this.retries = retries;
         setSchedulingPriority(Priority.LOW);
     }
 
@@ -51,22 +61,19 @@ public class ChaosMonkeyForPodsEvent extends SelfScheduledExperimentAction {
     public void eventRoutine() throws SuspendExecution {
         final Deployment deployment = Util.getInstance().findDeploymentByName(deploymentName);
         if (deployment != null) {
-            deployment.killPodInstances(instances, 0, null);
+            deployment.killPodInstances(instances, retries, service);
 
-            sendTraceNote("Chaos Monkey for Pods was applied on " + deployment.getQuotedName());
+            sendTraceNote("Aiming Chaos Monkey was applied on " + service + " from the "+ deployment.getQuotedName());
             boolean hasServicesLeft = deployment.getCurrentRunningOrPendingReplicaCount() > 0;
-            sendTraceNote(String.format("There are %s pods left of deployment %s",
-                    hasServicesLeft ? String.format("still %d", deployment.getCurrentRunningOrPendingReplicaCount()) : "no",
-                    deployment.getName()));
         } else {
-            sendTraceNote("Could not execute ChaosMonkeyForPodsEvent because the deployment from the " +
+            sendTraceNote("Could not execute AimingChaosMonkeyForPodsEvent because the deployment from the " +
                     "given experiment file with the name '" + deploymentName + "' is unknown");
         }
     }
 
     @Override
     public String toString() {
-        return "ChaosMonkeyForPodsEvent";
+        return "AimingChaosMonkeyForPodsEvent";
     }
 
 }

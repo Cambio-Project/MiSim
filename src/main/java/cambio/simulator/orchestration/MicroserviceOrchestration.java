@@ -1,6 +1,7 @@
 package cambio.simulator.orchestration;
 
 import cambio.simulator.entities.microservice.*;
+import cambio.simulator.entities.patterns.InstanceOwnedPatternConfiguration;
 import cambio.simulator.orchestration.environment.PodState;
 import cambio.simulator.orchestration.events.HealthCheckEvent;
 import cambio.simulator.orchestration.k8objects.Deployment;
@@ -76,4 +77,10 @@ public class MicroserviceOrchestration extends Microservice {
     public void setStartTime(int startTime) {
         this.startTime = startTime;
     }
+
+    public InstanceOwnedPatternConfiguration[] getInstanceOwnedPatternConfigurations(){
+        return super.instanceOwnedPatternConfigurations;
+    }
+
+
 }

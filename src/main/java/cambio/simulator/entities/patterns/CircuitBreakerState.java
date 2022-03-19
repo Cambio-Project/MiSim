@@ -25,13 +25,15 @@ public class CircuitBreakerState {
     private int totalSuccessCounter = 0;
     private int totalFailureCounter = 0;
     private BreakerState state = BreakerState.CLOSED;
+    public CircuitBreaker circuitBreaker;
 
     CircuitBreakerState(Microservice monitoredService, double errorThresholdPercentage, int rollingWindow,
-                        double sleepWindow) {
+                        double sleepWindow, CircuitBreaker circuitBreaker) {
         this.errorThresholdPercentage = errorThresholdPercentage;
         this.rollingWindow = rollingWindow;
         this.monitoredService = monitoredService;
         this.sleepWindow = sleepWindow;
+        this.circuitBreaker = circuitBreaker;
     }
 
     public Tuple getCurrentStatistics() {
@@ -96,8 +98,11 @@ public class CircuitBreakerState {
     private synchronized void openBreaker() {
         state = BreakerState.OPEN;
         currentWindow.clear();
-        ExternalEvent openEvent = new HalfOpenBreakerEvent(monitoredService.getModel(), null, false, this);
-        openEvent.schedule(new TimeSpan(sleepWindow, monitoredService.getModel().getExperiment().getReferenceUnit()));
+        if(!circuitBreaker.waitsForHalfOpen){
+            circuitBreaker.waitsForHalfOpen = true;
+            ExternalEvent openEvent = new HalfOpenBreakerEvent(monitoredService.getModel(), null, false, this);
+            openEvent.schedule(new TimeSpan(sleepWindow, monitoredService.getModel().getExperiment().getReferenceUnit()));
+        }
 
     }
 

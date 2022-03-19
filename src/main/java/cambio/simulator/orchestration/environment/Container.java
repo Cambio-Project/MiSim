@@ -19,7 +19,7 @@ public class Container extends NamedEntity {
     private MicroserviceInstance microserviceInstance;
     private ContainerState containerState;
 
-
+    private int restartAttemptsLeft = 0;
     private int backOffDelay = 10;
     private static int LIMIT_BACK_OFF_DELAY = 300;
     private static int RESET_BACK_OFF_DELAY_AFTER_TIME = 600;
@@ -117,5 +117,22 @@ public class Container extends NamedEntity {
 
     public void setLastRetry(TimeInstant lastRetry) {
         this.lastRetry = lastRetry;
+    }
+
+    public int getRestartAttemptsLeft() {
+        return restartAttemptsLeft;
+    }
+
+    public void setRestartAttemptsLeft(int restartAttemptsLeft) {
+        this.restartAttemptsLeft = restartAttemptsLeft;
+    }
+
+    public boolean canRestartOtherwiseDecrease(){
+        if(restartAttemptsLeft>0){
+            restartAttemptsLeft--;
+            return false;
+        } else {
+            return true;
+        }
     }
 }

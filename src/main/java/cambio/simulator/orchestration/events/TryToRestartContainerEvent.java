@@ -24,11 +24,15 @@ public class TryToRestartContainerEvent extends Event<Container> {
         if (container.getContainerState().equals(ContainerState.TERMINATED)) {
             container.incrementBackOffDelay();
             container.setLastRetry(presentTime());
-            RestartStartContainerAndMicroServiceInstanceEvent restartStartContainerAndMicroServiceInstanceEvent = new RestartStartContainerAndMicroServiceInstanceEvent(getModel(), "TryToRestartContainerEvent", traceIsOn());
-            restartStartContainerAndMicroServiceInstanceEvent.schedule(container, new TimeSpan(((MicroserviceOrchestration) container.getMicroserviceInstance().getOwner()).getStartTime()));
-            ;
+            if (container.canRestartOtherwiseDecrease()) {
+                RestartStartContainerAndMicroServiceInstanceEvent restartStartContainerAndMicroServiceInstanceEvent = new RestartStartContainerAndMicroServiceInstanceEvent(getModel(), "TryToRestartContainerEvent", traceIsOn());
+                restartStartContainerAndMicroServiceInstanceEvent.schedule(container, presentTime());
+            } else {
+                container.restart();
+            }
         } else {
             sendTraceNote("No need to restart " + container.getQuotedPlainName() + " because it is not terminated");
         }
     }
 }
+
