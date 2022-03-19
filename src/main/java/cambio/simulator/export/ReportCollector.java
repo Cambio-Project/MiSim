@@ -75,6 +75,11 @@ public class ReportCollector extends ReportManager {
         this.register(USER_REQUEST_REPORTER);
     }
 
+    /**
+     * Writes the collected data to the report directory.
+     * Also updates the metadata file with the new execution timings.
+     * @param model The model that contains the metadata to reference.
+     */
     public void printReport(MiSimModel model) {
         model.getExperimentMetaData().markStartOfReport(System.nanoTime());
         sortAndWriteReport(model);
