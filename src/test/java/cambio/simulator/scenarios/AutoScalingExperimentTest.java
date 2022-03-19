@@ -17,8 +17,7 @@ public class AutoScalingExperimentTest {
     void ExampleExecutionRun() {
         File architecture = FileLoaderUtil.loadFromExampleResources("example_architecture_scaling.json");
         File experiment = FileLoaderUtil.loadFromExampleResources("example_experiment_autoscale.json");
-        String[] args = new String[] {"-a", architecture.getAbsolutePath(), "-e", experiment.getAbsolutePath(), "-d"
-            , "-p"};
+        String[] args = new String[] {"-a", architecture.getAbsolutePath(), "-e", experiment.getAbsolutePath(), "-d"};
         Main.main(args);
     }
 }

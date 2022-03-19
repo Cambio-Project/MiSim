@@ -14,6 +14,7 @@ import cambio.simulator.parsing.adapter.experiment.ExperimentMetaDataAdapter;
 import cambio.simulator.parsing.adapter.experiment.ExperimentModelAdapter;
 import cambio.simulator.parsing.adapter.scenario.ScenarioDescriptionAdapter;
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import org.jetbrains.annotations.Contract;
@@ -110,6 +111,8 @@ public final class ModelLoader {
             throw new ParsingException(
                 String.format("[Error]  Cannot start the simulation. Model file %s was not found!",
                     targetFile.getAbsolutePath()), e);
+        } catch (JsonSyntaxException e) {
+            throw new ParsingException(e);
         }
     }
 }

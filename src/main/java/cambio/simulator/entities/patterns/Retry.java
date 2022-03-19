@@ -8,10 +8,10 @@ import java.util.Map;
 import cambio.simulator.entities.microservice.MicroserviceInstance;
 import cambio.simulator.entities.networking.IRequestUpdateListener;
 import cambio.simulator.entities.networking.InternalRequest;
-import cambio.simulator.entities.networking.NetworkDependency;
 import cambio.simulator.entities.networking.Request;
 import cambio.simulator.entities.networking.RequestAnswer;
 import cambio.simulator.entities.networking.RequestFailedReason;
+import cambio.simulator.entities.networking.ServiceDependencyInstance;
 import cambio.simulator.export.MultiDataPointReporter;
 import cambio.simulator.misc.Priority;
 import cambio.simulator.parsing.JsonTypeName;
@@ -33,7 +33,7 @@ public class Retry extends StrategicInstanceOwnedPattern<IRetryStrategy> impleme
     private static final MultiDataPointReporter reporter = new MultiDataPointReporter("RM");
     private static final List<Double> all = new LinkedList<>();
 
-    private final Map<NetworkDependency, Integer> requestIndex = new HashMap<>();
+    private final Map<ServiceDependencyInstance, Integer> requestIndex = new HashMap<>();
 
     @Expose
     private int maxTries = 5;
@@ -55,7 +55,7 @@ public class Retry extends StrategicInstanceOwnedPattern<IRetryStrategy> impleme
             return false; // if max retries reached, the Retry does not know how to handle the fail
         }
 
-        NetworkDependency dep = request.getParent().getRelatedDependency(request);
+        ServiceDependencyInstance dep = request.getParent().getRelatedDependency(request);
         if (!requestIndex.containsKey(dep)) {
             return false;
         }
@@ -99,7 +99,7 @@ public class Retry extends StrategicInstanceOwnedPattern<IRetryStrategy> impleme
     public boolean onRequestSend(Request request, TimeInstant when) {
         //Request answers will not be repeated
         if (!(request instanceof RequestAnswer)) {
-            NetworkDependency dep = request.getParent().getRelatedDependency(request);
+            ServiceDependencyInstance dep = request.getParent().getRelatedDependency(request);
             requestIndex.merge(dep, 1, Integer::sum);
         }
         return false;
@@ -110,7 +110,7 @@ public class Retry extends StrategicInstanceOwnedPattern<IRetryStrategy> impleme
         if (request.getParent() == null) {
             return true;
         }
-        NetworkDependency dep = request.getParent().getRelatedDependency(request);
+        ServiceDependencyInstance dep = request.getParent().getRelatedDependency(request);
         requestIndex.remove(dep);
         return false;
     }

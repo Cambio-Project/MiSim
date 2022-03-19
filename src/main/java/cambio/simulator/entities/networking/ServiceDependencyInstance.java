@@ -17,7 +17,7 @@ import desmoj.core.simulator.Model;
  * @see Request
  * @see MicroserviceInstance
  */
-public class NetworkDependency extends NamedEntity {
+public class ServiceDependencyInstance extends NamedEntity {
 
     private final Request parentRequest;
     private final Microservice targetMicroservice;
@@ -34,9 +34,13 @@ public class NetworkDependency extends NamedEntity {
      * @param targetOp              {@link Operation} that is targeted by this dependency.
      * @param dependencyDescription generic data that describes this dependency.
      */
-    public NetworkDependency(Model model, Request parentRequest, Operation targetOp,
-                             DependencyDescription dependencyDescription) {
-        super(model, String.format("Dependency(%s)of[%s]", targetOp.getPlainName(), parentRequest.getPlainName()),
+    public ServiceDependencyInstance(Model model, Request parentRequest, Operation targetOp,
+                                     DependencyDescription dependencyDescription) {
+        super(model,
+            String.format(
+                "%s_depends_on_%s",
+                parentRequest.operation.getFullyQualifiedPlainName(),
+                targetOp.getFullyQualifiedPlainName()),
             false);
         this.parentRequest = parentRequest;
         this.targetOp = targetOp;
@@ -101,7 +105,7 @@ public class NetworkDependency extends NamedEntity {
         if (other == null || getClass() != other.getClass()) {
             return false;
         }
-        NetworkDependency that = (NetworkDependency) other;
+        ServiceDependencyInstance that = (ServiceDependencyInstance) other;
         return parentRequest.equals(that.parentRequest) && targetOp.equals(that.targetOp);
     }
 

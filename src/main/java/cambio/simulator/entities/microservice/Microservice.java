@@ -50,7 +50,7 @@ public class Microservice extends NamedEntity {
     protected final transient Set<MicroserviceInstance> instancesSet = new HashSet<>();
     protected final transient MultiDataPointReporter reporter;
     @Expose
-    @SerializedName(value = "loadbalancer_strategy", alternate = "load_balancer")
+    @SerializedName(value = "loadbalancer_strategy", alternate = { "load_balancer", "loadbalancer"})
     private final LoadBalancer loadBalancer;
     protected transient boolean started = false;
     protected transient int instanceSpawnCounter = 0; // running counter to create instance ID's
@@ -155,7 +155,7 @@ public class Microservice extends NamedEntity {
             if (getInstancesCount() < targetInstanceCount) {
                 //TODO: restart shutdown instances instead of creating new ones
                 changedInstance =
-                    new MicroserviceInstance(getModel(), String.format("[%s]_I%d", getName(), instanceSpawnCounter),
+                    new MicroserviceInstance(getModel(), String.format("%s_I%d", getName(), instanceSpawnCounter),
                         this.traceIsOn(), this, instanceSpawnCounter);
                 changedInstance.activatePatterns(instanceOwnedPatternConfigurations);
                 instanceSpawnCounter++;

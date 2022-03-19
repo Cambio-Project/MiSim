@@ -12,13 +12,13 @@ import java.util.stream.Stream;
 
 import cambio.simulator.entities.networking.IRequestUpdateListener;
 import cambio.simulator.entities.networking.InternalRequest;
-import cambio.simulator.entities.networking.NetworkDependency;
 import cambio.simulator.entities.networking.NetworkRequestCanceledEvent;
 import cambio.simulator.entities.networking.NetworkRequestEvent;
 import cambio.simulator.entities.networking.Request;
 import cambio.simulator.entities.networking.RequestAnswer;
 import cambio.simulator.entities.networking.RequestFailedReason;
 import cambio.simulator.entities.networking.RequestSender;
+import cambio.simulator.entities.networking.ServiceDependencyInstance;
 import cambio.simulator.entities.patterns.CircuitBreaker;
 import cambio.simulator.entities.patterns.InstanceOwnedPattern;
 import cambio.simulator.entities.patterns.InstanceOwnedPatternConfiguration;
@@ -61,15 +61,15 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
     //Queue with only unique entries
     private final LinkedHashSet<Request> currentRequestsToHandle = new LinkedHashSet<>();
     //Queue with only unique entries
-    private final LinkedHashSet<NetworkDependency> currentlyOpenDependencies = new LinkedHashSet<>();
+    private final LinkedHashSet<ServiceDependencyInstance> currentlyOpenDependencies = new LinkedHashSet<>();
     //Contains all current outgoing answers
     private final LinkedHashSet<RequestAnswer> currentAnswers = new LinkedHashSet<>();
     //contains all current outgoing dependency requests
     private final LinkedHashSet<InternalRequest> currentInternalSends = new LinkedHashSet<>();
     private final MultiDataPointReporter reporter;
     //lists for debugging information
-    private final List<NetworkDependency> closedDependencies = new LinkedList<>();
-    private final List<NetworkDependency> abortedDependencies = new LinkedList<>();
+    private final List<ServiceDependencyInstance> closedDependencies = new LinkedList<>();
+    private final List<ServiceDependencyInstance> abortedDependencies = new LinkedList<>();
     private InstanceState state;
     private Set<InstanceOwnedPattern> patterns = new HashSet<>();
 
@@ -83,7 +83,7 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
             new FIFOScheduler("Scheduler"), this);
 
         String[] names = name.split("_");
-        reporter = new MultiDataPointReporter(String.format("I%s_[%s]_", names[0], names[1]));
+        reporter = new MultiDataPointReporter(String.format("I[%s]_", name));
 
         changeState(InstanceState.CREATED);
 
@@ -177,7 +177,7 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
         }
 
         InternalRequest request = (InternalRequest) answeredRequest;
-        NetworkDependency dep = request.getDependency();
+        ServiceDependencyInstance dep = request.getDependency();
 
         if (!currentlyOpenDependencies.remove(dep) || !currentRequestsToHandle.contains(dep.getParentRequest())) {
             throw new IllegalStateException("This Request is not handled by this Instance");
@@ -230,7 +230,7 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
             }
 
         } else {
-            for (NetworkDependency dependency : request.getDependencies()) {
+            for (ServiceDependencyInstance dependency : request.getDependencies()) {
                 currentlyOpenDependencies.add(dependency);
 
                 Request internalRequest = new InternalRequest(getModel(), this.traceIsOn(), dependency, this);
@@ -436,7 +436,7 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
     private void letRequestFail(final Request requestToFail) {
 
         InternalRequest request = (InternalRequest) requestToFail;
-        NetworkDependency failedDependency = request.getDependency();
+        ServiceDependencyInstance failedDependency = request.getDependency();
 
         // this is true if the Dependency already has a new child request attached to it
         if (failedDependency.getChildRequest() != requestToFail) {

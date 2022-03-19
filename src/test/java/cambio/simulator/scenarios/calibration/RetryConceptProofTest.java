@@ -15,7 +15,7 @@ public class RetryConceptProofTest {
     void ExampleExecutionRun() {
         File f = new File("./Examples/Evaluation/retry_isolation_architecture.json");
         File f2 = new File("./Examples/Evaluation/retry_experiement.json");
-        String[] args = new String[] {"-a", f.getAbsolutePath(), "-e", f2.getAbsolutePath(), "-d", "-p"};
+        String[] args = new String[] {"-a", f.getAbsolutePath(), "-e", f2.getAbsolutePath(), "-d"};
         cambio.simulator.Main.main(args);
     }
 }
