@@ -183,6 +183,14 @@
                             <goal>javadoc</goal>
                         </goals>
                     </execution>
+                    <execution>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <doclint>none</doclint>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
 
