@@ -50,7 +50,7 @@ public final class CircuitBreaker extends InstanceOwnedPattern implements IReque
     private int requestVolumeThreshold = Integer.MAX_VALUE;
     @Expose
     @SerializedName(value = "error_threshold_percentage", alternate = "threshold")
-    private double errorThresholdPercentage = 0.7;
+    private double errorThresholdPercentage = 0.71;
     @Expose
     private double sleepWindow = 30;
     @Expose
