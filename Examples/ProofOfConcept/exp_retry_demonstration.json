@@ -7,5 +7,5 @@
   },
   "artifact": "gateway",
   "component": "ALL ENDPOINTS",
-  "stimulus": "LOAD ./Examples/ProofOfConcept/linear_peaks_1000ArrivalRates.csv AND DELAY 7.0+-0.8@0~180"
+  "stimulus": "LOAD ./Examples/ProofOfConcept/linear_peaks_1000ArrivalRates.csv AND DELAY 7.0+-0.8@70~180"
 }
