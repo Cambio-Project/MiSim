@@ -26,6 +26,7 @@ public class StatsEvent extends NamedExternalEvent {
     public void eventRoutine() throws SuspendExecution {
         Stats.getInstance().createScalingStats(getModel());
         Stats.getInstance().createSchedulingStats(getModel());
+        System.out.println(presentTime());
     }
 
 

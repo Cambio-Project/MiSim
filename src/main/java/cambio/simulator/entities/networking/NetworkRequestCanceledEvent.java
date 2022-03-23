@@ -52,7 +52,7 @@ public class NetworkRequestCanceledEvent extends NetworkRequestEvent {
 
         Microservice owner = null;
         if(getTravelingRequest().getHandler()!=null){
-            getTravelingRequest().getHandler().getOwner();
+            owner = getTravelingRequest().getHandler().getOwner();
         }else{
             owner = getTravelingRequest().getParent().getHandler().getOwner();
         }
