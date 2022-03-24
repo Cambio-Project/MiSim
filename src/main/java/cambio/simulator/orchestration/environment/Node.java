@@ -3,6 +3,7 @@ package cambio.simulator.orchestration.environment;
 import cambio.simulator.entities.NamedEntity;
 import cambio.simulator.orchestration.Stats;
 import cambio.simulator.orchestration.events.CheckPodRemovableEvent;
+import cambio.simulator.orchestration.events.HealthCheckEvent;
 import cambio.simulator.orchestration.events.StartPodEvent;
 import cambio.simulator.orchestration.k8objects.Deployment;
 import cambio.simulator.orchestration.management.ManagementPlane;
@@ -72,6 +73,8 @@ public class Node extends NamedEntity {
             record.setInfo(pod.getName() + " was removed from " + this.getPlainName());
             Stats.getInstance().getNodePodEventRecords().add(record);
             sendTraceNote(pod.getQuotedName() + " was removed from " + this.getQuotedName());
+            HealthCheckEvent healthCheckEvent = new HealthCheckEvent(getModel(), "HealthCheckEvent - After Scaling", traceIsOn());
+            healthCheckEvent.schedule(new TimeSpan(HealthCheckEvent.delay));
         } else {
             throw new IllegalArgumentException("Pod " + pod.getQuotedPlainName() + " does not belong to this node");
         }

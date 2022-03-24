@@ -1,12 +1,6 @@
 package cambio.simulator.entities.microservice;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -230,7 +224,15 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
             }
 
         } else {
-            for (NetworkDependency dependency : request.getDependencies()) {
+
+            List<NetworkDependency> collect =  request.getDependencies().stream().collect(Collectors.toList());
+            collect.sort(new Comparator<NetworkDependency>() {
+                @Override
+                public int compare(NetworkDependency iSelfScheduled, NetworkDependency t1) {
+                    return iSelfScheduled.getName().compareTo(t1.getName());
+                }
+            });
+            for (NetworkDependency dependency : collect) {
                 currentlyOpenDependencies.add(dependency);
 
                 Request internalRequest = new InternalRequest(getModel(), this.traceIsOn(), dependency, this);

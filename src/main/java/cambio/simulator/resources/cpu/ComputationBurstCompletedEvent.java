@@ -21,6 +21,7 @@ public class ComputationBurstCompletedEvent extends NamedExternalEvent {
     private final CPUProcess endingProcess;
     private final CPU owner;
     private final int completedDemand;
+    public static int counter = 0;
 
     /**
      * Constructs a new {@link ComputationBurstCompletedEvent}.
@@ -40,7 +41,7 @@ public class ComputationBurstCompletedEvent extends NamedExternalEvent {
 
     @Override
     public void eventRoutine() throws SuspendExecution {
-
+        counter++;
         endingProcess.reduceDemandRemainder(completedDemand);
 
         //notify cpu that the process finished its current burst

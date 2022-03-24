@@ -28,6 +28,8 @@ import cambio.simulator.orchestration.environment.Pod;
 import cambio.simulator.orchestration.events.*;
 import cambio.simulator.orchestration.k8objects.Deployment;
 import cambio.simulator.orchestration.management.ManagementPlane;
+import cambio.simulator.resources.cpu.ComputationBurstCompletedEvent;
+import cambio.simulator.resources.cpu.ComputationCompletedEvent;
 import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.ExternalEvent;
 import desmoj.core.simulator.Model;
@@ -76,7 +78,7 @@ public class SimulationEndEvent extends NamedExternalEvent {
         clReport();
 
         if (MiSimModel.createOrchestratedReport) {
-            String currentRunName = "C - nichts2";
+            String currentRunName = "C3";
             createReport(currentRunName);
         }
     }
@@ -484,6 +486,8 @@ public class SimulationEndEvent extends NamedExternalEvent {
             content.add("RestartStartContainerAndMicroServiceInstanceEvent");
             content.add("StartContainerAndMicroServiceInstanceEvent");
             content.add("StartPodEvent");
+//            HealthCheckEvent
+            content.add("HealthCheckEvent");
 
             content.add("InstanceShutdownEndEvent");
             content.add("InstanceStartupEvent");
@@ -492,8 +496,13 @@ public class SimulationEndEvent extends NamedExternalEvent {
             content.add("NetworkRequestReceiveEvent");
             content.add("NetworkRequestSendEvent");
             content.add("NetworkRequestTimeoutEvent");
+            content.add("ComputationBurstCompletedEvent");
+            content.add("ComputationCompletedEvent");
             content.add("RequestAnswers");
             content.add("UserRequests");
+            content.add("OrchestrationEvents");
+            content.add("MiSimEvents");
+            content.add("Total");
 
             pw.println(convertToCSV(content));
             content.clear();
@@ -504,17 +513,35 @@ public class SimulationEndEvent extends NamedExternalEvent {
             content.add(String.valueOf(RestartStartContainerAndMicroServiceInstanceEvent.counter));
             content.add(String.valueOf(StartContainerAndMicroServiceInstanceEvent.counter));
             content.add(String.valueOf(StartPodEvent.counter));
+            content.add(String.valueOf(HealthCheckEvent.counter));
+            //count only those relevant for experiments (we neglect scaling)
+            int sumOrchestationEvents = ScaleEvent.counter + StartContainerAndMicroServiceInstanceEvent.counter +
+                    StartPodEvent.counter + HealthCheckEvent.counter;
 
             //Original Events
             content.add(String.valueOf(InstanceShutdownEndEvent.counter));
+            //count that too because we count pod start events
             content.add(String.valueOf(InstanceStartupEvent.counter));
             content.add(String.valueOf(MicroserviceScaleEvent.counter));
+
+//            count all of them
             content.add(String.valueOf(NetworkRequestCanceledEvent.counter));
             content.add(String.valueOf(NetworkRequestReceiveEvent.counter));
             content.add(String.valueOf(NetworkRequestSendEvent.getCounterSendEvents()));
             content.add(String.valueOf(NetworkRequestTimeoutEvent.counter));
+            content.add(String.valueOf(ComputationBurstCompletedEvent.counter));
+            content.add(String.valueOf(ComputationCompletedEvent.counter));
+            int sumOriginalEvents = (int) (NetworkRequestCanceledEvent.counter + NetworkRequestReceiveEvent.counter + NetworkRequestSendEvent.getCounterSendEvents() +
+                                NetworkRequestTimeoutEvent.counter + ComputationBurstCompletedEvent.counter + ComputationCompletedEvent.counter + InstanceStartupEvent.counter);
+
+
             content.add(String.valueOf(RequestAnswer.counter));
             content.add(String.valueOf(UserRequest.counter));
+
+            //total
+            content.add(String.valueOf(sumOrchestationEvents));
+            content.add(String.valueOf(sumOriginalEvents));
+            content.add(String.valueOf(sumOrchestationEvents + sumOriginalEvents));
 
             pw.println(convertToCSV(content));
         } catch (FileNotFoundException e) {

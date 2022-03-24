@@ -5,7 +5,9 @@ import java.io.IOException;
 import java.rmi.UnexpectedException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.events.ISelfScheduled;
@@ -100,8 +102,15 @@ public class MiSimModel extends Model {
                 statsMiSimTasksExecutor.doInitialSelfSchedule();
             }
         }
+        List<ISelfScheduled> collect =  experimentModel.getAllSelfSchedulesEntities().stream().collect(Collectors.toList());
+        collect.sort(new Comparator<ISelfScheduled>() {
+            @Override
+            public int compare(ISelfScheduled iSelfScheduled, ISelfScheduled t1) {
+                return iSelfScheduled.getName().compareTo(t1.getName());
+            }
+        });
 
-        for (ISelfScheduled selfScheduledEvent : experimentModel.getAllSelfSchedulesEntities()) {
+        for (ISelfScheduled selfScheduledEvent : collect) {
             selfScheduledEvent.doInitialSelfSchedule();
         }
         SimulationEndEvent simulationEndEvent =

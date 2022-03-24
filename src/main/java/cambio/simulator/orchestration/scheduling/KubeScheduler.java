@@ -70,13 +70,7 @@ public class KubeScheduler extends Scheduler {
 
     @Override
     public void schedulePods() {
-        System.out.println("Iteration: " + COUNTER++);
-        if (podWaitingQueue.isEmpty()) {
-            sendTraceNote(this.getQuotedName() + " has no pods left for scheduling");
-            return;
-        } else {
-            sendTraceNote(this.getQuotedName() + " has the following pods (" + podWaitingQueue.size() + ") left in its waiting queue:\n" + podWaitingQueue);
-        }
+        System.out.println("Call kube-scheduler: " + COUNTER++);
         try {
 
 
@@ -112,6 +106,8 @@ public class KubeScheduler extends Scheduler {
             }
             internalRunningPods.removeAll(foundToRemove);
 
+
+
             //Tell the scheduler that pods are already running on nodes (Scheduled by other schedulers)
             for (Pod pod : allPodsPlacedOnNodes) {
                 if (!internalRunningPods.contains(pod)) {
@@ -127,6 +123,9 @@ public class KubeScheduler extends Scheduler {
                 finalPodString += podJSON;
             }
 
+            if(finalPodString.equals("")){
+                return;
+            }
 
             JSONObject response = post(finalPodString, numberOfPendingPods, new JSONObject(deletedPodMap).toString(), PATH_PODS);
 

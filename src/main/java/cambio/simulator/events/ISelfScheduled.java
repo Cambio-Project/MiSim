@@ -8,5 +8,7 @@ public interface ISelfScheduled {
      * Schedule yourself for the simulation.
      */
     void doInitialSelfSchedule();
+
+    String getName();
 }
 
