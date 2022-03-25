@@ -13,12 +13,16 @@ import org.javatuples.Tuple;
  *
  * @author Lion Wagner
  * @see CircuitBreaker
+ * @see <a href="https://github.com/Netflix/Hystrix/blob/master/hystrix-core/src/main/java/com/netflix/hystrix/HystrixCircuitBreaker.java">HystrixCircuitBreaker
+ *     implementation</a>
  */
 public class TimingWindowCircuitBreakerState implements ICircuitBreakerState {
 
+    private transient boolean hasHalfOpenBreakerEventScheduled = false;
+
     private final double errorThresholdPercentage;
     private final long windowTimeLength; //window over which error rates are collected
-    private final double sleepWindow;
+    private final TimeSpan sleepWindow;
     private final Microservice monitoredService;
 
     private final Deque<Long> currentWindow = new ArrayDeque<>(1000);
@@ -36,7 +40,7 @@ public class TimingWindowCircuitBreakerState implements ICircuitBreakerState {
         this.errorThresholdPercentage = errorThresholdPercentage;
         this.windowTimeLength = new TimeSpan(rollingWindow).getTimeInEpsilon();
         this.monitoredService = monitoredService;
-        this.sleepWindow = sleepWindow;
+        this.sleepWindow = new TimeSpan(sleepWindow);
     }
 
     @Override
@@ -69,7 +73,7 @@ public class TimingWindowCircuitBreakerState implements ICircuitBreakerState {
         }
     }
 
-    private void addToPurgeList(TimeInstant currentTime, boolean failed) {
+    private void addToStateList(TimeInstant currentTime, boolean failed) {
         int successfulBit = failed ? 0 : 1;
         //shifts the current time one bit to the left and then adds  failure/success as the LSB
         currentWindow.addLast(currentTime.getTimeInEpsilon() << 1 | successfulBit);
@@ -85,10 +89,11 @@ public class TimingWindowCircuitBreakerState implements ICircuitBreakerState {
 
         if (state == CircuitBreakerState.HALF_OPEN) {
             state = CircuitBreakerState.CLOSED;
+            resetState();
         }
 
-        addToPurgeList(when, false);
-        checkErrorRate();
+        addToStateList(when, false);
+        //checkErrorRate(); Error rate does not need to be updated here, since it can only go up
     }
 
 
@@ -102,13 +107,14 @@ public class TimingWindowCircuitBreakerState implements ICircuitBreakerState {
             return;
         }
 
-        addToPurgeList(when, true);
+        addToStateList(when, true);
         checkErrorRate();
     }
 
     @Override
     public void toHalfOpen() {
         state = CircuitBreakerState.HALF_OPEN;
+        hasHalfOpenBreakerEventScheduled = false;
     }
 
     private void checkErrorRate() {
@@ -120,10 +126,11 @@ public class TimingWindowCircuitBreakerState implements ICircuitBreakerState {
 
     private void openBreaker() {
         state = CircuitBreakerState.OPEN;
-        currentWindow.clear();
-        ExternalEvent openEvent = new HalfOpenBreakerEvent(monitoredService.getModel(), null, false, this);
-        openEvent.schedule(new TimeSpan(sleepWindow, monitoredService.getModel().getExperiment().getReferenceUnit()));
-
+        if (!hasHalfOpenBreakerEventScheduled) {
+            ExternalEvent openEvent = new HalfOpenBreakerEvent(monitoredService.getModel(), null, false, this);
+            openEvent.schedule((sleepWindow));
+            hasHalfOpenBreakerEventScheduled = true;
+        }
     }
 
     private double getErrorRate() {
@@ -132,5 +139,11 @@ public class TimingWindowCircuitBreakerState implements ICircuitBreakerState {
         } else {
             return (double) currentFailedCount / (currentSuccessfulCount + currentFailedCount);
         }
+    }
+
+    private void resetState() {
+        currentSuccessfulCount = 0;
+        currentFailedCount = 0;
+        currentWindow.clear();
     }
 }
