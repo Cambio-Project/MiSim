@@ -65,16 +65,18 @@ public class Retry extends StrategicInstanceOwnedPattern<IRetryStrategy> impleme
             Request newRequest = new InternalRequest(getModel(), this.traceIsOn(), dep,
                 request.getRequester());
 
-            //if the request has a handler, it will be resent to the same one
             // TODO: check whether this is the correct behavior
-            if (handler == null || tries == maxTries - 1) {
-                owner.sendRequest(String.format("Collecting dependency %s", dep.getQuotedPlainName()), newRequest,
-                    dep.getTargetService(), new TimeSpan(delay));
-            } else {
-                owner.sendRequest(String.format("Collecting dependency %s", dep.getQuotedPlainName()), newRequest,
-                    handler,
-                    new TimeSpan(delay));
-            }
+            //if the request has a handler, it will be resent to the same one
+            //            if (handler == null || tries == maxTries - 1) {
+            //                owner.sendRequest(String.format("Collecting dependency %s", dep.getQuotedPlainName()),
+            //                newRequest, dep.getTargetService(), new TimeSpan(delay));
+            //            } else {
+            //                owner.sendRequest(String.format("Collecting dependency %s", dep.getQuotedPlainName()),
+            //                newRequest, handler, new TimeSpan(delay));
+            //            }
+            //for now we just send the request to the load balancer, which can decide which instance to use
+            owner.sendRequest(String.format("Collecting dependency %s", dep.getQuotedPlainName()), newRequest,
+                dep.getTargetService(), new TimeSpan(delay));
             sendTraceNote(String.format("Try %d, send Request: %s", tries + 1, newRequest.getQuotedPlainName()));
         } else {
             request.getUpdateListeners().forEach(iRequestUpdateListener -> iRequestUpdateListener
