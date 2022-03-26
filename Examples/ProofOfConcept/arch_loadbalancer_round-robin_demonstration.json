@@ -65,8 +65,8 @@
     {
       "name": "example-service",
       "instances": 1,
+      "loadbalancer_strategy": "round-robin",
       "capacity": 17500,
-      "loadbalancer_strategy": "random",
       "operations": [
         {
           "name": "example-service.DB_WRITE",

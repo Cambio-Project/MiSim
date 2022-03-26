@@ -4,7 +4,6 @@
       "name": "gateway",
       "instances": 1,
       "capacity": 40000,
-      "loadbalancer_strategy": "util",
       "operations": [
         {
           "name": "EXTERNAL_DEP",
@@ -66,6 +65,7 @@
     {
       "name": "example-service",
       "instances": 1,
+      "loadbalancer_strategy": "util",
       "capacity": 17500,
       "operations": [
         {

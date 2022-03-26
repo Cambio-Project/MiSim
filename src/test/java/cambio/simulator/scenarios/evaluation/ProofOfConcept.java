@@ -67,4 +67,13 @@ public class ProofOfConcept {
             FileLoaderUtil.loadFromExampleResources("ProofOfConcept", "exp_loadbalancer_util_demonstration.json");
         runSimulation(0, arch, exp,  "-d", "-t");
     }
+
+    @Test
+    void LoadBalancerRoundRobinDemonstration() throws Exception {
+        File arch = FileLoaderUtil.loadFromExampleResources("ProofOfConcept", "arch_loadbalancer_round" +
+            "-robin_demonstration.json");
+        File exp = FileLoaderUtil.loadFromExampleResources("ProofOfConcept", "exp_loadbalancer_round" +
+            "-robin_demonstration.json");
+        runSimulation(0, arch, exp,  "-d", "-t");
+    }
 }
