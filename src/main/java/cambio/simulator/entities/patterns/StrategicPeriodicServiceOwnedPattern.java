@@ -17,11 +17,11 @@ public abstract class StrategicPeriodicServiceOwnedPattern<S extends IStrategy> 
 
     @Expose
     @SerializedName(value = "interval", alternate = {"period"})
-    protected final double period = 1;
+    protected double period = 1;
     @Expose
-    protected final double start = 0;
+    protected double start = 0;
     @Expose
-    protected final double stop = Double.MAX_VALUE;
+    protected double stop = Double.MAX_VALUE;
 
     private transient PeriodicPatternScheduler scheduler;
 

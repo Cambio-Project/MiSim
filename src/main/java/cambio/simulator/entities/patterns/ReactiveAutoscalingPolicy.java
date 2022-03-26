@@ -18,12 +18,12 @@ class ReactiveAutoscalingPolicy implements IAutoscalingPolicy {
 
 
     private final transient MultiDataPointReporter reporter = new MultiDataPointReporter("AS");
-    private final double lowerBound = 0.3;
-    private final double upperBound = 0.8;
+    private double lowerBound = 0.3;
+    private double upperBound = 0.8;
     /**
      * Minimum time an instance has to run before it can be shutdown by down-scaling.
      */
-    private final double holdTime = 120;
+    private double holdTime = 120;
     private transient TimeInstant lastScaleUp = new TimeInstant(0);
 
     @Override
@@ -43,7 +43,10 @@ class ReactiveAutoscalingPolicy implements IAutoscalingPolicy {
         } else if (avg <= lowerBound
             && currentInstanceCount > 1
             && presentTime.getTimeAsDouble() - lastScaleUp.getTimeAsDouble() > holdTime) {
-            owner.scaleToInstancesCount(currentInstanceCount - 1);
+            double downScaleFactor = (Math.max(0.01, avg) / lowerBound);
+            int newInstanceCount = (int) Math.max(1, Math.ceil(currentInstanceCount * downScaleFactor));
+            owner.scaleToInstancesCount(newInstanceCount);
+            lastScaleUp = presentTime;
         }
         if (owner.getInstancesCount() != currentInstanceCount) {
             owner.sendTraceNote(String.format("Changed target instance count to %d", owner.getInstancesCount()));
