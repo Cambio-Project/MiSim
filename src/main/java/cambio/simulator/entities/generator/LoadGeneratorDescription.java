@@ -14,10 +14,6 @@ import org.jetbrains.annotations.NotNull;
  */
 public abstract class LoadGeneratorDescription implements ISelfScheduled {
 
-    //    potential later addition
-    //    @SerializedName(value = "stop", alternate = "stop_timestamp")
-    //    protected double stop = Double.POSITIVE_INFINITY;
-
     @SerializedName(value = "start", alternate = {"initial_arrival_time", "arrival_time"})
     protected double initialArrivalTime = 0;
 
@@ -70,8 +66,8 @@ public abstract class LoadGeneratorDescription implements ISelfScheduled {
 
 
     /**
-     * Returns the initial arrival time of the load generator,
-     * alias the "start" to which the arrival rate profile is shifted to.
+     * Returns the initial arrival time of the load generator, alias the "start" to which the arrival rate profile is
+     * shifted to.
      *
      * @return The initial arrival time of the load generator.
      * @throws LoadGeneratorStopException when the arrival rate model has no defined arrivals.
@@ -80,7 +76,7 @@ public abstract class LoadGeneratorDescription implements ISelfScheduled {
         if (!arrivalRateModel.hasNext()) {
             throw new LoadGeneratorStopException("Load generator has no defined arrivals.");
         }
-        return new TimeInstant(initialArrivalTime);
+        return new TimeInstant(initialArrivalTime + getNextTimeInstant(new TimeInstant(0)).getTimeAsDouble());
     }
 
     /**
