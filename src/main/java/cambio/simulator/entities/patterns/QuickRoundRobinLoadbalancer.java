@@ -14,11 +14,10 @@ import cambio.simulator.parsing.JsonTypeName;
  *
  * @author Lion Wagner
  */
-@JsonTypeName(value = "round-robin-strict", alternativeNames = {"round_robin_strict", "roundrobin-strict"})
-public class RoundRobinLoadbalancer implements ILoadBalancingStrategy {
+@JsonTypeName(value = "roundrobin", alternativeNames = {"round_robin", "robin", "round-robin"})
+public class QuickRoundRobinLoadbalancer implements ILoadBalancingStrategy {
 
-    Deque<MicroserviceInstance> queue = new ArrayDeque<>();
-    HashSet<MicroserviceInstance> queued = new HashSet<>();
+    Queue<MicroserviceInstance> queue = new ArrayDeque<>();
 
     /**
      * {@inheritDoc}
@@ -26,27 +25,18 @@ public class RoundRobinLoadbalancer implements ILoadBalancingStrategy {
     @Override
     public MicroserviceInstance getNextInstance(Collection<MicroserviceInstance> runningInstances)
         throws NoInstanceAvailableException {
-
-        //add all newly running instances to the front of the queue
-        runningInstances.forEach(instance -> {
-            if (!queued.contains(instance)) {
-                queue.addFirst(instance);
-                queued.add(instance);
-            }
-        });
+        // if the queue is empty, fill it with the available instances
+        if (queue.isEmpty()) {
+            queue.addAll(runningInstances);
+        }
 
         //find the next running instance
-        MicroserviceInstance nextTargetInstance = null;
+        MicroserviceInstance nextTargetInstance;
         do {
-            queued.remove(nextTargetInstance); // remove 'nextTargetInstance', as it is not running
-            if ((nextTargetInstance = queue.poll()) == null) { //null -> queue is empty -> no instance can be found
+            if ((nextTargetInstance = queue.poll()) == null) { //queue is empty -> no instance can be found
                 throw new NoInstanceAvailableException();
             }
         } while (nextTargetInstance.getState() != InstanceState.RUNNING); //discard not running instances
-
-        queue.addLast(nextTargetInstance); //add the instance to the end of the queue
-
-        assert queue.size() == queued.size();
 
         return nextTargetInstance;
     }
