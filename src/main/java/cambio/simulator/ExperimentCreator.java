@@ -8,6 +8,7 @@ import cambio.simulator.export.ExportUtils;
 import cambio.simulator.misc.FileUtilities;
 import cambio.simulator.models.ExperimentMetaData;
 import cambio.simulator.models.MiSimModel;
+import cambio.simulator.resources.cpu.BinnedCPUUtilizationTracker;
 import desmoj.core.simulator.Experiment;
 import desmoj.core.simulator.TimeInstant;
 import org.jetbrains.annotations.NotNull;
@@ -85,6 +86,8 @@ public final class ExperimentCreator {
         } else {
             exp.debugOff(new TimeInstant(0, metaData.getTimeUnit()));
         }
+
+        BinnedCPUUtilizationTracker.setEnabled(config.binnedCPUUtilizationOutput());
 
         return exp;
     }

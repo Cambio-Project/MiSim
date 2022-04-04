@@ -9,6 +9,9 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class ExperimentStartupConfig {
 
+
+
+
     @CLIOption(
         opt = "a",
         longOpt = "arch_desc",
@@ -62,24 +65,32 @@ public final class ExperimentStartupConfig {
         description = "Turns off the DESMO-J trace output of the simulator.")
     private final boolean noTraces;
 
+
+    @CLIOption(
+        longOpt = "binned_cpu_util",
+        description = "Turns on the binned CPU utilization output of the simulator.")
+    private final boolean binnedCPUUtilizationOutput;
+
+
     /**
      * Creates a new {@link ExperimentStartupConfig}.
      *
      * <p>
      * An expDescLoc or scenario have to be given. If an expDescLoc is given the scenario will be ignored. Boolean
      * default values are always {@code false}.
-     *
-     * @param archDescLoc    mandatory path to an architecture description
+     *  @param archDescLoc    mandatory path to an architecture description
      * @param expDescLoc     path to an experiment description
      * @param scenario        path to a scenario description
      * @param reportLocation  directory path ot
      * @param showProgressBar when this option is set to true, a progressbar window is shown during the simulation
-     *                        (setting this option disables headless mode and requires a display output)
+*                        (setting this option disables headless mode and requires a display output)
      * @param debugOutput     enables debug output
+     * @param binnedCPUUtilizationOutput enables binned CPU utilization output
      */
     public ExperimentStartupConfig(@NotNull String archDescLoc, String expDescLoc, String scenario,
                                    String reportLocation,
-                                   boolean showProgressBar, boolean debugOutput, boolean noTraces) {
+                                   boolean showProgressBar, boolean debugOutput, boolean noTraces,
+                                   boolean binnedCPUUtilizationOutput) {
         this.archDescLoc = archDescLoc;
         this.expDescLoc = expDescLoc;
         this.scenario = scenario;
@@ -87,6 +98,7 @@ public final class ExperimentStartupConfig {
         this.showProgressBar = showProgressBar;
         this.debugOutput = debugOutput;
         this.noTraces = noTraces;
+        this.binnedCPUUtilizationOutput = binnedCPUUtilizationOutput;
 
         if (expDescLoc == null && scenario == null) {
             throw new RuntimeException("Either a experiment description location or scenario description "
@@ -121,5 +133,9 @@ public final class ExperimentStartupConfig {
 
     public boolean noTraces() {
         return noTraces;
+    }
+
+    public boolean binnedCPUUtilizationOutput() {
+        return binnedCPUUtilizationOutput;
     }
 }
