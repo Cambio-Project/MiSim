@@ -19,6 +19,8 @@ public class FIFOScheduler extends CPUProcessScheduler {
 
     private final Queue<CPUProcess> processes = new LinkedList<>();
 
+    private int totalWorkDemand = 0;
+
     public FIFOScheduler(String name) {
         super(name);
     }
@@ -33,6 +35,7 @@ public class FIFOScheduler extends CPUProcessScheduler {
     public synchronized void enterProcess(CPUProcess process) {
         //if (!processes.contains(process))
         processes.add(process);
+        totalWorkDemand += process.getDemandTotal();
     }
 
     /**
@@ -47,6 +50,7 @@ public class FIFOScheduler extends CPUProcessScheduler {
         }
 
         int demand = processes.peek().getDemandTotal();
+        totalWorkDemand -= demand;
         return new Pair<>(processes.poll(), demand);
     }
 
@@ -77,7 +81,7 @@ public class FIFOScheduler extends CPUProcessScheduler {
      */
     @Override
     public int getTotalWorkDemand() {
-        return processes.stream().mapToInt(CPUProcess::getDemandRemainder).sum();
+        return totalWorkDemand;
     }
 
     /**
@@ -86,6 +90,7 @@ public class FIFOScheduler extends CPUProcessScheduler {
     @Override
     public void clear() {
         processes.clear();
+        totalWorkDemand = 0;
     }
 
     /**

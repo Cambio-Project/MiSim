@@ -34,7 +34,7 @@ public final class RoundRobinScheduler extends CPUProcessScheduler {
     //made dynamic at some point.
     private static final int MINIMUM_QUANTUM = 25;
 
-    private final Queue<CPUProcess> processes = new LinkedList<>();
+    private final Queue<CPUProcess> processes = new ArrayDeque<>();
     private final HashSet<CPUProcess> executedWithCurrentQuantum = new HashSet<>();
     private int currentQuantum;
     private boolean updateQuantum = true;
