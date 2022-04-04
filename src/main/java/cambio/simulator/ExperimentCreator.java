@@ -87,8 +87,6 @@ public final class ExperimentCreator {
             exp.debugOff(new TimeInstant(0, metaData.getTimeUnit()));
         }
 
-        BinnedCPUUtilizationTracker.setEnabled(config.binnedCPUUtilizationOutput());
-
         return exp;
     }
 }

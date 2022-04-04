@@ -1,15 +1,20 @@
 package cambio.simulator.resources.cpu;
 
-import java.util.*;
+import java.util.ArrayDeque;
 
 import cambio.simulator.entities.NamedSimProcess;
 import cambio.simulator.events.ISelfScheduled;
 import cambio.simulator.export.MultiDataPointReporter;
 import cambio.simulator.misc.Priority;
 import co.paralleluniverse.fibers.SuspendExecution;
-import desmoj.core.simulator.*;
+import desmoj.core.simulator.TimeInstant;
+import desmoj.core.simulator.TimeSpan;
 
 /**
+ * Represents a CPU utilization tracker that periodically reports the CPU utilization in the recent time based on a bin
+ * size. Bins can overlap. The {@link #probeInterval} parameter may be used to adjust the update rate. and the {@link
+ * #binSize} parameter may be used to adjust the bin size/time taken into account for each measurement.
+ *
  * @author Lion Wagner
  */
 public final class BinnedCPUUtilizationTracker extends NamedSimProcess implements ISelfScheduled {
@@ -17,39 +22,30 @@ public final class BinnedCPUUtilizationTracker extends NamedSimProcess implement
     public static TimeSpan probeInterval = new TimeSpan(0.1);
     public static TimeSpan BIN_SIZE = new TimeSpan(0.5);
 
-    private static boolean enabled = false;
-    private static final List<BinnedCPUUtilizationTracker> ALL_BINNED_CPU_UTILIZATION_TRACKERS = new ArrayList<>();
-
-
-    public static void setEnabled(boolean enabled) {
-        if (enabled && !BinnedCPUUtilizationTracker.enabled) {
-            ALL_BINNED_CPU_UTILIZATION_TRACKERS.forEach(BinnedCPUUtilizationTracker::doInitialSelfSchedule);
-        } else {
-            ALL_BINNED_CPU_UTILIZATION_TRACKERS.stream().filter(Schedulable::isScheduled).forEach(Schedulable::cancel);
-        }
-        BinnedCPUUtilizationTracker.enabled = enabled;
-    }
-
-    public static boolean isEnabled() {
-        return enabled;
-    }
-
-
     private final ArrayDeque<HistoryEntry> utilizationHistory = new ArrayDeque<>(1000);
 
     private final MultiDataPointReporter reporter;
 
-    public BinnedCPUUtilizationTracker(CPU owner) {
+    /**
+     * Creates a new CPU Utilization Tracker that reports the utilization of the owning CPU periodically. The probe
+     * interval can be configured by changing the static field {@link BinnedCPUUtilizationTracker#probeInterval} and
+     * defaults to 0.1 units. The backwards bin can be configured by changing the static field {@link
+     * BinnedCPUUtilizationTracker#BIN_SIZE} and defaults to 0.5 units.
+     *
+     * @param owner CPU that supplies this tracker with utilization information
+     * @see #probeInterval
+     * @see #BIN_SIZE
+     */
+    BinnedCPUUtilizationTracker(CPU owner) {
         super(owner.getModel(), String.format("Utilization Tracker of %s", owner.getName()), true, true);
-        ALL_BINNED_CPU_UTILIZATION_TRACKERS.add(this);
         setSchedulingPriority(Priority.Very_LOW);
         reporter = new MultiDataPointReporter(String.format("C[%s]_", owner.getPlainName()));
 
         utilizationHistory.add(new HistoryEntry(0.0, 0L, Long.MAX_VALUE));
 
-        if (isEnabled()) {
-            doInitialSelfSchedule();
-        }
+
+        doInitialSelfSchedule();
+
     }
 
     @Override
@@ -59,9 +55,7 @@ public final class BinnedCPUUtilizationTracker extends NamedSimProcess implement
 
     @Override
     public void lifeCycle() throws SuspendExecution {
-        if (isEnabled()) {
-            reporter.addDatapoint("UtilizationBinned", presentTime(), getCurrentBinnedUtilization());
-        }
+        reporter.addDatapoint("UtilizationBinned", presentTime(), getCurrentBinnedUtilization());
         this.hold(probeInterval);
     }
 
@@ -86,15 +80,6 @@ public final class BinnedCPUUtilizationTracker extends NamedSimProcess implement
             long actualStart = Math.max(startTime, frameStart);
             long actualEnd = Math.min(endTime, frameEnd);
             return (actualEnd - actualStart) * utilization;
-        }
-
-        @Override
-        public String toString() {
-            return "HistoryEntry{" +
-                "utilization=" + utilization +
-                ", startTime=" + startTime +
-                ", endTime=" + endTime +
-                '}';
         }
     }
 

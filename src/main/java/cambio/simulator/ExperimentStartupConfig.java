@@ -66,12 +66,6 @@ public final class ExperimentStartupConfig {
     private final boolean noTraces;
 
 
-    @CLIOption(
-        longOpt = "binned_cpu_util",
-        description = "Turns on the binned CPU utilization output of the simulator.")
-    private final boolean binnedCPUUtilizationOutput;
-
-
     /**
      * Creates a new {@link ExperimentStartupConfig}.
      *
@@ -85,12 +79,10 @@ public final class ExperimentStartupConfig {
      * @param showProgressBar when this option is set to true, a progressbar window is shown during the simulation
 *                        (setting this option disables headless mode and requires a display output)
      * @param debugOutput     enables debug output
-     * @param binnedCPUUtilizationOutput enables binned CPU utilization output
      */
     public ExperimentStartupConfig(@NotNull String archDescLoc, String expDescLoc, String scenario,
                                    String reportLocation,
-                                   boolean showProgressBar, boolean debugOutput, boolean noTraces,
-                                   boolean binnedCPUUtilizationOutput) {
+                                   boolean showProgressBar, boolean debugOutput, boolean noTraces) {
         this.archDescLoc = archDescLoc;
         this.expDescLoc = expDescLoc;
         this.scenario = scenario;
@@ -98,7 +90,6 @@ public final class ExperimentStartupConfig {
         this.showProgressBar = showProgressBar;
         this.debugOutput = debugOutput;
         this.noTraces = noTraces;
-        this.binnedCPUUtilizationOutput = binnedCPUUtilizationOutput;
 
         if (expDescLoc == null && scenario == null) {
             throw new RuntimeException("Either a experiment description location or scenario description "
@@ -135,7 +126,4 @@ public final class ExperimentStartupConfig {
         return noTraces;
     }
 
-    public boolean binnedCPUUtilizationOutput() {
-        return binnedCPUUtilizationOutput;
-    }
 }

@@ -56,7 +56,7 @@ public class ProofOfConcept {
             ".json");
         File exp = FileLoaderUtil.loadFromExampleResources("ProofOfConcept", "exp_loadbalancer_random_demonstration" +
             ".json");
-        runSimulation(0, arch, exp,  "-d", "-t", "--binned_cpu_util");
+        runSimulation(0, arch, exp,  "-d", "-t");
     }
 
     @Test
@@ -65,7 +65,7 @@ public class ProofOfConcept {
             ".json");
         File exp =
             FileLoaderUtil.loadFromExampleResources("ProofOfConcept", "exp_loadbalancer_util_demonstration.json");
-        runSimulation(0, arch, exp,  "-d", "-t", "--binned_cpu_util");
+        runSimulation(0, arch, exp,  "-d", "-t");
     }
 
     @Test
@@ -74,6 +74,6 @@ public class ProofOfConcept {
             "-robin_demonstration.json");
         File exp = FileLoaderUtil.loadFromExampleResources("ProofOfConcept", "exp_loadbalancer_round" +
             "-robin_demonstration.json");
-        runSimulation(0, arch, exp,  "-d", "-t", "--binned_cpu_util");
+        runSimulation(0, arch, exp,  "-d", "-t");
     }
 }
