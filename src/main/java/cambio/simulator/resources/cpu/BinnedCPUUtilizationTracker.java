@@ -12,8 +12,9 @@ import desmoj.core.simulator.TimeSpan;
 
 /**
  * Represents a CPU utilization tracker that periodically reports the CPU utilization in the recent time based on a bin
- * size. Bins can overlap. The {@link #probeInterval} parameter may be used to adjust the update rate. and the {@link
- * #binSize} parameter may be used to adjust the bin size/time taken into account for each measurement.
+ * size. Bins can overlap. The {@link BinnedCPUUtilizationTracker#probeInterval} parameter may be used to adjust the
+ * update rate. and the {@link BinnedCPUUtilizationTracker#BIN_SIZE} parameter may be used to adjust the bin size/time
+ * taken into account for each measurement.
  *
  * @author Lion Wagner
  */
