@@ -84,7 +84,7 @@ public class Operation extends NamedEntity {
         } else {
             DependencyDescription targetDependency =
                 Arrays.stream(dependencies).filter(dependency -> dependency.getTargetOperation() == operationTrg)
-                    .findAny().orElse(null);
+                    .findFirst().orElse(null);
             if (targetDependency == null) {
                 throw new IllegalStateException(String
                     .format("Operation %s is not a dependency of %s", operationTrg.getQuotedName(),

@@ -25,7 +25,7 @@ class CircuitBreakerTest {
         Field f = Microservice.class.getDeclaredField("instancesSet");
         f.setAccessible(true);
         Set<MicroserviceInstance> instances = (Set<MicroserviceInstance>) f.get(service);
-        MicroserviceInstance instance = instances.stream().findAny().orElse(null);
+        MicroserviceInstance instance = instances.stream().findFirst().orElse(null);
 
         CircuitBreaker cb = new CircuitBreaker(mockModel, "", false);
         Retry retry = new Retry(mockModel, "", false);
