@@ -1,4 +1,4 @@
-package cambio.simulator.testutils;
+package cambio.simulator.test;
 
 import java.util.Arrays;
 import java.util.Collection;

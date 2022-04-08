@@ -7,7 +7,7 @@ import java.io.File;
 
 import cambio.simulator.models.ExperimentMetaData;
 import cambio.simulator.models.MiSimModel;
-import cambio.simulator.testutils.FileLoaderUtil;
+import cambio.simulator.test.FileLoaderUtil;
 import desmoj.core.simulator.Experiment;
 import desmoj.core.simulator.TimeInstant;
 import org.junit.jupiter.api.Assertions;

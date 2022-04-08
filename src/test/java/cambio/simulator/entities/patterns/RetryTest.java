@@ -1,6 +1,6 @@
 package cambio.simulator.entities.patterns;
 
-import static cambio.simulator.testutils.FileLoaderUtil.loadFromTestResources;
+import static cambio.simulator.test.FileLoaderUtil.loadFromTestResources;
 
 import java.io.File;
 

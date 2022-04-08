@@ -2,7 +2,7 @@ package cambio.simulator.scenarios;
 
 import java.io.File;
 
-import cambio.simulator.testutils.FileLoaderUtil;
+import cambio.simulator.test.FileLoaderUtil;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 

@@ -1,4 +1,4 @@
-package cambio.simulator.testutils;
+package cambio.simulator.test;
 
 import java.io.File;
 import java.nio.file.FileSystems;

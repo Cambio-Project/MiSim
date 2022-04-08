@@ -8,8 +8,8 @@ import java.util.concurrent.TimeUnit;
 
 import cambio.simulator.entities.networking.NetworkRequestSendEvent;
 import cambio.simulator.export.CSVData;
-import cambio.simulator.testutils.RandomTieredModel;
-import cambio.simulator.testutils.TestUtils;
+import cambio.simulator.test.RandomTieredModel;
+import cambio.simulator.test.TestUtils;
 import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.Experiment;
 import desmoj.core.simulator.NameCatalog;

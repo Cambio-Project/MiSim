@@ -1,4 +1,4 @@
-package cambio.simulator.testutils;
+package cambio.simulator.test;
 
 import desmoj.core.simulator.Experiment;
 

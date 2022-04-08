@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 import cambio.simulator.models.MiSimModel;
-import cambio.simulator.testutils.FileLoaderUtil;
+import cambio.simulator.test.FileLoaderUtil;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
 

@@ -5,8 +5,8 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import cambio.simulator.testutils.RandomTieredModel;
-import cambio.simulator.testutils.TestUtils;
+import cambio.simulator.test.RandomTieredModel;
+import cambio.simulator.test.TestUtils;
 import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.Experiment;
 import desmoj.core.simulator.ExternalEvent;

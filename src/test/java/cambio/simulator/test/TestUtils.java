@@ -1,4 +1,4 @@
-package cambio.simulator.testutils;
+package cambio.simulator.test;
 
 import java.io.IOException;
 import java.lang.reflect.Field;

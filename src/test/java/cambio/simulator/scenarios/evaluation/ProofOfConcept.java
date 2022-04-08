@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.io.File;
 
 import cambio.simulator.Main;
-import cambio.simulator.testutils.FileLoaderUtil;
+import cambio.simulator.test.FileLoaderUtil;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 

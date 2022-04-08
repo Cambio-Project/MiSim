@@ -1,6 +1,6 @@
-package cambio.simulator.testutils;
+package cambio.simulator.test;
 
-import static cambio.simulator.testutils.TestUtils.nextNonNegative;
+import static cambio.simulator.test.TestUtils.nextNonNegative;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
