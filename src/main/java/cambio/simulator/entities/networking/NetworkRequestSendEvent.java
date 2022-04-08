@@ -3,6 +3,8 @@ package cambio.simulator.entities.networking;
 import java.util.concurrent.atomic.AtomicLong;
 
 import cambio.simulator.entities.microservice.*;
+import cambio.simulator.export.ReportCollector;
+import cambio.simulator.misc.RNGMananger;
 import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.dist.ContDistNormal;
 import desmoj.core.dist.NumericalDist;
@@ -17,12 +19,12 @@ import desmoj.core.simulator.TimeSpan;
  */
 public class NetworkRequestSendEvent extends NetworkRequestEvent {
 
-    private static final AtomicLong counterSendEvents = new AtomicLong(0);
-    private static NumericalDist<Double> rng;
+    private static final AtomicLong counterSendEvents = new AtomicLong(0); //TODO: remove
+    private transient final NumericalDist<Double> rng;
     private final Microservice targetService;
     private final MicroserviceInstance targetInstance;
-    private NetworkRequestReceiveEvent receiverEvent;
-    private NetworkRequestTimeoutEvent timeoutEvent;
+    private transient NetworkRequestReceiveEvent receiverEvent;
+    private transient NetworkRequestTimeoutEvent timeoutEvent;
     private boolean isCanceled = false;
 
     public NetworkRequestSendEvent(Model model, String name, boolean showInTrace, Request request,
@@ -42,12 +44,8 @@ public class NetworkRequestSendEvent extends NetworkRequestEvent {
         this.targetInstance = targetInstance;
         request.setSendEvent(this);
 
-        //TODO: remove dirty fix to avoid memory leakage
-        //this initializes the static random number generator, which needs a model. Therefore it can only be
-        // instatiated in a non-static environment. (Except maybe from the model/main itself?)
-        if (rng == null) {
-            rng = new ContDistNormal(getModel(), "DefaultNetworkDelay_RNG", 1.6, 0.6, true, false);
-        }
+        rng = RNGMananger.get(this.getClass().getName(),
+            () -> new ContDistNormal(getModel(), "DefaultNetworkDelay_RNG", 1.6, 0.6, true, false));
     }
 
     public static long getCounterSendEvents() {
@@ -81,6 +79,8 @@ public class NetworkRequestSendEvent extends NetworkRequestEvent {
         } while (nextDelay < 0); //ensures a positive delay, due to "infinite" gaussian deviation
 
         nextDelay = customizeLatency(nextDelay);
+
+        ReportCollector.NETWORK_LATENCY_REPORTER.addDatapoint("latency", presentTime(), nextDelay);
 
         //Apply custom latency and/or add delay of latency injection
         updateListener.onRequestSend(travelingRequest, presentTime());
