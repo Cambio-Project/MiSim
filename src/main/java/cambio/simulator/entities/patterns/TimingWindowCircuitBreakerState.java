@@ -18,14 +18,12 @@ import org.javatuples.Tuple;
  */
 public class TimingWindowCircuitBreakerState implements ICircuitBreakerState {
 
-    private transient boolean hasHalfOpenBreakerEventScheduled = false;
-
     private final double errorThresholdPercentage;
     private final long windowTimeLength; //window over which error rates are collected
     private final TimeSpan sleepWindow;
     private final Microservice monitoredService;
-
     private final Deque<Long> currentWindow = new ArrayDeque<>(1000);
+    private transient boolean hasHalfOpenBreakerEventScheduled = false;
     private int currentSuccessfulCount = 0;
     private int currentFailedCount = 0;
     private int totalSuccessCounter = 0;

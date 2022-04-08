@@ -17,10 +17,9 @@ import desmoj.core.report.ReportManager;
  */
 public class ReportCollector extends ReportManager {
 
-    private static final ReportCollector instance = new ReportCollector("Main");
-
     //this requires instance to exist, so all static DataPointReporters need to be initialized here
     public static final MultiDataPointReporter USER_REQUEST_REPORTER = new MultiDataPointReporter("R");
+    private static final ReportCollector instance = new ReportCollector("Main");
 
 
     public ReportCollector(String name) {
@@ -74,8 +73,9 @@ public class ReportCollector extends ReportManager {
     }
 
     /**
-     * Writes the collected data to the report directory.
-     * Also updates the metadata file with the new execution timings.
+     * Writes the collected data to the report directory. Also updates the metadata file with the new execution
+     * timings.
+     *
      * @param model The model that contains the metadata to reference.
      */
     public void printReport(MiSimModel model) {

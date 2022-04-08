@@ -10,8 +10,6 @@ import org.jetbrains.annotations.NotNull;
 public final class ExperimentStartupConfig {
 
 
-
-
     @CLIOption(
         opt = "a",
         longOpt = "arch_desc",
@@ -72,12 +70,13 @@ public final class ExperimentStartupConfig {
      * <p>
      * An expDescLoc or scenario have to be given. If an expDescLoc is given the scenario will be ignored. Boolean
      * default values are always {@code false}.
-     *  @param archDescLoc    mandatory path to an architecture description
-     * @param expDescLoc     path to an experiment description
+     *
+     * @param archDescLoc     mandatory path to an architecture description
+     * @param expDescLoc      path to an experiment description
      * @param scenario        path to a scenario description
      * @param reportLocation  directory path ot
      * @param showProgressBar when this option is set to true, a progressbar window is shown during the simulation
-*                        (setting this option disables headless mode and requires a display output)
+     *                        (setting this option disables headless mode and requires a display output)
      * @param debugOutput     enables debug output
      */
     public ExperimentStartupConfig(@NotNull String archDescLoc, String expDescLoc, String scenario,

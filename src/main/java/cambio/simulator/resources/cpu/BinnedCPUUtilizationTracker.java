@@ -60,31 +60,6 @@ public final class BinnedCPUUtilizationTracker extends NamedSimProcess implement
         this.hold(probeInterval);
     }
 
-
-    private static class HistoryEntry {
-        public final double utilization;
-        public final long startTime;
-        public long endTime;
-
-        public HistoryEntry(double utilization, long startTime, long endTime) {
-            this.utilization = utilization;
-            this.startTime = startTime;
-            this.endTime = endTime;
-        }
-
-
-        public double getWorkInTimeframe(long frameStart, long frameEnd) {
-            if (utilization == 0.0) {
-                return 0.0;
-            }
-
-            long actualStart = Math.max(startTime, frameStart);
-            long actualEnd = Math.min(endTime, frameEnd);
-            return (actualEnd - actualStart) * utilization;
-        }
-    }
-
-
     void updateUtilization(double utilization, TimeInstant startTime) {
 
         //last entry is the current utilization state
@@ -99,7 +74,6 @@ public final class BinnedCPUUtilizationTracker extends NamedSimProcess implement
 
         clearHistoryExceptCurrentBin();
     }
-
 
     private void clearHistoryExceptCurrentBin() {
         long binEnd = presentTime().getTimeInEpsilon();
@@ -126,6 +100,29 @@ public final class BinnedCPUUtilizationTracker extends NamedSimProcess implement
     double getCurrentUtilization() {
         assert utilizationHistory.peek() != null;
         return utilizationHistory.peek().utilization;
+    }
+
+    private static class HistoryEntry {
+        public final double utilization;
+        public final long startTime;
+        public long endTime;
+
+        public HistoryEntry(double utilization, long startTime, long endTime) {
+            this.utilization = utilization;
+            this.startTime = startTime;
+            this.endTime = endTime;
+        }
+
+
+        public double getWorkInTimeframe(long frameStart, long frameEnd) {
+            if (utilization == 0.0) {
+                return 0.0;
+            }
+
+            long actualStart = Math.max(startTime, frameStart);
+            long actualEnd = Math.min(endTime, frameEnd);
+            return (actualEnd - actualStart) * utilization;
+        }
     }
 
 }

@@ -34,7 +34,7 @@ for file in glob.glob(os.path.join(".", "raw", "*_ResponseTimes.csv")):
     output_file = file.replace(".csv", "_processed.csv")
     mean.to_csv(output_file, sep=";", index=False)
 
-    endpoint_name = file[file.index("[")+1:file.index("]")]
+    endpoint_name = file[file.index("[") + 1:file.index("]")]
     datasets.append((endpoint_name, mean))
 
 

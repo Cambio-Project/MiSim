@@ -2,12 +2,10 @@ import glob
 import os
 
 import matplotlib.pyplot as plt
-from matplotlib.ticker import AutoLocator
-import pandas
 import numpy as np
+import pandas
 
 import util
-import json
 
 datasets = []
 
@@ -23,7 +21,7 @@ for file in glob.glob(os.path.join(".", "raw", "S*_Load_Distribution.csv")):
         arr = dat[1:-1].split(", ")
 
         for key in arr:
-            key = key[key.rindex("_")+1:]
+            key = key[key.rindex("_") + 1:]
             if not key in dataMap:
                 dataMap[key] = 0
             dataMap[key] += 1

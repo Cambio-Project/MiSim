@@ -21,6 +21,7 @@ public abstract class Request extends NamedEntity {
     private final Request parent;
     private final MicroserviceInstance requester;
     private final PriorityQueue<IRequestUpdateListener> updateListeners = new PriorityQueue<>();
+    private final Random prob;
     private MicroserviceInstance handlerInstance;
     //microservice instance that collects dependencies of this request and computes it
     private boolean computationCompleted = false;
@@ -33,8 +34,6 @@ public abstract class Request extends NamedEntity {
     private TimeInstant timestampReceivedAtHandler;
     private TimeInstant timestampComputationCompleted;
     private TimeInstant timestampDependenciesCompleted;
-
-    private final Random prob;
 
     protected Request(Model model, String name, boolean showInTrace, Request parent, Operation operation,
                       MicroserviceInstance requester) {
