@@ -71,11 +71,11 @@ public final class ExperimentCreator {
         exp.setShowProgressBar(config.showProgressBarOn());
         exp.stop(new TimeInstant(metaData.getDuration(), metaData.getTimeUnit()));
 
-        if (config.noTraces()) {
-            exp.traceOff(new TimeInstant(0, metaData.getTimeUnit()));
-        } else {
+        if (config.traceEnabled()) {
             exp.tracePeriod(new TimeInstant(0, metaData.getTimeUnit()),
                 new TimeInstant(metaData.getDuration(), metaData.getTimeUnit()));
+        } else {
+            exp.traceOff(new TimeInstant(0, metaData.getTimeUnit()));
         }
 
         if (config.debugOutputOn()) {

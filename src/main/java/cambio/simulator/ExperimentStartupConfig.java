@@ -55,7 +55,7 @@ public final class ExperimentStartupConfig {
         opt = "d",
         longOpt = "debug",
         description = "Turns on debug output of the simulator.")
-    private final boolean debugOutput;
+    private final boolean debug;
 
     @CLIOption(
         opt = "t",
@@ -77,18 +77,18 @@ public final class ExperimentStartupConfig {
      * @param reportLocation  directory path ot
      * @param showProgressBar when this option is set to true, a progressbar window is shown during the simulation
      *                        (setting this option disables headless mode and requires a display output)
-     * @param debugOutput     enables debug output
+     * @param debug     enables debug output
      */
     public ExperimentStartupConfig(@NotNull String archDescLoc, String expDescLoc, String scenario,
                                    String reportLocation,
-                                   boolean showProgressBar, boolean debugOutput, boolean noTraces) {
+                                   boolean showProgressBar, boolean debug, boolean traces) {
         this.archDescLoc = archDescLoc;
         this.expDescLoc = expDescLoc;
         this.scenario = scenario;
         this.reportLocation = reportLocation;
         this.showProgressBar = showProgressBar;
-        this.debugOutput = debugOutput;
-        this.noTraces = noTraces;
+        this.debug = debug;
+        this.noTraces = !traces;
 
         if (expDescLoc == null && scenario == null) {
             throw new RuntimeException("Either a experiment description location or scenario description "
@@ -118,11 +118,11 @@ public final class ExperimentStartupConfig {
     }
 
     public boolean debugOutputOn() {
-        return debugOutput;
+        return debug;
     }
 
-    public boolean noTraces() {
-        return noTraces;
+    public boolean traceEnabled() {
+        return !noTraces;
     }
 
 }
