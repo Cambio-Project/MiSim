@@ -3,6 +3,7 @@ package cambio.simulator.scenarios;
 import java.io.File;
 
 import cambio.simulator.test.FileLoaderUtil;
+import cambio.simulator.test.TestBase;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -11,23 +12,19 @@ import org.junit.jupiter.api.Test;
  *
  * @author Lion Wagner
  */
-@Disabled
-public class Paper {
+public class Paper extends TestBase {
 
     @Test
     void MinimalScenario() {
         File scenario = FileLoaderUtil.loadFromExampleResources("PaperExample/paper_scenario.json");
         File architecture = FileLoaderUtil.loadFromExampleResources("PaperExample/paper_architecture.json");
-        String[] args = new String[] {"-a", architecture.getAbsolutePath(), "-e", scenario.getAbsolutePath() };
-        cambio.simulator.Main.main(args);
+        runSimulationCheckExitTempOutput(0, architecture, scenario);
     }
 
     @Test
     void MinimalExperiment() {
-        File scenario = FileLoaderUtil.loadFromExampleResources("PaperExample/paper_experiment.json");
+        File experiment = FileLoaderUtil.loadFromExampleResources("PaperExample/paper_experiment.json");
         File architecture = FileLoaderUtil.loadFromExampleResources("PaperExample/paper_architecture.json");
-        String[] args =
-            new String[] {"-a", architecture.getAbsolutePath(), "-e", scenario.getAbsolutePath(), "-n", "1"};
-        cambio.simulator.Main.main(args);
+        runSimulationCheckExitTempOutput(0, architecture, experiment);
     }
 }

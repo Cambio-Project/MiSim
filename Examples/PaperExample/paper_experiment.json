@@ -10,7 +10,7 @@
       "config": {
         "model":
         "./Examples/PaperExample/paper_limbo.csv",
-        "target_operation": "gateway.GET",
+        "target_operation": "gateway.API_Endpoint",
         "repeating": true
       }
     }
