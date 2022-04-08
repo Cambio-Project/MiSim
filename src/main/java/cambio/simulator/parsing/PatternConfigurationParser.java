@@ -17,7 +17,7 @@ public class PatternConfigurationParser {
 
     /**
      * Resolves a {@link TypeNameAssociatedConfigurationData} into a pattern instance. If a strategy configuration is
-     * given, it will also be resolved into an {@link IStrategy} object and assigend using the {@link
+     * given, it will also be resolved into an {@link IStrategy} object and assigned using the {@link
      * IStrategyAcceptor#setStrategy(IStrategy)} method.
      *
      * @param model             underlying model
@@ -100,6 +100,7 @@ public class PatternConfigurationParser {
 
                 // noinspection  unchecked
                 ((IStrategyAcceptor<IStrategy>) patternInstance).setStrategy(strategyObject);
+                strategyObject.onInitializedCompleted(model);
 
             } else {
                 System.out.printf("[Warning] No strategy information was given for a %s configuration. If no default"
@@ -108,7 +109,7 @@ public class PatternConfigurationParser {
             }
         }
 
-        patternInstance.onInitializedCompleted();
+        patternInstance.onInitializedCompleted(model);
         return patternInstance;
     }
 

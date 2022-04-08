@@ -34,6 +34,7 @@ public abstract class Request extends NamedEntity {
     private TimeInstant timestampComputationCompleted;
     private TimeInstant timestampDependenciesCompleted;
 
+    private final Random prob;
 
     protected Request(Model model, String name, boolean showInTrace, Request parent, Operation operation,
                       MicroserviceInstance requester) {
@@ -41,6 +42,7 @@ public abstract class Request extends NamedEntity {
         this.operation = operation;
         this.requester = requester;
         this.parent = parent;
+        this.prob = new Random(((MiSimModel) getModel()).getExperimentMetaData().getSeed());
         createDependencies();
         if (dependencies.isEmpty()) {
             //TODO: clean up this mess (this call is made to neatly trigger onDependenciesComplete)
@@ -50,12 +52,8 @@ public abstract class Request extends NamedEntity {
 
 
     private void createDependencies() {
-        // Roll probability
-        Random prob;
-        prob = new Random(((MiSimModel) getModel()).getExperimentMetaData().getSeed()); //TODO: resolve this mess
 
         for (DependencyDescription dependencyDescription : operation.getDependencyDescriptions()) {
-
 
             double probability = dependencyDescription.getProbability();
             double sample = prob.nextDouble();

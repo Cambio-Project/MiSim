@@ -49,7 +49,7 @@ public class LoadGeneratorExecutorAdapter extends MiSimModelReferencingTypeAdapt
         description.initializeArrivalRateModel();
         LoadGeneratorDescriptionExecutor loadGeneratorDescriptionExecutor =
             new LoadGeneratorDescriptionExecutor(model, description);
-        loadGeneratorDescriptionExecutor.onInitializedCompleted();
+        loadGeneratorDescriptionExecutor.onInitializedCompleted(model);
         return loadGeneratorDescriptionExecutor;
     }
 }

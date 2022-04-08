@@ -2,7 +2,9 @@ package cambio.simulator.entities.patterns;
 
 import java.util.Random;
 
+import cambio.simulator.models.MiSimModel;
 import cambio.simulator.parsing.JsonTypeName;
+import desmoj.core.simulator.Model;
 
 /**
  * Represents a jittering linear retry backoff strategy. Generates doubles based on the formula  {@code random(0,
@@ -15,11 +17,17 @@ import cambio.simulator.parsing.JsonTypeName;
 @JsonTypeName("jittering_linear")
 public class JitteringLinearBackoffRetryStrategy extends LinearBackoffRetryStrategy {
 
-    //TODO: inject random seed
-    private final transient Random rng = new Random();
+    private transient Random rng;
 
     @Override
     public double getNextDelay(int tries) {
         return rng.nextDouble() * super.getNextDelay(tries);
+    }
+
+
+    @Override
+    public void onInitializedCompleted(Model model) {
+        super.onInitializedCompleted(model);
+        rng = new Random(((MiSimModel) model).getExperimentMetaData().getSeed());
     }
 }

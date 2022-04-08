@@ -156,8 +156,8 @@ public final class CircuitBreaker extends InstanceOwnedPattern implements IReque
     }
 
     @Override
-    public void onInitializedCompleted() {
-        super.onInitializedCompleted();
+    public void onInitializedCompleted(Model model) {
+        super.onInitializedCompleted(model);
         if (errorThresholdPercentage != Double.POSITIVE_INFINITY
             && errorThresholdPercentage > 1) {
             if (errorThresholdPercentage <= 100) {
