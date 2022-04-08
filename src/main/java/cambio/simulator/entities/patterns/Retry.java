@@ -1,10 +1,11 @@
 package cambio.simulator.entities.patterns;
 
+import static cambio.simulator.export.ReportCollector.RETRY_MANAGER_REPORTER;
+
 import java.util.*;
 
 import cambio.simulator.entities.microservice.MicroserviceInstance;
 import cambio.simulator.entities.networking.*;
-import cambio.simulator.export.MultiDataPointReporter;
 import cambio.simulator.misc.Priority;
 import cambio.simulator.parsing.JsonTypeName;
 import com.google.gson.annotations.Expose;
@@ -20,7 +21,6 @@ import desmoj.core.simulator.*;
 @JsonTypeName("retry")
 public class Retry extends StrategicInstanceOwnedPattern<IRetryStrategy> implements IRequestUpdateListener {
 
-    private static final MultiDataPointReporter reporter = new MultiDataPointReporter("RM");
     private static final List<Double> all = new LinkedList<>();
 
     private final Map<ServiceDependencyInstance, Integer> requestIndex = new HashMap<>();
@@ -55,7 +55,7 @@ public class Retry extends StrategicInstanceOwnedPattern<IRetryStrategy> impleme
         if (tries < maxTries) {
             double delay = strategy.getNextDelay(tries);
 
-            reporter.addDatapoint("RetryTimings", presentTime(), delay);
+            RETRY_MANAGER_REPORTER.addDatapoint("RetryTimings", presentTime(), delay);
             all.add(delay);
 
             MicroserviceInstance handler = request.getHandler();

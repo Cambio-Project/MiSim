@@ -18,8 +18,12 @@ import desmoj.core.report.ReportManager;
 public class ReportCollector extends ReportManager {
 
     //this requires instance to exist, so all static DataPointReporters need to be initialized here
+    public static final MultiDataPointReporter RETRY_MANAGER_REPORTER = new MultiDataPointReporter("RM_");
+    public static final MultiDataPointReporter NETWORK_LATENCY_REPORTER = new MultiDataPointReporter("NL_");
     public static final MultiDataPointReporter USER_REQUEST_REPORTER = new MultiDataPointReporter("R");
-    private static final ReportCollector instance = new ReportCollector("Main");
+    public static final AccumulativeDataPointReporter GENERATOR_REPORTER = new AccumulativeDataPointReporter(
+        "GEN_ALL_");
+    private static ReportCollector instance;
 
 
     public ReportCollector(String name) {
@@ -27,6 +31,9 @@ public class ReportCollector extends ReportManager {
     }
 
     public static ReportCollector getInstance() {
+        if(instance == null) {
+            instance = new ReportCollector("Main");
+        }
         return instance;
     }
 
@@ -70,6 +77,9 @@ public class ReportCollector extends ReportManager {
             this.deRegister(reporter);
         });
         this.register(USER_REQUEST_REPORTER);
+        this.register(NETWORK_LATENCY_REPORTER);
+        this.register(GENERATOR_REPORTER);
+        this.register(RETRY_MANAGER_REPORTER);
     }
 
     /**

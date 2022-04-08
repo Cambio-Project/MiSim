@@ -1,5 +1,7 @@
 package cambio.simulator.entities.generator;
 
+import static cambio.simulator.export.ReportCollector.GENERATOR_REPORTER;
+
 import cambio.simulator.entities.NamedSimProcess;
 import cambio.simulator.entities.microservice.NoInstanceAvailableException;
 import cambio.simulator.entities.microservice.Operation;
@@ -26,7 +28,6 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class LoadGeneratorDescriptionExecutor extends RequestSender implements IRequestUpdateListener,
     ISelfScheduled, IPatternLifeCycleHooks {
-    private static final AccumulativeDataPointReporter allReporter = new AccumulativeDataPointReporter("GEN_ALL");
     private final Model model;
 
     /**
@@ -97,9 +98,9 @@ public final class LoadGeneratorDescriptionExecutor extends RequestSender implem
         //also creates a datapoint for successful requests, so they can be directly compared
         accReporter.addDatapoint("SuccessfulRequests", currentTime, 0);
 
-        allReporter.addDatapoint("FailedRequests", currentTime, 1);
+        GENERATOR_REPORTER.addDatapoint("FailedRequests", currentTime, 1);
         //also creates a datapoint for successful requests, so they can be directly compared
-        allReporter.addDatapoint("SuccessfulRequests", currentTime, 0);
+        GENERATOR_REPORTER.addDatapoint("SuccessfulRequests", currentTime, 0);
 
         return true;
     }
@@ -117,9 +118,9 @@ public final class LoadGeneratorDescriptionExecutor extends RequestSender implem
         accReporter.addDatapoint("FailedRequests", currentTime, 0);
 
 
-        allReporter.addDatapoint("FailedRequests", currentTime, 0);
+        GENERATOR_REPORTER.addDatapoint("FailedRequests", currentTime, 0);
         //also creates a datapoint for successful requests, so they can be directly compared
-        allReporter.addDatapoint("SuccessfulRequests", currentTime, 1);
+        GENERATOR_REPORTER.addDatapoint("SuccessfulRequests", currentTime, 1);
         return true;
     }
 
