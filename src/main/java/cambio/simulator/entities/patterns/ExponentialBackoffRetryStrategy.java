@@ -3,7 +3,7 @@ package cambio.simulator.entities.patterns;
 import cambio.simulator.parsing.JsonTypeName;
 
 /**
- * Represents an exponential retry backoff strategy. Generates doubles based on the formula  {@code baseBackoff *
+ * Represents an exponential retry backoff strategy. Generates delay based on the formula  {@code baseBackoff *
  * base^(tries) }. The value is capped between 0 and {@code maxBackoff} (both inclusive).
  *
  * @author Lion Wagner

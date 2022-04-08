@@ -21,7 +21,7 @@ import desmoj.core.simulator.Model;
  *
  * <p>
  * Specifically, it can take care of starting, killing and shutting down {@link MicroserviceInstance}s (in the following
- * just called instances) and provides meta data to each instance. For example, a {@link Microservice} object knows
+ * just called instances) and provides metadata to each instance. For example, a {@link Microservice} object knows
  * which resilience patterns should be implemented by each instance and how many resources each instances is assigned.
  * Naturally it also knows the status of all existing (including killed ones) instances of this service.
  *
@@ -51,7 +51,7 @@ public class Microservice extends NamedEntity {
 
     @Expose
     @SerializedName(value = "name")
-    private String plainName = ""; //TODO: fix this whole naming confusion thing
+    private String plainName = "";
     @Expose
     private int capacity = 1;
     @Expose
@@ -174,7 +174,7 @@ public class Microservice extends NamedEntity {
 
 
     /**
-     * Kills the given number of services many random instances. Accepts numbers larger than the current amount of
+     * Kills the given number of services many random instances. Accept numbers larger than the current amount of
      * instances.
      *
      * @param numberOfInstances number of instances that should be instantly killed

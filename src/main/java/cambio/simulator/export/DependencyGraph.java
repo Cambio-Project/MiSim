@@ -11,7 +11,7 @@ import cambio.simulator.models.MiSimModel;
 
 /**
  * The <code>DependencyGraph</code> class is used in order to create the graph that displays the dependencies between
- * all of the systems microservice instances.
+ * the systems' microservice instances.
  */
 public class DependencyGraph {
     private static final int hashMultiplier = 11;

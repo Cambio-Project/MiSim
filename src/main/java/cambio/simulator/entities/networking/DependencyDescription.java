@@ -44,7 +44,7 @@ public class DependencyDescription {
 
     /**
      * Constructs a new Dependency object to represent the need of one operation to call another. The target operation
-     * will be always be required guaranteed. Messages do not use a custom delay.
+     * will be always be required for the parent operation to complete. Messages do not use a custom delay.
      *
      * @param parent          parent operation that requires this dependency
      * @param targetOperation child operation that may be need to complete the parent operation

@@ -6,7 +6,7 @@ import cambio.simulator.resources.cpu.CPUProcess;
 import org.javatuples.Pair;
 
 /**
- * <b>S</b>elf <b>a</b>djusting <b>R</b>ound <b>R</b>obin (SARR) scheduler with dynamic median-based quantum
+ * <b>S</b>elf <b>a</b>djusting <b>R</b>ound-<b>R</b>obin (SARR) scheduler with dynamic median-based quantum
  * calculation.
  *
  * <p>
@@ -14,10 +14,10 @@ import org.javatuples.Pair;
  * of the Now Running Processes</i>
  *
  * <p>
- * Executes a round robin scheduling where the assigned work quantum is the median of all current left over work demands
+ * Executes a round-robin scheduling where the assigned work quantum is the median of all current left over work demands
  * of all entered processes. The quantum is updated each time a new processes enters or all processes had a round with
- * the current quantum. This provides a shorter average waiting and turn-around time than the fixed quantum round robin.
- * Further, this round robin scheduler adjust dynamically to demand sizes that can heavily vary between
+ * the current quantum. This provides a shorter average waiting and turn-around time than the fixed quantum round-robin.
+ * Further, this round-robin scheduler adjust dynamically to demand sizes that can heavily vary between
  * experiments/architecture descriptions.
  *
  * <p>

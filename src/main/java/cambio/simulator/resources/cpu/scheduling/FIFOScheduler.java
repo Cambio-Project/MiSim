@@ -56,7 +56,7 @@ public class FIFOScheduler extends CPUProcessScheduler {
 
     /**
      * Pulls the next Process to handle and its assigned time/work quantum.<br> Prevents automatic rescheduling of the
-     * process like in round robin scheduling.
+     * process like in round-robin scheduling.
      *
      * <p>
      * This method is used to offer scheduling for multithreading.

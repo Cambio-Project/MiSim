@@ -192,7 +192,7 @@ public class CPU extends NamedExternalEvent {
 
         activeProcesses.remove(process); //the process whose burst finished is not active anymore
 
-        //since at least one thread should be free now, a reschedule happens
+        //since at least one thread should be free now, a rescheduling happens
         forceScheduleNow();
 
         binnedUtilizationTracker.updateUtilization(getCurrentUsage(), presentTime());

@@ -94,11 +94,11 @@ public final class LoadGeneratorDescriptionExecutor extends RequestSender implem
         TimeInstant currentTime = new TimeInstant(Math.ceil(presentTime().getTimeAsDouble()));
 
         accReporter.addDatapoint("FailedRequests", currentTime, 1);
-        //also creates a datapoint for successful requests so they can be directly compared
+        //also creates a datapoint for successful requests, so they can be directly compared
         accReporter.addDatapoint("SuccessfulRequests", currentTime, 0);
 
         allReporter.addDatapoint("FailedRequests", currentTime, 1);
-        //also creates a datapoint for successful requests so they can be directly compared
+        //also creates a datapoint for successful requests, so they can be directly compared
         allReporter.addDatapoint("SuccessfulRequests", currentTime, 0);
 
         return true;
@@ -113,12 +113,12 @@ public final class LoadGeneratorDescriptionExecutor extends RequestSender implem
         TimeInstant currentTime = new TimeInstant(Math.ceil(presentTime().getTimeAsDouble()));
 
         accReporter.addDatapoint("SuccessfulRequests", currentTime, 1);
-        //also creates a datapoint for failed requests so they can be directly compared
+        //also creates a datapoint for failed requests, so they can be directly compared
         accReporter.addDatapoint("FailedRequests", currentTime, 0);
 
 
         allReporter.addDatapoint("FailedRequests", currentTime, 0);
-        //also creates a datapoint for successful requests so they can be directly compared
+        //also creates a datapoint for successful requests, so they can be directly compared
         allReporter.addDatapoint("SuccessfulRequests", currentTime, 1);
         return true;
     }

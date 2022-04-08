@@ -108,7 +108,7 @@ public class CountingCircuitBreakerState implements ICircuitBreakerState {
     }
 
     private double getErrorRate() {
-        //if there are not enough datapoints we cant determine errorrate -> 0
+        //if there are not enough data points we can't determine the error rate, so it's assumed to be 0
         return currentWindow.size() < rollingWindow ? 0 :
             1.0 - ((double) currentWindow.stream().mapToInt(value -> value).sum() / currentWindow.size());
     }

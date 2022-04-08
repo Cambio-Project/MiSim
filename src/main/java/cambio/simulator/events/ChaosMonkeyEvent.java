@@ -9,9 +9,9 @@ import com.google.gson.annotations.SerializedName;
 import desmoj.core.simulator.Model;
 
 /**
- * A <code>ChaosMonkeyEvent</code> is an <code>ExternalEvent</code> that gets scheduled at the begin of the experiment.
- * It terminates a specified number of <code>MicroserviceInstance</code>s from a specified <code>Microservice</code> in
- * its
+ * A <code>ChaosMonkeyEvent</code> is an <code>ExternalEvent</code> that gets scheduled at the beginning of the
+ * experiment. It terminates a specified number of <code>MicroserviceInstance</code>s from a specified
+ * <code>Microservice</code> in its
  * <code>eventRoutine</code> method.
  */
 @JsonTypeName(value = "chaosmonkey", alternativeNames = {"chaos_monkey", "monkey"})

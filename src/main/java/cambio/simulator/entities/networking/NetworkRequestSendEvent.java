@@ -43,6 +43,8 @@ public class NetworkRequestSendEvent extends NetworkRequestEvent {
         request.setSendEvent(this);
 
         //TODO: remove dirty fix to avoid memory leakage
+        //this initializes the static random number generator, which needs a model. Therefore it can only be
+        // instatiated in a non-static environment. (Except maybe from the model/main itself?)
         if (rng == null) {
             rng = new ContDistNormal(getModel(), "DefaultNetworkDelay_RNG", 1.6, 0.6, true, false);
         }
