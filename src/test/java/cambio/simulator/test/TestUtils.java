@@ -1,24 +1,23 @@
 package cambio.simulator.test;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.util.List;
-import java.util.Random;
+import java.nio.file.*;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.entities.networking.NetworkRequestSendEvent;
 import cambio.simulator.entities.patterns.ServiceOwnedPattern;
 import cambio.simulator.export.CSVData;
 import cambio.simulator.export.ReportCollector;
-import desmoj.core.simulator.Experiment;
-import desmoj.core.simulator.Model;
-import desmoj.core.simulator.TimeInstant;
+import desmoj.core.simulator.*;
+import org.junit.jupiter.api.Assertions;
 import org.mockito.Mockito;
 
 /**
@@ -27,6 +26,69 @@ import org.mockito.Mockito;
 public class TestUtils {
     private static final Random rng = new Random();
 
+
+    public static void compareFileContentsOfDirectories(Path dir1, Path dir2) throws IOException {
+        Map<Path, byte[]> hashes = new HashMap<>();
+
+        List<String> errors = new ArrayList<>();
+
+        List<Path> files1 = Files.walk(dir1).filter(Files::isRegularFile).collect(Collectors.toList());
+        List<Path> files2 = Files.walk(dir2).filter(Files::isRegularFile).collect(Collectors.toList());
+
+        files1.forEach(path -> {
+            try {
+                MessageDigest md = MessageDigest.getInstance("MD5");
+                try (InputStream is = Files.newInputStream(path);
+                     DigestInputStream dis = new DigestInputStream(is, md)) {
+                    while (dis.read() != -1) ; //read all bytes
+                }
+                byte[] digest = md.digest();
+                hashes.put(path.getFileName(), digest);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+
+        files2.forEach(path -> {
+            try {
+                MessageDigest md = MessageDigest.getInstance("MD5");
+                try (InputStream is = Files.newInputStream(path);
+                     DigestInputStream dis = new DigestInputStream(is, md)) {
+                    while (dis.read() != -1) ; //read all bytes
+                }
+                byte[] digest = md.digest();
+
+                Assertions.assertArrayEquals(hashes.get(path.getFileName()), digest);
+            } catch (AssertionError e) {
+                hashes.put(path.getFileName(), new byte[0]);
+                errors.add(path.getFileName().toString() + " differs");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+
+        List<Path> files1Names = files1.stream().map(Path::getFileName).collect(Collectors.toList());
+        List<Path> files2Names = files2.stream().map(Path::getFileName).collect(Collectors.toList());
+
+        //print out the files that are in one but not the other
+        files1Names.stream()
+            .filter(path -> !files2Names.contains(path))
+            .map(path -> path + " only in first directory")
+            .forEach(errors::add);
+        files2Names.stream()
+            .filter(path -> !files1Names.contains(path))
+            .map(path -> path + " only in second directory")
+            .forEach(errors::add);
+
+
+        if (errors.size() > 0) {
+            int total = hashes.size();
+            int failed = errors.size();
+            System.out.printf("The following %d/%d files differ:%n", failed, total);
+            errors.forEach(System.out::println);
+            Assertions.fail(String.format("%d/%d files differ. See above for details.", failed, total));
+        }
+    }
 
     public static Experiment getExampleExperiment(final Model currentModel, final double duration) {
 
