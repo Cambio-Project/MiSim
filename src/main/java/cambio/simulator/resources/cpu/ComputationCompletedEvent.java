@@ -1,6 +1,7 @@
 package cambio.simulator.resources.cpu;
 
 import cambio.simulator.entities.networking.Request;
+import cambio.simulator.models.MiSimModel;
 import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.Event;
 import desmoj.core.simulator.Model;
@@ -18,7 +19,7 @@ import desmoj.core.simulator.Model;
  */
 public class ComputationCompletedEvent extends Event<Request> {
 
-    public ComputationCompletedEvent(Model model, String name, boolean showInTrace) {
+    public ComputationCompletedEvent(MiSimModel model, String name, boolean showInTrace) {
         super(model, name, showInTrace);
     }
 

@@ -1,6 +1,7 @@
 package cambio.simulator.entities.microservice;
 
 import cambio.simulator.misc.Priority;
+import cambio.simulator.models.MiSimModel;
 import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.Event;
 import desmoj.core.simulator.Model;
@@ -17,7 +18,7 @@ import desmoj.core.simulator.Model;
 public class InstanceShutdownStartEvent extends Event<MicroserviceInstance> {
 
 
-    public InstanceShutdownStartEvent(Model model, String name, boolean showInTrace) {
+    public InstanceShutdownStartEvent(MiSimModel model, String name, boolean showInTrace) {
         super(model, name, showInTrace);
         this.setSchedulingPriority(Priority.HIGH);
     }

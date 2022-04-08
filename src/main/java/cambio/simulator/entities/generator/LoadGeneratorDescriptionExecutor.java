@@ -9,8 +9,8 @@ import cambio.simulator.entities.networking.*;
 import cambio.simulator.entities.patterns.IPatternLifeCycleHooks;
 import cambio.simulator.events.ISelfScheduled;
 import cambio.simulator.export.AccumulativeDataPointReporter;
+import cambio.simulator.models.MiSimModel;
 import co.paralleluniverse.fibers.SuspendExecution;
-import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 import org.jetbrains.annotations.NotNull;
 
@@ -48,7 +48,7 @@ public final class LoadGeneratorDescriptionExecutor extends RequestSender implem
      * @param model                    the underlying model
      * @param loadGeneratorDescription behavioral description of this load generator.
      */
-    public LoadGeneratorDescriptionExecutor(Model model, @NotNull LoadGeneratorDescription loadGeneratorDescription) {
+    public LoadGeneratorDescriptionExecutor(MiSimModel model, @NotNull LoadGeneratorDescription loadGeneratorDescription) {
         super(model, loadGeneratorDescription.getName() != null
             ? loadGeneratorDescription.getName()
             : "Generator", true);

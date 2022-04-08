@@ -2,6 +2,7 @@ package cambio.simulator.entities.patterns;
 
 import cambio.simulator.entities.NamedEntity;
 import cambio.simulator.entities.microservice.Microservice;
+import cambio.simulator.models.MiSimModel;
 import desmoj.core.simulator.Model;
 
 /**
@@ -12,7 +13,7 @@ public abstract class ServiceOwnedPattern extends NamedEntity implements IPatter
 
     protected Microservice owner = null;
 
-    public ServiceOwnedPattern(Model model, String name, boolean showInTrace) {
+    public ServiceOwnedPattern(MiSimModel model, String name, boolean showInTrace) {
         super(model, name, showInTrace);
     }
 

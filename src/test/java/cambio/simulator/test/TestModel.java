@@ -1,5 +1,6 @@
 package cambio.simulator.test;
 
+import cambio.simulator.models.MiSimModel;
 import desmoj.core.simulator.Model;
 
 /**
@@ -10,7 +11,7 @@ public class TestModel extends Model {
     private final Runnable init;
 
 
-    public TestModel(Model model, String s, boolean b, boolean b1, Runnable initialSchedule, Runnable init) {
+    public TestModel(MiSimModel model, String s, boolean b, boolean b1, Runnable initialSchedule, Runnable init) {
         super(model, s, b, b1);
         this.initialSchedule = initialSchedule;
         this.init = init;

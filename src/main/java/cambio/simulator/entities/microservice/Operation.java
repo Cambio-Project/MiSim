@@ -5,6 +5,7 @@ import java.util.Arrays;
 import cambio.simulator.entities.NamedEntity;
 import cambio.simulator.entities.networking.DependencyDescription;
 import cambio.simulator.entities.networking.ServiceDependencyInstance;
+import cambio.simulator.models.MiSimModel;
 import com.google.gson.annotations.Expose;
 import desmoj.core.dist.NumericalDist;
 import desmoj.core.simulator.Model;
@@ -29,7 +30,7 @@ public class Operation extends NamedEntity {
      * @param ownerMS {@link Microservice} that owns this operation.
      * @param demand  CPU demand of this operation.
      */
-    public Operation(Model model, String name, boolean showInTrace, Microservice ownerMS, int demand) {
+    public Operation(MiSimModel model, String name, boolean showInTrace, Microservice ownerMS, int demand) {
         super(model, (ownerMS == null ? "" : ownerMS.getPlainName() + ".") + name, showInTrace);
         this.demand = demand;
         this.ownerMS = ownerMS;

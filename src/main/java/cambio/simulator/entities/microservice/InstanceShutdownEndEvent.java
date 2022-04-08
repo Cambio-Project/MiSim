@@ -1,5 +1,6 @@
 package cambio.simulator.entities.microservice;
 
+import cambio.simulator.models.MiSimModel;
 import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.Event;
 import desmoj.core.simulator.Model;
@@ -11,7 +12,7 @@ import desmoj.core.simulator.Model;
  */
 public class InstanceShutdownEndEvent extends Event<MicroserviceInstance> {
 
-    public InstanceShutdownEndEvent(Model model, String name, boolean showInTrace) {
+    public InstanceShutdownEndEvent(MiSimModel model, String name, boolean showInTrace) {
         super(model, name, showInTrace);
     }
 

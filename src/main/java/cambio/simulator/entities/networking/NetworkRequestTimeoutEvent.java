@@ -3,6 +3,7 @@ package cambio.simulator.entities.networking;
 import java.util.concurrent.TimeUnit;
 
 import cambio.simulator.misc.Priority;
+import cambio.simulator.models.MiSimModel;
 import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.*;
 
@@ -23,7 +24,7 @@ public class NetworkRequestTimeoutEvent extends NetworkRequestEvent implements I
      *
      * @param request the request that should be able to time out.
      */
-    public NetworkRequestTimeoutEvent(Model model, String name, boolean showInTrace, Request request) {
+    public NetworkRequestTimeoutEvent(MiSimModel model, String name, boolean showInTrace, Request request) {
         super(model, name, showInTrace, request);
         this.setSchedulingPriority(Priority.LOW);
         this.schedule(new TimeSpan(8, TimeUnit.SECONDS));

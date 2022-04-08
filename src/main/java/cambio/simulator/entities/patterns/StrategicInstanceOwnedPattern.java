@@ -1,5 +1,6 @@
 package cambio.simulator.entities.patterns;
 
+import cambio.simulator.models.MiSimModel;
 import com.google.gson.annotations.Expose;
 import desmoj.core.simulator.Model;
 
@@ -15,7 +16,7 @@ public abstract class StrategicInstanceOwnedPattern<S extends IStrategy> extends
     @Expose
     protected S strategy;
 
-    public StrategicInstanceOwnedPattern(Model model, String name, boolean showInTrace) {
+    public StrategicInstanceOwnedPattern(MiSimModel model, String name, boolean showInTrace) {
         super(model, name, showInTrace);
     }
 

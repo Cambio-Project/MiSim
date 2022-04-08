@@ -21,6 +21,7 @@ import cambio.simulator.entities.generator.LoadGeneratorDescriptionExecutor;
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.entities.microservice.Operation;
 import cambio.simulator.entities.networking.DependencyDescription;
+import cambio.simulator.models.MiSimModel;
 import desmoj.core.simulator.Model;
 import org.junit.jupiter.api.Assertions;
 
@@ -145,7 +146,7 @@ public class RandomTieredModel extends Model {
         this.generator_interval = generator_interval;
     }
 
-    private void createGenerators(int generator_count, double interval, Model model) {
+    private void createGenerators(int generator_count, double interval, MiSimModel model) {
         List<Operation> tier1Operations = new ArrayList<>();
         tiers.get(1).forEach(microservice -> tier1Operations.addAll(Arrays.asList(microservice.getOperations())));
 

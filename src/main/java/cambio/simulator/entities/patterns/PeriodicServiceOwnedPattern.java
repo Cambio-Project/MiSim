@@ -1,5 +1,6 @@
 package cambio.simulator.entities.patterns;
 
+import cambio.simulator.models.MiSimModel;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import desmoj.core.simulator.Model;
@@ -22,7 +23,7 @@ public abstract class PeriodicServiceOwnedPattern extends ServiceOwnedPattern im
 
     private transient PeriodicPatternScheduler scheduler;
 
-    public PeriodicServiceOwnedPattern(Model model, String name, boolean showInTrace) {
+    public PeriodicServiceOwnedPattern(MiSimModel model, String name, boolean showInTrace) {
         super(model, name, showInTrace);
     }
 

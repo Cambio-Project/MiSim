@@ -2,6 +2,7 @@ package cambio.simulator.events;
 
 import java.util.Objects;
 
+import cambio.simulator.models.MiSimModel;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 
@@ -12,8 +13,8 @@ import desmoj.core.simulator.TimeInstant;
  */
 public abstract class SelfScheduledExperimentAction extends ExperimentAction implements ISelfScheduled {
 
-    public SelfScheduledExperimentAction(Model model, String name, boolean showInTrace) {
-        super(model, name, showInTrace);
+    public SelfScheduledExperimentAction(MiSimModel owner, String name, boolean showInTrace) {
+        super(owner, name, showInTrace);
     }
 
     @Override

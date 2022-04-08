@@ -36,7 +36,7 @@ public abstract class Request extends NamedEntity {
     private TimeInstant timestampComputationCompleted;
     private TimeInstant timestampDependenciesCompleted;
 
-    protected Request(Model model, String name, boolean showInTrace, Request parent, Operation operation,
+    protected Request(MiSimModel model, String name, boolean showInTrace, Request parent, Operation operation,
                       MicroserviceInstance requester) {
         super(model, name, showInTrace);
         this.operation = operation;

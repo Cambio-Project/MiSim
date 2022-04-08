@@ -2,6 +2,7 @@ package cambio.simulator.entities.patterns;
 
 import cambio.simulator.entities.NamedExternalEvent;
 import cambio.simulator.misc.Priority;
+import cambio.simulator.models.MiSimModel;
 import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.Model;
 
@@ -19,7 +20,7 @@ public class HalfOpenBreakerEvent extends NamedExternalEvent {
      *
      * @param stateToChange circuit breaker that should change its state to half-open
      */
-    public HalfOpenBreakerEvent(Model model, String name, boolean showInTrace,
+    public HalfOpenBreakerEvent(MiSimModel model, String name, boolean showInTrace,
                                 ICircuitBreakerState stateToChange) {
         super(model, name, showInTrace);
         this.stateToChange = stateToChange;

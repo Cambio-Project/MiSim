@@ -1,5 +1,6 @@
 package cambio.simulator.entities;
 
+import cambio.simulator.models.MiSimModel;
 import desmoj.core.simulator.ExternalEvent;
 import desmoj.core.simulator.Model;
 
@@ -32,11 +33,13 @@ public abstract class NamedExternalEvent extends ExternalEvent {
      * @param name        The name of this event.
      * @param showInTrace Flag indicating whether the entity should be shown in the trace.
      */
-    public NamedExternalEvent(Model model, String name, boolean showInTrace) {
+    public NamedExternalEvent(MiSimModel model, String name, boolean showInTrace) {
         super(model, name, showInTrace);
         this.plainName = name;
         this.quotedPlainName = "'" + name + "'";
         this.quotedName = super.getQuotedName();
+
+        this.model = model;
     }
 
     public String getPlainName() {
@@ -71,5 +74,13 @@ public abstract class NamedExternalEvent extends ExternalEvent {
     @Override
     public String getQuotedName() {
         return this.quotedName;
+    }
+
+
+    private final MiSimModel model;
+
+    @Override
+    public MiSimModel getModel() {
+        return this.model;
     }
 }

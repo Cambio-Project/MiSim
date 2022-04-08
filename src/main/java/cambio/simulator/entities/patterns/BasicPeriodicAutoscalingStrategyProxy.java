@@ -1,5 +1,6 @@
 package cambio.simulator.entities.patterns;
 
+import cambio.simulator.models.MiSimModel;
 import cambio.simulator.parsing.JsonTypeName;
 import desmoj.core.simulator.Model;
 
@@ -12,7 +13,7 @@ import desmoj.core.simulator.Model;
 @JsonTypeName(value = "autoscaling", alternativeNames = "autoscale")
 public class BasicPeriodicAutoscalingStrategyProxy extends StrategicPeriodicServiceOwnedPattern<IAutoscalingPolicy> {
 
-    public BasicPeriodicAutoscalingStrategyProxy(Model model, String name, boolean showInTrace) {
+    public BasicPeriodicAutoscalingStrategyProxy(MiSimModel model, String name, boolean showInTrace) {
         super(model, name, showInTrace);
         strategy = new ReactiveAutoscalingPolicy(); //default strategy
     }

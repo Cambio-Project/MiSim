@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import cambio.simulator.entities.microservice.*;
+import cambio.simulator.models.MiSimModel;
 import desmoj.core.simulator.Entity;
 import desmoj.core.simulator.Model;
 
@@ -21,7 +22,7 @@ public final class LoadBalancer extends Entity {
     /**
      * Creates a new instance of a loadbalancer that will use the given strategy.
      */
-    public LoadBalancer(Model model, String name, boolean showInTrace, ILoadBalancingStrategy loadBalancingStrategy) {
+    public LoadBalancer(MiSimModel model, String name, boolean showInTrace, ILoadBalancingStrategy loadBalancingStrategy) {
         super(model, name, showInTrace);
         if (loadBalancingStrategy != null) {
             this.loadBalancingStrategy = loadBalancingStrategy;

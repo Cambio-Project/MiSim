@@ -3,6 +3,7 @@ package cambio.simulator.entities.patterns;
 import cambio.simulator.entities.NamedEntity;
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.entities.microservice.MicroserviceInstance;
+import cambio.simulator.models.MiSimModel;
 import cambio.simulator.parsing.JsonTypeName;
 import desmoj.core.simulator.Model;
 
@@ -14,7 +15,7 @@ import desmoj.core.simulator.Model;
  * instance  if their type name is set via the {@link JsonTypeName} annotation. For a successful parsing the subtype
  * need to have a constructor with the following signature: <br>
  * <pre>
- * constructor({@link Model}, {@link String}, {@link Boolean}, {@link MicroserviceInstance})
+ * constructor({@link MiSimModel}, {@link String}, {@link Boolean}, {@link MicroserviceInstance})
  * </pre>
  *
  * <p>
@@ -47,7 +48,7 @@ public abstract class InstanceOwnedPattern extends NamedEntity implements IPatte
 
     protected final MicroserviceInstance owner = null;
 
-    public InstanceOwnedPattern(Model model, String name, boolean showInTrace) {
+    public InstanceOwnedPattern(MiSimModel model, String name, boolean showInTrace) {
         super(model, name, showInTrace);
     }
 

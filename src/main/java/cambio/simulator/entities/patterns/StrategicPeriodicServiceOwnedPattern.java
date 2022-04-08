@@ -1,8 +1,8 @@
 package cambio.simulator.entities.patterns;
 
+import cambio.simulator.models.MiSimModel;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 
 /**
@@ -25,7 +25,7 @@ public abstract class StrategicPeriodicServiceOwnedPattern<S extends IStrategy> 
 
     private transient PeriodicPatternScheduler scheduler;
 
-    public StrategicPeriodicServiceOwnedPattern(Model model, String name, boolean showInTrace) {
+    public StrategicPeriodicServiceOwnedPattern(MiSimModel model, String name, boolean showInTrace) {
         super(model, name, showInTrace);
     }
 

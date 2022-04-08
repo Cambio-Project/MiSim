@@ -5,6 +5,7 @@ import java.util.*;
 import cambio.simulator.entities.NamedExternalEvent;
 import cambio.simulator.entities.microservice.MicroserviceInstance;
 import cambio.simulator.export.MultiDataPointReporter;
+import cambio.simulator.models.MiSimModel;
 import cambio.simulator.resources.cpu.scheduling.CPUProcessScheduler;
 import cambio.simulator.resources.cpu.scheduling.RoundRobinScheduler;
 import co.paralleluniverse.fibers.SuspendExecution;
@@ -22,7 +23,7 @@ import org.javatuples.Pair;
  * @author Lion Wagner
  * @see CPUProcess
  * @see CPUProcessScheduler
- * @see CPU#CPU(Model, String, boolean, MicroserviceInstance, int, CPUProcessScheduler, int)
+ * @see CPU#CPU(MiSimModel, String, boolean, MicroserviceInstance, int, CPUProcessScheduler, int)
  */
 public class CPU extends NamedExternalEvent {
 
@@ -45,7 +46,7 @@ public class CPU extends NamedExternalEvent {
      * @see CPU#CPU
      * @see RoundRobinScheduler
      */
-    public CPU(Model model, String name, boolean showInTrace, int capacity, MicroserviceInstance owner) {
+    public CPU(MiSimModel model, String name, boolean showInTrace, int capacity, MicroserviceInstance owner) {
         this(model, name, showInTrace, capacity, DEFAULT_THREADPOOLSIZE, owner);
     }
 
@@ -55,7 +56,7 @@ public class CPU extends NamedExternalEvent {
      * @see CPU#CPU
      * @see RoundRobinScheduler
      */
-    public CPU(Model model, String name, boolean showInTrace, int capacity, int threadPoolSize,
+    public CPU(MiSimModel model, String name, boolean showInTrace, int capacity, int threadPoolSize,
                MicroserviceInstance owner) {
         this(model, name, showInTrace, owner, capacity, new RoundRobinScheduler(name + "_scheduler"), threadPoolSize);
     }
@@ -68,7 +69,7 @@ public class CPU extends NamedExternalEvent {
      *
      * @see CPU#CPU
      */
-    public CPU(Model model, String name, boolean showInTrace, int capacity, CPUProcessScheduler scheduler,
+    public CPU(MiSimModel model, String name, boolean showInTrace, int capacity, CPUProcessScheduler scheduler,
                MicroserviceInstance owner) {
         this(model, name, showInTrace, owner, capacity, scheduler, DEFAULT_THREADPOOLSIZE);
     }
@@ -87,7 +88,7 @@ public class CPU extends NamedExternalEvent {
      * @see CPUProcessScheduler
      * @see RoundRobinScheduler
      */
-    public CPU(Model model, String name, boolean showInTrace, MicroserviceInstance owner, int capacity,
+    public CPU(MiSimModel model, String name, boolean showInTrace, MicroserviceInstance owner, int capacity,
                CPUProcessScheduler scheduler, int threadPoolSize) {
         super(model, name, showInTrace);
         this.owner = owner;

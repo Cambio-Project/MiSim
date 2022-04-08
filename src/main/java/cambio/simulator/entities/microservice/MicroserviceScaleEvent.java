@@ -1,6 +1,7 @@
 package cambio.simulator.entities.microservice;
 
 import cambio.simulator.entities.NamedExternalEvent;
+import cambio.simulator.models.MiSimModel;
 import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.Model;
 
@@ -17,7 +18,7 @@ public class MicroserviceScaleEvent extends NamedExternalEvent {
     /**
      * Creates a new scaling event.
      */
-    public MicroserviceScaleEvent(Model model, String name, boolean showInTrace, Microservice microservice,
+    public MicroserviceScaleEvent(MiSimModel model, String name, boolean showInTrace, Microservice microservice,
                                   int targetInstanceCount) {
         super(model, name, showInTrace);
         this.microservice = microservice;

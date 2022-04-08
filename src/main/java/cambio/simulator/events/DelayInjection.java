@@ -6,6 +6,7 @@ import java.util.Objects;
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.entities.microservice.Operation;
 import cambio.simulator.entities.networking.InternalRequest;
+import cambio.simulator.models.MiSimModel;
 import cambio.simulator.parsing.JsonTypeName;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -34,7 +35,7 @@ public class DelayInjection extends SelfScheduledExperimentAction {
     @Expose
     private double duration;
 
-    public DelayInjection(Model model, String name, boolean showInTrace) {
+    public DelayInjection(MiSimModel model, String name, boolean showInTrace) {
         super(model, name, showInTrace);
     }
 
@@ -49,7 +50,7 @@ public class DelayInjection extends SelfScheduledExperimentAction {
      * @param operationTrg target {@link Operation} of the operationSrc that should be affected, can be set to {@code
      *                     null} to affect all outgoing {@link InternalRequest}s
      */
-    public DelayInjection(Model model, String name, boolean showInTrace, double delay, double stdDeviation,
+    public DelayInjection(MiSimModel model, String name, boolean showInTrace, double delay, double stdDeviation,
                           Microservice microservice, Operation operationSrc, Operation operationTrg) {
         super(model, name, showInTrace);
         Objects.requireNonNull(microservice);
