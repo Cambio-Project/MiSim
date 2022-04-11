@@ -12,8 +12,8 @@ import org.junit.jupiter.api.Test;
 /**
  * @author Lion Wagner
  */
-@Disabled
 //@Execution(ExecutionMode.CONCURRENT), not working yet
+@Disabled
 public class ProofOfConcept extends TestBase {
 
 
@@ -53,6 +53,15 @@ public class ProofOfConcept extends TestBase {
             ".json");
         File exp =
             FileLoaderUtil.loadFromExampleResources("ProofOfConcept", "exp_loadbalancer_util_demonstration.json");
+        runSimulationCheckExit(0, arch, exp,  "-d", "-t");
+    }
+
+    @Test
+    void LoadBalancerStrictRoundRobinDemonstration() throws Exception {
+        File arch = FileLoaderUtil.loadFromExampleResources("ProofOfConcept", "arch_loadbalancer_round" +
+            "-robin-strict_demonstration.json");
+        File exp = FileLoaderUtil.loadFromExampleResources("ProofOfConcept", "exp_loadbalancer_round" +
+            "-robin-strict_demonstration.json");
         runSimulationCheckExit(0, arch, exp,  "-d", "-t");
     }
 
