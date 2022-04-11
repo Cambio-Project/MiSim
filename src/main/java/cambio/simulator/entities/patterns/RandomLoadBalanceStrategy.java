@@ -4,7 +4,6 @@ import java.util.*;
 
 import cambio.simulator.entities.microservice.MicroserviceInstance;
 import cambio.simulator.entities.microservice.NoInstanceAvailableException;
-import cambio.simulator.export.MultiDataPointReporter;
 import cambio.simulator.models.MiSimModel;
 import cambio.simulator.parsing.JsonTypeName;
 import desmoj.core.simulator.Model;
@@ -13,9 +12,6 @@ import desmoj.core.simulator.Model;
 final class RandomLoadBalanceStrategy implements ILoadBalancingStrategy {
 
     private Random rng = null;
-    private Model model = null;
-
-    private MultiDataPointReporter reporter;
 
     /**
      * Returns a random Microservice Instance of given Collection.
@@ -31,8 +27,6 @@ final class RandomLoadBalanceStrategy implements ILoadBalancingStrategy {
         }
 
         int targetIndex = (int) (rng.nextDouble() * runningInstances.size());
-
-        reporter.addDatapoint("_decision", model.presentTime(), targetIndex);
 
         //use (hopefully) optimized implementation of get
         if (runningInstances instanceof ArrayList) {
@@ -52,8 +46,10 @@ final class RandomLoadBalanceStrategy implements ILoadBalancingStrategy {
 
     @Override
     public void onInitializedCompleted(Model model) {
-        rng = new Random(((MiSimModel) model).getExperimentMetaData().getSeed());
-        reporter = new MultiDataPointReporter("RandomLoadBalanceStrategy");
-        this.model = model;
+        try {
+            rng = new Random(((MiSimModel) model).getExperimentMetaData().getSeed());
+        } catch (ClassCastException e) {
+            rng = new Random();
+        }
     }
 }
