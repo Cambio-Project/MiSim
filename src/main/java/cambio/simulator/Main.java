@@ -3,6 +3,7 @@ package cambio.simulator;
 import java.util.Arrays;
 
 import cambio.simulator.export.ReportCollector;
+import cambio.simulator.misc.RNGMananger;
 import cambio.simulator.models.MiSimModel;
 import cambio.simulator.parsing.ParsingException;
 import com.google.gson.JsonParseException;
@@ -148,6 +149,9 @@ public final class Main {
         System.out.printf("[INFO] Starting simulation at approximately %s%n", java.time.LocalDateTime.now());
         experiment.start();
         experiment.finish();
+
+        RNGMananger.reset();
+
         return experiment;
     }
 }
