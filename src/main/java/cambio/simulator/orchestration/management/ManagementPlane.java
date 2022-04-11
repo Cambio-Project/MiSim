@@ -178,6 +178,17 @@ ManagementPlane {
         return amountPodsWaiting;
     }
 
+    public int getAmountOfPodsOnNodes(Deployment deployment){
+        List<Pod> collect = deployment.getReplicaSet().stream().collect(Collectors.toList());
+        List<Pod> allPodsPlacedOnNodes = getAllPodsPlacedOnNodes();
+
+        return allPodsPlacedOnNodes.stream()
+                .filter(collect::contains)
+                .collect(Collectors
+                        .toList()).size();
+
+    }
+
     public List<Deployment> getDeployments() {
         return deployments;
     }

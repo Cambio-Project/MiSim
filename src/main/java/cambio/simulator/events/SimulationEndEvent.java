@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 import cambio.simulator.entities.NamedExternalEvent;
 import cambio.simulator.entities.microservice.*;
 import cambio.simulator.entities.networking.*;
+import cambio.simulator.entities.patterns.CircuitBreaker;
 import cambio.simulator.export.ExportUtils;
 import cambio.simulator.export.ReportCollector;
 import cambio.simulator.export.ReportWriter;
@@ -78,7 +79,7 @@ public class SimulationEndEvent extends NamedExternalEvent {
         clReport();
 
         if (MiSimModel.createOrchestratedReport) {
-            String currentRunName = "C3";
+            String currentRunName = "D - Test";
             createReport(currentRunName);
         }
     }
@@ -444,6 +445,8 @@ public class SimulationEndEvent extends NamedExternalEvent {
         try (PrintWriter pw = new PrintWriter(csvOutputFile4NodePodSchedulerEventReport)) {
             ArrayList<String> content = new ArrayList<>();
             content.add("Time");
+            content.add("desiredDeplState");
+            content.add("currentDeplStateOnNode");
             content.add("Pod");
             content.add("Node");
             content.add("Scheduler");
@@ -454,6 +457,8 @@ public class SimulationEndEvent extends NamedExternalEvent {
             for (Stats.NodePodEventRecord nodePodEventRecord : nodePodEventRecords) {
                 content.clear();
                 content.add(String.valueOf(nodePodEventRecord.getTime()));
+                content.add(String.valueOf(nodePodEventRecord.getDesiredState()));
+                content.add(String.valueOf(nodePodEventRecord.getCurrentState()));
                 content.add(String.valueOf(nodePodEventRecord.getPodName()));
                 content.add(String.valueOf(nodePodEventRecord.getNodeName()));
                 content.add(String.valueOf(nodePodEventRecord.getScheduler()));
@@ -493,6 +498,7 @@ public class SimulationEndEvent extends NamedExternalEvent {
             content.add("InstanceStartupEvent");
             content.add("MicroserviceScaleEvent");
             content.add("NetworkRequestCanceledEvent");
+            content.add("CanceldCB");
             content.add("NetworkRequestReceiveEvent");
             content.add("NetworkRequestSendEvent");
             content.add("NetworkRequestTimeoutEvent");
@@ -526,6 +532,7 @@ public class SimulationEndEvent extends NamedExternalEvent {
 
 //            count all of them
             content.add(String.valueOf(NetworkRequestCanceledEvent.counter));
+            content.add(String.valueOf(CircuitBreaker.counter));
             content.add(String.valueOf(NetworkRequestReceiveEvent.counter));
             content.add(String.valueOf(NetworkRequestSendEvent.getCounterSendEvents()));
             content.add(String.valueOf(NetworkRequestTimeoutEvent.counter));

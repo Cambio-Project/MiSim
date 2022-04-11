@@ -19,8 +19,8 @@ public class Pod extends NamedEntity {
         this.podState = PodState.PENDING;
     }
 
-    public int getCPUDemand() {
-        return this.getContainers().stream().mapToInt(container -> container.getMicroserviceInstance().getOwner().getCapacity()).sum();
+    public double getCPUDemand() {
+        return this.getContainers().stream().mapToDouble(container -> container.getMicroserviceInstance().getOwner().getCapacity()).sum();
     }
 
     public void die() {

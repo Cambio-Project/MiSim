@@ -46,7 +46,7 @@ public class KubeJSONCreator {
         List containers = new ArrayList<>();
         for (Container container : pod.getContainers()) {
             String plainName = container.getMicroserviceInstance().getOwner().getPlainName();
-            int requests = pod.getCPUDemand();
+            double requests = pod.getCPUDemand();
             String containerTemplateString = getFileContent("src/main/java/cambio/simulator/orchestration/scheduling/external/container.json");
             containerTemplateString = containerTemplateString.replace("TEMPLATE_CONTAINER_NAME", plainName);
             containerTemplateString = containerTemplateString.replace("TEMPLATE_REQUESTS", String.valueOf(requests));

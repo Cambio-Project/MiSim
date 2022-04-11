@@ -161,6 +161,8 @@ public class KubeScheduler extends Scheduler {
                 record.setEvent("Binding");
                 record.setOutcome("Success");
                 record.setInfo("N/A");
+                record.setDesiredState(ManagementPlane.getInstance().getDeploymentForPod(pod).getDesiredReplicaCount());
+                record.setCurrentState(ManagementPlane.getInstance().getAmountOfPodsOnNodes(ManagementPlane.getInstance().getDeploymentForPod(pod)));
                 Stats.getInstance().getNodePodEventRecords().add(record);
 
                 System.out.println(podName + " was bound on " + boundNode);
@@ -184,6 +186,8 @@ public class KubeScheduler extends Scheduler {
                 record.setEvent("Binding");
                 record.setOutcome("Failed");
                 record.setInfo(map.get("status"));
+                record.setDesiredState(ManagementPlane.getInstance().getDeploymentForPod(pod).getDesiredReplicaCount());
+                record.setCurrentState(ManagementPlane.getInstance().getAmountOfPodsOnNodes(ManagementPlane.getInstance().getDeploymentForPod(pod)));
                 Stats.getInstance().getNodePodEventRecords().add(record);
 
                 System.out.println(this.getQuotedName() + " was not able to schedule pod " + pod + ". Reason: " + map.get("status"));

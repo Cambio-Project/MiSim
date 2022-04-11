@@ -439,25 +439,30 @@ A file called **config.yaml** needs to be provided inside the folder ___environm
 
 ```yaml
 nodes:
-  amount: 1
-  cpu: 10
+  amount: 7
+  cpu: 1500
 customNodes:
-  - name: Test5Node
-    cpu: 5
-  - name: Test6Node
-    cpu: 6
-  - name: Large
-    cpu: 10
+  - name: frontend
+    cpu: 1000
+  - name: backend
+    cpu: 1000
 scaler:
-  holdTimeUpScaler: 5
-  holdTimeDownScaler: 3
-loadBalancer: random_orchestration
-scheduler: firstFit
+  holdTimeUpScaler: 0
+  holdTimeDownScaler: 300
+loadBalancer: leastUtil_orchestration
+scheduler: kube
+scalingInterval: 15
+healthCheckDelay: 0
 schedulerPrio:
   - name: kube
-    prio: 2
+    prio: 1
   - name: firstFit
-    prio: 3
+    prio: 2
+startUpTimeContainer:
+  - name: frontend
+    time: 0
+  - name: backend
+    time: 0
 ```
 
 The config.yaml contains information necessary for the orchestration process:

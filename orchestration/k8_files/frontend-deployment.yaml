@@ -5,7 +5,7 @@ metadata:
   labels:
     app: frontend
 spec:
-  replicas: 1
+  replicas: 100
   selector:
     matchLabels:
       app: frontend
@@ -16,6 +16,10 @@ spec:
     spec:
       containers:
         - name: frontend
+          image: alpine
+          resources:
+            requests:
+              cpu: "0.5"
 #      affinity:
 #        nodeAffinity:
 #          requiredDuringSchedulingIgnoredDuringExecution:
@@ -24,4 +28,4 @@ spec:
 #                  - key: personalized/name
 #                    operator: In
 #                    values:
-#                      - Node1
+#                      - frontend

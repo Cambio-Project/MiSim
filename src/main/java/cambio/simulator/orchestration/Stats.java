@@ -10,7 +10,8 @@ import desmoj.core.simulator.Model;
 import java.util.*;
 
 import static cambio.simulator.entities.networking.NetworkRequestTimeoutEvent.microservicetimoutmap;
-import static cambio.simulator.entities.networking.NetworkRequestCanceledEvent.microserviceCanceledMap;
+import static cambio.simulator.entities.patterns.CircuitBreaker.microserviceCanceledMap;
+
 
 public class Stats {
     //only for MiSim
@@ -31,6 +32,8 @@ public class Stats {
         String event;
         String outcome;
         String info;
+        int desiredState;
+        int currentState;
 
         public int getTime() {
             return time;
@@ -86,6 +89,22 @@ public class Stats {
 
         public void setOutcome(String outcome) {
             this.outcome = outcome;
+        }
+
+        public int getDesiredState() {
+            return desiredState;
+        }
+
+        public void setDesiredState(int desiredState) {
+            this.desiredState = desiredState;
+        }
+
+        public int getCurrentState() {
+            return currentState;
+        }
+
+        public void setCurrentState(int currentState) {
+            this.currentState = currentState;
         }
     }
 

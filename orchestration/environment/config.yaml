@@ -1,9 +1,13 @@
 nodes:
-  amount: 1
-  cpu: 1000000000
-#customNodes:
-#  - name: Test5Node
-#    cpu: 0
+  amount: 0
+  cpu: 1500
+customNodes:
+  - name: small
+    cpu: 1
+  - name: medium
+    cpu: 2
+  - name: large
+    cpu: 4
 scaler:
   holdTimeUpScaler: 0
   holdTimeDownScaler: 300
@@ -13,13 +17,11 @@ scalingInterval: 15
 healthCheckDelay: 0
 #schedulerPrio:
 #  - name: kube
-#    prio: 4
+#    prio: 1
 #  - name: firstFit
-#    prio: 3
+#    prio: 2
 #startUpTimeContainer:
 #  - name: frontend
 #    time: 0
 #  - name: backend
-#    time: 0
-#  - name: db
 #    time: 0

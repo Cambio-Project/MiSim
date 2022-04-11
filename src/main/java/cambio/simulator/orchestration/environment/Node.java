@@ -20,8 +20,8 @@ public class Node extends NamedEntity {
     private String nodeIpAddress;
     private static int IP_ADDRESS_COUNTER = 1;
 
-    private final int totalCPU;
-    private int reserved = 0;
+    private final double totalCPU;
+    private double reserved = 0;
     private List<Pod> pods;
 
     public Node(Model model, String name, boolean showInTrace, int totalCPU) {
@@ -44,6 +44,26 @@ public class Node extends NamedEntity {
     }
 
     public void startRemovingPod(Pod pod){
+        Stats.NodePodEventRecord record = new Stats.NodePodEventRecord();
+        record.setTime((int) presentTime().getTimeAsDouble());
+        record.setPodName(pod.getName());
+        record.setNodeName(this.getPlainName());
+        String schedulerName = "N/A";
+        Deployment deploymentForPod = ManagementPlane.getInstance().getDeploymentForPod(pod);
+        if(deploymentForPod!=null){
+            SchedulerType schedulerType = deploymentForPod.getSchedulerType();
+            if(schedulerType!=null){
+                schedulerName = schedulerType.getName();
+            }
+        }
+        record.setScheduler(schedulerName);
+        record.setEvent("Start Pod Removal");
+        record.setOutcome("Initiating");
+        record.setInfo(pod.getName() + " needs to be removed from " + this.getPlainName());
+        record.setDesiredState(deploymentForPod.getDesiredReplicaCount());
+        record.setCurrentState(ManagementPlane.getInstance().getAmountOfPodsOnNodes(deploymentForPod));
+        Stats.getInstance().getNodePodEventRecords().add(record);
+
         pod.setPodStateAndApplyEffects(PodState.TERMINATING);
         final CheckPodRemovableEvent checkPodRemovableEvent = new CheckPodRemovableEvent(getModel(), "Check if pod can be removed", traceIsOn());
         checkPodRemovableEvent.schedule(pod, this, new TimeSpan(0));
@@ -71,6 +91,8 @@ public class Node extends NamedEntity {
             record.setEvent("Pod Removal");
             record.setOutcome("Success");
             record.setInfo(pod.getName() + " was removed from " + this.getPlainName());
+            record.setDesiredState(deploymentForPod.getDesiredReplicaCount());
+            record.setCurrentState(ManagementPlane.getInstance().getAmountOfPodsOnNodes(deploymentForPod));
             Stats.getInstance().getNodePodEventRecords().add(record);
             sendTraceNote(pod.getQuotedName() + " was removed from " + this.getQuotedName());
             HealthCheckEvent healthCheckEvent = new HealthCheckEvent(getModel(), "HealthCheckEvent - After Scaling", traceIsOn());
@@ -89,11 +111,11 @@ public class Node extends NamedEntity {
         this.pods = pods;
     }
 
-    public int getTotalCPU() {
+    public double getTotalCPU() {
         return totalCPU;
     }
 
-    public int getReserved() {
+    public double getReserved() {
         return reserved;
     }
 

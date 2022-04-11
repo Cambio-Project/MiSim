@@ -24,7 +24,7 @@ import org.javatuples.Pair;
  * @author Lion Wagner
  * @see CPUProcess
  * @see CPUProcessScheduler
- * @see CPU#CPU(Model, String, boolean, MicroserviceInstance, int, CPUProcessScheduler, int)
+ * @see CPU#CPU(Model, String, boolean, MicroserviceInstance, double, CPUProcessScheduler, int)
  */
 public class CPU extends NamedExternalEvent {
 
@@ -46,7 +46,7 @@ public class CPU extends NamedExternalEvent {
      * @see CPU#CPU
      * @see RoundRobinScheduler
      */
-    public CPU(Model model, String name, boolean showInTrace, int capacity, MicroserviceInstance owner) {
+    public CPU(Model model, String name, boolean showInTrace, double capacity, MicroserviceInstance owner) {
         this(model, name, showInTrace, capacity, DEFAULT_THREADPOOLSIZE, owner);
     }
 
@@ -56,7 +56,7 @@ public class CPU extends NamedExternalEvent {
      * @see CPU#CPU
      * @see RoundRobinScheduler
      */
-    public CPU(Model model, String name, boolean showInTrace, int capacity, int threadPoolSize,
+    public CPU(Model model, String name, boolean showInTrace, double capacity, int threadPoolSize,
                MicroserviceInstance owner) {
         this(model, name, showInTrace, owner, capacity, new RoundRobinScheduler(name + "_scheduler"), threadPoolSize);
     }
@@ -69,7 +69,7 @@ public class CPU extends NamedExternalEvent {
      *
      * @see CPU#CPU
      */
-    public CPU(Model model, String name, boolean showInTrace, int capacity, CPUProcessScheduler scheduler,
+    public CPU(Model model, String name, boolean showInTrace, double capacity, CPUProcessScheduler scheduler,
                MicroserviceInstance owner) {
         this(model, name, showInTrace, owner, capacity, scheduler, DEFAULT_THREADPOOLSIZE);
     }
@@ -88,13 +88,13 @@ public class CPU extends NamedExternalEvent {
      * @see CPUProcessScheduler
      * @see RoundRobinScheduler
      */
-    public CPU(Model model, String name, boolean showInTrace, MicroserviceInstance owner, int capacity,
+    public CPU(Model model, String name, boolean showInTrace, MicroserviceInstance owner, double capacity,
                CPUProcessScheduler scheduler, int threadPoolSize) {
         super(model, name, showInTrace);
         this.owner = owner;
         this.scheduler = scheduler;
 
-        this.capacityPerThread = (double) capacity / threadPoolSize;
+        this.capacityPerThread = capacity / threadPoolSize;
         this.threadPoolSize = threadPoolSize;
         activeProcesses = new HashSet<>(threadPoolSize);
 

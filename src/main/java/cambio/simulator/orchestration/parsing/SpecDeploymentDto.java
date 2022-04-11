@@ -116,6 +116,7 @@ public class SpecDeploymentDto {
                 private String name;
                 private String image;
                 private List<PortsDto> ports;
+                private ResourcesDto resources;
 
                 public String getName() {
                     return name;
@@ -141,7 +142,40 @@ public class SpecDeploymentDto {
                     this.ports = ports;
                 }
 
-                public class PortsDto {
+                public ResourcesDto getResources() {
+                    return resources;
+                }
+
+                public void setResources(ResourcesDto resources) {
+                    this.resources = resources;
+                }
+
+                private static class ResourcesDto {
+                    private RequestsDto requests;
+
+                    public RequestsDto getRequests() {
+                        return requests;
+                    }
+
+                    public void setRequests(RequestsDto requests) {
+                        this.requests = requests;
+                    }
+                    private static class RequestsDto {
+                        private String cpu;
+
+                        public String getCpu() {
+                            return cpu;
+                        }
+
+                        public void setCpu(String cpu) {
+                            this.cpu = cpu;
+                        }
+                    }
+
+                }
+
+
+                public static class PortsDto {
                     private String containerPort;
 
                     public String getContainerPort() {
