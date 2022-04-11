@@ -1,11 +1,10 @@
 package cambio.simulator.test.consistency;
 
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.stream.Collectors;
+import java.io.File;
+import java.io.IOException;
 
-import cambio.simulator.test.*;
+import cambio.simulator.test.FileLoaderUtil;
+import cambio.simulator.test.TestBase;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -15,18 +14,24 @@ public class Reproducibility extends TestBase {
 
 
     @Test
-    void SimpleReproducibility() throws IOException {
-        File scenario = FileLoaderUtil.loadFromExampleResources("PaperExample/paper_experiment.json");
-        File architecture = FileLoaderUtil.loadFromExampleResources("PaperExample/paper_architecture.json");
+    void ChaosMonkeyReproducibility() throws IOException {
+        File exp = FileLoaderUtil.loadFromExampleResources("PaperExample","paper_experiment.json");
+        File arch = FileLoaderUtil.loadFromExampleResources("PaperExample","paper_architecture.json");
+        testReproducibility(exp, arch);
+    }
 
-        File output1 = runSimulationCheckExitTempOutput(0, architecture, scenario);
-        File output2 = runSimulationCheckExitTempOutput(0, architecture, scenario);
 
-        Path rawOutput1 =
-            Files.walk(output1.toPath(), 2).filter(path -> path.endsWith("raw")).collect(Collectors.toList()).get(0);
-        Path rawOutput2 =
-            Files.walk(output2.toPath(), 2).filter(path -> path.endsWith("raw")).collect(Collectors.toList()).get(0);
+    @Test
+    void CircuitbreakerReproducibility() throws IOException {
+        File arch = FileLoaderUtil.loadFromExampleResources("ProofOfConcept", "arch_circuitbreaker_demonstration.json");
+        File exp = FileLoaderUtil.loadFromExampleResources("ProofOfConcept", "exp_circuitbreaker_demonstration.json");
+        testReproducibility(exp, arch);
+    }
 
-        TestUtils.compareFileContentsOfDirectories(rawOutput1, rawOutput2);
+    @Test
+    void RetryReproducibility() throws IOException {
+        File arch = FileLoaderUtil.loadFromTestResources("SSPExample", "ssp_architecture.json");
+        File exp = FileLoaderUtil.loadFromTestResources("SSPExample", "ssp_experiment.json");
+        testReproducibility(exp, arch);
     }
 }

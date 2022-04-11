@@ -8,6 +8,7 @@ import java.nio.file.*;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -28,14 +29,14 @@ public class TestUtils {
 
 
     public static void compareFileContentsOfDirectories(Path dir1, Path dir2) throws IOException {
-        Map<Path, byte[]> hashes = new HashMap<>();
+        Map<Path, byte[]> hashes = new ConcurrentHashMap<>();
 
-        List<String> errors = new ArrayList<>();
+        List<String> errors = Collections.synchronizedList(new ArrayList<>());
 
         List<Path> files1 = Files.walk(dir1).filter(Files::isRegularFile).collect(Collectors.toList());
         List<Path> files2 = Files.walk(dir2).filter(Files::isRegularFile).collect(Collectors.toList());
 
-        files1.forEach(path -> {
+        files1.parallelStream().forEach(path -> {
             try {
                 MessageDigest md = MessageDigest.getInstance("MD5");
                 try (InputStream is = Files.newInputStream(path);
@@ -49,7 +50,7 @@ public class TestUtils {
             }
         });
 
-        files2.forEach(path -> {
+        files2.parallelStream().forEach(path -> {
             try {
                 MessageDigest md = MessageDigest.getInstance("MD5");
                 try (InputStream is = Files.newInputStream(path);
