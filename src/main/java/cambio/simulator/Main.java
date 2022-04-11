@@ -3,7 +3,7 @@ package cambio.simulator;
 import java.util.Arrays;
 
 import cambio.simulator.export.ReportCollector;
-import cambio.simulator.misc.RNGMananger;
+import cambio.simulator.misc.RNGStorage;
 import cambio.simulator.models.MiSimModel;
 import cambio.simulator.parsing.ParsingException;
 import com.google.gson.JsonParseException;
@@ -150,7 +150,7 @@ public final class Main {
         experiment.start();
         experiment.finish();
 
-        RNGMananger.reset();
+        RNGStorage.reset();
 
         return experiment;
     }

@@ -31,10 +31,7 @@ public class ReportCollector extends ReportManager {
     }
 
     public static ReportCollector getInstance() {
-        if(instance == null) {
-            instance = new ReportCollector("Main");
-        }
-        return instance;
+        return (instance == null) ? instance = new ReportCollector("Main") : instance;
     }
 
     /**

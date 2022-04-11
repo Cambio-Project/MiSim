@@ -5,6 +5,7 @@ import java.util.*;
 import cambio.simulator.entities.NamedEntity;
 import cambio.simulator.entities.microservice.MicroserviceInstance;
 import cambio.simulator.entities.microservice.Operation;
+import cambio.simulator.misc.RNGStorage;
 import cambio.simulator.models.MiSimModel;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
@@ -21,14 +22,14 @@ public abstract class Request extends NamedEntity {
     private final Request parent;
     private final MicroserviceInstance requester;
     private final PriorityQueue<IRequestUpdateListener> updateListeners = new PriorityQueue<>();
-    private final Random prob;
+    private final transient Random prob;
     private MicroserviceInstance handlerInstance;
     //microservice instance that collects dependencies of this request and computes it
     private boolean computationCompleted = false;
     private boolean dependenciesCompleted = false;
-    private NetworkRequestSendEvent sendEvent;
-    private NetworkRequestReceiveEvent receiveEvent;
-    private NetworkRequestCanceledEvent canceledEvent;
+    private transient NetworkRequestSendEvent sendEvent;
+    private transient NetworkRequestReceiveEvent receiveEvent;
+    private transient NetworkRequestCanceledEvent canceledEvent;
     private TimeInstant timestampSend;
     private TimeInstant timestampReceived;
     private TimeInstant timestampReceivedAtHandler;
@@ -41,7 +42,8 @@ public abstract class Request extends NamedEntity {
         this.operation = operation;
         this.requester = requester;
         this.parent = parent;
-        this.prob = new Random(((MiSimModel) getModel()).getExperimentMetaData().getSeed());
+        this.prob = RNGStorage.get(this.getClass().getName(),
+            () -> new Random(((MiSimModel) getModel()).getExperimentMetaData().getSeed()));
         createDependencies();
         if (dependencies.isEmpty()) {
             //TODO: clean up this mess (this call is made to neatly trigger onDependenciesComplete)

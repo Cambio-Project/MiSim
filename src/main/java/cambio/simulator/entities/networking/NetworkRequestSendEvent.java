@@ -4,7 +4,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import cambio.simulator.entities.microservice.*;
 import cambio.simulator.export.ReportCollector;
-import cambio.simulator.misc.RNGMananger;
+import cambio.simulator.misc.RNGStorage;
 import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.dist.ContDistNormal;
 import desmoj.core.dist.NumericalDist;
@@ -20,7 +20,7 @@ import desmoj.core.simulator.TimeSpan;
 public class NetworkRequestSendEvent extends NetworkRequestEvent {
 
     private static final AtomicLong counterSendEvents = new AtomicLong(0); //TODO: remove
-    private transient final NumericalDist<Double> rng;
+    private final transient  NumericalDist<Double> rng;
     private final Microservice targetService;
     private final MicroserviceInstance targetInstance;
     private transient NetworkRequestReceiveEvent receiverEvent;
@@ -44,7 +44,7 @@ public class NetworkRequestSendEvent extends NetworkRequestEvent {
         this.targetInstance = targetInstance;
         request.setSendEvent(this);
 
-        rng = RNGMananger.get(this.getClass().getName(),
+        rng = RNGStorage.get(this.getClass().getName(),
             () -> new ContDistNormal(getModel(), "DefaultNetworkDelay_RNG", 1.6, 0.6, true, false));
     }
 
