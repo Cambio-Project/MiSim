@@ -21,8 +21,8 @@ import desmoj.core.simulator.Model;
  *
  * <p>
  * Specifically, it can take care of starting, killing and shutting down {@link MicroserviceInstance}s (in the following
- * just called instances) and provides metadata to each instance. For example, a {@link Microservice} object knows
- * which resilience patterns should be implemented by each instance and how many resources each instances is assigned.
+ * just called instances) and provides metadata to each instance. For example, a {@link Microservice} object knows which
+ * resilience patterns should be implemented by each instance and how many resources each instances is assigned.
  * Naturally it also knows the status of all existing (including killed ones) instances of this service.
  *
  * <p>
@@ -39,7 +39,8 @@ import desmoj.core.simulator.Model;
  * @see InstanceOwnedPattern
  */
 public class Microservice extends NamedEntity {
-    private final transient Set<MicroserviceInstance> instancesSet = new HashSet<>();
+    private final transient Set<MicroserviceInstance> instancesSet =
+        new TreeSet<>(Comparator.comparingInt(MicroserviceInstance::getInstanceID));
     private final transient MultiDataPointReporter reporter;
     private final transient AccumulativeDataPointReporter accReporter;
 
