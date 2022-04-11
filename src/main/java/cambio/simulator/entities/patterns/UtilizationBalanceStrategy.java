@@ -7,6 +7,7 @@ import cambio.simulator.entities.microservice.MicroserviceInstance;
 import cambio.simulator.entities.microservice.NoInstanceAvailableException;
 import cambio.simulator.models.MiSimModel;
 import cambio.simulator.parsing.JsonTypeName;
+import desmoj.core.simulator.Model;
 
 /**
  * Strategy that chooses the least utilized Microservice Instance by current relative Queue demand.
@@ -21,9 +22,6 @@ class UtilizationBalanceStrategy implements ILoadBalancingStrategy {
      */
     @Override
     public MicroserviceInstance getNextInstance(Collection<MicroserviceInstance> runningInstances) {
-        if (rng == null) {
-            createRNG(runningInstances);
-        }
 
         if (runningInstances.isEmpty()) {
             throw new NoInstanceAvailableException();
@@ -41,11 +39,8 @@ class UtilizationBalanceStrategy implements ILoadBalancingStrategy {
         return microserviceInstance;
     }
 
-
-    private void createRNG(Collection<MicroserviceInstance> runningInstances) {
-        runningInstances.stream().findFirst().ifPresent(instance -> {
-            MiSimModel model = (MiSimModel) instance.getModel();
-            rng = new Random(model.getExperimentMetaData().getSeed());
-        });
+    @Override
+    public void onInitializedCompleted(Model model) {
+        rng = new Random(((MiSimModel) model).getExperimentMetaData().getSeed());
     }
 }

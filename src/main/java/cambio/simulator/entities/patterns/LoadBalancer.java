@@ -30,6 +30,7 @@ public final class LoadBalancer extends Entity {
                 + "load balancing.");
             this.loadBalancingStrategy = new RandomLoadBalanceStrategy();
         }
+        this.loadBalancingStrategy.onInitializedCompleted(model);
     }
 
     /**
