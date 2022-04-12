@@ -67,9 +67,19 @@ public class TestBase {
         return dir;
     }
 
+
     protected void testReproducibility(File scenario, File architecture) throws IOException {
-        File output1 = runSimulationCheckExitTempOutput(0, architecture, scenario);
-        File output2 = runSimulationCheckExitTempOutput(0, architecture, scenario);
+        testReproducibility(scenario, architecture, false);
+    }
+
+    protected void testReproducibility(File scenario, File architecture, boolean keepOutput) throws IOException {
+        File output1 = runSimulationCheckExitTempOutput(0, architecture, scenario, "-t");
+        File output2 = runSimulationCheckExitTempOutput(0, architecture, scenario, "-t");
+
+        if (keepOutput) {
+            tempDirs.remove(output1);
+            tempDirs.remove(output2);
+        }
 
         Path rawOutput1 = Files.walk(output1.toPath(), 2)
             .filter(path -> path.endsWith("raw"))

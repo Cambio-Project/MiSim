@@ -36,6 +36,10 @@ public class TestUtils {
         List<Path> files1 = Files.walk(dir1).filter(Files::isRegularFile).collect(Collectors.toList());
         List<Path> files2 = Files.walk(dir2).filter(Files::isRegularFile).collect(Collectors.toList());
 
+        if(files1.size() != files2.size()) {
+            errors.add("Different number of files in directories. " + files1.size() + " vs " + files2.size());
+        }
+
         files1.parallelStream().forEach(path -> {
             try {
                 MessageDigest md = MessageDigest.getInstance("MD5");
