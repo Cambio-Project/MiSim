@@ -23,7 +23,10 @@ public class ExperimentModel {
 
     private final TreeSet<ExperimentAction> otherExperimentActions;
 
-
+    /**
+     * Creates a new experiment model based on the given the collections of {@link LoadGeneratorDescriptionExecutor}s
+     * and {@link ExperimentAction}s.
+     */
     public ExperimentModel(Collection<LoadGeneratorDescriptionExecutor> generators,
                            Collection<ExperimentAction> experimentActions) {
         this.generators = new TreeSet<>(Comparator.comparing(LoadGeneratorDescriptionExecutor::getIdentNumber));
