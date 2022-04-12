@@ -7,6 +7,7 @@ import java.lang.reflect.Field;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import cambio.simulator.entities.generator.LoadGeneratorDescriptionExecutor;
 import cambio.simulator.events.ExperimentAction;
@@ -122,8 +123,8 @@ public class ExperimentModelAdapter extends MiSimModelReferencingTypeAdapter<Exp
         experimentActionAdapter.setParser(gson);
 
 
-        LoadGeneratorDescriptionExecutor[] generators = new LoadGeneratorDescriptionExecutor[0];
-        Set<ExperimentAction> experimentActions = new HashSet<>();
+        List<LoadGeneratorDescriptionExecutor> generators = new ArrayList<>();
+        List<ExperimentAction> experimentActions = new ArrayList<>();
 
         if (in.peek() == JsonToken.NULL) {
             return null;
@@ -137,7 +138,7 @@ public class ExperimentModelAdapter extends MiSimModelReferencingTypeAdapter<Exp
                 JsonToken token = in.peek();
                 JsonElement currentElement = JsonParser.parseReader(in);
                 if (generatorNames.contains(elementName)) {
-                    generators = parseToGeneratorArray(currentElement, token, gson);
+                    generators.addAll(Arrays.asList(parseToGeneratorArray(currentElement, token, gson)));
                 } else if (token == JsonToken.BEGIN_ARRAY) {
                     //parsing a grouped list of (potentially unnamed) ExperimentActions
                     ExperimentAction[] parsedExperimentActions =

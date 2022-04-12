@@ -21,13 +21,14 @@ public class ArchitectureModel {
     @SerializedName(value = "network_latency", alternate = {"network_delay", "delay", "latency"})
     private ContDistNormal networkLatency;
 
-
     /**
      * Gets all available microservices.
      *
      * @return all microservices
      */
-    public Set<Microservice> getMicroservices() {
-        return new HashSet<>(Arrays.asList(microservices));
+    public SortedSet<Microservice> getMicroservices() {
+        TreeSet<Microservice> microservices = new TreeSet<>(Comparator.comparing(Microservice::getIdentNumber));
+        microservices.addAll(Arrays.asList(this.microservices));
+        return microservices;
     }
 }

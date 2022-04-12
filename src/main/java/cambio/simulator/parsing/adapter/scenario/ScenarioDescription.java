@@ -80,7 +80,7 @@ public final class ScenarioDescription {
             this.name = model.getExperimentMetaData().getExperimentName();
         }
 
-        Set<ISelfScheduled> scheduables = new HashSet<>();
+        Collection<ISelfScheduled> scheduables = new ArrayList<>();
 
         stimulus = stimulus.replaceAll("\\s+", " ");
         String[] stimuli = this.stimulus.split("AND");
@@ -96,7 +96,7 @@ public final class ScenarioDescription {
     }
 
 
-    private void parseWorkloads(Set<ISelfScheduled> scheduables, String stimuli,
+    private void parseWorkloads(Collection<ISelfScheduled> scheduables, String stimuli,
                                 MiSimModel model) {
 
         boolean tmp = false;
@@ -149,7 +149,7 @@ public final class ScenarioDescription {
 
     //response and response measure are ignored for now
 
-    private void parseTimedFaultload(Set<ISelfScheduled> scheduables, String currentStimulus, MiSimModel model) {
+    private void parseTimedFaultload(Collection<ISelfScheduled> scheduables, String currentStimulus, MiSimModel model) {
 
         Pattern p = Pattern.compile("@([0-9]*)");
         double targetTime;
