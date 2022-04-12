@@ -125,4 +125,11 @@ public abstract class LoadGeneratorDescription implements ISelfScheduled {
     public final String getName() {
         return name;
     }
+
+
+    @Override
+    public String toString() {
+        return "LoadGeneratorDesc. target= %s [%d, %d] %s ".format(this.targetOperation.getFullyQualifiedPlainName(),
+            initialArrivalTime, stopTime, this.repeating ? "repeating" : "single");
+    }
 }

@@ -91,8 +91,7 @@ public class LimboLoadGeneratorDescription extends LoadGeneratorDescription {
             List<Pair<Double, Integer>> tmpList;
             try {
                 List<String> lines = Files.readAllLines(limboProfile.toPath());
-                tmpList = lines.stream()
-                    .parallel()
+                tmpList = lines.parallelStream()
                     .filter(line -> !Strings.isNullOrEmpty(line))
                     .map(line -> {
                         String[] split = line.split("[;,]");
@@ -116,7 +115,7 @@ public class LimboLoadGeneratorDescription extends LoadGeneratorDescription {
                             }
                         })
                     );
-                tmpList.sort(Comparator.comparing(Pair::getValue0)); //ensure sorting
+                tmpList.sort(Comparator.comparing(Pair::getValue0)); //ensure sorting by time
                 return tmpList;
 
             } catch (IOException | ArrayIndexOutOfBoundsException e) {
