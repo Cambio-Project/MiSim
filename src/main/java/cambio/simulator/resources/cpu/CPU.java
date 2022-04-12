@@ -239,6 +239,8 @@ public class CPU extends NamedExternalEvent {
         reporter.addDatapoint("RelativeUtilization", presentTime(), getCurrentRelativeWorkDemand());
     }
 
+    /** rounding factor to get rid of minuscule imprecision during the relative utilization calculation. */
+    private static final double roundingFactor = Math.pow(10, 14);
 
     /**
      * Calculates the relative remaining workload demand of this CPU.
@@ -256,6 +258,8 @@ public class CPU extends NamedExternalEvent {
                 .sum();
         double workTotal = totalQueuedWorkRemainder + activeWorkRemainder;
         double workPercentage = workTotal / (threadPoolSize * capacityPerThread);
+        workPercentage = Math.round(workPercentage * roundingFactor) / roundingFactor;
+
         reporter.addDatapoint("RelativeUtilization", presentTime(), workPercentage);
         return workPercentage;
     }
