@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: frontend-deployment
+  name: recommendationService-deployment
   labels:
-    app: frontend
+    app: recommendationService
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: frontend
+      app: recommendationService
   template:
     metadata:
       labels:
-        app: frontend
+        app: recommendationService
     spec:
       containers:
-        - name: frontend
+        - name: recommendationService
 #      affinity:
 #        nodeAffinity:
 #          requiredDuringSchedulingIgnoredDuringExecution:

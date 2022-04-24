@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Queue;
 import java.util.stream.Collectors;
 
 import cambio.simulator.entities.microservice.Microservice;
@@ -17,6 +18,7 @@ import cambio.simulator.orchestration.MiSimSpecific.StatsMiSimTasksExecutor;
 import cambio.simulator.orchestration.MicroserviceOrchestration;
 import cambio.simulator.orchestration.Util;
 import cambio.simulator.orchestration.environment.Cluster;
+import cambio.simulator.orchestration.events.CLIEvent;
 import cambio.simulator.orchestration.management.ManagementPlane;
 import cambio.simulator.orchestration.management.ScaleTaskExecutor;
 import cambio.simulator.orchestration.environment.Node;
@@ -29,6 +31,8 @@ import cambio.simulator.orchestration.scheduling.SchedulerType;
 import cambio.simulator.parsing.ModelLoader;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
+import desmoj.core.simulator.TimeSpan;
+import org.javatuples.Pair;
 
 /**
  * Main model that contains architectural and experiment descriptions/data.
@@ -161,6 +165,8 @@ public class MiSimModel extends Model {
             System.out.println("[WARNING]: Orchestration Report will NOT be created afterwards\n");
         }
 
+//        prepareCLIInstructions();
+
         System.out.println("### Initialization of Container Orchestration finished ###");
         System.out.println();
 
@@ -203,6 +209,48 @@ public class MiSimModel extends Model {
                 }
             }
         }
+    }
+
+    private void prepareCLIInstructions(){
+//        for (Node node : ManagementPlane.getInstance().getCluster().getNodes()) {
+//            node.setInitialReserved(100);
+//        }
+
+        Queue<Pair<TimeSpan, Integer>> cliInformation = CLIEvent.getCliInformation();
+
+        cliInformation.add(new Pair<>(new TimeSpan(5), 1));
+        cliInformation.add(new Pair<>(new TimeSpan(5), 2));
+        cliInformation.add(new Pair<>(new TimeSpan(5), 3));
+        cliInformation.add(new Pair<>(new TimeSpan(5), 4));
+        cliInformation.add(new Pair<>(new TimeSpan(5), 5));
+        cliInformation.add(new Pair<>(new TimeSpan(5), 6));
+        cliInformation.add(new Pair<>(new TimeSpan(5), 7));
+        cliInformation.add(new Pair<>(new TimeSpan(5), 8));
+        cliInformation.add(new Pair<>(new TimeSpan(5), 9));
+        cliInformation.add(new Pair<>(new TimeSpan(5), 10));
+        cliInformation.add(new Pair<>(new TimeSpan(5), 11));
+        cliInformation.add(new Pair<>(new TimeSpan(5), 12));
+//        cliInformation.add(new Pair<>(new TimeSpan(5), 13));
+//        cliInformation.add(new Pair<>(new TimeSpan(5), 12));
+//        cliInformation.add(new Pair<>(new TimeSpan(5), 13));
+//        cliInformation.add(new Pair<>(new TimeSpan(5), 12));
+//        cliInformation.add(new Pair<>(new TimeSpan(5), 11));
+//        cliInformation.add(new Pair<>(new TimeSpan(5), 10));
+//        cliInformation.add(new Pair<>(new TimeSpan(5), 9));
+//        cliInformation.add(new Pair<>(new TimeSpan(5), 8));
+//        cliInformation.add(new Pair<>(new TimeSpan(5), 7));
+//        cliInformation.add(new Pair<>(new TimeSpan(5), 6));
+//        cliInformation.add(new Pair<>(new TimeSpan(5), 5));
+//        cliInformation.add(new Pair<>(new TimeSpan(5), 4));
+//        cliInformation.add(new Pair<>(new TimeSpan(5), 3));
+//        cliInformation.add(new Pair<>(new TimeSpan(5), 2));
+//        cliInformation.add(new Pair<>(new TimeSpan(5), 1));
+//        cliInformation.add(new Pair<>(new TimeSpan(5), 0));
+
+
+        CLIEvent cliEvent = new CLIEvent(getModel(), "CLIEvent", traceIsOn());
+        cliEvent.schedule(new TimeSpan(5));
+
     }
 
     public ArchitectureModel getArchitectureModel() {

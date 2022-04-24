@@ -14,7 +14,6 @@ import java.util.Map;
  * @author Lion Wagner
  */
 public class NetworkRequestCanceledEvent extends NetworkRequestEvent {
-    public static Map<Microservice, Integer> microserviceCanceledMap = new HashMap<>();
     public static int counter = 0;
     private final RequestFailedReason reason;
     private final String details;
@@ -49,20 +48,5 @@ public class NetworkRequestCanceledEvent extends NetworkRequestEvent {
 
         updateListener.onRequestFailed(travelingRequest, presentTime(), reason);
         counter++;
-
-        Microservice owner = null;
-        if(getTravelingRequest().getHandler()!=null){
-            owner = getTravelingRequest().getHandler().getOwner();
-        }else{
-            owner = getTravelingRequest().getParent().getHandler().getOwner();
-        }
-
-        if (owner != null) {
-            if (microserviceCanceledMap.get(owner) != null) {
-                microserviceCanceledMap.put(owner, microserviceCanceledMap.get(owner) + 1);
-            } else {
-                microserviceCanceledMap.put(owner, 1);
-            }
-        }
     }
 }

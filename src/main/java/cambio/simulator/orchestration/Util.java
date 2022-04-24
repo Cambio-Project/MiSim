@@ -94,6 +94,8 @@ public class Util {
             return FirstFitScheduler.getInstance();
         } else if(schedulerType.equals(SchedulerType.KUBE)) {
             return KubeScheduler.getInstance();
+        }else if(schedulerType.equals(SchedulerType.ROUNDROBIN)) {
+            return RoundRobinScheduler.getInstance();
         }
         throw new UnexpectedException("This SchedulerType is not linked to a Schedulerinstance yet. Do it here!");
     }

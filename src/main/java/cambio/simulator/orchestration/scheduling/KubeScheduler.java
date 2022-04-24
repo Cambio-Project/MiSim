@@ -79,19 +79,9 @@ public class KubeScheduler extends Scheduler {
             List<String> podNames = new ArrayList<>();
             int numberOfPendingPods = podWaitingQueue.size();
 
-            //Add pods from the waiting queue
-            while (podWaitingQueue.size() != 0) {
-                Pod nextPodFromWaitingQueue = getNextPodFromWaitingQueue();
-                podNames.add(nextPodFromWaitingQueue.getName());
-                String pendingPod = KubeJSONCreator.createPod(nextPodFromWaitingQueue, false);
-                String watchStreamShellForJSONPod = KubeJSONCreator.createWatchStreamShellForJSONPod(pendingPod, "ADDED", "Pod");
-                //Already prepare DELETED objects for the watchstream. The API can then give this objects to the scheduler by itself
-                String deletedWatchStreamShellForJSONPod = KubeJSONCreator.createWatchStreamShellForJSONPod(pendingPod, "DELETED", "Pod");
-                podList.add(watchStreamShellForJSONPod);
-                deletedPodMap.put(nextPodFromWaitingQueue.getName(), deletedWatchStreamShellForJSONPod);
-            }
 
-            //Inform the scheduler that pods have been removed from nodes
+
+//            //Inform the scheduler that pods have been removed from nodes
             List<Pod> allPodsPlacedOnNodes = ManagementPlane.getInstance().getAllPodsPlacedOnNodes();
             List<Pod> foundToRemove = new ArrayList<>();
             for (Pod pod : internalRunningPods) {
@@ -116,6 +106,18 @@ public class KubeScheduler extends Scheduler {
                     podList.add(0, watchStreamShellForJSONPod);
                     internalRunningPods.add(pod);
                 }
+            }
+
+            //Add pods from the waiting queue
+            while (podWaitingQueue.size() != 0) {
+                Pod nextPodFromWaitingQueue = getNextPodFromWaitingQueue();
+                podNames.add(nextPodFromWaitingQueue.getName());
+                String pendingPod = KubeJSONCreator.createPod(nextPodFromWaitingQueue, false);
+                String watchStreamShellForJSONPod = KubeJSONCreator.createWatchStreamShellForJSONPod(pendingPod, "ADDED", "Pod");
+                //Already prepare DELETED objects for the watchstream. The API can then give this objects to the scheduler by itself
+                String deletedWatchStreamShellForJSONPod = KubeJSONCreator.createWatchStreamShellForJSONPod(pendingPod, "DELETED", "Pod");
+                podList.add(watchStreamShellForJSONPod);
+                deletedPodMap.put(nextPodFromWaitingQueue.getName(), deletedWatchStreamShellForJSONPod);
             }
 
             String finalPodString = "";
@@ -161,8 +163,8 @@ public class KubeScheduler extends Scheduler {
                 record.setEvent("Binding");
                 record.setOutcome("Success");
                 record.setInfo("N/A");
-                record.setDesiredState(ManagementPlane.getInstance().getDeploymentForPod(pod).getDesiredReplicaCount());
-                record.setCurrentState(ManagementPlane.getInstance().getAmountOfPodsOnNodes(ManagementPlane.getInstance().getDeploymentForPod(pod)));
+                record.setDesiredState(pod.getOwner().getDesiredReplicaCount());
+                record.setCurrentState(ManagementPlane.getInstance().getAmountOfPodsOnNodes(pod.getOwner()));
                 Stats.getInstance().getNodePodEventRecords().add(record);
 
                 System.out.println(podName + " was bound on " + boundNode);
@@ -186,8 +188,8 @@ public class KubeScheduler extends Scheduler {
                 record.setEvent("Binding");
                 record.setOutcome("Failed");
                 record.setInfo(map.get("status"));
-                record.setDesiredState(ManagementPlane.getInstance().getDeploymentForPod(pod).getDesiredReplicaCount());
-                record.setCurrentState(ManagementPlane.getInstance().getAmountOfPodsOnNodes(ManagementPlane.getInstance().getDeploymentForPod(pod)));
+                record.setDesiredState(pod.getOwner().getDesiredReplicaCount());
+                record.setCurrentState(ManagementPlane.getInstance().getAmountOfPodsOnNodes(pod.getOwner()));
                 Stats.getInstance().getNodePodEventRecords().add(record);
 
                 System.out.println(this.getQuotedName() + " was not able to schedule pod " + pod + ". Reason: " + map.get("status"));

@@ -13,10 +13,7 @@ import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 
 import java.rmi.UnexpectedException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Deployment extends K8Object {
@@ -30,6 +27,8 @@ public class Deployment extends K8Object {
     private double averageUtilization;
     private AutoScaler autoScaler;
     private Affinity affinity;
+    private String requestsCPU;
+    private String requestsMem;
 
     public Deployment(Model model, String name, boolean showInTrace, Set<MicroserviceOrchestration> microserviceOrchestrations, int desiredReplicaCount, SchedulerType schedulerType) {
         super(model, name, showInTrace, K8Kind.DEPLOYMENT);
@@ -64,7 +63,7 @@ public class Deployment extends K8Object {
 
     public synchronized void createPod() {
 
-        final Pod pod = new Pod(getModel(), "Pod-" + this.getPlainName(), traceIsOn());
+        final Pod pod = new Pod(getModel(), "Pod-" + this.getPlainName(), traceIsOn(), this);
         for (MicroserviceOrchestration microserviceOrchestration : services) {
             final MicroserviceInstance microServiceInstance = microserviceOrchestration.createMicroServiceInstance();
             final Container container = new Container(getModel(), "Container[" + microserviceOrchestration.getPlainName() + "]", traceIsOn(), microServiceInstance);
@@ -120,7 +119,6 @@ public class Deployment extends K8Object {
                 podCPUUtilizationLeast = podCPUUtilization;
             }
         }
-
         final Pod podToRemove = podWithLeastConsumption;
         Node lastKnownNode = podToRemove.getLastKnownNode();
         if (lastKnownNode != null) {
@@ -266,5 +264,21 @@ public class Deployment extends K8Object {
 
     public void setAffinity(Affinity affinity) {
         this.affinity = affinity;
+    }
+
+    public String getRequestsCPU() {
+        return requestsCPU;
+    }
+
+    public void setRequestsCPU(String requestsCPU) {
+        this.requestsCPU = requestsCPU;
+    }
+
+    public String getRequestsMem() {
+        return requestsMem;
+    }
+
+    public void setRequestsMem(String requestsMem) {
+        this.requestsMem = requestsMem;
     }
 }

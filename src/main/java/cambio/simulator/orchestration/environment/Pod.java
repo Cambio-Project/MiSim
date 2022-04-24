@@ -1,6 +1,7 @@
 package cambio.simulator.orchestration.environment;
 
 import cambio.simulator.entities.NamedEntity;
+import cambio.simulator.orchestration.k8objects.Deployment;
 import desmoj.core.simulator.Model;
 
 import java.util.HashSet;
@@ -12,15 +13,17 @@ public class Pod extends NamedEntity {
     private PodState podState;
     private Set<Container> containers;
     private Node lastKnownNode;
+    private Deployment owner;
 
-    public Pod(Model model, String name, boolean showInTrace) {
+    public Pod(Model model, String name, boolean showInTrace, Deployment deployment) {
         super(model, name, showInTrace);
         this.containers = new HashSet<>();
         this.podState = PodState.PENDING;
+        this.owner = deployment;
     }
 
-    public double getCPUDemand() {
-        return this.getContainers().stream().mapToDouble(container -> container.getMicroserviceInstance().getOwner().getCapacity()).sum();
+    public int getCPUDemand() {
+        return this.getContainers().stream().mapToInt(container -> container.getMicroserviceInstance().getOwner().getCapacity()).sum();
     }
 
     public void die() {
@@ -75,5 +78,9 @@ public class Pod extends NamedEntity {
 
     public void setLastKnownNode(Node lastKnownNode) {
         this.lastKnownNode = lastKnownNode;
+    }
+
+    public Deployment getOwner() {
+        return owner;
     }
 }

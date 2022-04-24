@@ -8,55 +8,40 @@
       "beta.kubernetes.io/arch": "amd64",
       "beta.kubernetes.io/os": "linux",
       "kubernetes.io/arch": "amd64",
-      "kubernetes.io/hostname": "cluster",
+      "kubernetes.io/hostname": "TEMPLATE_NAME",
       "kubernetes.io/os": "linux",
-      "minikube.k8s.io/commit": "a03fbcf166e6f74ef224d4a63be4277d017bb62e",
-      "minikube.k8s.io/name": "cluster",
-      "personalized/name": "TEMPLATE_NAME",
-      "minikube.k8s.io/updated_at": "2022_01_21T11_47_11_0700",
-      "minikube.k8s.io/version": "v1.22.0",
-      "node-role.kubernetes.io/control-plane": "",
-      "node-role.kubernetes.io/master": "",
-      "node.kubernetes.io/exclude-from-external-load-balancers": ""
+      "personalized/name": "TEMPLATE_NAME"
     },
     "annotations": {
-      "kubeadm.alpha.kubernetes.io/cri-socket": "/var/run/dockershim.sock",
+      "flannel.alpha.coreos.com/backend-data": "{\"VNI\":1,\"VtepMAC\":\"6e:fe:98:b8:c0:72\"}",
+      "flannel.alpha.coreos.com/backend-type": "vxlan",
+      "flannel.alpha.coreos.com/kube-subnet-manager": "true",
+      "flannel.alpha.coreos.com/public-ip": "TEMPLATE_IP_ADDRESS",
+      "kubeadm.alpha.kubernetes.io/cri-socket": "/run/containerd/containerd.sock",
       "node.alpha.kubernetes.io/ttl": "0",
       "volumes.kubernetes.io/controller-managed-attach-detach": "true"
     },
     "managedFields": [
       {
-        "manager": "kubeadm",
+        "manager": "Go-http-client",
         "operation": "Update",
         "apiVersion": "v1",
-        "time": "2022-01-21T10:47:10Z",
+        "time": "2022-04-05T13:24:18Z",
         "fieldsType": "FieldsV1",
         "fieldsV1": {
           "f:metadata": {
             "f:annotations": {
-              "f:kubeadm.alpha.kubernetes.io/cri-socket": {}
+              ".": {},
+              "f:kubeadm.alpha.kubernetes.io/cri-socket": {},
+              "f:volumes.kubernetes.io/controller-managed-attach-detach": {}
             },
             "f:labels": {
-              "f:node-role.kubernetes.io/control-plane": {},
-              "f:node-role.kubernetes.io/master": {},
-              "f:node.kubernetes.io/exclude-from-external-load-balancers": {}
-            }
-          }
-        }
-      },
-      {
-        "manager": "kubectl-label",
-        "operation": "Update",
-        "apiVersion": "v1",
-        "time": "2022-01-21T10:47:11Z",
-        "fieldsType": "FieldsV1",
-        "fieldsV1": {
-          "f:metadata": {
-            "f:labels": {
-              "f:minikube.k8s.io/commit": {},
-              "f:minikube.k8s.io/name": {},
-              "f:minikube.k8s.io/updated_at": {},
-              "f:minikube.k8s.io/version": {}
+              ".": {},
+              "f:beta.kubernetes.io/arch": {},
+              "f:beta.kubernetes.io/os": {},
+              "f:kubernetes.io/arch": {},
+              "f:kubernetes.io/hostname": {},
+              "f:kubernetes.io/os": {}
             }
           }
         }
@@ -65,7 +50,7 @@
         "manager": "kube-controller-manager",
         "operation": "Update",
         "apiVersion": "v1",
-        "time": "2022-01-21T10:47:24Z",
+        "time": "2022-04-05T13:24:21Z",
         "fieldsType": "FieldsV1",
         "fieldsV1": {
           "f:metadata": {
@@ -77,33 +62,56 @@
             "f:podCIDR": {},
             "f:podCIDRs": {
               ".": {},
-              "v:\"10.244.0.0/24\"": {}
+              "v:\"10.244.2.0/24\"": {}
             }
           }
         }
       },
       {
-        "manager": "kubelet",
+        "manager": "flanneld",
         "operation": "Update",
         "apiVersion": "v1",
-        "time": "2022-01-21T10:48:48Z",
+        "time": "2022-04-05T13:24:45Z",
         "fieldsType": "FieldsV1",
         "fieldsV1": {
           "f:metadata": {
             "f:annotations": {
-              ".": {},
-              "f:volumes.kubernetes.io/controller-managed-attach-detach": {}
-            },
-            "f:labels": {
-              ".": {},
-              "f:beta.kubernetes.io/arch": {},
-              "f:beta.kubernetes.io/os": {},
-              "f:kubernetes.io/arch": {},
-              "f:kubernetes.io/hostname": {},
-              "f:kubernetes.io/os": {}
+              "f:flannel.alpha.coreos.com/backend-data": {},
+              "f:flannel.alpha.coreos.com/backend-type": {},
+              "f:flannel.alpha.coreos.com/kube-subnet-manager": {},
+              "f:flannel.alpha.coreos.com/public-ip": {}
             }
           },
           "f:status": {
+            "f:conditions": {
+              "k:{\"type\":\"NetworkUnavailable\"}": {
+                ".": {},
+                "f:lastHeartbeatTime": {},
+                "f:lastTransitionTime": {},
+                "f:message": {},
+                "f:reason": {},
+                "f:status": {},
+                "f:type": {}
+              }
+            }
+          }
+        },
+        "subresource": "status"
+      },
+      {
+        "manager": "Go-http-client",
+        "operation": "Update",
+        "apiVersion": "v1",
+        "time": "2022-04-05T13:24:48Z",
+        "fieldsType": "FieldsV1",
+        "fieldsV1": {
+          "f:status": {
+            "f:allocatable": {
+              "f:ephemeral-storage": {}
+            },
+            "f:capacity": {
+              "f:ephemeral-storage": {}
+            },
             "f:conditions": {
               "k:{\"type\":\"DiskPressure\"}": {
                 "f:lastHeartbeatTime": {}
@@ -124,7 +132,8 @@
             },
             "f:images": {}
           }
-        }
+        },
+        "subresource": "status"
       }
     ]
   },
@@ -155,34 +164,34 @@
       {
         "type": "MemoryPressure",
         "status": "False",
-        "lastHeartbeatTime": "2022-01-21T12:24:30Z",
-        "lastTransitionTime": "2022-01-21T10:47:03Z",
+        "lastHeartbeatTime": "2022-04-14T12:53:13Z",
+        "lastTransitionTime": "2022-04-05T13:24:17Z",
         "reason": "KubeletHasSufficientMemory",
         "message": "kubelet has sufficient memory available"
       },
       {
         "type": "DiskPressure",
         "status": "False",
-        "lastHeartbeatTime": "2022-01-21T12:24:30Z",
-        "lastTransitionTime": "2022-01-21T10:47:03Z",
+        "lastHeartbeatTime": "2022-04-14T12:53:13Z",
+        "lastTransitionTime": "2022-04-05T13:24:17Z",
         "reason": "KubeletHasNoDiskPressure",
         "message": "kubelet has no disk pressure"
       },
       {
         "type": "PIDPressure",
         "status": "False",
-        "lastHeartbeatTime": "2022-01-21T12:24:30Z",
-        "lastTransitionTime": "2022-01-21T10:47:03Z",
+        "lastHeartbeatTime": "2022-04-14T12:53:13Z",
+        "lastTransitionTime": "2022-04-05T13:24:17Z",
         "reason": "KubeletHasSufficientPID",
         "message": "kubelet has sufficient PID available"
       },
       {
         "type": "Ready",
         "status": "True",
-        "lastHeartbeatTime": "2022-01-21T12:24:30Z",
-        "lastTransitionTime": "2022-01-21T10:47:23Z",
+        "lastHeartbeatTime": "2022-04-14T12:53:13Z",
+        "lastTransitionTime": "2022-04-05T13:24:48Z",
         "reason": "KubeletReady",
-        "message": "kubelet is posting ready status"
+        "message": "kubelet is posting ready status. AppArmor enabled"
       }
     ],
     "addresses": [
@@ -202,13 +211,13 @@
     },
     "nodeInfo": {
       "machineID": "TEMPLATE_MACHINE_ID",
-      "systemUUID": "53adebdd-2bc5-4324-a00f-76eee08a6c77",
-      "bootID": "ee73f4ef-8566-41e0-ad9c-866d8ad00792",
-      "kernelVersion": "5.4.0-81-generic",
-      "osImage": "Ubuntu 20.04.2 LTS",
-      "containerRuntimeVersion": "docker://20.10.7",
-      "kubeletVersion": "v1.21.2",
-      "kubeProxyVersion": "v1.21.2",
+      "systemUUID": "53adebdd-2bc5-4324-a00f-TEMPLATE_MACHINE_ID",
+      "bootID": "044f102f-7ce7-46cc-908c-809165e3752b-TEMPLATE_MACHINE_ID",
+      "kernelVersion": "4.15.0-175-generic",
+      "osImage": "Ubuntu 18.04.6 LTS",
+      "containerRuntimeVersion": "containerd://1.5.5",
+      "kubeletVersion": "v1.23.5",
+      "kubeProxyVersion": "v1.23.5",
       "operatingSystem": "linux",
       "architecture": "amd64"
     }

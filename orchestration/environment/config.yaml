@@ -1,27 +1,25 @@
 nodes:
-  amount: 0
-  cpu: 1500
-customNodes:
-  - name: small
-    cpu: 1
-  - name: medium
-    cpu: 2
-  - name: large
-    cpu: 4
+  amount: 1
+  cpu: 1000000000
+#customNodes:
+#  - name: Test5Node
+#    cpu: 0
 scaler:
   holdTimeUpScaler: 0
   holdTimeDownScaler: 300
 loadBalancer: leastUtil_orchestration
-scheduler: firstFit
+scheduler: kube
 scalingInterval: 15
 healthCheckDelay: 0
 #schedulerPrio:
 #  - name: kube
-#    prio: 1
+#    prio: 4
 #  - name: firstFit
-#    prio: 2
+#    prio: 3
 #startUpTimeContainer:
 #  - name: frontend
 #    time: 0
 #  - name: backend
+#    time: 0
+#  - name: db
 #    time: 0

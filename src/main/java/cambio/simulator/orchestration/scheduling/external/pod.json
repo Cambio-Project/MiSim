@@ -17,7 +17,7 @@
     },
     TEMPLATE_NODE_NAME
     "affinity": TEMPLATE_NODE_AFFINITY,
-    "schedulerName": "my-scheduler",
+    "schedulerName": "default-scheduler",
     "tolerations": [
       {
         "key": "node.kubernetes.io/not-ready",

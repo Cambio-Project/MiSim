@@ -479,10 +479,15 @@ The config.yaml contains information necessary for the orchestration process:
 - ___loadBalancer___: Default loadbalancer that is used when not given in architecture file
   (possible values: ___leastUtil_orchestration___, ___random_orchestration___)
 - ___scheduler___: Default scheduler that is used when not given in deployment file
-  (possible values: ___firstFit___, ___random___, ___kube___)
+  (possible values: ___firstFit___, ___roundRobin___, ___random___, ___kube___)
+- ___scalingInterval___: Period for scaling frequency
+- ___healthCheckDelay___: Customizable value which delays the scheduling of the healthCheck Event
 - ___schedulerPrio___: Defines the order of scheduling during the simulation
-- ___name___: Name of the scheduler
-- ___prio___: Prio of the scheduler (lower numbers before higher ones)
+  - ___name___: Name of the scheduler
+  - ___prio___: Prio of the scheduler (lower numbers before higher ones)
+- ___startUpTimeContainer___: Defines startup times for containers
+    - ___name___: Name of the mircoservice
+    - ___prio___: time needed for starting up [s]
 
 
 #### k8 files
@@ -564,143 +569,16 @@ in percent
 
 ### Kube-Scheduler
 It is possible to use the real kube-scheduler as scheduler for the simulation.
-For that purpose... 
+
+Download scheduler here: https://www.downloadkubernetes.com/
+
+Make the file executable 
+
+Simulation with the kube-scheduler... 
 - start the api with the command ```uvicorn main:app```
-- start the scheduler with the command ```./kube-scheduler --master 127.0.0.1:8000 --config config.txt```
+- start the scheduler with the command ```./kube-scheduler --master 127.0.0.1:8000```
 - Run MiSim (with at least one deployment with the scheduler ___kube___)
 
-IMPORTANT
-<details>
-  <summary>Make sure that the scheduler has the config.txt.</summary>
-
-```
-apiVersion: kubescheduler.config.k8s.io/v1beta3
-clientConnection:
-  acceptContentTypes: ""
-  burst: 100
-  contentType: application/vnd.kubernetes.protobuf
-  kubeconfig: ""
-  qps: 50
-enableContentionProfiling: true
-enableProfiling: true
-kind: KubeSchedulerConfiguration
-leaderElection:
-  leaderElect: true
-  leaseDuration: 15s
-  renewDeadline: 10s
-  resourceLock: leases
-  resourceName: kube-scheduler
-  resourceNamespace: kube-system
-  retryPeriod: 2s
-parallelism: 16
-percentageOfNodesToScore: 0
-podInitialBackoffSeconds: 1
-podMaxBackoffSeconds: 1
-profiles:
-- pluginConfig:
-  - args:
-      apiVersion: kubescheduler.config.k8s.io/v1beta3
-      kind: DefaultPreemptionArgs
-      minCandidateNodesAbsolute: 100
-      minCandidateNodesPercentage: 10
-    name: DefaultPreemption
-  - args:
-      apiVersion: kubescheduler.config.k8s.io/v1beta3
-      hardPodAffinityWeight: 1
-      kind: InterPodAffinityArgs
-    name: InterPodAffinity
-  - args:
-      apiVersion: kubescheduler.config.k8s.io/v1beta3
-      kind: NodeAffinityArgs
-    name: NodeAffinity
-  - args:
-      apiVersion: kubescheduler.config.k8s.io/v1beta3
-      kind: NodeResourcesBalancedAllocationArgs
-      resources:
-      - name: cpu
-        weight: 1
-      - name: memory
-        weight: 1
-    name: NodeResourcesBalancedAllocation
-  - args:
-      apiVersion: kubescheduler.config.k8s.io/v1beta3
-      kind: NodeResourcesFitArgs
-      scoringStrategy:
-        resources:
-        - name: cpu
-          weight: 1
-        - name: memory
-          weight: 1
-        type: LeastAllocated
-    name: NodeResourcesFit
-  - args:
-      apiVersion: kubescheduler.config.k8s.io/v1beta3
-      defaultingType: System
-      kind: PodTopologySpreadArgs
-    name: PodTopologySpread
-  - args:
-      apiVersion: kubescheduler.config.k8s.io/v1beta3
-      bindTimeoutSeconds: 600
-      kind: VolumeBindingArgs
-    name: VolumeBinding
-  plugins:
-    bind: {}
-    filter: {}
-    multiPoint:
-      enabled:
-      - name: PrioritySort
-        weight: 0
-      - name: NodeUnschedulable
-        weight: 0
-      - name: NodeName
-        weight: 0
-      - name: TaintToleration
-        weight: 3
-      - name: NodeAffinity
-        weight: 2
-      - name: NodePorts
-        weight: 0
-      - name: NodeResourcesFit
-        weight: 1
-      - name: VolumeRestrictions
-        weight: 0
-      - name: EBSLimits
-        weight: 0
-      - name: GCEPDLimits
-        weight: 0
-      - name: NodeVolumeLimits
-        weight: 0
-      - name: AzureDiskLimits
-        weight: 0
-      - name: VolumeBinding
-        weight: 0
-      - name: VolumeZone
-        weight: 0
-      - name: PodTopologySpread
-        weight: 2
-      - name: InterPodAffinity
-        weight: 2
-      - name: DefaultPreemption
-        weight: 0
-      - name: NodeResourcesBalancedAllocation
-        weight: 1
-      - name: ImageLocality
-        weight: 1
-      - name: DefaultBinder
-        weight: 0
-    permit: {}
-    postBind: {}
-    postFilter: {}
-    preBind: {}
-    preFilter: {}
-    preScore: {}
-    queueSort: {}
-    reserve: {}
-    score: {}
-  schedulerName: my-scheduler
-```
-
-</details>
 
 
 #### Node Affinity

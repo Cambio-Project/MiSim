@@ -10,7 +10,7 @@ import desmoj.core.simulator.Model;
 import java.util.*;
 
 import static cambio.simulator.entities.networking.NetworkRequestTimeoutEvent.microservicetimoutmap;
-import static cambio.simulator.entities.patterns.CircuitBreaker.microserviceCanceledMap;
+//import static cambio.simulator.entities.patterns.CircuitBreaker.microserviceCanceledMap;
 
 
 public class Stats {
@@ -306,7 +306,7 @@ public class Stats {
             }
 
             for (Pod pod : node.getPods()) {
-                Deployment deploymentForPod = ManagementPlane.getInstance().getDeploymentForPod(pod);
+                Deployment deploymentForPod = pod.getOwner();
                 if (deploymentForPod != null) {
                     if (deployments.contains(deploymentForPod)) {
                         if (deploymentPodScheduledMap.get(deploymentForPod) != null) {
@@ -354,14 +354,14 @@ public class Stats {
                             scalingRecord.getMicroservicetimoutmap().put(owner, 0);
                         }
 
-                        //add event info canceledEvent
-                        owner = container.getMicroserviceInstance().getOwner();
-                        integer = microserviceCanceledMap.get(owner);
-                        if (integer != null) {
-                            scalingRecord.getMicroserviceCanceledMap().put(owner, Integer.valueOf(integer));
-                        } else {
-                            scalingRecord.getMicroserviceCanceledMap().put(owner, 0);
-                        }
+//                        //add event info canceledEvent
+//                        owner = container.getMicroserviceInstance().getOwner();
+//                        integer = microserviceCanceledMap.get(owner);
+//                        if (integer != null) {
+//                            scalingRecord.getMicroserviceCanceledMap().put(owner, Integer.valueOf(integer));
+//                        } else {
+//                            scalingRecord.getMicroserviceCanceledMap().put(owner, 0);
+//                        }
 
 
                         if (container.getContainerState() == ContainerState.RUNNING) {

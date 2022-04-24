@@ -20,8 +20,8 @@ public class Node extends NamedEntity {
     private String nodeIpAddress;
     private static int IP_ADDRESS_COUNTER = 1;
 
-    private final double totalCPU;
-    private double reserved = 0;
+    private final int totalCPU;
+    private int reserved = 0;
     private List<Pod> pods;
 
     public Node(Model model, String name, boolean showInTrace, int totalCPU) {
@@ -49,7 +49,7 @@ public class Node extends NamedEntity {
         record.setPodName(pod.getName());
         record.setNodeName(this.getPlainName());
         String schedulerName = "N/A";
-        Deployment deploymentForPod = ManagementPlane.getInstance().getDeploymentForPod(pod);
+        Deployment deploymentForPod = pod.getOwner();
         if(deploymentForPod!=null){
             SchedulerType schedulerType = deploymentForPod.getSchedulerType();
             if(schedulerType!=null){
@@ -80,7 +80,7 @@ public class Node extends NamedEntity {
             record.setNodeName(this.getPlainName());
 
             String schedulerName = "N/A";
-            Deployment deploymentForPod = ManagementPlane.getInstance().getDeploymentForPod(pod);
+            Deployment deploymentForPod = pod.getOwner();
             if(deploymentForPod!=null){
                 SchedulerType schedulerType = deploymentForPod.getSchedulerType();
                 if(schedulerType!=null){
@@ -98,7 +98,7 @@ public class Node extends NamedEntity {
             HealthCheckEvent healthCheckEvent = new HealthCheckEvent(getModel(), "HealthCheckEvent - After Scaling", traceIsOn());
             healthCheckEvent.schedule(new TimeSpan(HealthCheckEvent.delay));
         } else {
-            throw new IllegalArgumentException("Pod " + pod.getQuotedPlainName() + " does not belong to this node");
+            throw new IllegalArgumentException("Pod " + pod.getQuotedPlainName() + " does not belong to this node" + this.getPlainName());
         }
     }
 
@@ -111,11 +111,11 @@ public class Node extends NamedEntity {
         this.pods = pods;
     }
 
-    public double getTotalCPU() {
+    public int getTotalCPU() {
         return totalCPU;
     }
 
-    public double getReserved() {
+    public int getReserved() {
         return reserved;
     }
 

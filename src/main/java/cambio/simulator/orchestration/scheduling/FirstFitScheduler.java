@@ -41,7 +41,7 @@ public class FirstFitScheduler extends Scheduler {
 
         if (pod != null) {
             Node candidateNote = null;
-            double cpuDemand = pod.getCPUDemand();
+            int cpuDemand = pod.getCPUDemand();
             for (Node node : cluster.getNodes()) {
                 if (node.getReserved() + cpuDemand <= node.getTotalCPU()) {
                     candidateNote = node;
@@ -60,8 +60,8 @@ public class FirstFitScheduler extends Scheduler {
                 record.setEvent("Binding");
                 record.setOutcome("Success");
                 record.setInfo("N/A");
-                record.setDesiredState(ManagementPlane.getInstance().getDeploymentForPod(pod).getDesiredReplicaCount());
-                record.setCurrentState(ManagementPlane.getInstance().getAmountOfPodsOnNodes(ManagementPlane.getInstance().getDeploymentForPod(pod)));
+                record.setDesiredState(pod.getOwner().getDesiredReplicaCount());
+                record.setCurrentState(ManagementPlane.getInstance().getAmountOfPodsOnNodes(pod.getOwner()));
                 Stats.getInstance().getNodePodEventRecords().add(record);
 
                 sendTraceNote(this.getQuotedName() + " has scheduled " + pod.getQuotedName() + " on node " + candidateNote);
@@ -78,8 +78,8 @@ public class FirstFitScheduler extends Scheduler {
                 record.setScheduler("firstFit");
                 record.setEvent("Binding");
                 record.setOutcome("Failed");
-                record.setDesiredState(ManagementPlane.getInstance().getDeploymentForPod(pod).getDesiredReplicaCount());
-                record.setCurrentState(ManagementPlane.getInstance().getAmountOfPodsOnNodes(ManagementPlane.getInstance().getDeploymentForPod(pod)));
+                record.setDesiredState(pod.getOwner().getDesiredReplicaCount());
+                record.setCurrentState(ManagementPlane.getInstance().getAmountOfPodsOnNodes(pod.getOwner()));
                 record.setInfo("Insufficient resources");
                 Stats.getInstance().getNodePodEventRecords().add(record);
 

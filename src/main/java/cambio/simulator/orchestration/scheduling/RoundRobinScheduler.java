@@ -1,28 +1,22 @@
 package cambio.simulator.orchestration.scheduling;
 
-import cambio.simulator.entities.NamedEntity;
-import cambio.simulator.models.MiSimModel;
-import cambio.simulator.orchestration.environment.Cluster;
+import cambio.simulator.orchestration.Stats;
 import cambio.simulator.orchestration.environment.Node;
 import cambio.simulator.orchestration.environment.Pod;
 import cambio.simulator.orchestration.management.ManagementPlane;
-import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.stream.Collectors;
 
-public class RandomScheduler extends Scheduler{
+public class RoundRobinScheduler extends Scheduler {
 
-    Random random = new Random(ManagementPlane.getInstance().getExperimentSeed());
-
-    private static final RandomScheduler instance = new RandomScheduler();
+    private static final RoundRobinScheduler instance = new RoundRobinScheduler();
 
     //private constructor to avoid client applications to use constructor
-    private RandomScheduler() {
-        this.rename("RandomScheduler");
-
+    private RoundRobinScheduler() {
+        this.rename("RoundRobinScheduler");
     }
 
-    public static RandomScheduler getInstance() {
+    public static RoundRobinScheduler getInstance() {
         return instance;
     }
 
@@ -43,26 +37,29 @@ public class RandomScheduler extends Scheduler{
     public boolean schedulePod() {
 
         final Pod pod = getNextPodFromWaitingQueue();
+        String plainName = pod.getOwner().getPlainName();
 
         if (pod != null) {
-            Node candidateNote = null;
+            Node candidateNode = null;
+            int candidateNodeSize = Integer.MAX_VALUE;
             int cpuDemand = pod.getCPUDemand();
-            //Doing the same like FirstFitScheduler but nodes are shuffled.
-            List<Node> nodes = new ArrayList<>(cluster.getNodes());
-            Collections.shuffle(nodes, random);
-            for (Node node : nodes) {
-                if (node.getReserved() + cpuDemand <= node.getTotalCPU()) {
-                    candidateNote = node;
-                    break;
+            for (Node node : cluster.getNodes()) {
+                int size = node.getPods().stream().filter(pod1 -> pod1.getOwner().getPlainName().equals(plainName)).collect(Collectors.toList()).size();
+                if (size < candidateNodeSize) {
+                    if (node.getReserved() + cpuDemand <= node.getTotalCPU()) {
+                        candidateNodeSize = size;
+                        candidateNode = node;
+                    }
                 }
+
             }
-            if (candidateNote != null) {
-                candidateNote.addPod(pod);
-                sendTraceNote(this.getQuotedName() + " has scheduled " + pod.getQuotedName() + " on node " + candidateNote);
+            if (candidateNode != null) {
+                candidateNode.addPod(pod);
+                sendTraceNote(this.getQuotedName() + " has scheduled " + pod.getQuotedName() + " on node " + candidateNode);
                 return true;
             } else {
                 podWaitingQueue.add(pod);
-                sendTraceNote(this.getQuotedName() + " was not able to schedule pod " + pod + ". Unsufficient resources!");
+                sendTraceNote(this.getQuotedName() + " was not able to schedule pod " + pod + ". Insufficient resources!");
                 sendTraceNote(this.getQuotedName() + " has send " + pod + " back to the Pod Waiting Queue");
                 return false;
             }
@@ -73,7 +70,8 @@ public class RandomScheduler extends Scheduler{
 
     @Override
     public SchedulerType getSchedulerType() {
-        return SchedulerType.RANDOM;
+        return SchedulerType.ROUNDROBIN;
     }
+
 
 }

@@ -50,6 +50,20 @@ public class KubeJSONCreator {
             String containerTemplateString = getFileContent("src/main/java/cambio/simulator/orchestration/scheduling/external/container.json");
             containerTemplateString = containerTemplateString.replace("TEMPLATE_CONTAINER_NAME", plainName);
             containerTemplateString = containerTemplateString.replace("TEMPLATE_REQUESTS", String.valueOf(requests));
+
+//            if(pod.getOwner().getPlainName().contains("flannel")){
+//                String requestsMemForFlenning = ",\"memory\": \"50Mi\"";
+//                containerTemplateString = containerTemplateString.replace("MEMORY", requestsMemForFlenning);
+//
+//                String limits_Flannel = ",\"requests\": { \"cpu\": \"100\", \"memory\": \"50Mi\"}";
+//                containerTemplateString = containerTemplateString.replace("LIMITS", limits_Flannel);
+//
+//
+//            } else {
+//                containerTemplateString = containerTemplateString.replace("MEMORY", "");
+//                containerTemplateString = containerTemplateString.replace("LIMITS", "");
+//            }
+
             containers.add(containerTemplateString);
         }
 
@@ -59,7 +73,7 @@ public class KubeJSONCreator {
         if (running) {
             String runningStatus = getFileContent("src/main/java/cambio/simulator/orchestration/scheduling/external/status_running.json");
             Node nodeForPod = pod.getLastKnownNode();
-            if (nodeForPod!=null) {
+            if (nodeForPod != null) {
                 Node node = nodeForPod;
                 runningStatus = runningStatus.replace("TEMPLATE_HOST_IP", node.getNodeIpAddress());
                 podTemplateString = podTemplateString.replace("TEMPLATE_STATUS", runningStatus);
@@ -73,7 +87,7 @@ public class KubeJSONCreator {
             podTemplateString = podTemplateString.replace("TEMPLATE_NODE_NAME", "");
         }
 
-        Deployment deploymentForPod = ManagementPlane.getInstance().getDeploymentForPod(pod);
+        Deployment deploymentForPod = pod.getOwner();
         Affinity affinity = deploymentForPod.getAffinity();
         Set<String> nodeAffinities = affinity.getNodeAffinities();
         if (affinity.getKey() != null && !nodeAffinities.isEmpty()) {
@@ -135,21 +149,41 @@ public class KubeJSONCreator {
         ArrayList<String> nodeList = new ArrayList<>();
 
 
-            String name = node.getPlainName();
-            String cpu = String.valueOf(node.getTotalCPU());
-            String nodeIpAddress = node.getNodeIpAddress();
-            String machineId = "MachineID-" + name;
-            String nodeTemplateString = getFileContent("src/main/java/cambio/simulator/orchestration/scheduling/external/node.json");
-            nodeTemplateString = nodeTemplateString.replace("TEMPLATE_NAME", name);
-            nodeTemplateString = nodeTemplateString.replace("TEMPLATE_UID", name);
-            nodeTemplateString = nodeTemplateString.replace("TEMPLATE_CPU", cpu);
-            nodeTemplateString = nodeTemplateString.replace("TEMPLATE_IP_ADDRESS", nodeIpAddress);
-            nodeTemplateString = nodeTemplateString.replace("TEMPLATE_MACHINE_ID", machineId);
-            nodeList.add(nodeTemplateString);
-        return nodeTemplateString;
-    }
+        String name = node.getPlainName();
+        String cpu = String.valueOf(node.getTotalCPU());
+        String nodeIpAddress = node.getNodeIpAddress();
+        String machineId = "MachineID-" + name;
+        String nodeTemplateString = getFileContent("src/main/java/cambio/simulator/orchestration/scheduling/external/node.json");
+        nodeTemplateString = nodeTemplateString.replace("TEMPLATE_NAME", name);
+        nodeTemplateString = nodeTemplateString.replace("TEMPLATE_UID", name);
+        nodeTemplateString = nodeTemplateString.replace("TEMPLATE_CPU", cpu);
+        nodeTemplateString = nodeTemplateString.replace("TEMPLATE_IP_ADDRESS", nodeIpAddress);
+        nodeTemplateString = nodeTemplateString.replace("TEMPLATE_MACHINE_ID", machineId);
 
-    public static String createNodeList(List<Node> nodes) throws IOException {
+
+//        if (node.getPlainName().equals("martin-patrick-smallvm2")) {
+//            nodeTemplateString = nodeTemplateString.replace("EPHEMERAL-STORAGE-CAP", "4060864Ki");
+//            nodeTemplateString = nodeTemplateString.replace("MEMORY-CAP", "2040812Ki");
+//            nodeTemplateString = nodeTemplateString.replace("EPHEMERAL-STORAGE-ALLOC", "3742492257");
+//            nodeTemplateString = nodeTemplateString.replace("MEMORY-ALLOC", "1938412Ki");
+//        } else if (node.getPlainName().equals("martin-patrick-mediumvm")) {
+//            nodeTemplateString = nodeTemplateString.replace("EPHEMERAL-STORAGE-CAP", "8189368Ki");
+//            nodeTemplateString = nodeTemplateString.replace("MEMORY-CAP", "4039032Ki");
+//            nodeTemplateString = nodeTemplateString.replace("EPHEMERAL-STORAGE-ALLOC", "7547321537");
+//            nodeTemplateString = nodeTemplateString.replace("MEMORY-ALLOC", "3936632Ki");
+//        } else if (node.getPlainName().equals("martin-patrick-largevm")) {
+//            nodeTemplateString = nodeTemplateString.replace("EPHEMERAL-STORAGE-CAP", "16446332Ki");
+//            nodeTemplateString = nodeTemplateString.replace("MEMORY-CAP", "8167396Ki");
+//            nodeTemplateString = nodeTemplateString.replace("EPHEMERAL-STORAGE-ALLOC", "15156939547");
+//            nodeTemplateString = nodeTemplateString.replace("MEMORY-ALLOC", "8064996Ki");
+//        }
+
+
+            nodeList.add(nodeTemplateString);
+            return nodeTemplateString;
+        }
+
+        public static String createNodeList (List < Node > nodes) throws IOException {
 //        TEMPLATE_NAME
 //        TEMPLATE_UID
 //        TEMPLATE_CPU
@@ -157,28 +191,28 @@ public class KubeJSONCreator {
 //        TEMPLATE_MACHINE_ID
 
 
-        ArrayList<String> nodeList = new ArrayList<>();
+            ArrayList<String> nodeList = new ArrayList<>();
 
-        for (Node node : nodes) {
+            for (Node node : nodes) {
 
-            String name = node.getPlainName();
-            String cpu = String.valueOf(node.getTotalCPU());
-            String nodeIpAddress = node.getNodeIpAddress();
-            String machineId = "MachineID-" + name;
-            String nodeTemplateString = getFileContent("src/main/java/cambio/simulator/orchestration/scheduling/external/node.json");
-            nodeTemplateString = nodeTemplateString.replace("TEMPLATE_NAME", name);
-            nodeTemplateString = nodeTemplateString.replace("TEMPLATE_UID", name);
-            nodeTemplateString = nodeTemplateString.replace("TEMPLATE_CPU", cpu);
-            nodeTemplateString = nodeTemplateString.replace("TEMPLATE_IP_ADDRESS", nodeIpAddress);
-            nodeTemplateString = nodeTemplateString.replace("TEMPLATE_MACHINE_ID", machineId);
-            nodeList.add(nodeTemplateString);
+                String name = node.getPlainName();
+                String cpu = String.valueOf(node.getTotalCPU());
+                String nodeIpAddress = node.getNodeIpAddress();
+                String machineId = "MachineID-" + name;
+                String nodeTemplateString = getFileContent("src/main/java/cambio/simulator/orchestration/scheduling/external/node.json");
+                nodeTemplateString = nodeTemplateString.replace("TEMPLATE_NAME", name);
+                nodeTemplateString = nodeTemplateString.replace("TEMPLATE_UID", name);
+                nodeTemplateString = nodeTemplateString.replace("TEMPLATE_CPU", cpu);
+                nodeTemplateString = nodeTemplateString.replace("TEMPLATE_IP_ADDRESS", nodeIpAddress);
+                nodeTemplateString = nodeTemplateString.replace("TEMPLATE_MACHINE_ID", machineId);
+                nodeList.add(nodeTemplateString);
+            }
+            String nodeListTemplateString = getFileContent("src/main/java/cambio/simulator/orchestration/scheduling/external/nodeList.json");
+            nodeListTemplateString = nodeListTemplateString.replace("TEMPLATE_NODES", nodeList.toString());
+            return nodeListTemplateString;
         }
-        String nodeListTemplateString = getFileContent("src/main/java/cambio/simulator/orchestration/scheduling/external/nodeList.json");
-        nodeListTemplateString = nodeListTemplateString.replace("TEMPLATE_NODES", nodeList.toString());
-        return nodeListTemplateString;
-    }
 
-    public static void main(String[] args) throws FileNotFoundException {
+        public static void main (String[]args) throws FileNotFoundException {
 //        String pendingPod = createPendingPod(null);
+        }
     }
-}

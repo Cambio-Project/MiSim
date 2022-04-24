@@ -79,7 +79,7 @@ public class SimulationEndEvent extends NamedExternalEvent {
         clReport();
 
         if (MiSimModel.createOrchestratedReport) {
-            String currentRunName = "D - Test";
+            String currentRunName = "test";
             createReport(currentRunName);
         }
     }
@@ -183,7 +183,7 @@ public class SimulationEndEvent extends NamedExternalEvent {
                 throw new FileAlreadyExistsException("File with the name " + currentRunName + " already exists");
             } catch (FileAlreadyExistsException e) {
                 e.printStackTrace();
-                System.exit(1);
+//                System.exit(1);
             }
         }
 
@@ -374,11 +374,16 @@ public class SimulationEndEvent extends NamedExternalEvent {
                 content.add(String.valueOf(schedulingRecord.getReservedTogether()));
                 content.add(String.valueOf(schedulingRecord.getAmountPodsOnNodes()));
                 content.add(String.valueOf(schedulingRecord.getAmountPodsWaiting()));
-                double pecentageScheduledPods = (double) schedulingRecord.getAmountPodsOnNodes() / (schedulingRecord.getAmountPodsOnNodes() + schedulingRecord.getAmountPodsWaiting());
-                pecentageScheduledPods = BigDecimal.valueOf(pecentageScheduledPods)
-                        .setScale(2, RoundingMode.HALF_UP)
-                        .doubleValue();
-                content.add(String.valueOf(pecentageScheduledPods));
+                double divisor = (double) schedulingRecord.getAmountPodsOnNodes() + schedulingRecord.getAmountPodsWaiting();
+                if(divisor!=0){
+                    double pecentageScheduledPods = (double) schedulingRecord.getAmountPodsOnNodes() / divisor;
+                    pecentageScheduledPods = BigDecimal.valueOf(pecentageScheduledPods)
+                            .setScale(2, RoundingMode.HALF_UP)
+                            .doubleValue();
+                    content.add(String.valueOf(pecentageScheduledPods));
+                }else{
+                    content.add(String.valueOf(1));
+                }
                 pw.println(convertToCSV(content));
             }
         } catch (FileNotFoundException e) {
@@ -498,7 +503,7 @@ public class SimulationEndEvent extends NamedExternalEvent {
             content.add("InstanceStartupEvent");
             content.add("MicroserviceScaleEvent");
             content.add("NetworkRequestCanceledEvent");
-            content.add("CanceldCB");
+//            content.add("CanceldCB");
             content.add("NetworkRequestReceiveEvent");
             content.add("NetworkRequestSendEvent");
             content.add("NetworkRequestTimeoutEvent");
@@ -532,7 +537,7 @@ public class SimulationEndEvent extends NamedExternalEvent {
 
 //            count all of them
             content.add(String.valueOf(NetworkRequestCanceledEvent.counter));
-            content.add(String.valueOf(CircuitBreaker.counter));
+//            content.add(String.valueOf(CircuitBreaker.counter));
             content.add(String.valueOf(NetworkRequestReceiveEvent.counter));
             content.add(String.valueOf(NetworkRequestSendEvent.getCounterSendEvents()));
             content.add(String.valueOf(NetworkRequestTimeoutEvent.counter));
@@ -605,5 +610,6 @@ public class SimulationEndEvent extends NamedExternalEvent {
         System.out.println("Experiment took:            " + Util.timeFormat(metaData.getExperimentDuration()));
         System.out.println("Report took:                " + Util.timeFormat(metaData.getReportDuration()));
         System.out.println("Execution took:             " + Util.timeFormat(metaData.getExecutionDuration()));
+        System.out.println("Experiment took:            " + (metaData.getExperimentDuration()/ (1000 * 1000)));
     }
 }

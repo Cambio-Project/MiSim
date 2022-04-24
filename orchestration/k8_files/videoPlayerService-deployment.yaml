@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: frontend-deployment
+  name: videoPlayerService-deployment
   labels:
-    app: frontend
+    app: videoPlayerService
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: frontend
+      app: videoPlayerService
   template:
     metadata:
       labels:
-        app: frontend
+        app: videoPlayerService
     spec:
       containers:
-        - name: frontend
+        - name: videoPlayerService
 #      affinity:
 #        nodeAffinity:
 #          requiredDuringSchedulingIgnoredDuringExecution:

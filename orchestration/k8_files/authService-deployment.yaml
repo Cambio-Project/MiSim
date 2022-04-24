@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: frontend-deployment
+  name: authService-deployment
   labels:
-    app: frontend
+    app: authService
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: frontend
+      app: authService
   template:
     metadata:
       labels:
-        app: frontend
+        app: authService
     spec:
       containers:
-        - name: frontend
+        - name: authService
 #      affinity:
 #        nodeAffinity:
 #          requiredDuringSchedulingIgnoredDuringExecution:
