@@ -197,7 +197,7 @@ public final class ScenarioDescription {
                 }
             );
         } else if (currentStimulus.startsWith("RESTART")) {
-            int instances = Integer.parseInt(currentStimulus.replace("RESTART", ""));
+            int instances = Integer.parseInt(currentStimulus.replace("RESTART", "").trim());
 
 
             scheduables.add(
