@@ -33,10 +33,10 @@ public class TestBase {
     protected void runSimulationCheckExit(int expectedExitCode, File arch, File exp, String... additionalArgs) {
         try {
             int code = catchSystemExit(() -> {
-                String[] fileLocations = new String[] {"-a", arch.getAbsolutePath(), "-e", exp.getAbsolutePath()};
-                String[] allArgs = new String[additionalArgs.length + 4];
+                String[] fileLocations = new String[] {"-a", arch.getAbsolutePath(), "-e", exp.getAbsolutePath(), "-d"};
+                String[] allArgs = new String[additionalArgs.length + fileLocations.length];
                 System.arraycopy(fileLocations, 0, allArgs, 0, fileLocations.length);
-                System.arraycopy(additionalArgs, 0, allArgs, 4, additionalArgs.length);
+                System.arraycopy(additionalArgs, 0, allArgs, fileLocations.length, additionalArgs.length);
                 Main.main(allArgs);
             });
             assertEquals(expectedExitCode, code);
