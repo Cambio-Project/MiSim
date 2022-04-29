@@ -1,7 +1,10 @@
 package cambio.simulator.scenarios.evaluation;
 
+import static cambio.simulator.test.FileLoaderUtil.loadFromExampleResources;
+
 import java.io.File;
 
+import cambio.simulator.test.TestBase;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -9,21 +12,20 @@ import org.junit.jupiter.api.Test;
  * @author Lion Wagner
  */
 @Disabled
-public class EvaluationResponseTimesTest {
+@Deprecated
+public class EvaluationResponseTimesTest extends TestBase {
 
     @Test
     void ExampleExecutionRunExperiment() {
-        File f = new File("./Examples/Calibration/example_architecture_architecture.json");
-        File f2 = new File("./Examples/Calibration/response_time_experiement.json");
-        String[] args = new String[] {"-a", f.getAbsolutePath(), "-e", f2.getAbsolutePath(), "-d"};
-        cambio.simulator.Main.main(args);
+        File f = loadFromExampleResources("ProofOfConcept", "example_architecture.json");
+        File f2 = loadFromExampleResources("ProofOfConcept", "response_time_experiment.json");
+        runSimulationCheckExitTempOutput(0, f, f2, "-d");
     }
 
     @Test
     void ExampleExecutionRunOnCalibration() {
-        File f = new File("./Examples/Calibration/example_architecture_architecture.json");
-        File f2 = new File("./Examples/Calibration/response_time_calibration.json");
-        String[] args = new String[] {"-a", f.getAbsolutePath(), "-e", f2.getAbsolutePath(), "-d"};
-        cambio.simulator.Main.main(args);
+        File f = loadFromExampleResources("ProofOfConcept", "example_architecture.json");
+        File f2 = loadFromExampleResources("ProofOfConcept", "response_time_calibration.json");
+        runSimulationCheckExitTempOutput(0, f, f2, "-d");
     }
 }

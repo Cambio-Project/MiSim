@@ -22,14 +22,13 @@ class LimboLoadGeneratorDescriptionTest {
             ",\"distribution\": \"spike\"" +
             "}";
 
-        LimboLoadGeneratorDescription description = Utils.getLoadGeneratorDescription(config,
+        LimboLoadGeneratorDescription description = GeneratorTestUtils.getLoadGeneratorDescription(config,
             LimboLoadGeneratorDescription.class);
 
         for (int i = 0; i < 6; i++) {
             for (int j = 0; j < 2; j++) {
                 double targetTime = description.getNextTimeInstant(new TimeInstant(i*2+j)).getTimeAsDouble();
                 Assertions.assertEquals(20.5 + i, targetTime);
-                System.out.println(targetTime);
             }
         }
     }
@@ -44,7 +43,7 @@ class LimboLoadGeneratorDescriptionTest {
             "\"model\": \"" + profile.getAbsolutePath().replace("\\", "/") + "\"" +
             ",\"distribution\": \"spike\"" +
             "}";
-        Utils.getLoadGeneratorDescription(config, LimboLoadGeneratorDescription.class);
+        GeneratorTestUtils.getLoadGeneratorDescription(config, LimboLoadGeneratorDescription.class);
 
     }
 }

@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
  * @author Lion Wagner
  */
 @Disabled
+@Deprecated
 public class PerformanceTests {
     static List<TestResult> performanceTest(int max_service_count, int tier_count, int iterations) {
         List<TestResult> testResults = new LinkedList<>();

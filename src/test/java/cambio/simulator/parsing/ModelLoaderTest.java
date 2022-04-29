@@ -1,6 +1,7 @@
 package cambio.simulator.parsing;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.io.File;
@@ -79,6 +80,7 @@ class ModelLoaderTest {
         expDummy.finish();
 
         assertEquals(5, model.getExperimentModel().getAllSelfSchedulesEntities().size());
+        assertFalse(expDummy.hasError());
     }
 
     @Test
@@ -97,6 +99,6 @@ class ModelLoaderTest {
 
 
         assertEquals(7, model.getExperimentModel().getAllSelfSchedulesEntities().size());
-
+        assertFalse(expDummy.hasError());
     }
 }

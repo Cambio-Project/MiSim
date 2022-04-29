@@ -12,7 +12,7 @@ import com.google.gson.stream.JsonWriter;
 /**
  * @author Lion Wagner
  */
-public class Utils {
+public class GeneratorTestUtils {
 
     public static <T extends LoadGeneratorDescription> T getLoadGeneratorDescription(String configJson,
                                                                                      Class<T> clazz) {

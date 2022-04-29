@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
  *
  * @author Lion Wagner
  */
-public class Paper extends TestBase {
+public class PaperOutputDemonstration extends TestBase {
 
     @Test
     void MinimalScenario() {

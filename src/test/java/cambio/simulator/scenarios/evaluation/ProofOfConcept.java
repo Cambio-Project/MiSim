@@ -1,7 +1,5 @@
 package cambio.simulator.scenarios.evaluation;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.io.File;
 
 import cambio.simulator.test.FileLoaderUtil;
@@ -10,6 +8,8 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /**
+ * Class used to demonstrate the different features of miSim in its inaugural paper.
+ *
  * @author Lion Wagner
  */
 //@Execution(ExecutionMode.CONCURRENT), not working yet
@@ -21,21 +21,21 @@ public class ProofOfConcept extends TestBase {
     void CircuitBreakerDemonstration() throws Exception {
         File arch = FileLoaderUtil.loadFromExampleResources("ProofOfConcept", "arch_circuitbreaker_demonstration.json");
         File exp = FileLoaderUtil.loadFromExampleResources("ProofOfConcept", "exp_circuitbreaker_demonstration.json");
-        runSimulationCheckExit(0, arch, exp,  "-d", "-t");
+        runSimulationCheckExit(0, arch, exp, "-d", "-t");
     }
 
     @Test
     void RetryConceptDemonstration() throws Exception {
         File arch = FileLoaderUtil.loadFromExampleResources("ProofOfConcept", "arch_retry_demonstration.json");
         File exp = FileLoaderUtil.loadFromExampleResources("ProofOfConcept", "exp_retry_demonstration.json");
-        runSimulationCheckExit(0, arch, exp,  "-d", "-t");
+        runSimulationCheckExit(0, arch, exp, "-d", "-t");
     }
 
     @Test
     void RetryDisabledConceptDemonstration() throws Exception {
         File arch = FileLoaderUtil.loadFromExampleResources("ProofOfConcept", "arch_retry_disabled_demonstration.json");
         File exp = FileLoaderUtil.loadFromExampleResources("ProofOfConcept", "exp_retry_disabled_demonstration.json");
-        runSimulationCheckExit(0, arch, exp,  "-d", "-t");
+        runSimulationCheckExit(0, arch, exp, "-d", "-t");
     }
 
     @Test
@@ -44,7 +44,7 @@ public class ProofOfConcept extends TestBase {
             ".json");
         File exp = FileLoaderUtil.loadFromExampleResources("ProofOfConcept", "exp_loadbalancer_random_demonstration" +
             ".json");
-        runSimulationCheckExit(0, arch, exp,  "-d", "-t");
+        runSimulationCheckExit(0, arch, exp, "-d", "-t");
     }
 
     @Test
@@ -53,7 +53,7 @@ public class ProofOfConcept extends TestBase {
             ".json");
         File exp =
             FileLoaderUtil.loadFromExampleResources("ProofOfConcept", "exp_loadbalancer_util_demonstration.json");
-        runSimulationCheckExit(0, arch, exp,  "-d", "-t");
+        runSimulationCheckExit(0, arch, exp, "-d", "-t");
     }
 
     @Test
@@ -62,7 +62,7 @@ public class ProofOfConcept extends TestBase {
             "-robin-strict_demonstration.json");
         File exp = FileLoaderUtil.loadFromExampleResources("ProofOfConcept", "exp_loadbalancer_round" +
             "-robin-strict_demonstration.json");
-        runSimulationCheckExit(0, arch, exp,  "-d", "-t");
+        runSimulationCheckExit(0, arch, exp, "-d", "-t");
     }
 
     @Test
@@ -71,6 +71,6 @@ public class ProofOfConcept extends TestBase {
             "-robin_demonstration.json");
         File exp = FileLoaderUtil.loadFromExampleResources("ProofOfConcept", "exp_loadbalancer_round" +
             "-robin_demonstration.json");
-        runSimulationCheckExit(0, arch, exp,  "-d", "-t");
+        runSimulationCheckExit(0, arch, exp, "-d", "-t");
     }
 }
