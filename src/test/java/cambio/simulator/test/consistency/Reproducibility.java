@@ -44,7 +44,8 @@ public class Reproducibility extends TestBase {
         File exp = FileLoaderUtil.loadFromExampleResources("ProofOfConcept", "exp_loadbalancer_round" +
             "-robin_demonstration.json");
 
-        //remember to remove the output manually after the test (or flip the switch to false)
+        //remember to remove the output manually from your systems temp folder after the test
+        // (or flip the switch to false)
         testReproducibility(exp, arch, true);
     }
 }
