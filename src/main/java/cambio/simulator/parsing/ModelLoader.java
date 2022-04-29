@@ -19,18 +19,6 @@ import org.jetbrains.annotations.Contract;
  */
 public final class ModelLoader {
 
-    @Contract("null->fail")
-    private static void checkFileExistence(File file) {
-        if (file == null) {
-            throw new ParsingException(
-                "[Error]  Cannot start the simulation. Model file was not found. Check your Paths and parameters.");
-        } else if (!file.exists()) {
-            throw new ParsingException(
-                String
-                    .format("[Error]  Cannot start the simulation. Model file %s was not found!",
-                        file.getAbsolutePath()));
-        }
-    }
 
     /**
      * Parses the given information into a new {@link ExperimentMetaData} object.
@@ -111,6 +99,19 @@ public final class ModelLoader {
         } catch (ParsingException e) {
             throw new ParsingException(String.format("Error parsing model file %s\n%s", targetFile.getAbsolutePath(),
                 e.getMessage()), e);
+        }
+    }
+
+    @Contract("null->fail")
+    private static void checkFileExistence(File file) {
+        if (file == null) {
+            throw new ParsingException(
+                "[Error] Cannot start the simulation. Model file was not found. Check your Paths and parameters.");
+        } else if (!file.exists()) {
+            throw new ParsingException(
+                String
+                    .format("[Error]  Cannot start the simulation. Model file %s was not found!",
+                        file.getAbsolutePath()));
         }
     }
 }

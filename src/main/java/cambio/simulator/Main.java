@@ -21,6 +21,14 @@ public final class Main {
     /**
      * Main entry point of the program. Pass "-h" to see arguments.
      *
+     * <p>
+     * This method will <b>always</b> call {@link System#exit(int)}! Be aware of that if you call it from other code. If
+     * you want to avoid this behavior, consider calling {@link #runExperiment(String[])} or {@link
+     * #runExperiment(ExperimentStartupConfig)} instead.
+     *
+     * <p>
+     * Exit code meanings are as follows:
+     *
      * <table>
      *     <tr>
      *         <th>Exit Code</th>
@@ -36,11 +44,11 @@ public final class Main {
      *     </tr>
      *     <tr>
      *        <td>2</td>
-     *        <td>Exception during parsing.</td>
+     *        <td>Exception during parsing of models.</td>
      *     </tr>
      *     <tr>
      *        <td>16</td>
-     *        <td>Exception during running.</td>
+     *        <td>Exception during running of experiment.</td>
      *     </tr>
      *     <tr>
      *         <td>512</td>
@@ -55,17 +63,13 @@ public final class Main {
      */
     public static void main(final String[] args) {
 
-        // trim whitespaces from arguments to please apache cli
-        String[] argsTrimmed = Arrays.stream(args).map(String::trim).toArray(String[]::new);
-
-        ExperimentStartupConfig startupConfig = parseArgsToConfig(argsTrimmed);
+        ExperimentStartupConfig startupConfig = parseArgsToConfig(args);
 
         try {
 
-            Experiment experiment = runExperiment(startupConfig);
+            //---------------------------------------Experiment execution-----------------------------------------------
 
-            ReportCollector.getInstance().printReport((MiSimModel) experiment.getModel());
-
+            Experiment experiment = runExperiment(args);
 
             //-------------------------------------------Error handling-------------------------------------------------
 
@@ -86,7 +90,7 @@ public final class Main {
         } catch (Exception e) {
             //In tests, System.exit throws an exception with a private type from the
             //"com.github.stefanbirkner.systemlambda" package. This exception is supposed to be
-            //thrown up to top level and therefore is not handled here.
+            //thrown up to top level to be detected by a test and therefore is not handled here.
             if (e.getClass().getPackage().getName().equals("com.github.stefanbirkner.systemlambda")) {
                 throw e;
             }
@@ -99,8 +103,32 @@ public final class Main {
         }
     }
 
-    @NotNull
-    private static ExperimentStartupConfig parseArgsToConfig(String[] argsTrimmed) {
+    /**
+     * Varargs variant of {@link #main(String[])}.
+     *
+     *
+     * <p>
+     * This method will <b>always</b> call {@link System#exit(int)}! Be aware of that if you call it from other code. If
+     * you want to avoid this behavior, consider calling {@link #runExperiment(String[])} or {@link
+     * #runExperiment(ExperimentStartupConfig)} instead.
+     *
+     * <p>
+     * For exit code meanings, see {@link #main(String[])}.
+     *
+     * @param args program options, see {@link ExperimentStartupConfig#ExperimentStartupConfig(String, String, String,
+     *             String, boolean, boolean, boolean)}
+     * @see #main(String[])
+     * @see #runExperiment(String)
+     * @see #runExperiment(ExperimentStartupConfig)
+     */
+    public static void mainVarargs(final String... args) {
+        main(args);
+    }
+
+
+    private static @NotNull ExperimentStartupConfig parseArgsToConfig(String[] args) {
+        // trim whitespaces from arguments to please apache cli
+        String[] argsTrimmed = Arrays.stream(args).map(String::trim).toArray(String[]::new);
         try {
             return CLI.parseArguments(ExperimentStartupConfig.class, argsTrimmed);
         } catch (ParseException e) {
@@ -110,16 +138,17 @@ public final class Main {
         return null;
     }
 
-    /**
-     * Varargs variant of {@link #main(String[])}.
-     *
-     * @param args program options, see {@link ExperimentStartupConfig}
-     * @see #main(String[])
-     * @see #runExperiment(String)
-     * @see #runExperiment(ExperimentStartupConfig)
-     */
-    public static void mainVarargs(final String... args) {
-        main(args);
+
+    private static @NotNull Experiment runExperiment(String[] args) {
+
+        ExperimentStartupConfig startupConfig = parseArgsToConfig(args);
+
+        Experiment experiment = runExperiment(startupConfig);
+
+        ReportCollector.getInstance().printReport((MiSimModel) experiment.getModel());
+
+        return experiment;
+
     }
 
     /**
@@ -131,8 +160,8 @@ public final class Main {
      * @see #mainVarargs(String...)
      * @see #runExperiment(ExperimentStartupConfig)
      */
-    public static void runExperiment(final String cliString) {
-        main(cliString.replaceAll("\\s*", " ").split(" "));
+    public static @NotNull Experiment runExperiment(final String cliString) {
+        return runExperiment(cliString.replaceAll("\\s*", " ").split(" "));
     }
 
 
@@ -144,7 +173,7 @@ public final class Main {
      * @see #main(String[])
      * @see #mainVarargs(String...)
      */
-    public static Experiment runExperiment(final ExperimentStartupConfig startupConfig) {
+    public static @NotNull Experiment runExperiment(final ExperimentStartupConfig startupConfig) {
         Experiment experiment = ExperimentCreator.createSimulationExperiment(startupConfig);
         System.out.printf("[INFO] Starting simulation at approximately %s%n", java.time.LocalDateTime.now());
         experiment.start();
