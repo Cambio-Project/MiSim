@@ -4,7 +4,7 @@
   "description": "Delay injection into example-service",
   "artifact": "example-service",
   "component": "ALL ENDPOINTS",
-  "stimulus": "LOAD Examples/Calibration/ResponseTimeEvaluationSimArrivalRates.csv AND DELAY 0.5+-0.2@90~60",
+  "stimulus": "LOAD Examples/ProofOfConcept/ResponseTimeEvaluationSimArrivalRates.csv AND DELAY 0.5+-0.2@90~60",
   "source": "USER",
   "environment": "IDLE",
   "response": "Artifact should be available again",
