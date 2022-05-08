@@ -2,11 +2,11 @@ package cambio.simulator.events;
 
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.misc.Priority;
+import cambio.simulator.models.MiSimModel;
 import cambio.simulator.parsing.JsonTypeName;
 import co.paralleluniverse.fibers.SuspendExecution;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import desmoj.core.simulator.Model;
 
 /**
  * A <code>ChaosMonkeyEvent</code> is an <code>ExternalEvent</code> that gets scheduled at the beginning of the
@@ -23,7 +23,7 @@ public class ChaosMonkeyEvent extends SelfScheduledExperimentAction {
     @Expose
     private Microservice microservice;
 
-    public ChaosMonkeyEvent(Model model, String name, boolean showInTrace) {
+    public ChaosMonkeyEvent(MiSimModel model, String name, boolean showInTrace) {
         super(model, name, showInTrace);
     }
 
@@ -37,7 +37,7 @@ public class ChaosMonkeyEvent extends SelfScheduledExperimentAction {
      * @param instances    int: The number of instances of the specified microservice you want to shut down, can be
      *                     greater than the number of currently running instances
      */
-    public ChaosMonkeyEvent(Model owner, String name, boolean showInTrace, Microservice microservice, int instances) {
+    public ChaosMonkeyEvent(MiSimModel owner, String name, boolean showInTrace, Microservice microservice, int instances) {
         super(owner, name, showInTrace);
 
         this.microservice = microservice;

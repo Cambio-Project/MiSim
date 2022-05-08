@@ -2,8 +2,8 @@ package cambio.simulator.entities.patterns;
 
 import cambio.simulator.entities.NamedSimProcess;
 import cambio.simulator.misc.Priority;
+import cambio.simulator.models.MiSimModel;
 import co.paralleluniverse.fibers.SuspendExecution;
-import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeSpan;
 
 /**
@@ -28,7 +28,7 @@ public class PeriodicPatternScheduler extends NamedSimProcess {
      * @param stop     simulation time after which no more triggers should happen.
      * @param interval interval/period between triggers
      */
-    public PeriodicPatternScheduler(Model model, IPeriodicPattern pattern, double start, double stop,
+    public PeriodicPatternScheduler(MiSimModel model, IPeriodicPattern pattern, double start, double stop,
                                     double interval) {
         super(model, null, true, false);
         this.owner = pattern;

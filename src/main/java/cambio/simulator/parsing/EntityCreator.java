@@ -3,14 +3,14 @@ package cambio.simulator.parsing;
 import java.lang.reflect.*;
 import java.util.Objects;
 
+import cambio.simulator.models.MiSimModel;
 import com.google.gson.InstanceCreator;
-import desmoj.core.simulator.Model;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * Extention of Gsons' {@link InstanceCreator} to create {@link desmoj.core.simulator.Entity} instances of Desmo-J
- * objects. Due to type erasure and type saftey the public factory {@link EntityCreator#getCreator(Model, String,
+ * objects. Due to type erasure and type saftey the public factory {@link EntityCreator#getCreator(MiSimModel, String,
  * Class)} hast to be used to create instances of this class.
  *
  * <p>
@@ -19,14 +19,14 @@ import org.jetbrains.annotations.NotNull;
  *
  * @param <T> Type of the pattern
  * @author Lion Wagner
- * @see EntityCreator#getCreator(Model, String, Class)
+ * @see EntityCreator#getCreator(MiSimModel, String, Class)
  */
 public class EntityCreator<T> implements InstanceCreator<T> {
-    private final Model model;
+    private final MiSimModel model;
     private final String name;
     private final Class<T> targetClass;
 
-    private EntityCreator(Model model, String name,
+    private EntityCreator(MiSimModel model, String name,
                           Class<T> targetClass) {
         this.model = model;
         this.name = name;
@@ -45,7 +45,7 @@ public class EntityCreator<T> implements InstanceCreator<T> {
      */
     @Contract("null,_,_ -> fail; _,_,null-> fail")
     public static <I> @NotNull EntityCreator<I> getCreator(
-        Model model, String name, Class<I> targetClass) {
+        MiSimModel model, String name, Class<I> targetClass) {
         Objects.requireNonNull(model);
         Objects.requireNonNull(targetClass);
         return new EntityCreator<>(model, name, targetClass);
@@ -58,13 +58,13 @@ public class EntityCreator<T> implements InstanceCreator<T> {
     public T createInstance(Type type) {
         try {
             Constructor<T> c =
-                targetClass.getDeclaredConstructor(Model.class, String.class, boolean.class);
+                targetClass.getDeclaredConstructor(MiSimModel.class, String.class, boolean.class);
             return c.newInstance(model, name, true);
         } catch (NoSuchMethodException e) {
             throw new RuntimeException(
                 String.format(
                     "Cannot create an instance of %s. Missing constructor of with parameters (%s, %s, %s)",
-                    targetClass.getName(), Model.class, String.class, Boolean.class),
+                    targetClass.getName(), MiSimModel.class, String.class, Boolean.class),
                 e);
         } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
             throw new RuntimeException(

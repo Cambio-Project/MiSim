@@ -4,7 +4,6 @@ import java.util.Random;
 
 import cambio.simulator.models.MiSimModel;
 import cambio.simulator.parsing.JsonTypeName;
-import desmoj.core.simulator.Model;
 
 /**
  * Represents a jittering linear retry backoff strategy. Generates doubles based on the formula  {@code random(0,
@@ -26,8 +25,8 @@ public class JitteringLinearBackoffRetryStrategy extends LinearBackoffRetryStrat
 
 
     @Override
-    public void onInitializedCompleted(Model model) {
+    public void onInitializedCompleted(MiSimModel model) {
         super.onInitializedCompleted(model);
-        rng = new Random(((MiSimModel) model).getExperimentMetaData().getSeed());
+        rng = new Random(model.getExperimentMetaData().getSeed());
     }
 }

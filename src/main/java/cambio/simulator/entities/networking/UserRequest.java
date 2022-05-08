@@ -3,7 +3,7 @@ package cambio.simulator.entities.networking;
 import cambio.simulator.entities.generator.LoadGeneratorDescriptionExecutor;
 import cambio.simulator.entities.microservice.Operation;
 import cambio.simulator.export.ReportCollector;
-import desmoj.core.simulator.Model;
+import cambio.simulator.models.MiSimModel;
 
 /**
  * A {@code Request} that represents a request that is created by a user from outside the simulated system.
@@ -17,7 +17,7 @@ import desmoj.core.simulator.Model;
  */
 public class UserRequest extends Request {
 
-    public UserRequest(Model model, String name, boolean showInTrace, Operation operation) {
+    public UserRequest(MiSimModel model, String name, boolean showInTrace, Operation operation) {
         super(model, name, showInTrace, null, operation, null);
     }
 

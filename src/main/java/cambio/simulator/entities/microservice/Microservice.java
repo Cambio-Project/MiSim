@@ -9,11 +9,11 @@ import cambio.simulator.entities.networking.InternalRequest;
 import cambio.simulator.entities.patterns.*;
 import cambio.simulator.export.AccumulativeDataPointReporter;
 import cambio.simulator.export.MultiDataPointReporter;
+import cambio.simulator.models.MiSimModel;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import desmoj.core.dist.NumericalDist;
 import desmoj.core.simulator.Event;
-import desmoj.core.simulator.Model;
 
 /**
  * A Microservice is one of the core Entities of the simulation. It represents the meta layer of a microservice that is
@@ -76,7 +76,7 @@ public class Microservice extends NamedEntity {
     /**
      * Creates a new instance of a {@link Microservice}.
      */
-    public Microservice(Model model, String name, boolean showInTrace) {
+    public Microservice(MiSimModel model, String name, boolean showInTrace) {
         super(model, name, showInTrace);
         //default load balancer
         loadBalancer = new LoadBalancer(model, "Loadbalancer", traceIsOn(), null);

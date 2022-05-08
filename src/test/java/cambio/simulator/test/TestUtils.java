@@ -150,21 +150,21 @@ public class TestUtils {
         return currentExperiment;
     }
 
-    //    public static InstanceOwnedPatternConfiguration getRetryPatternMock(Model model) {
+    //    public static InstanceOwnedPatternConfiguration getRetryPatternMock(MiSimModel model) {
     //        InstanceOwnedPatternConfiguration data = mock(InstanceOwnedPatternConfiguration.class);
     //        Mockito.when(data.getPatternInstance(any(MicroserviceInstance.class)))
     //            .thenAnswer(invocationOnMock -> new Retry(model, "Retry", true));
     //        return data;
     //    }
     //
-    //    public static InstanceOwnedPatternConfiguration getCircuitBreaker(Model model) {
+    //    public static InstanceOwnedPatternConfiguration getCircuitBreaker(MiSimModel model) {
     //        InstanceOwnedPatternConfiguration data = mock(InstanceOwnedPatternConfiguration.class);
     //        Mockito.when(data.getPatternInstance(any(MicroserviceInstance.class)))
     //            .thenAnswer(invocationOnMock -> new CircuitBreaker(model, "CircuitBreaker", true));
     //        return data;
     //    }
     //
-    //    public static ServiceOwnedPattern getAutoscaler(Model model) {
+    //    public static ServiceOwnedPattern getAutoscaler(MiSimModel model) {
     //        InstanceOwnedPatternConfiguration data = mock(InstanceOwnedPatternConfiguration.class);
     //        Mockito.when(data.getPatternInstance(any(Microservice.class)))
     //            .thenAnswer(invocationOnMock -> new BasicAutoscalingStrategyProxy(model, "AutoScaler", true));

@@ -5,10 +5,10 @@ import java.util.concurrent.atomic.AtomicLong;
 import cambio.simulator.entities.microservice.*;
 import cambio.simulator.export.ReportCollector;
 import cambio.simulator.misc.RNGStorage;
+import cambio.simulator.models.MiSimModel;
 import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.dist.ContDistNormal;
 import desmoj.core.dist.NumericalDist;
-import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeSpan;
 
 /**
@@ -27,17 +27,17 @@ public class NetworkRequestSendEvent extends NetworkRequestEvent {
     private transient NetworkRequestTimeoutEvent timeoutEvent;
     private boolean isCanceled = false;
 
-    public NetworkRequestSendEvent(Model model, String name, boolean showInTrace, Request request,
+    public NetworkRequestSendEvent(MiSimModel model, String name, boolean showInTrace, Request request,
                                    MicroserviceInstance target) {
         this(model, name, showInTrace, request, null, target);
     }
 
-    public NetworkRequestSendEvent(Model model, String name, boolean showInTrace, Request request,
+    public NetworkRequestSendEvent(MiSimModel model, String name, boolean showInTrace, Request request,
                                    Microservice target) {
         this(model, name, showInTrace, request, target, null);
     }
 
-    private NetworkRequestSendEvent(Model model, String name, boolean showInTrace, Request request,
+    private NetworkRequestSendEvent(MiSimModel model, String name, boolean showInTrace, Request request,
                                     Microservice targetService, MicroserviceInstance targetInstance) {
         super(model, name, showInTrace, request);
         this.targetService = targetService;

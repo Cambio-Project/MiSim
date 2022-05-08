@@ -1,8 +1,8 @@
 package cambio.simulator.entities.networking;
 
 import cambio.simulator.misc.Priority;
+import cambio.simulator.models.MiSimModel;
 import co.paralleluniverse.fibers.SuspendExecution;
-import desmoj.core.simulator.Model;
 
 /**
  * Event that should be scheduled when a request gets canceled.
@@ -14,7 +14,7 @@ public class NetworkRequestCanceledEvent extends NetworkRequestEvent {
     private final RequestFailedReason reason;
     private final String details;
 
-    public NetworkRequestCanceledEvent(Model model, String name, boolean showInTrace, Request request,
+    public NetworkRequestCanceledEvent(MiSimModel model, String name, boolean showInTrace, Request request,
                                        RequestFailedReason reason) {
         this(model, name, showInTrace, request, reason, null);
     }
@@ -26,7 +26,7 @@ public class NetworkRequestCanceledEvent extends NetworkRequestEvent {
      * @param reason  why the request canceled/failed
      * @param details optional reasoning string that is used in the trace
      */
-    public NetworkRequestCanceledEvent(Model model, String name, boolean showInTrace, Request request,
+    public NetworkRequestCanceledEvent(MiSimModel model, String name, boolean showInTrace, Request request,
                                        RequestFailedReason reason, String details) {
         super(model, name, showInTrace, request);
         this.reason = reason;

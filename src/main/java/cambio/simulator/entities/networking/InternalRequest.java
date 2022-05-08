@@ -1,7 +1,7 @@
 package cambio.simulator.entities.networking;
 
 import cambio.simulator.entities.microservice.MicroserviceInstance;
-import desmoj.core.simulator.Model;
+import cambio.simulator.models.MiSimModel;
 
 /**
  * Represents a {@code Request} between two {@code MicroserviceInstance}s. Hold information about the {@code
@@ -19,7 +19,7 @@ public class InternalRequest extends Request {
      * @param dependency {@link ServiceDependencyInstance} that should be competed by this request.
      * @param requester  {@link MicroserviceInstance} that requests the answer to this request.
      */
-    public InternalRequest(Model model, boolean showInTrace, ServiceDependencyInstance dependency,
+    public InternalRequest(MiSimModel model, boolean showInTrace, ServiceDependencyInstance dependency,
                            MicroserviceInstance requester) {
         super(model,
             String

@@ -4,8 +4,8 @@ import java.lang.reflect.*;
 import java.util.Arrays;
 
 import cambio.simulator.entities.patterns.*;
+import cambio.simulator.models.MiSimModel;
 import com.google.gson.Gson;
-import desmoj.core.simulator.Model;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -37,7 +37,7 @@ public class PatternConfigurationParser {
      * @see JsonTypeName
      */
     public static <T extends IPatternLifeCycleHooks> T getPatternInstance(
-        Model model,
+        MiSimModel model,
         String ownerName,
         @NotNull TypeNameAssociatedConfigurationData configurationData,
         Class<T> patternBaseType) throws ClassNotFoundException {

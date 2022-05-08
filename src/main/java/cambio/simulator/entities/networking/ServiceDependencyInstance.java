@@ -2,7 +2,7 @@ package cambio.simulator.entities.networking;
 
 import cambio.simulator.entities.NamedEntity;
 import cambio.simulator.entities.microservice.*;
-import desmoj.core.simulator.Model;
+import cambio.simulator.models.MiSimModel;
 
 /**
  * This is an instance of a {@link DependencyDescription}. It describes an actual existing dependency of a {@code
@@ -30,7 +30,7 @@ public class ServiceDependencyInstance extends NamedEntity {
      * @param targetOp              {@link Operation} that is targeted by this dependency.
      * @param dependencyDescription generic data that describes this dependency.
      */
-    public ServiceDependencyInstance(Model model, Request parentRequest, Operation targetOp,
+    public ServiceDependencyInstance(MiSimModel model, Request parentRequest, Operation targetOp,
                                      DependencyDescription dependencyDescription) {
         super(model,
             String.format(

@@ -1,6 +1,6 @@
 package cambio.simulator.entities;
 
-import desmoj.core.simulator.Model;
+import cambio.simulator.models.MiSimModel;
 import desmoj.core.simulator.SimProcess;
 
 /**
@@ -21,6 +21,7 @@ import desmoj.core.simulator.SimProcess;
  */
 public abstract class NamedSimProcess extends SimProcess {
 
+    private final MiSimModel model;
     private String plainName;
     private String quotedName;
     private String quotedPlainName;
@@ -32,7 +33,7 @@ public abstract class NamedSimProcess extends SimProcess {
      * @param name        The name of this process.
      * @param showInTrace Flag indicating whether the entity should be shown in the trace.
      */
-    public NamedSimProcess(Model model, String name, boolean showInTrace) {
+    public NamedSimProcess(MiSimModel model, String name, boolean showInTrace) {
         this(model, name, false, showInTrace);
     }
 
@@ -44,11 +45,13 @@ public abstract class NamedSimProcess extends SimProcess {
      * @param repeating   If this process is automatically restart its lifecycle.
      * @param showInTrace Flag indicating whether the entity should be shown in the trace.
      */
-    public NamedSimProcess(Model model, String name, boolean repeating, boolean showInTrace) {
+    public NamedSimProcess(MiSimModel model, String name, boolean repeating, boolean showInTrace) {
         super(model, name, repeating, showInTrace);
         this.plainName = name;
         this.quotedPlainName = "'" + name + "'";
         this.quotedName = super.getQuotedName();
+
+        this.model = model;
     }
 
     public String getPlainName() {
@@ -83,5 +86,10 @@ public abstract class NamedSimProcess extends SimProcess {
     @Override
     public String getQuotedName() {
         return this.quotedName;
+    }
+
+    @Override
+    public MiSimModel getModel() {
+        return this.model;
     }
 }

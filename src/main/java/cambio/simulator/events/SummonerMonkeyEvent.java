@@ -2,10 +2,10 @@ package cambio.simulator.events;
 
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.misc.Priority;
+import cambio.simulator.models.MiSimModel;
 import cambio.simulator.parsing.JsonTypeName;
 import co.paralleluniverse.fibers.SuspendExecution;
 import com.google.gson.annotations.Expose;
-import desmoj.core.simulator.Model;
 
 /**
  * A {@code SummonerMonkeyEvent} is an {@code ExternalEvent} that gets scheduled at the begin of the experiment. It
@@ -19,7 +19,7 @@ public class SummonerMonkeyEvent extends SelfScheduledExperimentAction {
     @Expose
     private Microservice microservice;
 
-    public SummonerMonkeyEvent(Model model, String name, boolean showInTrace) {
+    public SummonerMonkeyEvent(MiSimModel model, String name, boolean showInTrace) {
         super(model, name, showInTrace);
     }
 
@@ -32,7 +32,7 @@ public class SummonerMonkeyEvent extends SelfScheduledExperimentAction {
      * @param microservice int: The ID of the microservice whose instances should be started
      * @param instances    int: The number of instances of the specified microservice should be started
      */
-    public SummonerMonkeyEvent(Model owner, String name, boolean showInTrace, Microservice microservice,
+    public SummonerMonkeyEvent(MiSimModel owner, String name, boolean showInTrace, Microservice microservice,
                                int instances) {
         super(owner, name, showInTrace);
 

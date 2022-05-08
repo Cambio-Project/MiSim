@@ -1,7 +1,7 @@
 package cambio.simulator.entities.patterns;
 
+import cambio.simulator.models.MiSimModel;
 import com.google.gson.annotations.Expose;
-import desmoj.core.simulator.Model;
 
 /**
  * Represents a {@link ServiceOwnedPattern} that wants to be injected with an  {@link IStrategy} object.
@@ -15,7 +15,7 @@ public abstract class StrategicInstanceOwnedPattern<S extends IStrategy> extends
     @Expose
     protected S strategy;
 
-    public StrategicInstanceOwnedPattern(Model model, String name, boolean showInTrace) {
+    public StrategicInstanceOwnedPattern(MiSimModel model, String name, boolean showInTrace) {
         super(model, name, showInTrace);
     }
 

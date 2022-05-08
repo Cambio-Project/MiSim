@@ -2,8 +2,8 @@ package cambio.simulator.resources.cpu;
 
 import cambio.simulator.entities.NamedExternalEvent;
 import cambio.simulator.entities.networking.Request;
+import cambio.simulator.models.MiSimModel;
 import co.paralleluniverse.fibers.SuspendExecution;
-import desmoj.core.simulator.Model;
 
 /**
  * Event that represents the completion of a process burst for a specific {@link CPUProcess}.
@@ -29,7 +29,7 @@ public class ComputationBurstCompletedEvent extends NamedExternalEvent {
      * @param owner           {@link CPU} that is handling the calculation
      * @param completedDemand demand that was completed by the computation burst.
      */
-    public ComputationBurstCompletedEvent(Model model, String name, boolean showInTrace, CPUProcess endingProcess,
+    public ComputationBurstCompletedEvent(MiSimModel model, String name, boolean showInTrace, CPUProcess endingProcess,
                                           CPU owner, int completedDemand) {
         super(model, name, showInTrace);
         this.endingProcess = endingProcess;

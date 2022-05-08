@@ -3,8 +3,8 @@ package cambio.simulator.entities.networking;
 import java.util.Collection;
 
 import cambio.simulator.entities.NamedExternalEvent;
+import cambio.simulator.models.MiSimModel;
 import co.paralleluniverse.fibers.SuspendExecution;
-import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 
 /**
@@ -27,7 +27,7 @@ public abstract class NetworkRequestEvent extends NamedExternalEvent {
      *
      * @param travelingRequest the request that is associated with this request.
      */
-    public NetworkRequestEvent(Model model, String name, boolean showInTrace, Request travelingRequest) {
+    public NetworkRequestEvent(MiSimModel model, String name, boolean showInTrace, Request travelingRequest) {
         super(model, name, showInTrace);
         this.travelingRequest = travelingRequest;
         updateListeners = travelingRequest.getUpdateListeners();

@@ -1,8 +1,8 @@
 package cambio.simulator.entities.networking;
 
 import cambio.simulator.entities.microservice.MicroserviceInstance;
+import cambio.simulator.models.MiSimModel;
 import co.paralleluniverse.fibers.SuspendExecution;
-import desmoj.core.simulator.Model;
 
 /**
  * Event that represents the successful arrival of a request at its target instance.
@@ -16,7 +16,7 @@ public class NetworkRequestReceiveEvent extends NetworkRequestEvent {
 
     private final MicroserviceInstance receivingInstance;
 
-    public NetworkRequestReceiveEvent(Model model, String name, boolean showInTrace,
+    public NetworkRequestReceiveEvent(MiSimModel model, String name, boolean showInTrace,
                                       Request travelingRequest,
                                       MicroserviceInstance receiver) {
         super(model, name, showInTrace, travelingRequest);

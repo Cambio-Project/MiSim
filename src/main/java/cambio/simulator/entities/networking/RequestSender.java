@@ -6,7 +6,9 @@ import java.util.TreeSet;
 import cambio.simulator.entities.NamedEntity;
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.entities.microservice.MicroserviceInstance;
-import desmoj.core.simulator.*;
+import cambio.simulator.models.MiSimModel;
+import desmoj.core.simulator.TimeInstant;
+import desmoj.core.simulator.TimeSpan;
 
 /**
  * Class that provides the ability to send requests and register listeners to this requests.
@@ -43,7 +45,7 @@ public class RequestSender extends NamedEntity {
         }
     };
 
-    public RequestSender(Model model, String name, boolean showInTrace) {
+    public RequestSender(MiSimModel model, String name, boolean showInTrace) {
         super(model, name, showInTrace);
     }
 

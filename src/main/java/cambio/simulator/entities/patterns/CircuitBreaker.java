@@ -7,10 +7,10 @@ import cambio.simulator.entities.microservice.MicroserviceInstance;
 import cambio.simulator.entities.networking.*;
 import cambio.simulator.export.MultiDataPointReporter;
 import cambio.simulator.misc.Priority;
+import cambio.simulator.models.MiSimModel;
 import cambio.simulator.parsing.JsonTypeName;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 
 /**
@@ -47,7 +47,7 @@ public final class CircuitBreaker extends InstanceOwnedPattern implements IReque
     @Expose
     private int rollingWindow = 20; //window over which error rates are collected
 
-    public CircuitBreaker(Model model, String name, boolean showInTrace) {
+    public CircuitBreaker(MiSimModel model, String name, boolean showInTrace) {
         super(model, name, showInTrace);
         reporter = new MultiDataPointReporter(String.format("CB[%s]_", name));
     }
@@ -156,7 +156,7 @@ public final class CircuitBreaker extends InstanceOwnedPattern implements IReque
     }
 
     @Override
-    public void onInitializedCompleted(Model model) {
+    public void onInitializedCompleted(MiSimModel model) {
         super.onInitializedCompleted(model);
         if (errorThresholdPercentage != Double.POSITIVE_INFINITY
             && errorThresholdPercentage > 1) {

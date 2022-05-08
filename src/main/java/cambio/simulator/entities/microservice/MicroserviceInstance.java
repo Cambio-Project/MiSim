@@ -7,6 +7,7 @@ import java.util.stream.Stream;
 import cambio.simulator.entities.networking.*;
 import cambio.simulator.entities.patterns.*;
 import cambio.simulator.export.MultiDataPointReporter;
+import cambio.simulator.models.MiSimModel;
 import cambio.simulator.resources.cpu.CPU;
 import cambio.simulator.resources.cpu.CPUProcess;
 import cambio.simulator.resources.cpu.scheduling.FIFOScheduler;
@@ -56,7 +57,7 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
     private long waiting = 0;
 
 
-    MicroserviceInstance(Model model, String name, boolean showInTrace, Microservice microservice,
+    MicroserviceInstance(MiSimModel model, String name, boolean showInTrace, Microservice microservice,
                          int instanceID) {
         super(model, name, showInTrace);
         this.owner = microservice;

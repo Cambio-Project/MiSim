@@ -7,9 +7,11 @@ import java.util.*;
 import cambio.simulator.entities.microservice.MicroserviceInstance;
 import cambio.simulator.entities.networking.*;
 import cambio.simulator.misc.Priority;
+import cambio.simulator.models.MiSimModel;
 import cambio.simulator.parsing.JsonTypeName;
 import com.google.gson.annotations.Expose;
-import desmoj.core.simulator.*;
+import desmoj.core.simulator.TimeInstant;
+import desmoj.core.simulator.TimeSpan;
 
 /**
  * Retry implementation that employs a full jitter based exponential backoff. Jittering can be turned off.
@@ -29,7 +31,7 @@ public class Retry extends StrategicInstanceOwnedPattern<IRetryStrategy> impleme
     private int maxTries = 5;
 
 
-    public Retry(final Model model, final String name, final boolean showInTrace) {
+    public Retry(final MiSimModel model, final String name, final boolean showInTrace) {
         super(model, name, showInTrace);
         this.setStrategy(new JitteringExponentialBackoffRetryStrategy()); // set default value
     }

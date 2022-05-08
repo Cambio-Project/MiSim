@@ -7,7 +7,6 @@ import java.lang.reflect.Field;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import cambio.simulator.entities.generator.LoadGeneratorDescriptionExecutor;
 import cambio.simulator.events.ExperimentAction;
