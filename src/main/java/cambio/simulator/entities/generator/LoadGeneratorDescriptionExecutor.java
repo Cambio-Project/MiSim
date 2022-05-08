@@ -1,13 +1,12 @@
 package cambio.simulator.entities.generator;
 
+import static cambio.simulator.export.ReportCollector.GENERATOR_REPORTER;
+
 import cambio.simulator.entities.NamedSimProcess;
 import cambio.simulator.entities.microservice.NoInstanceAvailableException;
 import cambio.simulator.entities.microservice.Operation;
-import cambio.simulator.entities.networking.IRequestUpdateListener;
-import cambio.simulator.entities.networking.Request;
-import cambio.simulator.entities.networking.RequestFailedReason;
-import cambio.simulator.entities.networking.RequestSender;
-import cambio.simulator.entities.networking.UserRequest;
+import cambio.simulator.entities.networking.*;
+import cambio.simulator.entities.patterns.IPatternLifeCycleHooks;
 import cambio.simulator.events.ISelfScheduled;
 import cambio.simulator.export.AccumulativeDataPointReporter;
 import co.paralleluniverse.fibers.SuspendExecution;
@@ -28,8 +27,7 @@ import org.jetbrains.annotations.NotNull;
  * @see LoadGeneratorDescription
  */
 public final class LoadGeneratorDescriptionExecutor extends RequestSender implements IRequestUpdateListener,
-    ISelfScheduled {
-    private static final AccumulativeDataPointReporter allReporter = new AccumulativeDataPointReporter("GEN_ALL");
+    ISelfScheduled, IPatternLifeCycleHooks {
     private final Model model;
 
     /**
@@ -61,8 +59,8 @@ public final class LoadGeneratorDescriptionExecutor extends RequestSender implem
         super.sendTraceNote("starting Generator " + this.getQuotedName());
 
         String reportName = String
-            .format("G[%s]_[%s(%s)]_", this.getClass().getSimpleName(), targetOperation.getOwnerMS().getName(),
-                targetOperation.getName());
+            .format("G[%s]_[%s(%s)]_", this.getClass().getSimpleName(), targetOperation.getOwnerMS().getPlainName(),
+                targetOperation.getPlainName());
         accReporter = new AccumulativeDataPointReporter(reportName);
 
 
@@ -73,6 +71,7 @@ public final class LoadGeneratorDescriptionExecutor extends RequestSender implem
     public void doInitialSelfSchedule() {
         ISelfScheduled selfScheduled = new GeneratorDescriptionExecutorScheduler(getPlainName());
         selfScheduled.doInitialSelfSchedule();
+        this.start();
     }
 
     private void sendNewUserRequest() {
@@ -96,12 +95,12 @@ public final class LoadGeneratorDescriptionExecutor extends RequestSender implem
         TimeInstant currentTime = new TimeInstant(Math.ceil(presentTime().getTimeAsDouble()));
 
         accReporter.addDatapoint("FailedRequests", currentTime, 1);
-        //also creates a datapoint for successful requests so they can be directly compared
+        //also creates a datapoint for successful requests, so they can be directly compared
         accReporter.addDatapoint("SuccessfulRequests", currentTime, 0);
 
-        allReporter.addDatapoint("FailedRequests", currentTime, 1);
-        //also creates a datapoint for successful requests so they can be directly compared
-        allReporter.addDatapoint("SuccessfulRequests", currentTime, 0);
+        GENERATOR_REPORTER.addDatapoint("FailedRequests", currentTime, 1);
+        //also creates a datapoint for successful requests, so they can be directly compared
+        GENERATOR_REPORTER.addDatapoint("SuccessfulRequests", currentTime, 0);
 
         return true;
     }
@@ -115,13 +114,13 @@ public final class LoadGeneratorDescriptionExecutor extends RequestSender implem
         TimeInstant currentTime = new TimeInstant(Math.ceil(presentTime().getTimeAsDouble()));
 
         accReporter.addDatapoint("SuccessfulRequests", currentTime, 1);
-        //also creates a datapoint for failed requests so they can be directly compared
+        //also creates a datapoint for failed requests, so they can be directly compared
         accReporter.addDatapoint("FailedRequests", currentTime, 0);
 
 
-        allReporter.addDatapoint("FailedRequests", currentTime, 0);
-        //also creates a datapoint for successful requests so they can be directly compared
-        allReporter.addDatapoint("SuccessfulRequests", currentTime, 1);
+        GENERATOR_REPORTER.addDatapoint("FailedRequests", currentTime, 0);
+        //also creates a datapoint for successful requests, so they can be directly compared
+        GENERATOR_REPORTER.addDatapoint("SuccessfulRequests", currentTime, 1);
         return true;
     }
 
@@ -137,7 +136,7 @@ public final class LoadGeneratorDescriptionExecutor extends RequestSender implem
             sendNewUserRequest();
             accReporter.addDatapoint("Load", presentTime(), 1);
             try {
-                TimeInstant next = loadGeneratorDescription.getNextTimeInstant();
+                TimeInstant next = loadGeneratorDescription.getNextTimeInstant(presentTime());
                 this.hold(next);
             } catch (LoadGeneratorStopException e) {
                 model.sendTraceNote(String.format("Generator %s has stopped: %s", getName(), e.getMessage()));
@@ -148,7 +147,7 @@ public final class LoadGeneratorDescriptionExecutor extends RequestSender implem
         @Override
         public void doInitialSelfSchedule() {
             try {
-                TimeInstant nextTimeInstant = loadGeneratorDescription.getNextTimeInstant();
+                TimeInstant nextTimeInstant = loadGeneratorDescription.getInitialArrivalTime();
                 this.activate(nextTimeInstant);
             } catch (LoadGeneratorStopException e) {
                 sendWarning(String.format("Generator %s did not start.", this.getName()),

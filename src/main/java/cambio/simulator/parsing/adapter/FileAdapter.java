@@ -4,9 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 import com.google.gson.TypeAdapter;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
-import com.google.gson.stream.JsonWriter;
+import com.google.gson.stream.*;
 
 /**
  * Gson {@link TypeAdapter} for the {@link File} type.
@@ -24,7 +22,7 @@ public class FileAdapter extends TypeAdapter<File> {
         if (value == null) {
             out.nullValue();
         } else {
-            out.jsonValue(value.getAbsolutePath());
+            out.value(value.getAbsolutePath());
         }
     }
 
@@ -35,6 +33,9 @@ public class FileAdapter extends TypeAdapter<File> {
             return null;
         }
         String path = reader.nextString();
+        if (path.startsWith("\"")) {
+            path = path.replaceAll("\"", "");
+        }
         return new File(path);
     }
 }

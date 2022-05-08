@@ -59,7 +59,7 @@ jobs:
         distribution: 'adopt'
         cache: 'maven'
     - name: Run Hello World
-      run: ./runHelloWorld.sh
+      run: ./hello_world.sh
       
   run_hello_world_Windows:    
     runs-on: windows-latest
@@ -72,5 +72,5 @@ jobs:
         distribution: 'adopt'
         cache: 'maven'
     - name: Run Hello World
-      run: ./runHelloWorld.bat
+      run: ./hello_world.bat
 

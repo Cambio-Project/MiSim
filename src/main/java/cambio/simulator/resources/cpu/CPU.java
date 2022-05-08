@@ -1,8 +1,6 @@
 package cambio.simulator.resources.cpu;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import cambio.simulator.entities.NamedExternalEvent;
 import cambio.simulator.entities.microservice.MicroserviceInstance;
@@ -28,10 +26,11 @@ import org.javatuples.Pair;
  */
 public class CPU extends NamedExternalEvent {
 
-    private static final int DEFAULT_THREADPOOLSIZE = 100;
+    private static final int DEFAULT_THREADPOOLSIZE = 4;
 
     private final MultiDataPointReporter reporter;
 
+    private final BinnedCPUUtilizationTracker binnedUtilizationTracker;
 
     private final MicroserviceInstance owner;
     private final CPUProcessScheduler scheduler;
@@ -78,7 +77,7 @@ public class CPU extends NamedExternalEvent {
      * Constructs a new CPU resource instance.
      *
      * @param model          parent and simulation model
-     * @param name           CPU name, should be formatted {}_{}
+     * @param name           CPU name
      * @param showInTrace    whether the computation events should be shown in the trace
      * @param owner          instance that owns this cpu
      * @param capacity       total capacity of the cpu resource. Each thread will be assigned a capacity of {@code
@@ -98,8 +97,12 @@ public class CPU extends NamedExternalEvent {
         this.threadPoolSize = threadPoolSize;
         activeProcesses = new HashSet<>(threadPoolSize);
 
-        String[] names = name.split("_");
-        reporter = new MultiDataPointReporter(String.format("C%s_[%s]_", names[0], names[1]));
+        reporter = new MultiDataPointReporter(String.format("C[%s]_", name));
+        binnedUtilizationTracker = new BinnedCPUUtilizationTracker(this);
+
+        reporter.addDatapoint("ActiveProcesses", presentTime(), 0);
+        reporter.addDatapoint("TotalProcesses", presentTime(), 0);
+        reportUtilization();
     }
 
     /**
@@ -156,8 +159,13 @@ public class CPU extends NamedExternalEvent {
             activeProcesses.add(nextProcess);
         }
 
+
+        binnedUtilizationTracker.updateUtilization(getCurrentUsage(), presentTime());
+
+
         reporter.addDatapoint("ActiveProcesses", presentTime(), activeProcesses.size());
-        reporter.addDatapoint("Usage", presentTime(), activeProcesses.size() / (double) threadPoolSize);
+        reporter.addDatapoint("TotalProcesses", presentTime(), getProcessesCount());
+        reportUtilization();
     }
 
     private boolean hasProcessAndThreadReady() {
@@ -184,13 +192,14 @@ public class CPU extends NamedExternalEvent {
 
         activeProcesses.remove(process); //the process whose burst finished is not active anymore
 
-        //since at least one thread should be free now, a reschedule happens
+        //since at least one thread should be free now, a rescheduling happens
         forceScheduleNow();
+
+        binnedUtilizationTracker.updateUtilization(getCurrentUsage(), presentTime());
 
         reporter.addDatapoint("ActiveProcesses", presentTime(), activeProcesses.size());
         reporter.addDatapoint("TotalProcesses", presentTime(), getProcessesCount());
-        reporter.addDatapoint("Usage", presentTime(), (double) activeProcesses.size() / threadPoolSize);
-
+        reportUtilization();
     }
 
     /**
@@ -206,9 +215,32 @@ public class CPU extends NamedExternalEvent {
         }
     }
 
+
     private int getProcessesCount() {
         return scheduler.size() + activeProcesses.size();
     }
+
+
+    /**
+     * Forcibly stops all currently running and scheduled processes.
+     */
+    public synchronized void clear() {
+        activeProcesses.forEach(CPUProcess::cancel);
+        scheduler.clear();
+
+        reporter.addDatapoint("ActiveProcesses", presentTime(), activeProcesses.size());
+        reporter.addDatapoint("TotalProcesses", presentTime(), getProcessesCount());
+        reportUtilization();
+    }
+
+
+    private void reportUtilization() {
+        reporter.addDatapoint("Utilization", presentTime(), getCurrentUsage());
+        reporter.addDatapoint("RelativeUtilization", presentTime(), getCurrentRelativeWorkDemand());
+    }
+
+    /** rounding factor to get rid of minuscule imprecision during the relative utilization calculation. */
+    private static final double roundingFactor = Math.pow(10, 14);
 
     /**
      * Calculates the relative remaining workload demand of this CPU.
@@ -225,21 +257,15 @@ public class CPU extends NamedExternalEvent {
             activeProcesses.stream().mapToDouble(value -> value.getDemandRemainder(presentTime(), capacityPerThread))
                 .sum();
         double workTotal = totalQueuedWorkRemainder + activeWorkRemainder;
-        return workTotal / (threadPoolSize * capacityPerThread);
+        double workPercentage = workTotal / (threadPoolSize * capacityPerThread);
+        workPercentage = Math.round(workPercentage * roundingFactor) / roundingFactor;
+
+        reporter.addDatapoint("RelativeUtilization", presentTime(), workPercentage);
+        return workPercentage;
     }
 
     public double getCurrentUsage() {
         return (double) activeProcesses.size() / threadPoolSize;
     }
-
-    /**
-     * Forcibly stops all currently running and scheduled processes.
-     */
-    public synchronized void clear() {
-        activeProcesses.forEach(CPUProcess::cancel);
-        scheduler.clear();
-    }
-
-
 }
 

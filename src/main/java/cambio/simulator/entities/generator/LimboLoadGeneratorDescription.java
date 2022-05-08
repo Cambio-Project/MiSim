@@ -3,12 +3,7 @@ package cambio.simulator.entities.generator;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collector;
 
 import cambio.simulator.misc.CollectorImpl;
@@ -96,8 +91,7 @@ public class LimboLoadGeneratorDescription extends LoadGeneratorDescription {
             List<Pair<Double, Integer>> tmpList;
             try {
                 List<String> lines = Files.readAllLines(limboProfile.toPath());
-                tmpList = lines.stream()
-                    .parallel()
+                tmpList = lines.parallelStream()
                     .filter(line -> !Strings.isNullOrEmpty(line))
                     .map(line -> {
                         String[] split = line.split("[;,]");
@@ -121,7 +115,7 @@ public class LimboLoadGeneratorDescription extends LoadGeneratorDescription {
                             }
                         })
                     );
-                tmpList.sort(Comparator.comparing(Pair::getValue0)); //ensure sorting
+                tmpList.sort(Comparator.comparing(Pair::getValue0)); //ensure sorting by time
                 return tmpList;
 
             } catch (IOException | ArrayIndexOutOfBoundsException e) {

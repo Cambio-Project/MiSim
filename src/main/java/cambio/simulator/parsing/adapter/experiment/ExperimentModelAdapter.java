@@ -4,29 +4,22 @@ import static cambio.simulator.parsing.adapter.experiment.ExperimentMetaDataAdap
 
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import cambio.simulator.entities.generator.LoadGeneratorDescriptionExecutor;
 import cambio.simulator.events.ExperimentAction;
 import cambio.simulator.models.ExperimentModel;
 import cambio.simulator.models.MiSimModel;
 import cambio.simulator.parsing.GsonHelper;
+import cambio.simulator.parsing.ParsingException;
 import cambio.simulator.parsing.adapter.MiSimModelReferencingTypeAdapter;
 import cambio.simulator.parsing.adapter.NormalDistributionAdapter;
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonPrimitive;
+import com.google.gson.*;
 import com.google.gson.annotations.SerializedName;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
-import com.google.gson.stream.JsonWriter;
+import com.google.gson.stream.*;
 import desmoj.core.dist.ContDistNormal;
 import org.apache.commons.lang3.NotImplementedException;
 import org.jetbrains.annotations.NotNull;
@@ -49,8 +42,8 @@ import org.jetbrains.annotations.NotNull;
  *             ...
  *         }
  * </pre>
- * Actions can also be named by providing the {@code action_name} property. Also, actions can also be nested in
- * an array for grouping.
+ * Actions can also be named by providing the {@code action_name} property. Also, actions can also be nested in an array
+ * for grouping.
  *
  * <p>
  * This would look like the following:
@@ -130,8 +123,8 @@ public class ExperimentModelAdapter extends MiSimModelReferencingTypeAdapter<Exp
         experimentActionAdapter.setParser(gson);
 
 
-        LoadGeneratorDescriptionExecutor[] generators = new LoadGeneratorDescriptionExecutor[0];
-        Set<ExperimentAction> experimentActions = new HashSet<>();
+        List<LoadGeneratorDescriptionExecutor> generators = new ArrayList<>();
+        List<ExperimentAction> experimentActions = new ArrayList<>();
 
         if (in.peek() == JsonToken.NULL) {
             return null;
@@ -139,23 +132,41 @@ public class ExperimentModelAdapter extends MiSimModelReferencingTypeAdapter<Exp
 
         in.beginObject();
         while (in.hasNext()) {
-            //order matters here!
-            String elementName = in.nextName();
-            JsonToken token = in.peek();
-            JsonElement currentElement = JsonParser.parseReader(in);
-            if (generatorNames.contains(elementName)) {
-                generators = parseToGeneratorArray(currentElement, token, gson);
-            } else if (token == JsonToken.BEGIN_ARRAY) {
-                //parsing a grouped list of (potentially unnamed) ExperimentActions
-                ExperimentAction[] parsedExperimentActions = gson.fromJson(currentElement, ExperimentAction[].class);
-                Collections.addAll(experimentActions, parsedExperimentActions);
-            } else if (token == JsonToken.BEGIN_OBJECT
-                && Arrays.stream(SIMULATION_METADATA_KEYS).noneMatch(key -> key.equals(elementName))) {
-                //parsing a named ExperimentAction
-                //the name "simulation_meta_data" is reserved for metadata
-                currentElement.getAsJsonObject().add(CURRENT_JSON_OBJECT_NAME_KEY, new JsonPrimitive(elementName));
-                ExperimentAction experimentAction = gson.fromJson(currentElement, ExperimentAction.class);
-                experimentActions.add(experimentAction);
+            try {
+                //order matters here!
+                String elementName = in.nextName();
+                JsonToken token = in.peek();
+                JsonElement currentElement = JsonParser.parseReader(in);
+                if (generatorNames.contains(elementName)) {
+                    generators.addAll(Arrays.asList(parseToGeneratorArray(currentElement, token, gson)));
+                } else if (token == JsonToken.BEGIN_ARRAY) {
+                    //parsing a grouped list of (potentially unnamed) ExperimentActions
+                    ExperimentAction[] parsedExperimentActions =
+                        gson.fromJson(currentElement, ExperimentAction[].class);
+                    Collections.addAll(experimentActions, parsedExperimentActions);
+                } else if (token == JsonToken.BEGIN_OBJECT
+                    && Arrays.stream(SIMULATION_METADATA_KEYS).noneMatch(key -> key.equals(elementName))) {
+                    //parsing a named ExperimentAction
+                    //the name "simulation_meta_data" is reserved for metadata
+                    currentElement.getAsJsonObject().add(CURRENT_JSON_OBJECT_NAME_KEY, new JsonPrimitive(elementName));
+                    ExperimentAction experimentAction = gson.fromJson(currentElement, ExperimentAction.class);
+                    experimentActions.add(experimentAction);
+                }
+
+            } catch (ParsingException e) {
+                Matcher lineMatcher = Pattern.compile(".*line (\\d+).*").matcher(in.toString());
+                Matcher columnMatcher = Pattern.compile(".*column (\\d+).*").matcher(in.toString());
+                boolean found = lineMatcher.find() && columnMatcher.find();
+
+                if (found) {
+                    int line = lineMatcher.groupCount() > 0 ? Integer.parseInt(lineMatcher.group(1)) : -1;
+                    int column = columnMatcher.groupCount() > 0 ? Integer.parseInt(columnMatcher.group(1)) : -1;
+                    throw new ParsingException(String.format("Failed parsing at line %s column %s.\n[Reason]: %s", line,
+                        column,
+                        e.getMessage()), e);
+                } else {
+                    throw e;
+                }
             }
         }
         in.endObject();

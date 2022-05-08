@@ -5,6 +5,7 @@ import java.io.IOException;
 import cambio.simulator.entities.generator.LoadGeneratorDescription;
 import cambio.simulator.entities.generator.LoadGeneratorDescriptionExecutor;
 import cambio.simulator.models.MiSimModel;
+import cambio.simulator.parsing.ParsingException;
 import cambio.simulator.parsing.adapter.ConfigurableNamedTypeAdapter;
 import cambio.simulator.parsing.adapter.MiSimModelReferencingTypeAdapter;
 import com.google.gson.Gson;
@@ -43,9 +44,12 @@ public class LoadGeneratorExecutorAdapter extends MiSimModelReferencingTypeAdapt
             new ConfigurableNamedTypeAdapter<>(LoadGeneratorDescription.class, parser);
         LoadGeneratorDescription description = adapter.read(in);
         if (description.getTargetOperation() == null) {
-            return null;
+            throw new ParsingException("Target operation not set correctly for load generator.");
         }
         description.initializeArrivalRateModel();
-        return new LoadGeneratorDescriptionExecutor(model, description);
+        LoadGeneratorDescriptionExecutor loadGeneratorDescriptionExecutor =
+            new LoadGeneratorDescriptionExecutor(model, description);
+        loadGeneratorDescriptionExecutor.onInitializedCompleted(model);
+        return loadGeneratorDescriptionExecutor;
     }
 }

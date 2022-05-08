@@ -3,20 +3,12 @@ package cambio.simulator.parsing.adapter;
 import java.io.IOException;
 import java.util.Collections;
 
-import cambio.simulator.parsing.GsonHelper;
-import cambio.simulator.parsing.JsonTypeName;
-import cambio.simulator.parsing.JsonTypeNameResolver;
-import cambio.simulator.parsing.ParsingException;
-import cambio.simulator.parsing.TypeNameAssociatedConfigurationData;
-import com.google.gson.Gson;
-import com.google.gson.TypeAdapter;
-import com.google.gson.TypeAdapterFactory;
+import cambio.simulator.parsing.*;
+import com.google.gson.*;
 import com.google.gson.internal.ConstructorConstructor;
 import com.google.gson.internal.ObjectConstructor;
 import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
-import com.google.gson.stream.JsonWriter;
+import com.google.gson.stream.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -87,7 +79,7 @@ public class ConfigurableNamedTypeAdapter<T> extends TypeAdapter<T> {
             try {
                 //doing some Gson magic to almost force the creation of an object.
                 @SuppressWarnings("unchecked")
-                ConstructorConstructor constructorConstructor = new ConstructorConstructor(Collections.EMPTY_MAP);
+                ConstructorConstructor constructorConstructor = new ConstructorConstructor(Collections.EMPTY_MAP, true);
                 ObjectConstructor<? extends T> constructor = constructorConstructor.get(TypeToken.get(type));
                 newObject = constructor.construct();
             } catch (Exception e) {
@@ -96,7 +88,6 @@ public class ConfigurableNamedTypeAdapter<T> extends TypeAdapter<T> {
             }
             return newObject;
         } else if (token == JsonToken.BEGIN_OBJECT) {
-
 
             TypeNameAssociatedConfigurationData typeNameAssociatedConfigurationData =
                 gson.fromJson(in, TypeNameAssociatedConfigurationData.class);
@@ -107,6 +98,10 @@ public class ConfigurableNamedTypeAdapter<T> extends TypeAdapter<T> {
             Class<? extends T> targetType =
                 JsonTypeNameResolver.resolveFromJsonTypeName(typeNameAssociatedConfigurationData.type,
                     superClassType);
+            if (targetType == null) {
+                throw new ParsingException(String.format("Could not find json type '%s' of super class %s",
+                    typeNameAssociatedConfigurationData.type, superClassType.getName()));
+            }
             return gson.fromJson(typeNameAssociatedConfigurationData.getConfigAsJsonString(), targetType);
         }
 

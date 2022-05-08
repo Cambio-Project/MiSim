@@ -9,9 +9,6 @@ import co.paralleluniverse.fibers.SuspendExecution;
  */
 public interface IPeriodicPattern extends IPatternLifeCycleHooks {
 
-    @Override
-    void onInitializedCompleted();
-
     /**
      * Manually triggers this patterns' routine.
      */

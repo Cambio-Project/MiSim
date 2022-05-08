@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link href="css/formatter.css" rel="stylesheet"/>
+    <script src="js/formatter.js"></script>
+</head>
+<body onload="createJson();">
+<table>
+    <tr>
+        <th colspan="100%"><h1>Generate Simulation Architecture</h1></th>
+    </tr>
+    <tr>
+        <td>
+            <table>
+                <tr>
+                    <td><h2>Simulation:</h2></td>
+                    <td>&nbsp;</td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td>
+                    <td>
+                        <table class="simulation-table simulation-color">
+                            <tr>
+                                <td>Experiment:</td>
+                                <td><textarea id="simulation-experiment" oninput="createJson();"></textarea>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Model:</td>
+                                <td><textarea id="simulation-model" oninput="createJson();"></textarea></td>
+                            </tr>
+                            <tr>
+                                <td>Duration:</td>
+                                <td><input id="simulation-duration" oninput="checkPattern(this, pat_double);createJson();"
+                                           type="number"/>&nbsp;sec
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Report:</td>
+                                <td>
+                                    <select id="simulation-report" onchange="createJson();">
+                                        <option selected="selected" value="">default</option>
+                                        <option value="minimalistic">minimalistic</option>
+                                        <option value="none">none</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Datapoints:</td>
+                                <td><input id="simulation-datapoints" oninput="checkPattern(this, pat_int);createJson();"
+                                           type="number"/></td>
+                            </tr>
+                            <tr>
+                                <td>Seed:</td>
+                                <td><input id="simulation-seed" oninput="checkPattern(this, pat_int);createJson();"
+                                           type="number"/></td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                </tr>
+                <tr>
+                    <td><h2>Microservices:</h2></td>
+                    <td>&nbsp;</td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td>
+                    <td>
+                        <div id="microservice-0-container"></div>
+                    </td>
+                    <script>makeMicroservice(0);</script>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                </tr>
+                <tr>
+                    <td><h2>Generators:</h2></td>
+                    <td>&nbsp;</td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td>
+                    <td>
+                        <div id="generator-0-container"></div>
+                    </td>
+                    <script>makeGenerator(0);</script>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                </tr>
+                <tr>
+                    <td><h2>Chaos Monkeys:</h2></td>
+                    <td>&nbsp;</td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td>
+                    <td>
+                        <div id="chaosmonkey-0-container"></div>
+                        <button id='chaosmonkey--1-button-add' onclick="makeChaosmonkey(0);createJson();">Add
+                            Chaosmonkey
+                        </button>
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+        <td class="jsontd">
+            <div id="json"></div>
+            <button onclick="copy();">Copy to Clipboard</button>
+        </td>
+    </tr>
+</table>
+</body>
+</html>

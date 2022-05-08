@@ -26,10 +26,7 @@
 package cambio.simulator.misc;
 
 import java.util.Set;
-import java.util.function.BiConsumer;
-import java.util.function.BinaryOperator;
-import java.util.function.Function;
-import java.util.function.Supplier;
+import java.util.function.*;
 import java.util.stream.Collector;
 
 /**
@@ -38,7 +35,7 @@ import java.util.stream.Collector;
  * <p>
  * Use this class to ease the initiation of Collector objects.
  */
-public class CollectorImpl<T, A, R> implements Collector<T, A, R> {
+public final class CollectorImpl<T, A, R> implements Collector<T, A, R> {
     private final Supplier<A> supplier;
     private final BiConsumer<A, T> accumulator;
     private final BinaryOperator<A> combiner;

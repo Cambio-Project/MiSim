@@ -1,23 +1,19 @@
 package cambio.simulator.entities.microservice;
 
 import java.lang.reflect.Field;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
-import cambio.simulator.testutils.RandomTieredModel;
-import cambio.simulator.testutils.TestUtils;
+import cambio.simulator.test.RandomTieredModel;
+import cambio.simulator.test.TestUtils;
 import co.paralleluniverse.fibers.SuspendExecution;
-import desmoj.core.simulator.Experiment;
-import desmoj.core.simulator.ExternalEvent;
-import desmoj.core.simulator.TimeInstant;
+import desmoj.core.simulator.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class MicroserviceInstanceTest {
 
     @Test
-    void shutDownTest() {
+    void allInstancesInStateShutdownCorrectly() {
         RandomTieredModel model = new RandomTieredModel("MSTestModel", 3, 3);
         Experiment exp = TestUtils.getExampleExperiment(model, 300);
 
@@ -54,6 +50,6 @@ class MicroserviceInstanceTest {
 
         instanceList.forEach(instance -> Assertions.assertTrue(
             instance.getState() == InstanceState.SHUTDOWN || instance.getState() == InstanceState.SHUTTING_DOWN));
-
+        instanceList.forEach(instance -> Assertions.assertEquals(0.0, instance.getRelativeWorkDemand()));
     }
 }

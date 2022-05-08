@@ -1,6 +1,8 @@
 package cambio.simulator.models;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -14,14 +16,12 @@ import com.google.gson.annotations.SerializedName;
  */
 @SuppressWarnings("FieldMayBeFinal")
 public class ExperimentMetaData {
-    private static ExperimentMetaData instance = null;
-
-
     private int seed = new Random().nextInt();
 
     private String reportType = "default";
 
-    private double duration = -1;
+    @SerializedName(value = "duration", alternate = {"experiment_duration"})
+    private double duration = Double.POSITIVE_INFINITY;
 
     @SerializedName(value = "experimentName", alternate = {"experiment_name", "name"})
     private String experimentName;
@@ -30,20 +30,27 @@ public class ExperimentMetaData {
     private String modelName;
 
     private TimeUnit timeUnit = TimeUnit.SECONDS;
-    /*
-     * These are of type File, since java.nio.Path is not directly parsable by gson
-     */
+
+    @SerializedName(value = "report_directory", alternate = {"report_dir", "report_location", "report_folder"})
+    private Path reportBaseFolder = Paths.get(".", "Report");
+
     private File expFileLocation;
     private File archFileLocation;
-    private File reportLocation;
+
     private String description;
 
     private LocalDateTime startTimestamp;
 
-    private transient long startOfSetup;
-    private transient long durationOfSetupMS = -1;
-    private transient long durationOfMetaDataLoading;
+    private long setupExecutionDuration = -1;
+    private long experimentExecutionDuration = -1;
+    private long reportExecutionDuration = -1;
 
+    private transient long startOfSetup;
+    private transient long startOfExperiment;
+    private transient long startOfReport;
+    private transient long endOfExecution;
+
+    private transient Path reportLocation;
 
     public String getReportType() {
         return reportType;
@@ -69,32 +76,24 @@ public class ExperimentMetaData {
         return timeUnit;
     }
 
-    public File getExpFileLocation() {
+    public File getExperimentDescriptionLocation() {
         return expFileLocation;
     }
 
-    private void setExpFileLocation(File expFileLocation) {
-        this.expFileLocation = expFileLocation;
-    }
-
-    public File getArchFileLocation() {
+    public File getArchitectureDescriptionLocation() {
         return archFileLocation;
     }
 
-    private void setArchFileLocation(File archFileLocation) {
-        this.archFileLocation = archFileLocation;
+    public Path getReportBaseDirectory() {
+        return reportBaseFolder;
     }
 
-    public void setDurationOfMetaDataLoading(long durationOfMetaDataLoading) {
-        this.durationOfMetaDataLoading = durationOfMetaDataLoading;
+    public Path getReportLocation() {
+        return reportLocation;
     }
 
-    public void markStartOfSetup(long startTime) {
-        this.startOfSetup = startTime;
-    }
-
-    public void markEndOfSetup(long endTime) {
-        this.durationOfSetupMS = endTime - startOfSetup;
+    public void setReportLocation(Path reportLocation) {
+        this.reportLocation = reportLocation;
     }
 
     public void setStartDate(LocalDateTime startTime) {
@@ -105,19 +104,42 @@ public class ExperimentMetaData {
         return description;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public long getDurationOfSetupMS() {
-        return durationOfMetaDataLoading + durationOfSetupMS;
-    }
-
     public LocalDateTime getStartTimestamp() {
         return startTimestamp;
     }
 
-    public File getReportLocation() {
-        return reportLocation;
+    public void markStartOfSetup(long setupStartTime) {
+        this.startOfSetup = setupStartTime;
+    }
+
+    public void markStartOfExperiment(long experimentStartTime) {
+        this.startOfExperiment = experimentStartTime;
+        this.setupExecutionDuration = startOfExperiment - startOfSetup;
+    }
+
+    public void markStartOfReport(long startOfReport) {
+        this.startOfReport = startOfReport;
+        this.experimentExecutionDuration = startOfReport - startOfExperiment;
+    }
+
+    public void markEndOfExecution(long endOfExecution) {
+        this.endOfExecution = endOfExecution;
+        this.reportExecutionDuration = endOfExecution - startOfReport;
+    }
+
+    public long getSetupExecutionDuration() {
+        return setupExecutionDuration;
+    }
+
+    public long getExperimentExecutionDuration() {
+        return experimentExecutionDuration;
+    }
+
+    public long getReportExecutionDuration() {
+        return reportExecutionDuration;
+    }
+
+    public long getExecutionDuration() {
+        return endOfExecution - startOfSetup;
     }
 }

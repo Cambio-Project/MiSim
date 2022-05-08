@@ -1,14 +1,11 @@
 package cambio.simulator.entities.networking;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.PriorityQueue;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 import cambio.simulator.entities.NamedEntity;
 import cambio.simulator.entities.microservice.MicroserviceInstance;
 import cambio.simulator.entities.microservice.Operation;
+import cambio.simulator.misc.RNGStorage;
 import cambio.simulator.models.MiSimModel;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
@@ -21,23 +18,23 @@ import org.apache.commons.math3.util.Precision;
  */
 public abstract class Request extends NamedEntity {
     public final Operation operation;
-    private final Set<NetworkDependency> dependencies = new HashSet<>();
+    private final Set<ServiceDependencyInstance> dependencies = new HashSet<>();
     private final Request parent;
     private final MicroserviceInstance requester;
     private final PriorityQueue<IRequestUpdateListener> updateListeners = new PriorityQueue<>();
+    private final transient Random prob;
     private MicroserviceInstance handlerInstance;
     //microservice instance that collects dependencies of this request and computes it
     private boolean computationCompleted = false;
     private boolean dependenciesCompleted = false;
-    private NetworkRequestSendEvent sendEvent;
-    private NetworkRequestReceiveEvent receiveEvent;
-    private NetworkRequestCanceledEvent canceledEvent;
+    private transient NetworkRequestSendEvent sendEvent;
+    private transient NetworkRequestReceiveEvent receiveEvent;
+    private transient NetworkRequestCanceledEvent canceledEvent;
     private TimeInstant timestampSend;
     private TimeInstant timestampReceived;
     private TimeInstant timestampReceivedAtHandler;
     private TimeInstant timestampComputationCompleted;
     private TimeInstant timestampDependenciesCompleted;
-
 
     protected Request(Model model, String name, boolean showInTrace, Request parent, Operation operation,
                       MicroserviceInstance requester) {
@@ -45,21 +42,19 @@ public abstract class Request extends NamedEntity {
         this.operation = operation;
         this.requester = requester;
         this.parent = parent;
+        this.prob = RNGStorage.get(this.getClass().getName(),
+            () -> new Random(((MiSimModel) getModel()).getExperimentMetaData().getSeed()));
         createDependencies();
         if (dependencies.isEmpty()) {
+            //TODO: clean up this mess (this call is made to neatly trigger onDependenciesComplete)
             notifyDependencyHasFinished(null);
         }
     }
 
 
     private void createDependencies() {
-        // Roll probability
-        Random prob;
-        prob = new Random(((MiSimModel) getModel()).getExperimentMetaData().getSeed()); //TODO: resolve this mess (e
-        // .g. enforce MiSimModel in NamedEntity)
 
         for (DependencyDescription dependencyDescription : operation.getDependencyDescriptions()) {
-
 
             double probability = dependencyDescription.getProbability();
             double sample = prob.nextDouble();
@@ -67,7 +62,7 @@ public abstract class Request extends NamedEntity {
 
                 Operation nextOperationEntity = dependencyDescription.getTargetOperation();
 
-                NetworkDependency dep = new NetworkDependency(getModel(), this, nextOperationEntity,
+                ServiceDependencyInstance dep = new ServiceDependencyInstance(getModel(), this, nextOperationEntity,
                     dependencyDescription);
 
                 dependencies.add(dep);
@@ -75,7 +70,7 @@ public abstract class Request extends NamedEntity {
         }
     }
 
-    public final Set<NetworkDependency> getDependencies() {
+    public final Set<ServiceDependencyInstance> getDependencies() {
         return dependencies;
     }
 
@@ -201,28 +196,37 @@ public abstract class Request extends NamedEntity {
     }
 
     /**
-     * Tells this request that one {@link NetworkDependency} has finished.
+     * Tells this request that one {@link ServiceDependencyInstance} has finished.
      *
      * @param dep dependency that was completed
+     * @return whether all dependencies are completed
      */
-    public boolean notifyDependencyHasFinished(NetworkDependency dep) {
+    public boolean notifyDependencyHasFinished(ServiceDependencyInstance dep) {
         if (this.dependenciesCompleted) {
             throw new IllegalStateException("Dependencies were already completed!");
         }
+
+        long uncompletedCount =
+            dependencies.stream().filter(networkDependency -> !networkDependency.isCompleted()).count();
 
         if (dep != null) {
             if (!dependencies.contains(dep)) {
                 throw new IllegalStateException("This dependency is not part of this Request");
             }
             dep.setCompleted();
+            uncompletedCount -= 1;
+
+            this.sendTraceNote(String.format("Completed Dependency \"%s\".", dep));
+            this.sendTraceNote(String.format("Remaining Dependencies: %d.", uncompletedCount - 1));
         }
 
-        if ((dependencies.stream().allMatch(NetworkDependency::isCompleted))) {
+        if (uncompletedCount == 0) {
             this.dependenciesCompleted = true;
             onDependenciesComplete();
             if (dependenciesCompleted && computationCompleted) {
                 onCompletion();
             }
+            this.sendTraceNote(String.format("Dependencies of Request \"%s\" are completed.", this.getName()));
             return true;
         }
         return false;
@@ -230,15 +234,16 @@ public abstract class Request extends NamedEntity {
 
 
     /**
-     * Gets the {@link NetworkDependency} that should be completed by the given request.
+     * Gets the {@link ServiceDependencyInstance} that should be completed by the given request.
      *
      * @param request child request of this request.
-     * @return the {@link NetworkDependency} that is related to the given request, {@code null} otherwise.
+     * @return the {@link ServiceDependencyInstance} that is related to the given request, {@code null} otherwise.
+     *     Returns {@code null} specifically, if the request was a child request, that has been canceled or replaced.
      */
-    public NetworkDependency getRelatedDependency(Request request) {
-        for (NetworkDependency networkDependency : dependencies) {
-            if (networkDependency.getChildRequest() == request) {
-                return networkDependency;
+    public ServiceDependencyInstance getRelatedDependency(Request request) {
+        for (ServiceDependencyInstance serviceDependencyInstance : dependencies) {
+            if (serviceDependencyInstance.getChildRequest() == request) {
+                return serviceDependencyInstance;
             }
         }
         return null;

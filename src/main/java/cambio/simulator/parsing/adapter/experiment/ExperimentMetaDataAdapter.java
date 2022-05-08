@@ -5,14 +5,8 @@ import java.io.IOException;
 
 import cambio.simulator.models.ExperimentMetaData;
 import cambio.simulator.parsing.GsonHelper;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.TypeAdapter;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
-import com.google.gson.stream.JsonWriter;
+import com.google.gson.*;
+import com.google.gson.stream.*;
 
 /**
  * Adapter for parsing the metadata within an experiment description into a {@link ExperimentMetaData } object.

@@ -9,16 +9,16 @@ import com.google.gson.annotations.SerializedName;
 import desmoj.core.simulator.Model;
 
 /**
- * A <code>ChaosMonkeyEvent</code> is an <code>ExternalEvent</code> that gets scheduled at the begin of the experiment.
- * It terminates a specified number of <code>MicroserviceInstance</code>s from a specified <code>Microservice</code> in
- * its
+ * A <code>ChaosMonkeyEvent</code> is an <code>ExternalEvent</code> that gets scheduled at the beginning of the
+ * experiment. It terminates a specified number of <code>MicroserviceInstance</code>s from a specified
+ * <code>Microservice</code> in its
  * <code>eventRoutine</code> method.
  */
 @JsonTypeName(value = "chaosmonkey", alternativeNames = {"chaos_monkey", "monkey"})
 public class ChaosMonkeyEvent extends SelfScheduledExperimentAction {
     @Expose
     @SerializedName(value = "instances", alternate = {"instance_count", "killed_instance_count", "killed_instances"})
-    private int instances;
+    private int instances = Integer.MAX_VALUE;
 
     @Expose
     private Microservice microservice;
@@ -52,6 +52,11 @@ public class ChaosMonkeyEvent extends SelfScheduledExperimentAction {
      */
     @Override
     public void eventRoutine() throws SuspendExecution {
+
+        if (microservice == null) {
+            throw new IllegalStateException(
+                "No or non existing microservice specified for ChaosMonkeyEvent " + getQuotedName());
+        }
 
         microservice.killInstances(instances);
 

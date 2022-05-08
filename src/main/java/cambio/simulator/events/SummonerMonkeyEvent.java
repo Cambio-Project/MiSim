@@ -12,7 +12,7 @@ import desmoj.core.simulator.Model;
  * starts a specified number of {@code MicroserviceInstance}s of a specified {@code Microservice} in its {@code
  * eventRoutine} method.
  */
-@JsonTypeName(value = "summoner", alternativeNames = {"summoner_monkey"})
+@JsonTypeName(value = "summoner", alternativeNames = {"summoner_monkey", "summonermonkey"})
 public class SummonerMonkeyEvent extends SelfScheduledExperimentAction {
     @Expose
     private int instances;

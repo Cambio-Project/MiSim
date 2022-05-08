@@ -1,0 +1,8 @@
+{
+  "name": "New Experiment",
+  "artifact": "gateway",
+  "component": "ALL ENDPOINTS",
+  "stimulus": "LOAD src/test/resources/limbo_simple.csv AND KILL 4@10",
+  "source": "USER",
+  "environment": "IDLE"
+}
