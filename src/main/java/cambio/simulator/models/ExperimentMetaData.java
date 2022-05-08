@@ -41,9 +41,9 @@ public class ExperimentMetaData {
 
     private LocalDateTime startTimestamp;
 
-    private long setupDuration = -1;
-    private long experimentDuration = -1;
-    private long reportDuration = -1;
+    private long setupExecutionDuration = -1;
+    private long experimentExecutionDuration = -1;
+    private long reportExecutionDuration = -1;
 
     private transient long startOfSetup;
     private transient long startOfExperiment;
@@ -114,29 +114,29 @@ public class ExperimentMetaData {
 
     public void markStartOfExperiment(long experimentStartTime) {
         this.startOfExperiment = experimentStartTime;
-        this.setupDuration = startOfExperiment - startOfSetup;
+        this.setupExecutionDuration = startOfExperiment - startOfSetup;
     }
 
     public void markStartOfReport(long startOfReport) {
         this.startOfReport = startOfReport;
-        this.experimentDuration = startOfReport - startOfExperiment;
+        this.experimentExecutionDuration = startOfReport - startOfExperiment;
     }
 
     public void markEndOfExecution(long endOfExecution) {
         this.endOfExecution = endOfExecution;
-        this.reportDuration = endOfExecution - startOfReport;
+        this.reportExecutionDuration = endOfExecution - startOfReport;
     }
 
-    public long getSetupDuration() {
-        return setupDuration;
+    public long getSetupExecutionDuration() {
+        return setupExecutionDuration;
     }
 
-    public long getExperimentDuration() {
-        return experimentDuration;
+    public long getExperimentExecutionDuration() {
+        return experimentExecutionDuration;
     }
 
-    public long getReportDuration() {
-        return reportDuration;
+    public long getReportExecutionDuration() {
+        return reportExecutionDuration;
     }
 
     public long getExecutionDuration() {
