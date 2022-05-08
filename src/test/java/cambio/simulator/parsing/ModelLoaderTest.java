@@ -1,10 +1,11 @@
 package cambio.simulator.parsing;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import java.io.File;
+import java.io.*;
 
 import cambio.simulator.models.ExperimentMetaData;
 import cambio.simulator.models.MiSimModel;
@@ -54,13 +55,12 @@ class ModelLoaderTest {
 
     @Test
     void failsOnNullExperimentMetaData_Test() {
-        Assertions.assertThrows(ParsingException.class, () -> ModelLoader.loadExperimentMetaData(null, null));
+        assertThrows(ParsingException.class, () -> ModelLoader.loadExperimentMetaData(null, null));
     }
 
     @Test
     void failsOnNonExistingExperimentMetaData_Test() {
-        Assertions
-            .assertThrows(ParsingException.class,
+        assertThrows(ParsingException.class,
                 () -> ModelLoader.loadExperimentMetaData(new File("/noneExistingFile.nonefile"), null));
     }
 
@@ -100,5 +100,27 @@ class ModelLoaderTest {
 
         assertEquals(7, model.getExperimentModel().getAllSelfSchedulesEntities().size());
         assertFalse(expDummy.hasError());
+    }
+
+    @Test
+    void throwsWarningWhenSimulationDurationIsMissing() throws UnsupportedEncodingException {
+        PrintStream originalOut = System.out;
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        PrintStream newOut = new PrintStream(out,false,"UTF-8");
+
+        System.setOut(newOut);
+
+        File test_architecture = FileLoaderUtil.loadFromTestResources("test_architecture.json");
+        File test_experiment = FileLoaderUtil.loadFromTestResources("test_scenario_infinite.json");
+        MiSimModel model = new MiSimModel(test_architecture, test_experiment);
+        Experiment expDummy = new Experiment("TestExperiment");
+        model.connectToExperiment(expDummy);
+
+        newOut.flush();
+        System.setOut(originalOut);
+
+        assertTrue(out.toString("UTF-8")
+            .contains("[Warning] Simulation duration is not set or infinite. The simulation may runs infinitely."));
+
     }
 }

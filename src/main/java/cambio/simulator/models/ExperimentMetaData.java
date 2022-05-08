@@ -20,7 +20,8 @@ public class ExperimentMetaData {
 
     private String reportType = "default";
 
-    private double duration = -1;
+    @SerializedName(value = "duration", alternate = {"experiment_duration"})
+    private double duration = Double.POSITIVE_INFINITY;
 
     @SerializedName(value = "experimentName", alternate = {"experiment_name", "name"})
     private String experimentName;

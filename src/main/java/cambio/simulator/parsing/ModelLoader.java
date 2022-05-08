@@ -31,9 +31,16 @@ public final class ModelLoader {
      */
     public static ExperimentMetaData loadExperimentMetaData(File experimentOrScenarioFileLocation,
                                                             File architectureModelLocation) {
-        return loadModel(experimentOrScenarioFileLocation,
+        ExperimentMetaData experimentMetaData = loadModel(experimentOrScenarioFileLocation,
             ExperimentMetaData.class,
             new ExperimentMetaDataAdapter(experimentOrScenarioFileLocation, architectureModelLocation));
+
+        if (experimentMetaData.getDuration() < 0 || Double.isInfinite(experimentMetaData.getDuration())) {
+            System.out.println(
+                "[Warning] Simulation duration is not set or infinite. The simulation may runs infinitely.");
+        }
+
+        return experimentMetaData;
 
     }
 
