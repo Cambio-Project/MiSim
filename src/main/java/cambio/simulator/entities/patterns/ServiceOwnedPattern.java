@@ -3,7 +3,6 @@ package cambio.simulator.entities.patterns;
 import cambio.simulator.entities.NamedEntity;
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.models.MiSimModel;
-import desmoj.core.simulator.Model;
 
 /**
  * Resilience Pattern that is owned by a {@link Microservice}. These patterns should represent mechanics that live on a

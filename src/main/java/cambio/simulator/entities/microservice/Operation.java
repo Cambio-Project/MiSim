@@ -8,7 +8,6 @@ import cambio.simulator.entities.networking.ServiceDependencyInstance;
 import cambio.simulator.models.MiSimModel;
 import com.google.gson.annotations.Expose;
 import desmoj.core.dist.NumericalDist;
-import desmoj.core.simulator.Model;
 
 /**
  * An {@code Operation} represents an endpoint of a service. It has a specific computational demand and may have

@@ -2,7 +2,6 @@ package cambio.simulator.entities.patterns;
 
 import cambio.simulator.models.MiSimModel;
 import com.google.gson.annotations.Expose;
-import desmoj.core.simulator.Model;
 
 /**
  * Represents a pattern owned by a {@link cambio.simulator.entities.microservice.Microservice} that employs a {@link

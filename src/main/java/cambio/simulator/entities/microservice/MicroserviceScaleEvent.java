@@ -3,7 +3,6 @@ package cambio.simulator.entities.microservice;
 import cambio.simulator.entities.NamedExternalEvent;
 import cambio.simulator.models.MiSimModel;
 import co.paralleluniverse.fibers.SuspendExecution;
-import desmoj.core.simulator.Model;
 
 /**
  * For now this is an unused event to represent the scaling of a microservice.

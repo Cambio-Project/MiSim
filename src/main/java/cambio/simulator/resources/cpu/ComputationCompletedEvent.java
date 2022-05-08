@@ -4,7 +4,6 @@ import cambio.simulator.entities.networking.Request;
 import cambio.simulator.models.MiSimModel;
 import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.Event;
-import desmoj.core.simulator.Model;
 
 /**
  * Marks the end of the last computation burst of a thread.

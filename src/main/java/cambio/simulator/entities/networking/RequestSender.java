@@ -7,7 +7,8 @@ import cambio.simulator.entities.NamedEntity;
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.entities.microservice.MicroserviceInstance;
 import cambio.simulator.models.MiSimModel;
-import desmoj.core.simulator.*;
+import desmoj.core.simulator.TimeInstant;
+import desmoj.core.simulator.TimeSpan;
 
 /**
  * Class that provides the ability to send requests and register listeners to this requests.

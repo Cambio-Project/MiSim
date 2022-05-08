@@ -21,6 +21,7 @@ import desmoj.core.simulator.SimProcess;
  */
 public abstract class NamedSimProcess extends SimProcess {
 
+    private final MiSimModel model;
     private String plainName;
     private String quotedName;
     private String quotedPlainName;
@@ -86,9 +87,6 @@ public abstract class NamedSimProcess extends SimProcess {
     public String getQuotedName() {
         return this.quotedName;
     }
-
-
-    private final MiSimModel model;
 
     @Override
     public MiSimModel getModel() {

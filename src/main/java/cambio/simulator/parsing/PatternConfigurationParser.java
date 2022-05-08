@@ -6,7 +6,6 @@ import java.util.Arrays;
 import cambio.simulator.entities.patterns.*;
 import cambio.simulator.models.MiSimModel;
 import com.google.gson.Gson;
-import desmoj.core.simulator.Model;
 import org.jetbrains.annotations.NotNull;
 
 /**

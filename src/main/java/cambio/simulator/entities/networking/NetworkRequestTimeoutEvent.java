@@ -5,7 +5,8 @@ import java.util.concurrent.TimeUnit;
 import cambio.simulator.misc.Priority;
 import cambio.simulator.models.MiSimModel;
 import co.paralleluniverse.fibers.SuspendExecution;
-import desmoj.core.simulator.*;
+import desmoj.core.simulator.TimeInstant;
+import desmoj.core.simulator.TimeSpan;
 
 /**
  * Event that represents the timeout of a {@link Request}. Is automatically scheduled with each send and canceled

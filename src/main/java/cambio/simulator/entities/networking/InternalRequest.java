@@ -2,7 +2,6 @@ package cambio.simulator.entities.networking;
 
 import cambio.simulator.entities.microservice.MicroserviceInstance;
 import cambio.simulator.models.MiSimModel;
-import desmoj.core.simulator.Model;
 
 /**
  * Represents a {@code Request} between two {@code MicroserviceInstance}s. Hold information about the {@code

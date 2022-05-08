@@ -3,7 +3,6 @@ package cambio.simulator.entities.networking;
 import cambio.simulator.entities.microservice.MicroserviceInstance;
 import cambio.simulator.models.MiSimModel;
 import co.paralleluniverse.fibers.SuspendExecution;
-import desmoj.core.simulator.Model;
 
 /**
  * Event that represents the successful arrival of a request at its target instance.

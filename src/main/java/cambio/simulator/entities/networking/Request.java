@@ -7,7 +7,6 @@ import cambio.simulator.entities.microservice.MicroserviceInstance;
 import cambio.simulator.entities.microservice.Operation;
 import cambio.simulator.misc.RNGStorage;
 import cambio.simulator.models.MiSimModel;
-import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 import org.apache.commons.math3.util.Precision;
 
@@ -43,7 +42,7 @@ public abstract class Request extends NamedEntity {
         this.requester = requester;
         this.parent = parent;
         this.prob = RNGStorage.get(this.getClass().getName(),
-            () -> new Random(((MiSimModel) getModel()).getExperimentMetaData().getSeed()));
+            () -> new Random(getModel().getExperimentMetaData().getSeed()));
         createDependencies();
         if (dependencies.isEmpty()) {
             //TODO: clean up this mess (this call is made to neatly trigger onDependenciesComplete)

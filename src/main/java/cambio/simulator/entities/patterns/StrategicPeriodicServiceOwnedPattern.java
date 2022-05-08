@@ -30,7 +30,7 @@ public abstract class StrategicPeriodicServiceOwnedPattern<S extends IStrategy> 
     }
 
     @Override
-    public void onInitializedCompleted(Model model) {
+    public void onInitializedCompleted(MiSimModel model) {
         scheduler = new PeriodicPatternScheduler(getModel(), this, start, stop, period);
         scheduler.activate(new TimeInstant(start));
     }

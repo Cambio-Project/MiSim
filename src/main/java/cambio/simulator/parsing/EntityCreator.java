@@ -5,7 +5,6 @@ import java.util.Objects;
 
 import cambio.simulator.models.MiSimModel;
 import com.google.gson.InstanceCreator;
-import desmoj.core.simulator.Model;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 

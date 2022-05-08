@@ -6,7 +6,6 @@ import java.util.stream.Collectors;
 import cambio.simulator.entities.microservice.*;
 import cambio.simulator.models.MiSimModel;
 import desmoj.core.simulator.Entity;
-import desmoj.core.simulator.Model;
 
 /**
  * Wrapper Class for {@link ILoadBalancingStrategy} to encapsulate common behavior around it. E.g. capture last chosen

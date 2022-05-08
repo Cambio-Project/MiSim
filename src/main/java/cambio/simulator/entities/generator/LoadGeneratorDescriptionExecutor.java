@@ -28,7 +28,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class LoadGeneratorDescriptionExecutor extends RequestSender implements IRequestUpdateListener,
     ISelfScheduled, IPatternLifeCycleHooks {
-    private final Model model;
+    private final MiSimModel model;
 
     /**
      * Target Operation.

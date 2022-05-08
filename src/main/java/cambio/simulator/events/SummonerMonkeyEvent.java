@@ -6,7 +6,6 @@ import cambio.simulator.models.MiSimModel;
 import cambio.simulator.parsing.JsonTypeName;
 import co.paralleluniverse.fibers.SuspendExecution;
 import com.google.gson.annotations.Expose;
-import desmoj.core.simulator.Model;
 
 /**
  * A {@code SummonerMonkeyEvent} is an {@code ExternalEvent} that gets scheduled at the begin of the experiment. It

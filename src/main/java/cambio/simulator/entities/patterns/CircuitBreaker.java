@@ -11,7 +11,6 @@ import cambio.simulator.models.MiSimModel;
 import cambio.simulator.parsing.JsonTypeName;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 
 /**
@@ -157,7 +156,7 @@ public final class CircuitBreaker extends InstanceOwnedPattern implements IReque
     }
 
     @Override
-    public void onInitializedCompleted(Model model) {
+    public void onInitializedCompleted(MiSimModel model) {
         super.onInitializedCompleted(model);
         if (errorThresholdPercentage != Double.POSITIVE_INFINITY
             && errorThresholdPercentage > 1) {

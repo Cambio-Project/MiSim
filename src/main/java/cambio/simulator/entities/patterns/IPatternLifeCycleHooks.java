@@ -1,6 +1,6 @@
 package cambio.simulator.entities.patterns;
 
-import desmoj.core.simulator.Model;
+import cambio.simulator.models.MiSimModel;
 
 /**
  * Represents all pattern lifecycle hooks.
@@ -12,7 +12,7 @@ public interface IPatternLifeCycleHooks {
     /**
      * Will be called after completion of the initialization right after the config was injected.
      */
-    default void onInitializedCompleted(Model model) {
+    default void onInitializedCompleted(MiSimModel model) {
     }
 
     /**

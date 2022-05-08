@@ -6,7 +6,6 @@ import cambio.simulator.entities.microservice.MicroserviceInstance;
 import cambio.simulator.entities.microservice.NoInstanceAvailableException;
 import cambio.simulator.models.MiSimModel;
 import cambio.simulator.parsing.JsonTypeName;
-import desmoj.core.simulator.Model;
 
 @JsonTypeName("random")
 final class RandomLoadBalanceStrategy implements ILoadBalancingStrategy {
@@ -45,9 +44,9 @@ final class RandomLoadBalanceStrategy implements ILoadBalancingStrategy {
     }
 
     @Override
-    public void onInitializedCompleted(Model model) {
+    public void onInitializedCompleted(MiSimModel model) {
         try {
-            rng = new Random(((MiSimModel) model).getExperimentMetaData().getSeed());
+            rng = new Random(model.getExperimentMetaData().getSeed());
         } catch (ClassCastException e) {
             rng = new Random();
         }

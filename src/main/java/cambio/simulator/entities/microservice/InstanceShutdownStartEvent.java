@@ -4,7 +4,6 @@ import cambio.simulator.misc.Priority;
 import cambio.simulator.models.MiSimModel;
 import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.Event;
-import desmoj.core.simulator.Model;
 
 /**
  * Triggers the instance to stats its shutdown process.

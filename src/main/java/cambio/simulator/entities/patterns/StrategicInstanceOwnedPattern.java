@@ -2,7 +2,6 @@ package cambio.simulator.entities.patterns;
 
 import cambio.simulator.models.MiSimModel;
 import com.google.gson.annotations.Expose;
-import desmoj.core.simulator.Model;
 
 /**
  * Represents a {@link ServiceOwnedPattern} that wants to be injected with an  {@link IStrategy} object.

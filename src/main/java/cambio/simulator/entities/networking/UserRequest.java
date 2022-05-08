@@ -4,7 +4,6 @@ import cambio.simulator.entities.generator.LoadGeneratorDescriptionExecutor;
 import cambio.simulator.entities.microservice.Operation;
 import cambio.simulator.export.ReportCollector;
 import cambio.simulator.models.MiSimModel;
-import desmoj.core.simulator.Model;
 
 /**
  * A {@code Request} that represents a request that is created by a user from outside the simulated system.

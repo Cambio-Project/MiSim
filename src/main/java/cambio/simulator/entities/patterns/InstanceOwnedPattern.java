@@ -5,7 +5,6 @@ import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.entities.microservice.MicroserviceInstance;
 import cambio.simulator.models.MiSimModel;
 import cambio.simulator.parsing.JsonTypeName;
-import desmoj.core.simulator.Model;
 
 /**
  * Represents a resilience pattern that is owned by a {@link MicroserviceInstance}.

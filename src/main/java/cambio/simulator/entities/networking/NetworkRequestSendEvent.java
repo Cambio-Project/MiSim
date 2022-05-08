@@ -3,13 +3,12 @@ package cambio.simulator.entities.networking;
 import java.util.concurrent.atomic.AtomicLong;
 
 import cambio.simulator.entities.microservice.*;
-import cambio.simulator.models.MiSimModel;
 import cambio.simulator.export.ReportCollector;
 import cambio.simulator.misc.RNGStorage;
+import cambio.simulator.models.MiSimModel;
 import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.dist.ContDistNormal;
 import desmoj.core.dist.NumericalDist;
-import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeSpan;
 
 /**

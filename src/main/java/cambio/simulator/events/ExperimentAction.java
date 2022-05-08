@@ -4,7 +4,6 @@ import cambio.simulator.entities.NamedExternalEvent;
 import cambio.simulator.models.MiSimModel;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import desmoj.core.simulator.Model;
 import org.jetbrains.annotations.Contract;
 
 /**

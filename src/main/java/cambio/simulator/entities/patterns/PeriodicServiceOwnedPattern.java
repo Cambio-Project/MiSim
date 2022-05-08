@@ -3,7 +3,6 @@ package cambio.simulator.entities.patterns;
 import cambio.simulator.models.MiSimModel;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 
 /**
@@ -28,7 +27,7 @@ public abstract class PeriodicServiceOwnedPattern extends ServiceOwnedPattern im
     }
 
     @Override
-    public void onInitializedCompleted(Model model) {
+    public void onInitializedCompleted(MiSimModel model) {
         scheduler = new PeriodicPatternScheduler(getModel(), this, start, stop, period);
         scheduler.activate(new TimeInstant(start));
     }

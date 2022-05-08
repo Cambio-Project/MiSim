@@ -11,7 +11,8 @@ import cambio.simulator.parsing.JsonTypeName;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import desmoj.core.dist.ContDistNormal;
-import desmoj.core.simulator.*;
+import desmoj.core.simulator.ExternalEvent;
+import desmoj.core.simulator.TimeSpan;
 
 /**
  * Event that triggers a latency injection. The injection can be applied on different levels:<br> Either all outgoing

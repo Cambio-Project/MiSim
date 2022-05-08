@@ -3,7 +3,6 @@ package cambio.simulator.entities.networking;
 import cambio.simulator.entities.NamedEntity;
 import cambio.simulator.entities.microservice.*;
 import cambio.simulator.models.MiSimModel;
-import desmoj.core.simulator.Model;
 
 /**
  * This is an instance of a {@link DependencyDescription}. It describes an actual existing dependency of a {@code

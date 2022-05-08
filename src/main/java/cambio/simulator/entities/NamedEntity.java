@@ -2,7 +2,6 @@ package cambio.simulator.entities;
 
 import cambio.simulator.models.MiSimModel;
 import desmoj.core.simulator.Entity;
-import desmoj.core.simulator.Model;
 
 /**
  * Class that adds further options for the retrieving of names of {@link Entity}s. Specifically, it provides a plain
@@ -22,10 +21,10 @@ import desmoj.core.simulator.Model;
  */
 public abstract class NamedEntity extends Entity {
 
+    private final MiSimModel model;
     private String plainName;
     private String quotedName;
     private String quotedPlainName;
-
 
     /**
      * Constructor for a named entity.
@@ -76,8 +75,6 @@ public abstract class NamedEntity extends Entity {
     public String getQuotedName() {
         return this.quotedName;
     }
-
-    private final MiSimModel model;
 
     @Override
     public MiSimModel getModel() {

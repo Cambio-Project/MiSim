@@ -4,7 +4,6 @@ import cambio.simulator.entities.NamedExternalEvent;
 import cambio.simulator.misc.Priority;
 import cambio.simulator.models.MiSimModel;
 import co.paralleluniverse.fibers.SuspendExecution;
-import desmoj.core.simulator.Model;
 
 /**
  * Event that represents the half-closing of a circuit breaker.

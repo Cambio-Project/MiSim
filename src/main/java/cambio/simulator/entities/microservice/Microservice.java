@@ -14,7 +14,6 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import desmoj.core.dist.NumericalDist;
 import desmoj.core.simulator.Event;
-import desmoj.core.simulator.Model;
 
 /**
  * A Microservice is one of the core Entities of the simulation. It represents the meta layer of a microservice that is

@@ -3,7 +3,6 @@ package cambio.simulator.events;
 import java.util.Objects;
 
 import cambio.simulator.models.MiSimModel;
-import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 
 /**

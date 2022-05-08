@@ -4,7 +4,6 @@ import cambio.simulator.misc.Priority;
 import cambio.simulator.models.MiSimModel;
 import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.Event;
-import desmoj.core.simulator.Model;
 
 /**
  * For now this is an unused event that represents the killing of an instance.

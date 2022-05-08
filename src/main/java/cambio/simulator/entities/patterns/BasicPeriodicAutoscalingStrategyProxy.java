@@ -2,7 +2,6 @@ package cambio.simulator.entities.patterns;
 
 import cambio.simulator.models.MiSimModel;
 import cambio.simulator.parsing.JsonTypeName;
-import desmoj.core.simulator.Model;
 
 /**
  * An examplary implementation of a {@link StrategicPeriodicServiceOwnedPattern} with a potentially varying {@link

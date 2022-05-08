@@ -7,7 +7,6 @@ import cambio.simulator.parsing.JsonTypeName;
 import co.paralleluniverse.fibers.SuspendExecution;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import desmoj.core.simulator.Model;
 
 /**
  * A <code>ChaosMonkeyEvent</code> is an <code>ExternalEvent</code> that gets scheduled at the beginning of the
