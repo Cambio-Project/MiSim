@@ -45,7 +45,7 @@ It allows the simulation of microservice architectures in regard to resilience a
 
 ### Output Metrics
 
-See [Metrics](./docs/metrics)
+See [Metrics](./docs/metrics.md)
 
 ## <a name="Usage"></a>Usage
 
