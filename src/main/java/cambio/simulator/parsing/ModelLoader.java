@@ -1,20 +1,14 @@
 package cambio.simulator.parsing;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.*;
 import java.util.function.Function;
 
-import cambio.simulator.models.ArchitectureModel;
-import cambio.simulator.models.ExperimentMetaData;
-import cambio.simulator.models.ExperimentModel;
-import cambio.simulator.models.MiSimModel;
+import cambio.simulator.models.*;
 import cambio.simulator.parsing.adapter.architecture.ArchitectureModelAdapter;
 import cambio.simulator.parsing.adapter.experiment.ExperimentMetaDataAdapter;
 import cambio.simulator.parsing.adapter.experiment.ExperimentModelAdapter;
 import cambio.simulator.parsing.adapter.scenario.ScenarioDescriptionAdapter;
-import com.google.gson.Gson;
-import com.google.gson.TypeAdapter;
+import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
 import org.jetbrains.annotations.Contract;
 
@@ -25,18 +19,6 @@ import org.jetbrains.annotations.Contract;
  */
 public final class ModelLoader {
 
-    @Contract("null->fail")
-    private static void checkFileExistence(File file) {
-        if (file == null) {
-            throw new ParsingException(
-                "[Error]  Cannot start the simulation. Model file was not found. Check your Paths and parameters.");
-        } else if (!file.exists()) {
-            throw new ParsingException(
-                String
-                    .format("[Error]  Cannot start the simulation. Model file %s was not found!",
-                        file.getAbsolutePath()));
-        }
-    }
 
     /**
      * Parses the given information into a new {@link ExperimentMetaData} object.
@@ -65,7 +47,7 @@ public final class ModelLoader {
      */
     public static ArchitectureModel loadArchitectureModel(MiSimModel baseModel) {
         return loadModel(
-            baseModel.getExperimentMetaData().getArchFileLocation(),
+            baseModel.getExperimentMetaData().getArchitectureDescriptionLocation(),
             ArchitectureModel.class,
             new ArchitectureModelAdapter(baseModel)
         );
@@ -80,7 +62,7 @@ public final class ModelLoader {
      *     ExperimentModelAdapter}.
      */
     public static ExperimentModel loadExperimentModel(MiSimModel baseModel) {
-        File modelLocation = baseModel.getExperimentMetaData().getExpFileLocation();
+        File modelLocation = baseModel.getExperimentMetaData().getExperimentDescriptionLocation();
         Function<TypeAdapter<ExperimentModel>, ExperimentModel> loadFunction = adapter ->
             loadModel(modelLocation, ExperimentModel.class, adapter);
 
@@ -108,8 +90,28 @@ public final class ModelLoader {
 
         } catch (FileNotFoundException e) {
             throw new ParsingException(
-                String.format("[Error]  Cannot start the simulation. Model file %s was not found!",
+                String.format("Cannot start the simulation. Model file %s was not found!",
                     targetFile.getAbsolutePath()), e);
+        } catch (JsonSyntaxException e) {
+            throw new ParsingException(
+                String.format("Cannot start the simulation. Model file %s contains Json Syntax errors!",
+                    targetFile.getAbsolutePath()), e);
+        } catch (ParsingException e) {
+            throw new ParsingException(String.format("Error parsing model file %s\n%s", targetFile.getAbsolutePath(),
+                e.getMessage()), e);
+        }
+    }
+
+    @Contract("null->fail")
+    private static void checkFileExistence(File file) {
+        if (file == null) {
+            throw new ParsingException(
+                "[Error] Cannot start the simulation. Model file was not found. Check your Paths and parameters.");
+        } else if (!file.exists()) {
+            throw new ParsingException(
+                String
+                    .format("[Error]  Cannot start the simulation. Model file %s was not found!",
+                        file.getAbsolutePath()));
         }
     }
 }

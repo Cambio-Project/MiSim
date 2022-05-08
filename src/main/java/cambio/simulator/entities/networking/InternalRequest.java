@@ -11,15 +11,15 @@ import desmoj.core.simulator.Model;
  */
 public class InternalRequest extends Request {
 
-    private final NetworkDependency dependency;
+    private final ServiceDependencyInstance dependency;
 
     /**
      * Constructs a new Internal Request. Construction is based on the respective dependency and requester.
      *
-     * @param dependency {@link NetworkDependency} that should be competed by this request.
+     * @param dependency {@link ServiceDependencyInstance} that should be competed by this request.
      * @param requester  {@link MicroserviceInstance} that requests the answer to this request.
      */
-    public InternalRequest(Model model, boolean showInTrace, NetworkDependency dependency,
+    public InternalRequest(Model model, boolean showInTrace, ServiceDependencyInstance dependency,
                            MicroserviceInstance requester) {
         super(model,
             String
@@ -33,7 +33,7 @@ public class InternalRequest extends Request {
     }
 
 
-    public NetworkDependency getDependency() {
+    public ServiceDependencyInstance getDependency() {
         return dependency;
     }
 }

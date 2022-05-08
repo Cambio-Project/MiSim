@@ -1,0 +1,11 @@
+{
+  "simulation_meta_data": {
+    "experiment_name": "Autoscale Round-Robin Loadbalancer Demonstration",
+    "model_name": "Scenario Autoscale",
+    "duration": 180,
+    "seed": 404
+  },
+  "artifact": "gateway",
+  "component": "ALL ENDPOINTS",
+  "stimulus": "LOAD ./Examples/ProofOfConcept/linear_peaks_1000ArrivalRates.csv"
+}

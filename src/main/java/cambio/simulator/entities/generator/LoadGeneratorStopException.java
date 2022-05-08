@@ -64,8 +64,8 @@ public class LoadGeneratorStopException extends Exception {
      * @param message            the detail message.
      * @param cause              the cause.  (A {@code null} value is permitted, and indicates that the cause is
      *                           nonexistent or unknown.)
-     * @param enableSuppression  whether or not suppression is enabled or disabled
-     * @param writableStackTrace whether or not the stack trace should be writable
+     * @param enableSuppression  whether suppression is enabled or disabled
+     * @param writableStackTrace whether the stack trace should be writable
      * @since 1.7
      */
     public LoadGeneratorStopException(String message, Throwable cause, boolean enableSuppression,

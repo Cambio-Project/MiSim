@@ -1,0 +1,137 @@
+/*
+ *
+ */
+
+body {
+    margin: 0px;
+}
+
+#json {
+    height: 100%;
+    width: 100%;
+}
+
+.jsontd {
+    padding: 5px;
+    min-width: 400px;
+    vertical-align: middle;
+    text-align: left;
+}
+
+table {
+    padding: 0px;
+    margin: 0;
+    white-space: nowrap;
+    border-spacing: 0;
+    border-collapse: collapse;
+}
+
+td, tr {
+    padding: 2px;
+    margin: 0;
+}
+
+/*
+ *  Colors
+ */
+
+.simulation-color {
+    background: rgba(100, 100, 100, 0.5);
+}
+
+.microservice-color {
+    background: rgba(150, 0, 255, 0.5);
+}
+
+.operation-color {
+    background: rgba(0, 150, 255, 0.5);
+}
+
+.generator-color {
+    background: rgba(200, 200, 0, 0.5);
+}
+
+.chaosmonkey-color {
+    background: rgba(255, 100, 0, 0.5);
+}
+
+/*
+ *  Properties
+ */
+
+.input-table {
+    border: 1px solid black;
+}
+
+.simulation-table, .microservice-table, .operation-table, .generator-table, .chaosmonkey-table {
+    width: 100%;
+    border: none;
+}
+
+/*
+ *  Input values
+ */
+
+input {
+    border: 1px solid transparent;
+    background: #FFFFFF;
+    border-bottom: 1px solid #999999;
+    margin-bottom: 1px;
+    outline: 0;
+    transition: 500ms;
+}
+
+input:hover {
+    border-bottom: 1px solid #000000;
+}
+
+input:focus {
+    border-bottom: 1px solid #555555;
+}
+
+input[type=number] {
+    max-width: 50px;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    margin: 0;
+}
+
+button {
+    border: 1px solid transparent;
+    background: #DDDDDD;
+    border: 1px solid #999999;
+    padding: 3px;
+    margin: 1px;
+    outline: 0;
+    transition: 500ms;
+}
+
+button:hover {
+    border: 1px solid #000000;
+    background: #999999;
+}
+
+button:active {
+    border: 1px solid #000000;
+    background: #FFFFFF;
+}
+
+textarea {
+    min-width: 400px;
+    max-width: 400px;
+    outline: 0;
+}
+
+.center {
+    vertical-align: middle;
+    text-align: center;
+}
+
+.np {
+    padding: 0px;
+}

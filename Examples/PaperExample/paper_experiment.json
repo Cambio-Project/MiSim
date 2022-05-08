@@ -1,0 +1,26 @@
+{
+  "simulation_metadata": {
+    "name": "Minimal Scenario",
+    "duration": 180,
+    "seed": 42
+  },
+  "generators": [
+    {
+      "type": "limbo",
+      "config": {
+        "model":
+        "./Examples/PaperExample/paper_limbo.csv",
+        "target_operation": "gateway.API_Endpoint",
+        "repeating": true
+      }
+    }
+  ],
+  "Monkey#1": {
+    "type": "chaos_monkey",
+    "config": {
+      "killed_instance_count": 2,
+      "arrival_time": 40,
+      "microservice": "service1"
+    }
+  }
+}

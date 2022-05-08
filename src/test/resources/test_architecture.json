@@ -74,7 +74,7 @@
         {
           "type": "retry",
           "config": {
-            "maxTries": 5
+            "maxTries": 2
           },
           "strategy": {
             "type": "jittering",
@@ -123,6 +123,10 @@
           "name": "call_example-service2",
           "demand": 100,
           "dependencies": [
+            {
+              "service": "example-service2",
+              "operation": "example-service2.get"
+            },
             {
               "service": "example-service2",
               "operation": "example-service2.get"

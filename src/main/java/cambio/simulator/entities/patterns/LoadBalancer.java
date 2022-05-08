@@ -1,13 +1,9 @@
 package cambio.simulator.entities.patterns;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
-import cambio.simulator.entities.microservice.InstanceState;
-import cambio.simulator.entities.microservice.MicroserviceInstance;
-import cambio.simulator.entities.microservice.NoInstanceAvailableException;
+import cambio.simulator.entities.microservice.*;
 import desmoj.core.simulator.Entity;
 import desmoj.core.simulator.Model;
 
@@ -30,9 +26,11 @@ public final class LoadBalancer extends Entity {
         if (loadBalancingStrategy != null) {
             this.loadBalancingStrategy = loadBalancingStrategy;
         } else {
-            System.out.println("[Warning] No load balancing strategy given, defaulting to randomized load balancing.");
+            System.out.println("[Warning] " + name + ": No load balancing strategy given, defaulting to randomized "
+                + "load balancing.");
             this.loadBalancingStrategy = new RandomLoadBalanceStrategy();
         }
+        this.loadBalancingStrategy.onInitializedCompleted(model);
     }
 
     /**

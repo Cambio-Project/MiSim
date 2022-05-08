@@ -40,7 +40,7 @@ public abstract class CPUProcessScheduler {
 
     /**
      * Pulls the next {@code CPUProcess} to handle and its assigned time/work quantum.<br> Prevents automatic
-     * rescheduling of the process like in round robin scheduling.
+     * rescheduling of the process like in round-robin scheduling.
      *
      * <p>
      * This method is used to offer scheduling for multithreading. But requires manual rescheduling of unfinished

@@ -5,9 +5,9 @@ import java.util.Set;
 
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.entities.microservice.MicroserviceInstance;
-import cambio.simulator.testutils.RandomTieredModel;
-import cambio.simulator.testutils.TestExperiment;
-import cambio.simulator.testutils.TestUtils;
+import cambio.simulator.test.RandomTieredModel;
+import cambio.simulator.test.TestExperiment;
+import cambio.simulator.test.TestUtils;
 import desmoj.core.simulator.Experiment;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -25,7 +25,7 @@ class CircuitBreakerTest {
         Field f = Microservice.class.getDeclaredField("instancesSet");
         f.setAccessible(true);
         Set<MicroserviceInstance> instances = (Set<MicroserviceInstance>) f.get(service);
-        MicroserviceInstance instance = instances.stream().findAny().orElse(null);
+        MicroserviceInstance instance = instances.stream().findFirst().orElse(null);
 
         CircuitBreaker cb = new CircuitBreaker(mockModel, "", false);
         Retry retry = new Retry(mockModel, "", false);

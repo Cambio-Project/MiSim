@@ -1,10 +1,13 @@
 package cambio.simulator.entities.patterns;
 
-import java.util.Collection;
-import java.util.Comparator;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import cambio.simulator.entities.microservice.MicroserviceInstance;
+import cambio.simulator.entities.microservice.NoInstanceAvailableException;
+import cambio.simulator.models.MiSimModel;
 import cambio.simulator.parsing.JsonTypeName;
+import desmoj.core.simulator.Model;
 
 /**
  * Strategy that chooses the least utilized Microservice Instance by current relative Queue demand.
@@ -12,13 +15,32 @@ import cambio.simulator.parsing.JsonTypeName;
 @JsonTypeName("util")
 class UtilizationBalanceStrategy implements ILoadBalancingStrategy {
 
+    private Random rng = null;
+
     /**
-     * Returns a the instance of the list, which currently has the lowest demand left.
+     * Returns the instance of the given list, which currently has the lowest demand left.
      */
     @Override
     public MicroserviceInstance getNextInstance(Collection<MicroserviceInstance> runningInstances) {
-        return runningInstances.stream()
-            .min(Comparator.comparingDouble(MicroserviceInstance::getRelativeWorkDemand))
-            .orElse(null);
+
+        if (runningInstances.isEmpty()) {
+            throw new NoInstanceAvailableException();
+        }
+
+        double min =
+            runningInstances.stream().mapToDouble(MicroserviceInstance::getRelativeWorkDemand).min().orElse(-1);
+
+        List<MicroserviceInstance> minimalInstances = runningInstances.stream()
+            .filter(instance -> instance.getRelativeWorkDemand() == min)
+            .collect(Collectors.toList());
+
+        final int index = rng.nextInt(minimalInstances.size());
+        final MicroserviceInstance microserviceInstance = minimalInstances.get(index);
+        return microserviceInstance;
+    }
+
+    @Override
+    public void onInitializedCompleted(Model model) {
+        rng = new Random(((MiSimModel) model).getExperimentMetaData().getSeed());
     }
 }

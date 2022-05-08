@@ -1,17 +1,12 @@
 package cambio.simulator.resources.cpu.scheduling;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 
 import cambio.simulator.resources.cpu.CPUProcess;
 import org.javatuples.Pair;
 
 /**
- * <b>S</b>elf <b>a</b>djusting <b>R</b>ound <b>R</b>obin (SARR) scheduler with dynamic median-based quantum
+ * <b>S</b>elf <b>a</b>djusting <b>R</b>ound-<b>R</b>obin (SARR) scheduler with dynamic median-based quantum
  * calculation.
  *
  * <p>
@@ -19,10 +14,10 @@ import org.javatuples.Pair;
  * of the Now Running Processes</i>
  *
  * <p>
- * Executes a round robin scheduling where the assigned work quantum is the median of all current left over work demands
+ * Executes a round-robin scheduling where the assigned work quantum is the median of all current left over work demands
  * of all entered processes. The quantum is updated each time a new processes enters or all processes had a round with
- * the current quantum. This provides a shorter average waiting and turn-around time than the fixed quantum round robin.
- * Further, this round robin scheduler adjust dynamically to demand sizes that can heavily vary between
+ * the current quantum. This provides a shorter average waiting and turn-around time than the fixed quantum round-robin.
+ * Further, this round-robin scheduler adjust dynamically to demand sizes that can heavily vary between
  * experiments/architecture descriptions.
  *
  * <p>
@@ -39,7 +34,7 @@ public final class RoundRobinScheduler extends CPUProcessScheduler {
     //made dynamic at some point.
     private static final int MINIMUM_QUANTUM = 25;
 
-    private final Queue<CPUProcess> processes = new LinkedList<>();
+    private final Queue<CPUProcess> processes = new ArrayDeque<>();
     private final HashSet<CPUProcess> executedWithCurrentQuantum = new HashSet<>();
     private int currentQuantum;
     private boolean updateQuantum = true;

@@ -2,7 +2,7 @@ package cambio.simulator.entities.networking;
 
 import cambio.simulator.entities.generator.LoadGeneratorDescriptionExecutor;
 import cambio.simulator.entities.microservice.Operation;
-import cambio.simulator.export.MultiDataPointReporter;
+import cambio.simulator.export.ReportCollector;
 import desmoj.core.simulator.Model;
 
 /**
@@ -17,20 +17,16 @@ import desmoj.core.simulator.Model;
  */
 public class UserRequest extends Request {
 
-    private static final MultiDataPointReporter reporter = new MultiDataPointReporter("R");
-
     public UserRequest(Model model, String name, boolean showInTrace, Operation operation) {
         super(model, name, showInTrace, null, operation, null);
     }
 
-
     @Override
     protected void onReceive() {
         super.onReceive();
-        reporter
+        ReportCollector.USER_REQUEST_REPORTER
             .addDatapoint(String.format("[%s]_ResponseTimes", operation.getName()), presentTime(), getResponseTime());
-        reporter.addDatapoint("[All]ResponseTimes", presentTime(), getResponseTime());
+        ReportCollector.USER_REQUEST_REPORTER
+            .addDatapoint("[All]ResponseTimes", presentTime(), getResponseTime());
     }
-
-
 }

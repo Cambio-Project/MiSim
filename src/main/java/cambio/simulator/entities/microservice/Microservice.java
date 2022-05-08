@@ -1,21 +1,13 @@
 package cambio.simulator.entities.microservice;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import cambio.simulator.entities.NamedEntity;
 import cambio.simulator.entities.networking.InternalRequest;
-import cambio.simulator.entities.patterns.ILoadBalancingStrategy;
-import cambio.simulator.entities.patterns.InstanceOwnedPattern;
-import cambio.simulator.entities.patterns.InstanceOwnedPatternConfiguration;
-import cambio.simulator.entities.patterns.LoadBalancer;
-import cambio.simulator.entities.patterns.ServiceOwnedPattern;
-import cambio.simulator.export.ContinuousMultiDataPointReporter;
+import cambio.simulator.entities.patterns.*;
+import cambio.simulator.export.AccumulativeDataPointReporter;
 import cambio.simulator.export.MultiDataPointReporter;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -29,8 +21,8 @@ import desmoj.core.simulator.Model;
  *
  * <p>
  * Specifically, it can take care of starting, killing and shutting down {@link MicroserviceInstance}s (in the following
- * just called instances) and provides meta data to each instance. For example, a {@link Microservice} object knows
- * which resilience patterns should be implemented by each instance and how many resources each instances is assigned.
+ * just called instances) and provides metadata to each instance. For example, a {@link Microservice} object knows which
+ * resilience patterns should be implemented by each instance and how many resources each instances is assigned.
  * Naturally it also knows the status of all existing (including killed ones) instances of this service.
  *
  * <p>
@@ -47,17 +39,20 @@ import desmoj.core.simulator.Model;
  * @see InstanceOwnedPattern
  */
 public class Microservice extends NamedEntity {
-    private final transient Set<MicroserviceInstance> instancesSet = new HashSet<>();
+    private final transient Set<MicroserviceInstance> instancesSet =
+        new TreeSet<>(Comparator.comparingInt(MicroserviceInstance::getInstanceID));
     private final transient MultiDataPointReporter reporter;
+    private final transient AccumulativeDataPointReporter accReporter;
+
     @Expose
-    @SerializedName(value = "loadbalancer_strategy", alternate = "load_balancer")
+    @SerializedName(value = "loadbalancer_strategy", alternate = {"load_balancer", "loadbalancer"})
     private final LoadBalancer loadBalancer;
     private transient boolean started = false;
     private transient int instanceSpawnCounter = 0; // running counter to create instance ID's
 
     @Expose
     @SerializedName(value = "name")
-    private String plainName = ""; //TODO: fix this whole naming confusion thing
+    private String plainName = "";
     @Expose
     private int capacity = 1;
     @Expose
@@ -85,7 +80,8 @@ public class Microservice extends NamedEntity {
         super(model, name, showInTrace);
         //default load balancer
         loadBalancer = new LoadBalancer(model, "Loadbalancer", traceIsOn(), null);
-        reporter = new ContinuousMultiDataPointReporter(String.format("S[%s]_", name));
+        reporter = new MultiDataPointReporter(String.format("S[%s]_", name));
+        accReporter = new AccumulativeDataPointReporter(String.format("S[%s]_", name));
     }
 
     /**
@@ -154,7 +150,7 @@ public class Microservice extends NamedEntity {
             if (getInstancesCount() < targetInstanceCount) {
                 //TODO: restart shutdown instances instead of creating new ones
                 changedInstance =
-                    new MicroserviceInstance(getModel(), String.format("[%s]_I%d", getName(), instanceSpawnCounter),
+                    new MicroserviceInstance(getModel(), String.format("%s_I%d", getName(), instanceSpawnCounter),
                         this.traceIsOn(), this, instanceSpawnCounter);
                 changedInstance.activatePatterns(instanceOwnedPatternConfigurations);
                 instanceSpawnCounter++;
@@ -179,7 +175,7 @@ public class Microservice extends NamedEntity {
 
 
     /**
-     * Kills the given number of services many random instances. Accepts numbers larger than the current amount of
+     * Kills the given number of services many random instances. Accept numbers larger than the current amount of
      * instances.
      *
      * @param numberOfInstances number of instances that should be instantly killed
@@ -197,7 +193,7 @@ public class Microservice extends NamedEntity {
     public synchronized void killInstance() {
         //TODO: use UniformDistribution form desmoj
         MicroserviceInstance instanceToKill =
-            instancesSet.stream().findAny().orElse(null); //selects an element of the stream, not
+            instancesSet.stream().findFirst().orElse(null); //selects an element of the stream, not
         if (instanceToKill == null) {
             return;
         }
@@ -229,13 +225,22 @@ public class Microservice extends NamedEntity {
 
         return Arrays.stream(operations)
             .filter(operation -> searchPattern.matcher(operation.getName()).matches())
-            .findAny()
+            .findFirst()
             .orElse(null);
     }
 
-
+    /**
+     * Uses the loadbalancer of this microservice to find the next suitable target instance.
+     *
+     * @return a {@code MicroserviceInstance} that should receive the next request
+     * @throws NoInstanceAvailableException if no instance is available
+     */
     public MicroserviceInstance getNextAvailableInstance() throws NoInstanceAvailableException {
-        return loadBalancer.getNextInstance(instancesSet);
+        MicroserviceInstance nextInstance = loadBalancer.getNextInstance(instancesSet);
+        List<String> data = new ArrayList<>();
+        data.add(nextInstance.getPlainName());
+        accReporter.addDatapoint("Load_Distribution", presentTime(), data);
+        return nextInstance;
     }
 
 

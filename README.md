@@ -2,20 +2,50 @@
 [![Documentation](https://img.shields.io/badge/Documentation-online-32CA55?style=flat&logo=github&logoColor=959DA5&labelColor=2F353C)](https://Cambio-Project.github.io/resilience-simulator/)
 [![DOI](https://zenodo.org/badge/200825938.svg)](https://zenodo.org/badge/latestdoi/200825938)
 
-
 ## WIP Note: This ReadMe is still WIP. Some information is not true for MiSim 3.0 onwards.
 
 # MiSim - Microservice Resilience Simulator
 
-This simulator was created as part of two Bachelor Thesis and a Fachstudie __Simulation-based Resilience Prediction of Microservice Architectures__ at the Software Quality Group of the Institute of Software Engineering at the University of Stuttgart.
+This simulator was created as part of two Bachelor Thesis and a Fachstudie **Simulation-based Resilience Prediction of Microservice Architectures** at the Software Quality Group of the Institute of Software Engineering at the University of Stuttgart.
 
-It allows the simulation of microservice architectures in regard to resilience and is based on the [DesmoJ](http://desmoj.sourceforge.net) framework for discrete event modelling and simulation. 
+It allows the simulation of microservice architectures in regard to resilience and is based on the [DesmoJ](http://desmoj.sourceforge.net) framework for discrete event modelling and simulation.
 
-**Table of contents:**
-- [Installation](#Installation)
-- [Execution](#Execution)
-- [Architectural Model](#arch_mod)
-- [Experiment Model](#exp_mod)
+## Features
+
+### Feature Overview
+
+- Simulation of Resilience Features
+  - Retry
+  - Auto Scaling
+  - Load Balancing
+  - Circuit Breaker
+  - Connection Pool (limits number of concurrent requests | part of Circuit Breaker)
+- Simulation of Chaos Injections
+  - Instance Killing
+  - Network Delay
+- Manual starting of Instances
+- Multi-Core CPU-Simulation
+- support for [LIMBO](https://se.informatik.uni-wuerzburg.de/software-engineering-group/tools/limbo/) load profiles
+- easy architecture and experiment descriptions
+- Support for experiments in scenario form (see [ATAM](https://doi.org/10.1109/ICECCS.1998.706657), [Resources about the ATAM](https://resources.sei.cmu.edu/library/asset-view.cfm?assetid=513908))
+- headless
+- lightweight (~11MB)
+- non-interactive
+- Supporting tools that can create architectures and (scenario-based) experiments
+- easily extendable with new strategies
+
+#### Planned Features:
+
+- CPU Load Injection
+- Network Load Injection
+- Simulation of Caching
+- Auto-Self Restarting
+- Output of Error Rates
+- Output of Message/Execution Traces
+
+### Output Metrics
+
+See [Metrics](./docs/metrics.md)
 
 ## <a name="Usage"></a>Usage
 
@@ -25,8 +55,8 @@ Download the [newest stable release](https://github.com/Cambio-Project/resilienc
 
 ### Build from source
 
-Clone via git and run 
-`mvn -B package --file pom.xml "-DskipTests=true" "-Dmaven.javadoc.skip=true" "-Dcheckstyle.skipExec=true"`. 
+Clone via git and run
+`mvn -B package --file pom.xml "-DskipTests=true" "-Dmaven.javadoc.skip=true" "-Dcheckstyle.skipExec=true"`.
 You should see a `misim.jar` file in the resulting `target/` directory.
 
 ### Execution
@@ -35,15 +65,15 @@ Simply run `java -jar misim.jar [arguments]`.
 
 ### Parameters
 
-| Argument | Short | Required | Description | Example |
-|----------|------|----------|-------------|---------|
-|   --arch_model       |   -a   |     true     |    provides path to the architecture file         |     ./Examples/example_architecture_scaling.json    |
-
+| Argument     | Short | Required | Description                            | Example                                      |
+| ------------ | ----- | -------- | -------------------------------------- | -------------------------------------------- |
+| --arch_model | -a    | true     | provides path to the architecture file | ./Examples/example_architecture_scaling.json |
 
 ## <a name="Execution"></a>Execution
 
 The simulation works only when the relative path `./Report` exists in execution directory.
 With the following file structure ...
+
 ```
 project/
 |--- Examples/
@@ -57,14 +87,15 @@ project/
 |--- MiSim.jar
 |--- ...
 ```
+
 ... use the following command to run a simulation:
 
 `java -jar MiSim.jar -a ./Examples/architecture_model.json -e ./Examples/experiment_model.json -p`
 
 ## <a name="arch_mod"></a>Architectural Model
+
 The architectural model is required as input for the simulator. It is saved in a _JSON_ file.
 The following is a simple example for the architectural model:
-
 
 ```json
 {
@@ -146,7 +177,7 @@ The following is a simple example for the architectural model:
         {
           "name": "d1",
           "demand": 170,
-	  "circuitBreaker": null,
+          "circuitBreaker": null,
           "dependencies": []
         }
       ]
@@ -160,13 +191,13 @@ The following is a simple example for the architectural model:
         {
           "name": "e2",
           "demand": 180,
-	  "circuitBreaker": null,
+          "circuitBreaker": null,
           "dependencies": []
         },
         {
           "name": "e1",
           "demand": 430,
-	  "circuitBreaker": null,
+          "circuitBreaker": null,
           "dependencies": []
         }
       ]
@@ -198,38 +229,40 @@ The following is a simple example for the architectural model:
         {
           "name": "c2",
           "demand": 90,
-	  "circuitBreaker": null,
+          "circuitBreaker": null,
           "dependencies": []
         }
       ]
     }
   ]
 }
-
 ```
 
 ### Description
+
 The model contains architectural information about the microservices of the system, their operations and dependencies and the resilience patterns they implement.
 
-- ___name___: Name of the microservice
-- ___instances___: Number of instances of this microservice
-- ___capacity___: CPU capacity of _each_ instance in Mhz
-- ___patterns___: Array of resilience patterns that are implemented in this microservice. The array contains objects which hold information about the respective resilience pattern
-	- ___name___: The name of the pattern. As of now the only supported pattern is _Resource Limiter_
-	- ___arguments___: An array which contains parameters about the pattern
-- ___operations___: Array which holds objects which contain information about the different operations that this microservice can perform
-	- ___name___: Name of the operation
-	- ___demand___: CPU demand of this operation in Mhz
-	- ___circuitBreaker___: Contains the following parameters that configure the implemented circuit breaker: *rollingWindow*, *requestVolumeThreshold*, *errorThresholdPercentage*, *sleepWindow* and *timeout*. If the operations doesn't implement a circuit breaker the value is *null*
-	- ___dependencies___: Arry of objects which hold information about a dependency that this operation has with another operation.
-		- ___service___: Name of the microservice to which the other operation belongs
-		- ___operation___: Name of the other operation from which this operation depends
-		- ___probability___: The probability that this operation will call the other operation (decimal number in between 0 and 1)
+- **_name_**: Name of the microservice
+- **_instances_**: Number of instances of this microservice
+- **_capacity_**: CPU capacity of _each_ instance in Mhz
+- **_patterns_**: Array of resilience patterns that are implemented in this microservice. The array contains objects which hold information about the respective resilience pattern
+  - **_name_**: The name of the pattern. As of now the only supported pattern is _Resource Limiter_
+  - **_arguments_**: An array which contains parameters about the pattern
+- **_operations_**: Array which holds objects which contain information about the different operations that this microservice can perform
+  - **_name_**: Name of the operation
+  - **_demand_**: CPU demand of this operation in Mhz
+  - **_circuitBreaker_**: Contains the following parameters that configure the implemented circuit breaker: _rollingWindow_, _requestVolumeThreshold_, _errorThresholdPercentage_, _sleepWindow_ and _timeout_. If the operations doesn't implement a circuit breaker the value is _null_
+  - **_dependencies_**: Arry of objects which hold information about a dependency that this operation has with another operation.
+    - **_service_**: Name of the microservice to which the other operation belongs
+    - **_operation_**: Name of the other operation from which this operation depends
+    - **_probability_**: The probability that this operation will call the other operation (decimal number in between 0 and 1)
 
 ## <a name="exp_mod"></a>Experiment Model
+
 The experiment model contains meta information for the simulation and information about the experiment.
 
 This is an example for the experiment model:
+
 ```json
 {
   "simulation_meta_data": {
@@ -263,25 +296,28 @@ This is an example for the experiment model:
 ```
 
 ### Simulation Meta Data
+
 The _simulation-meta-data_ object holds meta data that's needed for the simulation.
 
-- ___experiment_name___: Name of the experiment
-- ___model_name___: Name of the used model
-- ___duration___: The duration of the experiment in seconds, must be an integer
-- ___report___: The simulator creates a report at the end of the simulation. Leave this field empty if you want a detailed report, set the value to "minimalistic" if you want a minimalistic version of the report or set it to "none" if you don't want a report
-- ___datapoints___: The number of datapoints you want for the charts in your report. The simulator records statistics at every datapoint. If you set the value to "0" no charts will be created. If you set it to "-1" the simulator will record a datapoint at every simulated second
-- ___seed___: A seed for the randomly generated events in the simulator. Leave this field empty if you want random experiments or set the value to an integer to use a seed
+- **_experiment_name_**: Name of the experiment
+- **_model_name_**: Name of the used model
+- **_duration_**: The duration of the experiment in seconds, must be an integer
+- **_report_**: The simulator creates a report at the end of the simulation. Leave this field empty if you want a detailed report, set the value to "minimalistic" if you want a minimalistic version of the report or set it to "none" if you don't want a report
+- **_datapoints_**: The number of datapoints you want for the charts in your report. The simulator records statistics at every datapoint. If you set the value to "0" no charts will be created. If you set it to "-1" the simulator will record a datapoint at every simulated second
+- **_seed_**: A seed for the randomly generated events in the simulator. Leave this field empty if you want random experiments or set the value to an integer to use a seed
 
 ### Request Generators
+
 The _request_generators_ array holds objects which contain information about the generation of inital requests to different microservices of the system to start the simulation.
 
-- ___service___: Name of the microservice to which the request should be send
-- ___operation___: Name of the operation which should be performed
-- ___interval___: Time interval in seconds in which these requests will be created	
+- **_service_**: Name of the microservice to which the request should be send
+- **_operation_**: Name of the operation which should be performed
+- **_interval_**: Time interval in seconds in which these requests will be created
 
 ### Chaosmonkeys
+
 The _chaosmonkeys_ array holds objects which contain information about chaos monkeys which shut down instances of specified microservices during the simulation.
 
-- ___service___: Name of the service of which you want to shut down a number of instances during the simulation
-- ___instances___: Number of instances you want to shut down during the simulation
-- ___time___: Time point (in seconds) at which you want to shut down the instances of the specified microservie
+- **_service_**: Name of the service of which you want to shut down a number of instances during the simulation
+- **_instances_**: Number of instances you want to shut down during the simulation
+- **_time_**: Time point (in seconds) at which you want to shut down the instances of the specified microservie

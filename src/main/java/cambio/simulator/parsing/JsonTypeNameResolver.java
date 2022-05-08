@@ -1,13 +1,10 @@
 package cambio.simulator.parsing;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.reflections.Reflections;
-import org.reflections.scanners.SubTypesScanner;
+import org.reflections.scanners.Scanners;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 
@@ -43,7 +40,7 @@ public class JsonTypeNameResolver {
                     new ConfigurationBuilder()
                         .setUrls(ClasspathHelper.forPackage(
                             actualBaseClass.getPackage().getName()))
-                        .setScanners(new SubTypesScanner())
+                        .setScanners(Scanners.SubTypes)
                 );
 
                 Set<Class<? extends U>> subtypesOfBaseClass = reflections.getSubTypesOf(actualBaseClass);

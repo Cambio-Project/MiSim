@@ -2,9 +2,9 @@ package cambio.simulator.entities.networking;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-import cambio.simulator.entities.microservice.Microservice;
-import cambio.simulator.entities.microservice.MicroserviceInstance;
-import cambio.simulator.entities.microservice.NoInstanceAvailableException;
+import cambio.simulator.entities.microservice.*;
+import cambio.simulator.export.ReportCollector;
+import cambio.simulator.misc.RNGStorage;
 import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.dist.ContDistNormal;
 import desmoj.core.dist.NumericalDist;
@@ -19,12 +19,12 @@ import desmoj.core.simulator.TimeSpan;
  */
 public class NetworkRequestSendEvent extends NetworkRequestEvent {
 
-    private static final AtomicLong counterSendEvents = new AtomicLong(0);
-    private static NumericalDist<Double> rng;
+    private static final AtomicLong counterSendEvents = new AtomicLong(0); //TODO: remove
+    private final transient  NumericalDist<Double> rng;
     private final Microservice targetService;
     private final MicroserviceInstance targetInstance;
-    private NetworkRequestReceiveEvent receiverEvent;
-    private NetworkRequestTimeoutEvent timeoutEvent;
+    private transient NetworkRequestReceiveEvent receiverEvent;
+    private transient NetworkRequestTimeoutEvent timeoutEvent;
     private boolean isCanceled = false;
 
     public NetworkRequestSendEvent(Model model, String name, boolean showInTrace, Request request,
@@ -44,10 +44,8 @@ public class NetworkRequestSendEvent extends NetworkRequestEvent {
         this.targetInstance = targetInstance;
         request.setSendEvent(this);
 
-        //TODO: remove dirty fix to avoid memory leakage
-        if (rng == null) {
-            rng = new ContDistNormal(getModel(), "DefaultNetworkDelay_RNG", 1.6, 0.6, true, false);
-        }
+        rng = RNGStorage.get(this.getClass().getName(),
+            () -> new ContDistNormal(getModel(), "DefaultNetworkDelay_RNG", 1.6, 0.6, true, false));
     }
 
     public static long getCounterSendEvents() {
@@ -82,6 +80,8 @@ public class NetworkRequestSendEvent extends NetworkRequestEvent {
 
         nextDelay = customizeLatency(nextDelay);
 
+        ReportCollector.NETWORK_LATENCY_REPORTER.addDatapoint("latency", presentTime(), nextDelay);
+
         //Apply custom latency and/or add delay of latency injection
         updateListener.onRequestSend(travelingRequest, presentTime());
         if (isCanceled) {
@@ -101,30 +101,33 @@ public class NetworkRequestSendEvent extends NetworkRequestEvent {
                 targetInstance);
             receiverEvent.schedule(new TimeSpan(nextDelay));
 
-            timeoutEvent =
-                new NetworkRequestTimeoutEvent(getModel(), "Timeout Checker for " + travelingRequest.getPlainName(),
-                    getModel().traceIsOn(), travelingRequest);
-            travelingRequest.addUpdateListener(timeoutEvent);
+            if (!(travelingRequest instanceof UserRequest)) { //User Requests cannot timeout
+                timeoutEvent =
+                    new NetworkRequestTimeoutEvent(getModel(), "Timeout Checker for " + travelingRequest.getPlainName(),
+                        getModel().traceIsOn(), travelingRequest);
+                travelingRequest.addUpdateListener(timeoutEvent);
+            }
 
             travelingRequest.setReceiveEvent(receiverEvent);
         }
     }
 
-    private double customizeLatency(double nextDelay) {
+    private double customizeLatency(final double nextDelay) {
         if (this.travelingRequest instanceof UserRequest) {
             return 0;
         }
 
         double modifiedDelay = nextDelay;
         if (travelingRequest.hasParent()) {
-            NetworkDependency dep = travelingRequest.getParent().getRelatedDependency(travelingRequest);
+            ServiceDependencyInstance dep = travelingRequest.getParent().getRelatedDependency(travelingRequest);
             if (travelingRequest instanceof RequestAnswer) {
-                Request parent = ((RequestAnswer) travelingRequest).unpack();
-                dep = parent.getParent().getRelatedDependency(parent);
+                // Request parent = ((RequestAnswer) travelingRequest).unpack();
+                // dep = parent.getParent().getRelatedDependency(parent);
+                return nextDelay;
             }
 
             if (dep == null) {
-                return modifiedDelay;
+                return nextDelay;
             }
 
             if (dep.hasCustomDelay()) {

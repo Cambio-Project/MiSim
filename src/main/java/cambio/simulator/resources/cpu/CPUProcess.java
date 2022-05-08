@@ -8,7 +8,7 @@ import desmoj.core.simulator.TimeInstant;
  *
  * <p>
  * More specifically, it concentrates on holding information about the total work units totally needed and left to
- * complete the process. Further, there are methods to manipulate the later.
+ * complete the process. Further, there are methods to manipulate the latter.
  *
  * <p>
  * For the purpose of compatibility (e.g. non impacting operations) a demand of {@code 0} is allowed.
@@ -34,7 +34,7 @@ public final class CPUProcess implements Comparable<CPUProcess> {
     /**
      * Creates a {@link CPUProcess} for the given {@link Request}.
      *
-     * @param request {@link Request} that should be represent by this process.
+     * @param request {@link Request} that should be represented by this process.
      */
     public CPUProcess(Request request) {
         this(request.operation.getDemand(), request);
@@ -119,7 +119,7 @@ public final class CPUProcess implements Comparable<CPUProcess> {
     }
 
     /**
-     * Cancels the current Burst of the this process and reset its progress.
+     * Cancels the current Burst of this process and reset its progress.
      */
     public void cancel() {
         if (currentBurstCompletionEvent != null) {

@@ -12,14 +12,15 @@ import desmoj.core.simulator.Model;
  */
 public class HalfOpenBreakerEvent extends NamedExternalEvent {
 
-    private final CircuitBreakerState stateToChange;
+    private final ICircuitBreakerState stateToChange;
 
     /**
      * Constructs a new {@link HalfOpenBreakerEvent}.
      *
      * @param stateToChange circuit breaker that should change its state to half-open
      */
-    public HalfOpenBreakerEvent(Model model, String name, boolean showInTrace, CircuitBreakerState stateToChange) {
+    public HalfOpenBreakerEvent(Model model, String name, boolean showInTrace,
+                                ICircuitBreakerState stateToChange) {
         super(model, name, showInTrace);
         this.stateToChange = stateToChange;
         setSchedulingPriority(Priority.IMMEDIATELY_ON_TARGETED_TIME);

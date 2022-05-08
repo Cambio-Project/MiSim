@@ -1,17 +1,17 @@
 package cambio.simulator.entities.patterns;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 import cambio.simulator.entities.microservice.MicroserviceInstance;
 import cambio.simulator.entities.microservice.NoInstanceAvailableException;
+import cambio.simulator.models.MiSimModel;
 import cambio.simulator.parsing.JsonTypeName;
+import desmoj.core.simulator.Model;
 
 @JsonTypeName("random")
 final class RandomLoadBalanceStrategy implements ILoadBalancingStrategy {
 
-    //TODO: inject random seed
+    private Random rng = null;
 
     /**
      * Returns a random Microservice Instance of given Collection.
@@ -26,12 +26,11 @@ final class RandomLoadBalanceStrategy implements ILoadBalancingStrategy {
             throw new NoInstanceAvailableException();
         }
 
-        int targetIndex = (int) (Math.random() * runningInstances.size());
-
+        int targetIndex = (int) (rng.nextDouble() * runningInstances.size());
 
         //use (hopefully) optimized implementation of get
-        if (runningInstances instanceof List) {
-            return ((ArrayList<MicroserviceInstance>) runningInstances).get(targetIndex);
+        if (runningInstances instanceof ArrayList) {
+            return ((List<MicroserviceInstance>) runningInstances).get(targetIndex);
         }
 
         //otherwise, we iterate to the searched index
@@ -43,5 +42,14 @@ final class RandomLoadBalanceStrategy implements ILoadBalancingStrategy {
 
         //this case can never be reached
         throw new AssertionError();
+    }
+
+    @Override
+    public void onInitializedCompleted(Model model) {
+        try {
+            rng = new Random(((MiSimModel) model).getExperimentMetaData().getSeed());
+        } catch (ClassCastException e) {
+            rng = new Random();
+        }
     }
 }

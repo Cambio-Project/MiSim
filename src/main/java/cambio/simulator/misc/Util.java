@@ -1,6 +1,8 @@
 package cambio.simulator.misc;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -12,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
  *
  * @author Lion Wagner
  */
-public class Util {
+public final class Util {
 
     /**
      * Checks whether a number is greater than 0.
@@ -145,5 +147,22 @@ public class Util {
         } catch (NoSuchFieldException | IllegalAccessException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Gets the declared fields of this class and all of its Superclasses.
+     *
+     * @param clazz {@link Class} which fields should be
+     * @return all {@link Field}s that are contained within the given {@link Class} and its superclasses.
+     */
+    public static Field[] getAllFields(Class<?> clazz) {
+        ArrayList<Field> list = new ArrayList<>();
+        Class<?> currentClass = clazz;
+
+        while (currentClass != null) {
+            list.addAll(Arrays.asList(currentClass.getDeclaredFields()));
+            currentClass = currentClass.getSuperclass();
+        }
+        return list.toArray(new Field[0]);
     }
 }

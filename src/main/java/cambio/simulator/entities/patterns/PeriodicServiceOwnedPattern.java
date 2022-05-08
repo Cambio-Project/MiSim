@@ -27,7 +27,7 @@ public abstract class PeriodicServiceOwnedPattern extends ServiceOwnedPattern im
     }
 
     @Override
-    public void onInitializedCompleted() {
+    public void onInitializedCompleted(Model model) {
         scheduler = new PeriodicPatternScheduler(getModel(), this, start, stop, period);
         scheduler.activate(new TimeInstant(start));
     }

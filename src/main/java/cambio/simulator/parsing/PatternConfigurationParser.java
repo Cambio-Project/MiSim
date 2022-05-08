@@ -1,15 +1,9 @@
 package cambio.simulator.parsing;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
+import java.lang.reflect.*;
 import java.util.Arrays;
 
-import cambio.simulator.entities.patterns.IPatternLifeCycleHooks;
-import cambio.simulator.entities.patterns.IStrategy;
-import cambio.simulator.entities.patterns.IStrategyAcceptor;
-import cambio.simulator.entities.patterns.InstanceOwnedPattern;
-import cambio.simulator.entities.patterns.ServiceOwnedPattern;
+import cambio.simulator.entities.patterns.*;
 import com.google.gson.Gson;
 import desmoj.core.simulator.Model;
 import org.jetbrains.annotations.NotNull;
@@ -23,7 +17,7 @@ public class PatternConfigurationParser {
 
     /**
      * Resolves a {@link TypeNameAssociatedConfigurationData} into a pattern instance. If a strategy configuration is
-     * given, it will also be resolved into an {@link IStrategy} object and assigend using the {@link
+     * given, it will also be resolved into an {@link IStrategy} object and assigned using the {@link
      * IStrategyAcceptor#setStrategy(IStrategy)} method.
      *
      * @param model             underlying model
@@ -106,6 +100,7 @@ public class PatternConfigurationParser {
 
                 // noinspection  unchecked
                 ((IStrategyAcceptor<IStrategy>) patternInstance).setStrategy(strategyObject);
+                strategyObject.onInitializedCompleted(model);
 
             } else {
                 System.out.printf("[Warning] No strategy information was given for a %s configuration. If no default"
@@ -114,7 +109,7 @@ public class PatternConfigurationParser {
             }
         }
 
-        patternInstance.onInitializedCompleted();
+        patternInstance.onInitializedCompleted(model);
         return patternInstance;
     }
 

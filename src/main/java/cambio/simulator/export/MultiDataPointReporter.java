@@ -1,8 +1,6 @@
 package cambio.simulator.export;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import desmoj.core.report.Reporter;
 import desmoj.core.simulator.TimeInstant;
@@ -88,4 +86,12 @@ public class MultiDataPointReporter extends Reporter {
         dataSets.clear();
     }
 
+
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName()
+            + "{"
+            + "datasetsPrefix='" + datasetsPrefix + '\''
+            + '}';
+    }
 }

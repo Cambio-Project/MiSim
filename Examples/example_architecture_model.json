@@ -67,11 +67,15 @@
         {
           "type": "retry",
           "config": {
-            "maxTries": 5,
-            "baseBackoff": 0.02,
-            "maxBackoff": 1,
-            "base": 2,
-            "jittering": true
+            "maxTries": 5
+          },
+          "strategy": {
+            "type": "jittering",
+            "config": {
+              "baseBackoff": 0.02,
+              "maxBackoff": 1,
+              "base": 2
+            }
           }
         },
         {

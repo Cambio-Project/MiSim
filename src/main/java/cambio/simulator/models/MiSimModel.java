@@ -4,11 +4,10 @@ import java.io.File;
 import java.time.LocalDateTime;
 
 import cambio.simulator.entities.microservice.Microservice;
-import cambio.simulator.events.FinishEvent;
 import cambio.simulator.events.ISelfScheduled;
-import cambio.simulator.export.MultiDataPointReporter;
+import cambio.simulator.events.SimulationEndEvent;
 import cambio.simulator.parsing.ModelLoader;
-import desmoj.core.simulator.Model;
+import desmoj.core.simulator.*;
 
 /**
  * Main model that contains architectural and experiment descriptions/data.
@@ -17,62 +16,57 @@ import desmoj.core.simulator.Model;
  */
 public class MiSimModel extends Model {
 
-    /**
-     * general reporter, can be used if objects/classes do not want to create their own reporter or use a common
-     * reporter.
-     */
-    public static MultiDataPointReporter generalReporter = new MultiDataPointReporter();
-
-    private final transient File architectureModelLocation;
-    private final transient File experimentModelOrScenarioLocation;
     //exp meta data
-    private final transient ExperimentMetaData experimentMetaData;
+    private final ExperimentMetaData experimentMetaData;
     //arch model
-    private transient ArchitectureModel architectureModel;
+    private ArchitectureModel architectureModel;
     //exp model
-    private transient ExperimentModel experimentModel;
+    private ExperimentModel experimentModel;
 
     /**
-     * Creates a new MiSimModel and load the meta data from the experiment description.
+     * Creates a new MiSimModel and loads the metadata from the experiment model.
+     *
+     * <p>
+     * Use {@link #connectToExperiment(Experiment)} to initialize the model.
      *
      * @param architectureModelLocation         Location of the architectural description.
      * @param experimentModelOrScenarioLocation Location of the experiment description.
      */
     public MiSimModel(File architectureModelLocation, File experimentModelOrScenarioLocation) {
-        super(null, "MiSimModel", true, true);
-        this.architectureModelLocation = architectureModelLocation;
-        this.experimentModelOrScenarioLocation = experimentModelOrScenarioLocation;
-
-        long startTime = System.currentTimeMillis();
+        super(null, "MiSimModel", false, false);
+        long startTime = System.nanoTime();
         this.experimentMetaData =
             ModelLoader.loadExperimentMetaData(experimentModelOrScenarioLocation, architectureModelLocation);
-        experimentMetaData.setDurationOfMetaDataLoading(System.currentTimeMillis() - startTime);
+        this.experimentMetaData.markStartOfSetup(startTime);
     }
 
 
     @Override
     public String description() {
+        //TODO: replace this with actual description instead of simply its name
         return experimentMetaData.getModelName();
     }
 
 
     @Override
     public void init() {
-        this.experimentMetaData.markStartOfSetup(System.currentTimeMillis());
         this.architectureModel = ModelLoader.loadArchitectureModel(this);
         this.experimentModel = ModelLoader.loadExperimentModel(this);
         this.experimentMetaData.setStartDate(LocalDateTime.now());
-        this.experimentMetaData.markEndOfSetup(System.currentTimeMillis());
     }
 
     @Override
     public void doInitialSchedules() {
+        this.experimentMetaData.markStartOfExperiment(System.nanoTime());
+
         architectureModel.getMicroservices().forEach(Microservice::start);
 
         for (ISelfScheduled selfScheduledEvent : experimentModel.getAllSelfSchedulesEntities()) {
             selfScheduledEvent.doInitialSelfSchedule();
         }
-        new FinishEvent(this, "FinisherEvent", true);
+        SimulationEndEvent simulationEndEvent =
+            new SimulationEndEvent(this, SimulationEndEvent.class.getSimpleName(), true);
+        simulationEndEvent.schedule(new TimeInstant(this.experimentMetaData.getDuration()));
     }
 
 

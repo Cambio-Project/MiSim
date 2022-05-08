@@ -1,13 +1,14 @@
 package cambio.simulator.parsing;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.io.File;
 
 import cambio.simulator.models.ExperimentMetaData;
 import cambio.simulator.models.MiSimModel;
-import cambio.simulator.testutils.FileLoaderUtil;
+import cambio.simulator.test.FileLoaderUtil;
 import desmoj.core.simulator.Experiment;
 import desmoj.core.simulator.TimeInstant;
 import org.junit.jupiter.api.Assertions;
@@ -36,21 +37,17 @@ class ModelLoaderTest {
 
     private void testMetaDataParsing(File experimentFileLocation) {
         File archFileLocation = new File("derp/derp/derp");
-        long currTime = System.currentTimeMillis();
         ExperimentMetaData data = ModelLoader.loadExperimentMetaData(experimentFileLocation, archFileLocation);
-        data.markStartOfSetup(currTime);
-        long currTime2 = System.currentTimeMillis();
-        data.markEndOfSetup(currTime2);
 
         assertNull(data.getStartTimestamp());
-        assertEquals(archFileLocation.getAbsolutePath(), data.getArchFileLocation().getAbsolutePath());
-        assertEquals(experimentFileLocation.getAbsolutePath(), data.getExpFileLocation().getAbsolutePath());
+        assertEquals(archFileLocation.getAbsolutePath(), data.getArchitectureDescriptionLocation().getAbsolutePath());
+        assertEquals(experimentFileLocation.getAbsolutePath(),
+            data.getExperimentDescriptionLocation().getAbsolutePath());
         assertEquals("New Experiment", data.getExperimentName());
         assertEquals("Contains examples for the new Experiment format", data.getDescription());
         assertEquals(42, data.getSeed());
         assertEquals(180, data.getDuration());
-        assertEquals(currTime2 - currTime, data.getDurationOfSetupMS());
-        assertEquals(new File("/Report_42/").getAbsolutePath(), data.getReportLocation().getAbsolutePath());
+        assertEquals(new File("/Report_42/").getAbsolutePath(), data.getReportBaseDirectory().toAbsolutePath().toString());
         assertEquals("continuous", data.getReportType());
     }
 
@@ -83,6 +80,7 @@ class ModelLoaderTest {
         expDummy.finish();
 
         assertEquals(5, model.getExperimentModel().getAllSelfSchedulesEntities().size());
+        assertFalse(expDummy.hasError());
     }
 
     @Test
@@ -101,6 +99,6 @@ class ModelLoaderTest {
 
 
         assertEquals(7, model.getExperimentModel().getAllSelfSchedulesEntities().size());
-
+        assertFalse(expDummy.hasError());
     }
 }

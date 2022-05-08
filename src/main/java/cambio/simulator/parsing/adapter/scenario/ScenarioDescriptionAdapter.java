@@ -42,7 +42,7 @@ public class ScenarioDescriptionAdapter extends MiSimModelReferencingTypeAdapter
         try {
             parse = scenarioDescription.parse(model);
         } catch (Exception e) {
-            throw new ParsingException("Could not parse into Scenario.");
+            throw new ParsingException("Could not parse into Scenario.", e);
         }
         return parse;
     }

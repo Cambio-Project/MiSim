@@ -27,14 +27,6 @@
         "interval": 5,
         "target_operation": "gateway.PING"
       }
-    },
-    {
-      "type": "interval",
-      "config": {
-        "arrival_time": 0,
-        "duration": 20,
-        "interval": 3
-      }
     }
   ],
   "monkey_number_one": {

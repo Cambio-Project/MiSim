@@ -48,7 +48,7 @@ class NormalDistributionAdapterTest {
 
     private void executeConstantDistTest(String input, double expectedValue) {
         ContDistNormal dist = grabParsedValue(input);
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 200; i++) {
             assertEquals(expectedValue, dist.sample());
         }
     }

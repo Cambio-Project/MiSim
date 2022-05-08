@@ -1,7 +1,6 @@
 package cambio.simulator.export;
 
 import java.nio.file.Path;
-import java.util.Map;
 import java.util.TreeMap;
 
 /**
@@ -16,10 +15,9 @@ public class ReportWriter {
      */
     public static void writeReporterCollectorOutput(TreeMap<String, TreeMap<Double, Object>> data,
                                                     Path reportLocation) {
-        for (Map.Entry<String, TreeMap<Double, Object>> dataset : data.entrySet()) {
-            CSVExporter.writeDataset(dataset.getKey(), dataset.getValue(), reportLocation);
-            //TODO: custom names for value column at CSVExporter#writeDataset(String,String,Map)
-        }
+        //TODO: custom names for value column at CSVExporter#writeDataset(String,String,Map)
+        data.entrySet().parallelStream()
+            .forEach(dataset -> CSVExporter.writeDataset(dataset.getKey(), dataset.getValue(), reportLocation));
     }
 
 }
