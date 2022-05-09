@@ -21,6 +21,7 @@ public class ChaosMonkeyEvent extends SelfScheduledExperimentAction {
     private int instances = Integer.MAX_VALUE;
 
     @Expose
+    @SerializedName(value = "microservice", alternate = {"microservice_name", "target"})
     private Microservice microservice;
 
     public ChaosMonkeyEvent(Model model, String name, boolean showInTrace) {
