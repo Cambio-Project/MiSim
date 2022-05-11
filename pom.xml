@@ -11,9 +11,11 @@
     <url>https://github.com/Cambio-Project/MiSim</url>
 
     <properties>
-        <maven.compiler.target>1.8</maven.compiler.target>
-        <maven.compiler.source>1.8</maven.compiler.source>
-
+        <junit.version>5.8.2</junit.version>
+        <mockito.version>4.3.1</mockito.version>
+        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <java.version>17</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <gson.version>2.9.1</gson.version>
         <javatuples.version>1.2</javatuples.version>
@@ -46,12 +48,21 @@
     <!--Project local maven repository, containing external jars-->
     <repositories>
         <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+        <repository>
             <id>LocalLibs</id>
             <url>file://${project.basedir}/libraries/</url>
         </repository>
     </repositories>
 
     <dependencies>
+        <dependency>
+            <groupId>com.github.Cambio-Project</groupId>
+            <artifactId>TL-Tea</artifactId>
+            <version>0.2</version>
+        </dependency>
 
         <!-- util -->
         <dependency>
