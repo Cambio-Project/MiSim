@@ -196,7 +196,7 @@ public final class ScenarioDescription {
                     }
                 }
             );
-        } else if (currentStimulus.startsWith("RESTART")|| currentStimulus.startsWith("START")) {
+        } else if (currentStimulus.startsWith("RESTART") || currentStimulus.startsWith("START")) {
             int instances = Integer.parseInt(currentStimulus.replaceAll("(RE)?START", "").trim());
 
 

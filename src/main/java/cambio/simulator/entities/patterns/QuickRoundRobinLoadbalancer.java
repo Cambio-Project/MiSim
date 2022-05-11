@@ -14,7 +14,10 @@ import cambio.simulator.parsing.JsonTypeName;
  *
  * @author Lion Wagner
  */
-@JsonTypeName(value = "round-robin_fast", alternativeNames = {"round_robin_quick", "round_robin_fast", "roundrobin_fast"})
+@JsonTypeName(value = "round-robin_fast", alternativeNames = {
+    "round_robin_quick",
+    "round_robin_fast",
+    "roundrobin_fast"})
 public class QuickRoundRobinLoadbalancer implements ILoadBalancingStrategy {
 
     Queue<MicroserviceInstance> queue = new ArrayDeque<>();
