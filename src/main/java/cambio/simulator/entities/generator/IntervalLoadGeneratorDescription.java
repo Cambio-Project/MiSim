@@ -11,7 +11,7 @@ import com.google.gson.annotations.SerializedName;
  *
  * @author Lion Wagner
  */
-@JsonTypeName("interval")
+@JsonTypeName(value = "interval", alternativeNames = {"constant", "fixed"})
 public final class IntervalLoadGeneratorDescription extends LoadGeneratorDescription {
 
     @SerializedName(value = "interval", alternate = {"inter_arrival_time"})

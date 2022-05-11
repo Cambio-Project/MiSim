@@ -21,7 +21,7 @@ import org.javatuples.Pair;
  * @author Lion Wagner
  * @see <a href="https://se.informatik.uni-wuerzburg.de/software-engineering-group/tools/limbo/">LIMBO Website</a>
  */
-@JsonTypeName(value = "limbo", alternativeNames = {"limbo_generator"})
+@JsonTypeName(value = "limbo", alternativeNames = {"limbo_generator", "dynamic", "variable"})
 public class LimboLoadGeneratorDescription extends LoadGeneratorDescription {
 
     @SerializedName(value = "model", alternate = {"limbo_model", "limbo_file", "file", "limbo", "profile"})

@@ -13,7 +13,7 @@ public final class ExperimentStartupConfig {
     @CLIOption(
         opt = "a",
         longOpt = "arch_desc",
-        description = "file path to an architectural description",
+        description = "File path to an architectural description.",
         hasArg = true,
         required = true)
     private final String archDescLoc;
@@ -21,7 +21,7 @@ public final class ExperimentStartupConfig {
     @CLIOption(
         opt = "e",
         longOpt = "exp_desc",
-        description = "file path to an experiment description",
+        description = "File path to an experiment description.",
         hasArg = true,
         optionGroup = "experiment",
         optionGroupRequired = true)
@@ -30,7 +30,7 @@ public final class ExperimentStartupConfig {
     @CLIOption(
         opt = "s",
         longOpt = "scenario_desc",
-        description = "file path to a scenario description",
+        description = "File path to a scenario description.",
         hasArg = true,
         optionGroup = "experiment",
         optionGroupRequired = true)
@@ -40,7 +40,7 @@ public final class ExperimentStartupConfig {
         opt = "o",
         longOpt = "out",
         description = "Report Location Directory. Creates a new directory with "
-            + "experiment name and start timestamp for each experiment.",
+            + "experiment name and start timestamp for each experiment run.",
         hasArg = true)
     private final String reportLocation;
 
