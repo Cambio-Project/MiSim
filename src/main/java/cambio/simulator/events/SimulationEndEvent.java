@@ -32,7 +32,7 @@ public class SimulationEndEvent extends NamedExternalEvent {
     }
 
     @Override
-    public void eventRoutine() throws SuspendExecution {
+    public void onRoutineExecution() throws SuspendExecution {
         model.getArchitectureModel().getMicroservices().forEach(Microservice::finalizeStatistics);
         MiSimReporters.finalizeReports();
 

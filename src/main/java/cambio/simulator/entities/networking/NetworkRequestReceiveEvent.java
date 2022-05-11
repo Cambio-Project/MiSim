@@ -24,7 +24,7 @@ public class NetworkRequestReceiveEvent extends NetworkRequestEvent {
     }
 
     @Override
-    public void eventRoutine() throws SuspendExecution {
+    public void onRoutineExecution() throws SuspendExecution {
         travelingRequest.stampReceivedAtHandler(presentTime());
 
         try {

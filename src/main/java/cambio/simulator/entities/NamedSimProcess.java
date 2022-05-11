@@ -1,5 +1,7 @@
 package cambio.simulator.entities;
 
+import cambio.simulator.EventBus;
+import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.SimProcess;
 
@@ -64,6 +66,11 @@ public abstract class NamedSimProcess extends SimProcess {
         this.plainName = name;
         this.quotedPlainName = "'" + name + "'";
         this.quotedName = super.getQuotedName();
+    }
+
+    @Override
+    public void lifeCycle() throws SuspendExecution {
+        EventBus.post(this);
     }
 
     /**

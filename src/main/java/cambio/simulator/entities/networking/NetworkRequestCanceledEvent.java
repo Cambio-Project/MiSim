@@ -35,8 +35,9 @@ public class NetworkRequestCanceledEvent extends NetworkRequestEvent {
     }
 
     @Override
-    public void eventRoutine() throws SuspendExecution {
-        sendTraceNote("Request " + travelingRequest.getQuotedName() + " was not handled. Cause: " + reason);
+    public void onRoutineExecution() throws SuspendExecution {
+        sendTraceNote(
+            String.format("Request %s was not handled. Cause: %s", travelingRequest.getQuotedName(), reason));
         if (details != null) {
             sendTraceNote("Details: " + details);
         }

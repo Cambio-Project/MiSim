@@ -52,7 +52,7 @@ public class ChaosMonkeyEvent extends SelfScheduledExperimentAction {
      * Also tries to note the remaining number of instances in the trace.
      */
     @Override
-    public void eventRoutine() throws SuspendExecution {
+    public void onRoutineExecution() throws SuspendExecution {
 
         if (microservice == null) {
             throw new IllegalStateException(

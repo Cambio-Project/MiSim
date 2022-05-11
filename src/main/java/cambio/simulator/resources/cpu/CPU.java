@@ -140,7 +140,7 @@ public class CPU extends NamedExternalEvent {
      * @see ComputationBurstCompletedEvent
      */
     @Override
-    public void eventRoutine() throws SuspendExecution {
+    public void onRoutineExecution() throws SuspendExecution {
         while (hasProcessAndThreadReady()) {
             Pair<CPUProcess, Integer> next = scheduler.retrieveNextProcessNoReschedule();
             CPUProcess nextProcess = next.getValue0();
@@ -205,7 +205,7 @@ public class CPU extends NamedExternalEvent {
     /**
      * Reschedules the {@code eventRoutine} immediately.
      *
-     * @see CPU#eventRoutine()
+     * @see CPU#onRoutineExecution()
      */
     private void forceScheduleNow() {
         if (this.isScheduled()) {

@@ -25,7 +25,7 @@ public class MicroserviceScaleEvent extends NamedExternalEvent {
     }
 
     @Override
-    public void eventRoutine() throws SuspendExecution {
+    public void onRoutineExecution() throws SuspendExecution {
         microservice.scaleToInstancesCount(targetInstanceCount);
     }
 

@@ -46,7 +46,7 @@ public class SummonerMonkeyEvent extends SelfScheduledExperimentAction {
      * Microservice}.
      */
     @Override
-    public void eventRoutine() throws SuspendExecution {
+    public void onRoutineExecution() throws SuspendExecution {
         microservice.scaleToInstancesCount(microservice.getInstancesCount() + instances);
 
         sendTraceNote("Summoner Monkey " + getQuotedName() + " was executed.");

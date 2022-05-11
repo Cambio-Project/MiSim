@@ -58,7 +58,7 @@ public class NetworkRequestSendEvent extends NetworkRequestEvent {
     }
 
     @Override
-    public void eventRoutine() throws SuspendExecution {
+    public void onRoutineExecution() throws SuspendExecution {
         travelingRequest.stampSendoff(presentTime());
 
         counterSendEvents.getAndIncrement();

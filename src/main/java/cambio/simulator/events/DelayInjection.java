@@ -84,7 +84,7 @@ public class DelayInjection extends SelfScheduledExperimentAction {
     }
 
     @Override
-    public void eventRoutine() {
+    public void onRoutineExecution() {
         microservice.applyDelay(delayDistribution, operationSrc, operationTrg);
         if (duration > 0) {
             new ExternalEvent(getModel(), "LatencyMonkeyDeactivator", this.traceIsOn()) {

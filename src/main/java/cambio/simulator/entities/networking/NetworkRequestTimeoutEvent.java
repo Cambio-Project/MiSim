@@ -30,7 +30,7 @@ public class NetworkRequestTimeoutEvent extends NetworkRequestEvent implements I
     }
 
     @Override
-    public void eventRoutine() throws SuspendExecution {
+    public void onRoutineExecution() throws SuspendExecution {
         if (canceled) {
             return;
         }

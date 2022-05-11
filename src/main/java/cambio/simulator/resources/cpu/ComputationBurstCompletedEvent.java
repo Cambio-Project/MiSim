@@ -39,7 +39,7 @@ public class ComputationBurstCompletedEvent extends NamedExternalEvent {
     }
 
     @Override
-    public void eventRoutine() throws SuspendExecution {
+    public void onRoutineExecution() throws SuspendExecution {
 
         endingProcess.reduceDemandRemainder(completedDemand);
 
