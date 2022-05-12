@@ -168,27 +168,25 @@ public final class ScenarioDescription {
             throw new ParsingException(String.format("Could not find target service '%s'", artifact));
         }
 
-        if (currentStimulus.startsWith("KILL")) {
+        String[] stimuliArray = currentStimulus.split(" ");
 
-            String[] stimuliArray = currentStimulus.split(" ");
+        int instances = Integer.MAX_VALUE;
 
-            int instances = Integer.MAX_VALUE;
-
-            if (stimuliArray.length == 2) {
-                try {
-                    instances = Integer.parseInt(stimuliArray[1]);
-                } catch (NumberFormatException e) {
-                    service = NameResolver.resolveMicroserviceName(model, stimuliArray[1]);
-                }
-            } else if (stimuliArray.length == 3) {
+        if (stimuliArray.length == 2) {
+            try {
+                instances = Integer.parseInt(stimuliArray[1]);
+            } catch (NumberFormatException e) {
                 service = NameResolver.resolveMicroserviceName(model, stimuliArray[1]);
-                instances = Integer.parseInt(stimuliArray[2]);
-            } else if (stimuliArray.length != 1) {
-                throw new ParsingException("KILL was not defined correctly (KILL [<service_name>] "
-                    + "[<#instances>]@<target_time>)");
             }
+        } else if (stimuliArray.length == 3) {
+            service = NameResolver.resolveMicroserviceName(model, stimuliArray[1]);
+            instances = Integer.parseInt(stimuliArray[2]);
+        } else if (stimuliArray.length != 1) {
+            throw new ParsingException("Command was not defined correctly (KILL/START/RESTART [<service_name>] "
+                + "[<#instances>]@<target_time>)");
+        }
 
-
+        if (currentStimulus.startsWith("KILL")) {
             scheduables.add(
                 new ChaosMonkeyEvent(model, "Chaosmonkey", true, service, instances) {
                     {
@@ -197,9 +195,6 @@ public final class ScenarioDescription {
                 }
             );
         } else if (currentStimulus.startsWith("RESTART") || currentStimulus.startsWith("START")) {
-            int instances = Integer.parseInt(currentStimulus.replaceAll("(RE)?START", "").trim());
-
-
             scheduables.add(
                 new SummonerMonkeyEvent(model, "Summoner", true, service, instances) {
                     {
