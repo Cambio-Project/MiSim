@@ -19,6 +19,7 @@ public class ExperimentMetaData {
     private int seed = new Random().nextInt();
 
     private String reportType = "default";
+    //TODO: report overwrite
 
     @SerializedName(value = "duration", alternate = {"experiment_duration"})
     private double duration = Double.POSITIVE_INFINITY;

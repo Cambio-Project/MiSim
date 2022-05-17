@@ -41,8 +41,17 @@ public class ExperimentStartupConfig {
         longOpt = "out",
         description = "Report Location Directory. Creates a new directory with "
             + "experiment name and start timestamp for each experiment run.",
-        hasArg = true)
+        hasArg = true,
+        optionGroup = "output")
     private final String reportLocation;
+
+    @CLIOption(
+        opt = "O",
+        longOpt = "overwrite_out",
+        description = "Report Location Directory. Is cleared of data before the experiment ",
+        hasArg = true,
+        optionGroup = "output")
+    private final String reportOverwriteLocation;
 
     @CLIOption(
         opt = "p",
@@ -71,21 +80,25 @@ public class ExperimentStartupConfig {
      * An expDescLoc or scenario have to be given. If an expDescLoc is given the scenario will be ignored. Boolean
      * default values are always {@code false}.
      *
-     * @param archDescLoc     mandatory path to an architecture description
-     * @param expDescLoc      path to an experiment description
-     * @param scenario        path to a scenario description
-     * @param reportLocation  directory path ot
-     * @param showProgressBar when this option is set to true, a progressbar window is shown during the simulation
-     *                        (setting this option disables headless mode and requires a display output)
-     * @param debug     enables debug output
+     * @param archDescLoc             mandatory path to an architecture description
+     * @param expDescLoc              path to an experiment description
+     * @param scenario                path to a scenario description
+     * @param reportLocation          directory path ot
+     * @param reportOverwriteLocation
+     * @param showProgressBar         when this option is set to true, a progressbar window is shown during the
+     *                                simulation (setting this option disables headless mode and requires a display
+     *                                output)
+     * @param debug                   enables debug output
      */
     public ExperimentStartupConfig(@NotNull String archDescLoc, String expDescLoc, String scenario,
                                    String reportLocation,
-                                   boolean showProgressBar, boolean debug, boolean traces) {
+                                   String reportOverwriteLocation, boolean showProgressBar, boolean debug,
+                                   boolean traces) {
         this.archDescLoc = archDescLoc;
         this.expDescLoc = expDescLoc;
         this.scenario = scenario;
         this.reportLocation = reportLocation;
+        this.reportOverwriteLocation = reportOverwriteLocation;
         this.showProgressBar = showProgressBar;
         this.debug = debug;
         this.noTraces = !traces;
@@ -110,7 +123,11 @@ public class ExperimentStartupConfig {
     }
 
     public String getReportLocation() {
-        return reportLocation;
+        return reportLocation != null ? reportLocation : reportOverwriteLocation;
+    }
+
+    public boolean isOverwriteReportPath() {
+        return reportOverwriteLocation != null;
     }
 
     public boolean showProgressBarOn() {

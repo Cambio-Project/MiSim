@@ -115,8 +115,7 @@ public final class Main {
      * <p>
      * For exit code meanings, see {@link #main(String[])}.
      *
-     * @param args program options, see {@link ExperimentStartupConfig#ExperimentStartupConfig(String, String, String,
-     *             String, boolean, boolean, boolean)}
+     * @param args program options, see {@link ExperimentStartupConfig}
      * @see #main(String[])
      * @see #runExperiment(String)
      * @see #runExperiment(ExperimentStartupConfig)

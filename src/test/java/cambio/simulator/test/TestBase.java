@@ -2,6 +2,7 @@ package cambio.simulator.test;
 
 import static com.github.stefanbirkner.systemlambda.SystemLambda.catchSystemExit;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.io.File;
 import java.io.IOException;
@@ -80,7 +81,7 @@ public class TestBase {
                                                     String... additionalArgs) {
         File dir = createTempOutputDir();
         String[] allArgs = new String[additionalArgs.length + 2];
-        allArgs[0] = "-o";
+        allArgs[0] = "-O";
         allArgs[1] = dir.getAbsolutePath();
         System.arraycopy(additionalArgs, 0, allArgs, 2, additionalArgs.length);
         runSimulationCheckExit(expectedExitCode, arch, exp, allArgs);
