@@ -7,9 +7,7 @@
 
 # MiSim - Microservice Resilience Simulator
 
-This simulator was created as part of two Bachelor Thesis and a Fachstudie __Simulation-based Resilience Prediction of Microservice Architectures__ at the Software Quality Group of the Institute of Software Engineering at the University of Stuttgart.
-
-It allows the simulation of microservice architectures in regard to resilience and is based on the [DesmoJ](http://desmoj.sourceforge.net) framework for discrete event modelling and simulation. 
+MiSim allows the simulation of microservice architectures in regard to resilience and is based on the [DesmoJ](http://desmoj.sourceforge.net) framework for discrete event modelling and simulation. 
 
 **Table of contents:**
 - [Installation](#Installation)
