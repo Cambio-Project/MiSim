@@ -9,7 +9,7 @@ import cambio.simulator.parsing.JsonTypeName;
 import desmoj.core.simulator.Model;
 
 @JsonTypeName("random")
-final class RandomLoadBalanceStrategy implements ILoadBalancingStrategy {
+public final class RandomLoadBalanceStrategy implements ILoadBalancingStrategy {
 
     private Random rng = null;
 

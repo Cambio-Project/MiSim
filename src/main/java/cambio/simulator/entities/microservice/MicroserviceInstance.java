@@ -56,7 +56,7 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
     private long waiting = 0;
 
 
-    MicroserviceInstance(Model model, String name, boolean showInTrace, Microservice microservice,
+    public MicroserviceInstance(Model model, String name, boolean showInTrace, Microservice microservice,
                          int instanceID) {
         super(model, name, showInTrace);
         this.owner = microservice;
@@ -72,7 +72,7 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
         this.addUpdateListener(this);
     }
 
-    void activatePatterns(InstanceOwnedPatternConfiguration[] patterns) {
+    public void activatePatterns(InstanceOwnedPatternConfiguration[] patterns) {
         this.patterns = Arrays.stream(patterns)
             .map(patternData -> patternData.getPatternInstance(this))
             .filter(Objects::nonNull)
@@ -211,7 +211,7 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
         } else if (request.getDependencies().isEmpty() || request.areDependenciesCompleted()) {
             waiting--;
             CPUProcess newProcess = new CPUProcess(request);
-            cpu.submitProcess(newProcess);
+            submitProcessToCPU(newProcess);
         } else {
             for (ServiceDependencyInstance dependency : request.getDependencies()) {
                 currentlyOpenDependencies.add(dependency);
@@ -222,6 +222,10 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
                 sendTraceNote(String.format("Try 1, send Request: %s ", internalRequest.getQuotedPlainName()));
             }
         }
+    }
+
+    protected void submitProcessToCPU(CPUProcess newProcess) {
+        cpu.submitProcess(newProcess);
     }
 
 
@@ -448,5 +452,17 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
         currentRequestsToHandle.remove(parentToCancel);
         waiting--;
         notComputed--;
+    }
+
+    public CPU getCpu() {
+        return cpu;
+    }
+
+    public Set<InstanceOwnedPattern> getPatterns() {
+        return patterns;
+    }
+
+    public void setState(InstanceState state) {
+        this.state = state;
     }
 }

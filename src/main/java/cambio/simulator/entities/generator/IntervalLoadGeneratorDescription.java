@@ -91,4 +91,12 @@ public final class IntervalLoadGeneratorDescription extends LoadGeneratorDescrip
             }
         }
     }
+
+    public double getInterval() {
+        return interval;
+    }
+
+    public void setInterval(double interval) {
+        this.interval = interval;
+    }
 }

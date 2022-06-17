@@ -39,22 +39,24 @@ import desmoj.core.simulator.Model;
  * @see InstanceOwnedPattern
  */
 public class Microservice extends NamedEntity {
-    private final transient Set<MicroserviceInstance> instancesSet =
+    protected final transient Set<MicroserviceInstance> instancesSet =
         new TreeSet<>(Comparator.comparingInt(MicroserviceInstance::getInstanceID));
-    private final transient MultiDataPointReporter reporter;
+    protected final transient MultiDataPointReporter reporter;
     private final transient AccumulativeDataPointReporter accReporter;
 
     @Expose
     @SerializedName(value = "loadbalancer_strategy", alternate = {"load_balancer", "loadbalancer"})
     private final LoadBalancer loadBalancer;
-    private transient boolean started = false;
-    private transient int instanceSpawnCounter = 0; // running counter to create instance ID's
+    protected transient boolean started = false;
+    protected transient int instanceSpawnCounter = 0; // running counter to create instance ID's
 
     @Expose
     @SerializedName(value = "name")
     private String plainName = "";
+
     @Expose
     private int capacity = 1;
+
     @Expose
     @SerializedName(value = "instances", alternate = {"starting_instance_count", "starting_instances"})
     private int startingInstanceCount = 1;
@@ -65,7 +67,7 @@ public class Microservice extends NamedEntity {
     @Expose
     @SerializedName(value = "i_patterns",
         alternate = {"instance_patterns", "patterns", "i_pattern", "instance_pattern"})
-    private InstanceOwnedPatternConfiguration[] instanceOwnedPatternConfigurations =
+    protected InstanceOwnedPatternConfiguration[] instanceOwnedPatternConfigurations =
         new InstanceOwnedPatternConfiguration[0];
 
     @Expose
@@ -284,5 +286,17 @@ public class Microservice extends NamedEntity {
 
     public double getAverageUtilization() {
         return getUtilizationOfInstances().stream().mapToDouble(value -> value).average().orElse(0);
+    }
+
+    public int getStartingInstanceCount() {
+        return startingInstanceCount;
+    }
+
+    public LoadBalancer getLoadBalancer() {
+        return loadBalancer;
+    }
+
+    public Set<MicroserviceInstance> getInstancesSet() {
+        return instancesSet;
     }
 }

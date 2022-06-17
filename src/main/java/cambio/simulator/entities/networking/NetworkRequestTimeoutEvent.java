@@ -2,6 +2,10 @@ package cambio.simulator.entities.networking;
 
 import java.util.concurrent.TimeUnit;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.misc.Priority;
 import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.*;
@@ -16,6 +20,13 @@ import desmoj.core.simulator.*;
  * </p>
  */
 public class NetworkRequestTimeoutEvent extends NetworkRequestEvent implements IRequestUpdateListener {
+
+    private static final Map<Microservice, Integer> microserviceTimeoutMap = new HashMap<>();
+
+    public static Map<Microservice, Integer> getMicroserviceTimeoutMap() {
+        return microserviceTimeoutMap;
+    }
+
     private boolean canceled = false;
 
     /**
@@ -34,6 +45,12 @@ public class NetworkRequestTimeoutEvent extends NetworkRequestEvent implements I
         if (canceled) {
             return;
         }
+
+        Microservice owner = getTravelingRequest().getHandler().getOwner();
+        if (owner != null) {
+            microserviceTimeoutMap.merge(owner, 1, Integer::sum);
+        }
+
         NetworkRequestEvent cancelEvent =
             new NetworkRequestCanceledEvent(getModel(), "RequestCancel", getModel().traceIsOn(), travelingRequest,
                 RequestFailedReason.TIMEOUT,

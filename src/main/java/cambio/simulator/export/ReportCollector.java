@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+import cambio.simulator.entities.microservice.Microservice;
+import cambio.simulator.entities.networking.NetworkRequestTimeoutEvent;
 import cambio.simulator.misc.Util;
 import cambio.simulator.models.ExperimentMetaData;
 import cambio.simulator.models.MiSimModel;
@@ -122,6 +124,12 @@ public class ReportCollector extends ReportManager {
         System.out.println("Experiment took:            " + Util.timeFormat(metaData.getExperimentExecutionDuration()));
         System.out.println("Report took:                " + Util.timeFormat(metaData.getReportExecutionDuration()));
         System.out.println("Execution took:             " + Util.timeFormat(metaData.getExecutionDuration()));
+        System.out.println("-----------------------");
+        System.out.println("Request timeouts:");
+        Map<Microservice, Integer> microserviceTimeoutMap = NetworkRequestTimeoutEvent.getMicroserviceTimeoutMap();
+        for (Microservice m : microserviceTimeoutMap.keySet()) {
+            System.out.printf("%s: %d\n", m.getQuotedName(), microserviceTimeoutMap.get(m));
+        }
     }
 
 }

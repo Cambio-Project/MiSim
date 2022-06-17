@@ -136,7 +136,7 @@ public class RequestSender extends NamedEntity {
         request.addUpdateListener(updateListenerProxy);
 
         NetworkRequestSendEvent sendEvent;
-        if (target == null || target.getClass() == Microservice.class) {
+        if (target == null || target instanceof Microservice) {
             sendEvent = new NetworkRequestSendEvent(getModel(), eventName, traceIsOn(), request, (Microservice) target);
         } else {
             sendEvent =

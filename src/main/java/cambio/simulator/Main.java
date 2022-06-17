@@ -174,7 +174,7 @@ public final class Main {
      * @see #mainVarargs(String...)
      */
     public static @NotNull Experiment runExperiment(final ExperimentStartupConfig startupConfig) {
-        Experiment experiment = ExperimentCreator.createSimulationExperiment(startupConfig);
+        Experiment experiment = new ExperimentCreator().createSimulationExperiment(startupConfig);
         System.out.printf("[INFO] Starting simulation at approximately %s%n", java.time.LocalDateTime.now());
         experiment.start();
         experiment.finish();

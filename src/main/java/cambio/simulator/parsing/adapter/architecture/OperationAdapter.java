@@ -24,7 +24,7 @@ import desmoj.core.dist.ContDistNormal;
  *
  * @author Lion Wagner
  */
-class OperationAdapter extends MiSimModelReferencingTypeAdapter<Operation> {
+public class OperationAdapter extends MiSimModelReferencingTypeAdapter<Operation> {
 
     private final String parentMicroserviceName;
     private final List<DependencyDescription> dependencies;

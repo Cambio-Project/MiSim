@@ -23,9 +23,9 @@ import desmoj.core.dist.ContDistNormal;
  *
  * @author Lion Wagner
  */
-class MicroserviceAdapter extends MiSimModelReferencingTypeAdapter<Microservice> {
+public class MicroserviceAdapter extends MiSimModelReferencingTypeAdapter<Microservice> {
 
-    private final LinkedList<DependencyDescription> dependencies;
+    protected final LinkedList<DependencyDescription> dependencies;
 
     public MicroserviceAdapter(MiSimModel baseModel,
                                LinkedList<DependencyDescription> dependencies) {

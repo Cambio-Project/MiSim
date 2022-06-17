@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
  *
  * @author Lion Wagner
  */
-public final class ExperimentStartupConfig {
+public class ExperimentStartupConfig {
 
 
     @CLIOption(
