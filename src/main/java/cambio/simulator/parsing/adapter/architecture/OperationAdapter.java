@@ -24,11 +24,21 @@ import desmoj.core.dist.ContDistNormal;
  *
  * @author Lion Wagner
  */
-class OperationAdapter extends MiSimModelReferencingTypeAdapter<Operation> {
+public class OperationAdapter extends MiSimModelReferencingTypeAdapter<Operation> {
 
     private final String parentMicroserviceName;
     private final List<DependencyDescription> dependencies;
 
+    /**
+     * Constructor creating an adapter for parsing Operations.
+     * This adapter will not parse the underlying {@link DependencyDescription}s, since they can only be resolved once
+     * all {@link Operation}s have been initialized.
+     * Instead, it will provide a list of dependencies, that can be resolved later.
+     *
+     * @param baseModel Base model of the simulation.
+     * @param name Name of the parent {@link cambio.simulator.entities.microservice.Microservice}.
+     * @param dependencies A mutable {@link List} to which all dependencies of the operation will be added.
+     */
     public OperationAdapter(MiSimModel baseModel, String name,
                             List<DependencyDescription> dependencies) {
         super(baseModel);

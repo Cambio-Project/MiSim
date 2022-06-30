@@ -16,7 +16,7 @@ import com.google.gson.stream.JsonWriter;
  *
  * @author Lion Wagner
  */
-class InstanceOwnedPatternConfigAdapter extends TypeAdapter<InstanceOwnedPatternConfiguration> {
+public class InstanceOwnedPatternConfigAdapter extends TypeAdapter<InstanceOwnedPatternConfiguration> {
     @Override
     public void write(JsonWriter out, InstanceOwnedPatternConfiguration value) throws IOException {
         throw new RuntimeException("");

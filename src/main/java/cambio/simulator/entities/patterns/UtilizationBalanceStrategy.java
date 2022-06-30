@@ -13,7 +13,7 @@ import desmoj.core.simulator.Model;
  * Strategy that chooses the least utilized Microservice Instance by current relative Queue demand.
  */
 @JsonTypeName("util")
-class UtilizationBalanceStrategy implements ILoadBalancingStrategy {
+public class UtilizationBalanceStrategy implements ILoadBalancingStrategy {
 
     private Random rng = null;
 

@@ -8,8 +8,13 @@ import cambio.simulator.models.MiSimModel;
 import cambio.simulator.parsing.JsonTypeName;
 import desmoj.core.simulator.Model;
 
+/**
+ * A randomized load balancing strategy. This strategy always picks a random instance from the list of available
+ * instances. Hence, it is not guaranteed to be fair, but it is rather fast (specifically if the given collection of
+ * running instances allows for O(1) reads).
+ */
 @JsonTypeName("random")
-final class RandomLoadBalanceStrategy implements ILoadBalancingStrategy {
+public final class RandomLoadBalanceStrategy implements ILoadBalancingStrategy {
 
     private Random rng = null;
 
@@ -29,7 +34,7 @@ final class RandomLoadBalanceStrategy implements ILoadBalancingStrategy {
         int targetIndex = (int) (rng.nextDouble() * runningInstances.size());
 
         //use (hopefully) optimized implementation of get
-        if (runningInstances instanceof ArrayList) {
+        if (runningInstances instanceof List) {
             return ((List<MicroserviceInstance>) runningInstances).get(targetIndex);
         }
 

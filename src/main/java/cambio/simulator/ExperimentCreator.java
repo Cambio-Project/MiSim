@@ -18,7 +18,7 @@ import org.jetbrains.annotations.NotNull;
  *
  * @author Lion Wagner
  */
-public final class ExperimentCreator {
+public class ExperimentCreator {
 
     /**
      * Creates a new {@link Experiment} based on the given configuration.
@@ -26,7 +26,7 @@ public final class ExperimentCreator {
      * @param config startup configuration of the experiment
      * @return a new {@link Experiment} that is configured based on the given config
      */
-    public static Experiment createSimulationExperiment(ExperimentStartupConfig config) {
+    public Experiment createSimulationExperiment(ExperimentStartupConfig config) {
         String archDescLocation = config.getArchitectureDescLoc();
         String expDescLocation;
 
@@ -47,7 +47,7 @@ public final class ExperimentCreator {
 
 
     @NotNull
-    private static File tryGetDescription(String expDescLocation, String descriptionName) {
+    protected File tryGetDescription(String expDescLocation, String descriptionName) {
         File experimentDescription = null;
         try {
             experimentDescription = FileUtilities.tryLoadExistingFile(expDescLocation);
@@ -60,7 +60,7 @@ public final class ExperimentCreator {
 
 
     @NotNull
-    private static Experiment setupExperiment(ExperimentStartupConfig config, MiSimModel model) {
+    protected Experiment setupExperiment(ExperimentStartupConfig config, MiSimModel model) {
         ExperimentMetaData metaData = model.getExperimentMetaData();
         Path reportLocation = ExportUtils.prepareReportDirectory(config, model);
         Experiment exp = new Experiment(metaData.getExperimentName(), reportLocation.toString());

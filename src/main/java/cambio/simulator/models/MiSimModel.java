@@ -16,12 +16,15 @@ import desmoj.core.simulator.*;
  */
 public class MiSimModel extends Model {
 
+    private final transient File architectureModelLocation;
+    private final transient File experimentModelOrScenarioLocation;
+
     //exp meta data
-    private final ExperimentMetaData experimentMetaData;
+    protected final ExperimentMetaData experimentMetaData;
     //arch model
-    private ArchitectureModel architectureModel;
+    protected ArchitectureModel architectureModel;
     //exp model
-    private ExperimentModel experimentModel;
+    protected ExperimentModel experimentModel;
 
     /**
      * Creates a new MiSimModel and loads the metadata from the experiment model.
@@ -34,6 +37,8 @@ public class MiSimModel extends Model {
      */
     public MiSimModel(File architectureModelLocation, File experimentModelOrScenarioLocation) {
         super(null, "MiSimModel", false, false);
+        this.architectureModelLocation = architectureModelLocation;
+        this.experimentModelOrScenarioLocation = experimentModelOrScenarioLocation;
         long startTime = System.nanoTime();
         this.experimentMetaData =
             ModelLoader.loadExperimentMetaData(experimentModelOrScenarioLocation, architectureModelLocation);
@@ -80,5 +85,13 @@ public class MiSimModel extends Model {
 
     public ExperimentMetaData getExperimentMetaData() {
         return experimentMetaData;
+    }
+
+    public File getArchitectureModelLocation() {
+        return architectureModelLocation;
+    }
+
+    public File getExperimentModelOrScenarioLocation() {
+        return experimentModelOrScenarioLocation;
     }
 }

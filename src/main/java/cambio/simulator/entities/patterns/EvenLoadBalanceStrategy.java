@@ -11,7 +11,7 @@ import cambio.simulator.parsing.JsonTypeName;
  * requested operation.
  */
 @JsonTypeName("even")
-class EvenLoadBalanceStrategy implements ILoadBalancingStrategy {
+public class EvenLoadBalanceStrategy implements ILoadBalancingStrategy {
     private Map<MicroserviceInstance, Integer> distribution = new HashMap<>();
 
     /**

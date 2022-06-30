@@ -25,7 +25,7 @@ import desmoj.core.dist.ContDistNormal;
  */
 public class ArchitectureModelAdapter extends MiSimModelReferencingTypeAdapter<ArchitectureModel> {
 
-    private final LinkedList<DependencyDescription> dependencies = new LinkedList<>();
+    protected final LinkedList<DependencyDescription> dependencies = new LinkedList<>();
 
     public ArchitectureModelAdapter(MiSimModel baseModel) {
         super(baseModel);
