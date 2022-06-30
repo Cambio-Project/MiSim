@@ -6,7 +6,7 @@
 
     <groupId>cambio.simulator</groupId>
     <artifactId>misim</artifactId>
-    <version>3.1</version>
+    <version>3.2</version>
 
     <properties>
         <junit.version>5.8.2</junit.version>
