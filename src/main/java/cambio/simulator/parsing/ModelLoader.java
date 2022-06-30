@@ -85,26 +85,37 @@ public final class ModelLoader {
         }
     }
 
-    public static <T> T loadModel(File targetFile, Class<T> targetType, TypeAdapter<T> adapter) {
-        checkFileExistence(targetFile);
+    /**
+     * Utility method for loading a model from a JSON-file.
+     *
+     * @param sourceFile The source JSON-file.
+     * @param targetType Class instance of the target type of the model.
+     * @param adapter    The {@link TypeAdapter} that should be used for parsing the model.
+     * @param <T>        The target type of the model.
+     * @return A new instance of the target type of the model.
+     * @throws ParsingException If the parsing of the model failed. See the error message and cause for more
+     *                          information.
+     */
+    public static <T> T loadModel(File sourceFile, Class<T> targetType, TypeAdapter<T> adapter) {
+        checkFileExistence(sourceFile);
         try {
             Gson gson = GsonHelper
                 .getGsonBuilder()
                 .registerTypeAdapter(targetType, adapter)
                 .create();
-            JsonReader reader = new JsonReader(new FileReader(targetFile));
+            JsonReader reader = new JsonReader(new FileReader(sourceFile));
             return gson.fromJson(reader, targetType);
 
         } catch (FileNotFoundException e) {
             throw new ParsingException(
                 String.format("Cannot start the simulation. Model file %s was not found!",
-                    targetFile.getAbsolutePath()), e);
+                    sourceFile.getAbsolutePath()), e);
         } catch (JsonSyntaxException e) {
             throw new ParsingException(
                 String.format("Cannot start the simulation. Model file %s contains Json Syntax errors!",
-                    targetFile.getAbsolutePath()), e);
+                    sourceFile.getAbsolutePath()), e);
         } catch (ParsingException e) {
-            throw new ParsingException(String.format("Error parsing model file %s\n%s", targetFile.getAbsolutePath(),
+            throw new ParsingException(String.format("Error parsing model file %s\n%s", sourceFile.getAbsolutePath(),
                 e.getMessage()), e);
         }
     }
@@ -113,11 +124,10 @@ public final class ModelLoader {
     private static void checkFileExistence(File file) {
         if (file == null) {
             throw new ParsingException(
-                "[Error] Cannot start the simulation. Model file was not found. Check your Paths and parameters.");
+                "[Error] Cannot start the simulation. Model file was not found. Check your paths and parameters.");
         } else if (!file.exists()) {
             throw new ParsingException(
-                String
-                    .format("[Error]  Cannot start the simulation. Model file %s was not found!",
+                String.format("[Error]  Cannot start the simulation. Model file %s was not found!",
                         file.getAbsolutePath()));
         }
     }

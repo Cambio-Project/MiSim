@@ -56,8 +56,17 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
     private long waiting = 0;
 
 
+    /**
+     * Creates a new {@link MicroserviceInstance} for the given {@link Microservice} parent.
+     *
+     * @param model Base model of the simulation.
+     * @param name Name of the instance.
+     * @param showInTrace Whether the instance outputs should be shown in the trace.
+     * @param microservice Parent microservice of the instance.
+     * @param instanceID ID of the instance.
+     */
     public MicroserviceInstance(Model model, String name, boolean showInTrace, Microservice microservice,
-                         int instanceID) {
+                                int instanceID) {
         super(model, name, showInTrace);
         this.owner = microservice;
         this.instanceID = instanceID;
@@ -72,6 +81,11 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
         this.addUpdateListener(this);
     }
 
+    /**
+     *  Activates the patterns that are owned by this instance.
+     *  This will call registers {@link IRequestUpdateListener}s on this instance and
+     *  call the {@link InstanceOwnedPattern#start()} method on each pattern instance.
+     */
     public void activatePatterns(InstanceOwnedPatternConfiguration[] patterns) {
         this.patterns = Arrays.stream(patterns)
             .map(patternData -> patternData.getPatternInstance(this))
