@@ -1,3 +1,4 @@
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.6783250.svg)](https://doi.org/10.5281/zenodo.6783250)
 [![Build Artifact](https://github.com/Cambio-Project/resilience-simulator/actions/workflows/build_artifact.yml/badge.svg)](https://github.com/Cambio-Project/resilience-simulator/actions/workflows/build_artifact.yml)
 [![Documentation](https://img.shields.io/badge/Documentation-online-32CA55?style=flat&logo=github&logoColor=959DA5&labelColor=2F353C)](https://Cambio-Project.github.io/resilience-simulator/)
 
