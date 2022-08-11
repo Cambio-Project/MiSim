@@ -10,97 +10,118 @@ import desmoj.core.dist.NumericalDist;
 import desmoj.core.simulator.Model;
 
 /**
- * An {@code Operation} represents an endpoint of a service. It has a specific computational demand and may have
- * dependencies.
+ * An {@code Operation} represents an endpoint of a service. It has a specific
+ * computational demand and may have dependencies.
  */
 public class Operation extends NamedEntity {
 
-    private final transient Microservice ownerMS;
+	private final transient Microservice ownerMS;
 
-    @Expose
-    private int demand;
+	@Expose
+	private int demand;
 
-    @Expose
-    private DependencyDescription[] dependencies = new DependencyDescription[0];
+	@Expose
+	private DependencyDescription[] dependencies = new DependencyDescription[0];
 
-    /**
-     * Constructs a new endpoint for a microservice.
-     *
-     * @param ownerMS {@link Microservice} that owns this operation.
-     * @param demand  CPU demand of this operation.
-     */
-    public Operation(Model model, String name, boolean showInTrace, Microservice ownerMS, int demand) {
-        super(model, (ownerMS == null ? "" : ownerMS.getPlainName() + ".") + name, showInTrace);
-        this.demand = demand;
-        this.ownerMS = ownerMS;
-    }
+	/**
+	 * Constructs a new endpoint for a microservice.
+	 *
+	 * @param ownerMS {@link Microservice} that owns this operation.
+	 * @param demand  CPU demand of this operation.
+	 */
+	public Operation(Model model, String name, boolean showInTrace, Microservice ownerMS, int demand) {
+		super(model, (ownerMS == null ? "" : ownerMS.getPlainName() + ".") + name, showInTrace);
+		this.demand = demand;
+		this.ownerMS = ownerMS;
+	}
 
-    public DependencyDescription[] getDependencyDescriptions() {
-        return dependencies;
-    }
+	public DependencyDescription[] getDependencyDescriptions() {
+		return dependencies;
+	}
 
-    public int getDemand() {
-        return demand;
-    }
+	public int getDemand() {
+		return demand;
+	}
 
-    public Microservice getOwnerMS() {
-        return ownerMS;
-    }
+	public Microservice getOwnerMS() {
+		return ownerMS;
+	}
 
-    @Override
-    public String getQuotedName() {
-        return "'" + getPlainName() + "'";
-    }
+	@Override
+	public String getQuotedName() {
+		return "'" + getPlainName() + "'";
+	}
 
-    @Override
-    public String toString() {
-        return getFullyQualifiedName();
-    }
+	@Override
+	public String toString() {
+		return getFullyQualifiedName();
+	}
 
-    public String getFullyQualifiedName() {
-        return ownerMS.getPlainName() + "." + getName();
-    }
+	public String getFullyQualifiedName() {
+		return ownerMS.getPlainName() + "." + getName();
+	}
 
-    public String getFullyQualifiedPlainName() {
-        return ownerMS.getPlainName() + "." + getPlainName();
-    }
+	public String getFullyQualifiedPlainName() {
+		return ownerMS.getPlainName() + "." + getPlainName();
+	}
 
-    public String getQuotedFullyQualifiedName() {
-        return "'" + getFullyQualifiedName() + "'";
-    }
+	public String getQuotedFullyQualifiedName() {
+		return "'" + getFullyQualifiedName() + "'";
+	}
 
-    /**
-     * Add additional delay to this operation.
-     *
-     * @param dist         {@link NumericalDist} of the delay.
-     * @param operationTrg target {@link Operation} of this that should be affected, can be set to {@code null} to
-     *                     affect all outgoing {@link ServiceDependencyInstance}s
-     */
-    public void applyExtraDelay(NumericalDist<Double> dist, Operation operationTrg) {
-        if (operationTrg == null) {
-            for (DependencyDescription dependencyDescription : dependencies) {
-                dependencyDescription.setExtraDelay(dist);
-            }
-        } else {
-            DependencyDescription targetDependency =
-                Arrays.stream(dependencies).filter(dependency -> dependency.getTargetOperation() == operationTrg)
-                    .findFirst().orElse(null);
-            if (targetDependency == null) {
-                throw new IllegalStateException(String
-                    .format("Operation %s is not a dependency of %s", operationTrg.getQuotedName(),
-                        this.getQuotedName()));
-            }
-            targetDependency.setExtraDelay(dist);
-        }
-    }
+	/**
+	 * Add additional delay to this operation.
+	 *
+	 * @param dist         {@link NumericalDist} of the delay.
+	 * @param operationTrg target {@link Operation} of this that should be affected,
+	 *                     can be set to {@code null} to affect all outgoing
+	 *                     {@link ServiceDependencyInstance}s
+	 */
+	public void applyExtraDelay(NumericalDist<Double> dist, Operation operationTrg) {
+		if (operationTrg == null) {
+			applyExtraDelayToAllDependencies(dist);
+		} else {
+			applyExtraDelayToSpecificDependency(dist, operationTrg);
+		}
+	}
 
-    /**
-     * Add extra delay to every dependency of this operation.
-     *
-     * @param dist {@link NumericalDist} of the delay.
-     */
-    public void applyExtraDelay(NumericalDist<Double> dist) {
-        applyExtraDelay(dist, null);
-    }
+	/**
+	 * Add additional delay to all dependencies.
+	 * 
+	 * @param dist {@link NumericalDist} of the delay.
+	 */
+	private void applyExtraDelayToAllDependencies(NumericalDist<Double> dist) {
+		for (DependencyDescription dependencyDescription : dependencies) {
+			dependencyDescription.setExtraDelay(dist);
+		}
+	}
+
+	/**
+	 * Add additional delay to the first dependency found with the given target.
+	 * 
+	 * @param dist         {@link NumericalDist} of the delay.
+	 * @param operationTrg target {@link Operation} of this that should be affected.
+	 *                     Must not be null, at least one dependency must exist.
+	 */
+	private void applyExtraDelayToSpecificDependency(NumericalDist<Double> dist, Operation operationTrg) {
+		assert operationTrg != null;
+
+		DependencyDescription targetDependency = Arrays.stream(dependencies)
+				.filter(dependency -> dependency.getTargetOperation() == operationTrg).findFirst().orElse(null);
+		if (targetDependency == null) {
+			throw new IllegalStateException(String.format("Operation %s is not a dependency of %s",
+					operationTrg.getQuotedName(), this.getQuotedName()));
+		}
+		targetDependency.setExtraDelay(dist);
+	}
+
+	/**
+	 * Add extra delay to every dependency of this operation.
+	 *
+	 * @param dist {@link NumericalDist} of the delay.
+	 */
+	public void applyExtraDelay(NumericalDist<Double> dist) {
+		applyExtraDelay(dist, null);
+	}
 
 }
