@@ -7,8 +7,8 @@ import java.util.Random;
 
 import cambio.simulator.misc.Util;
 import com.google.gson.annotations.Expose;
+import desmoj.core.dist.DiscreteDist;
 import desmoj.core.dist.DiscreteDistConstant;
-import desmoj.core.dist.NumericalDist;
 import desmoj.core.simulator.Model;
 
 /**
@@ -21,7 +21,7 @@ import desmoj.core.simulator.Model;
 public class LoopDependencyDescription extends IntermediateDependencyDescription {
 
     @Expose
-    private final NumericalDist<Integer> iterations;
+    private final DiscreteDist<Integer> iterations;
 
     /**
      * Creates a new loop dependency that is always executed once by default. Consider to use the

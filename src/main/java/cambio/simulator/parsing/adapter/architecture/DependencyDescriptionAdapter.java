@@ -14,6 +14,7 @@ import cambio.simulator.parsing.GsonHelper;
 import cambio.simulator.parsing.ParsingException;
 import cambio.simulator.parsing.adapter.DiscreteDistributionAdapter;
 import cambio.simulator.parsing.adapter.MiSimModelReferencingTypeAdapter;
+import cambio.simulator.parsing.adapter.NormalDistributionAdapter;
 import com.google.gson.Gson;
 import com.google.gson.InstanceCreator;
 import com.google.gson.JsonElement;
@@ -24,8 +25,8 @@ import com.google.gson.internal.UnsafeAllocator;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import desmoj.core.dist.ContDistNormal;
+import desmoj.core.dist.DiscreteDist;
 import desmoj.core.dist.DiscreteDistConstant;
-import desmoj.core.dist.NumericalDist;
 
 /**
  * Adapter for parsing {@link DependencyDescription}s from JSON.
@@ -90,7 +91,7 @@ public class DependencyDescriptionAdapter
                 .registerTypeAdapter(instanceType, new DependencyDescriptionCreator(model))
                 .registerTypeAdapter(DependencyDescription.class,
                         new DependencyDescriptionAdapter(model, parentMicroserviceName))
-                .registerTypeHierarchyAdapter(NumericalDist.class,
+                .registerTypeHierarchyAdapter(DiscreteDist.class,
                         new DiscreteDistributionAdapter(model))
                 .create();
         return gson.fromJson(root, instanceType);
