@@ -91,6 +91,7 @@ public class DependencyDescriptionAdapter
                 .registerTypeAdapter(instanceType, new DependencyDescriptionCreator(model))
                 .registerTypeAdapter(DependencyDescription.class,
                         new DependencyDescriptionAdapter(model, parentMicroserviceName))
+                .registerTypeAdapter(ContDistNormal.class, new NormalDistributionAdapter(model))
                 .registerTypeHierarchyAdapter(DiscreteDist.class,
                         new DiscreteDistributionAdapter(model))
                 .create();
