@@ -1,7 +1,5 @@
 package cambio.simulator.entities.microservice;
 
-import java.util.Arrays;
-
 import cambio.simulator.entities.NamedEntity;
 import cambio.simulator.entities.networking.DependencyDescription;
 import cambio.simulator.entities.networking.ServiceDependencyInstance;
@@ -81,7 +79,7 @@ public class Operation extends NamedEntity {
 		if (operationTrg == null) {
 			applyExtraDelayToAllDependencies(dist);
 		} else {
-			applyExtraDelayToSpecificDependency(dist, operationTrg);
+			applyExtraDelayToSpecificDependencies(dist, operationTrg);
 		}
 	}
 
@@ -91,28 +89,24 @@ public class Operation extends NamedEntity {
 	 * @param dist {@link NumericalDist} of the delay.
 	 */
 	private void applyExtraDelayToAllDependencies(NumericalDist<Double> dist) {
+		assert dist != null;
 		for (DependencyDescription dependencyDescription : dependencies) {
-			dependencyDescription.setExtraDelay(dist);
+			dependencyDescription.applyExtraDelay(dist);
 		}
 	}
 
 	/**
-	 * Add additional delay to the first dependency found with the given target.
+	 * Add additional delay to the dependencies found with the given target.
 	 * 
 	 * @param dist         {@link NumericalDist} of the delay.
 	 * @param operationTrg target {@link Operation} of this that should be affected.
-	 *                     Must not be null, at least one dependency must exist.
+	 *                     Must not be null.
 	 */
-	private void applyExtraDelayToSpecificDependency(NumericalDist<Double> dist, Operation operationTrg) {
+	private void applyExtraDelayToSpecificDependencies(NumericalDist<Double> dist, Operation operationTrg) {
 		assert operationTrg != null;
-
-		DependencyDescription targetDependency = Arrays.stream(dependencies)
-				.filter(dependency -> dependency.getTargetOperation() == operationTrg).findFirst().orElse(null);
-		if (targetDependency == null) {
-			throw new IllegalStateException(String.format("Operation %s is not a dependency of %s",
-					operationTrg.getQuotedName(), this.getQuotedName()));
+		for (DependencyDescription dependencyDescription : dependencies) {
+			dependencyDescription.applyExtraDelay(dist, operationTrg);
 		}
-		targetDependency.setExtraDelay(dist);
 	}
 
 	/**

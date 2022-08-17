@@ -12,336 +12,325 @@ import desmoj.core.simulator.TimeInstant;
 import org.apache.commons.math3.util.Precision;
 
 /**
- * Represents a Request that can travel between two {@link MicroserviceInstance}s.
+ * Represents a Request that can travel between two
+ * {@link MicroserviceInstance}s.
  *
  * @author Lion Wagner
  */
 public abstract class Request extends NamedEntity {
-    public final Operation operation;
-    private final Set<ServiceDependencyInstance> dependencies = new HashSet<>();
-    private final Request parent;
-    private final MicroserviceInstance requester;
-    private final PriorityQueue<IRequestUpdateListener> updateListeners = new PriorityQueue<>();
-    private final transient Random prob;
-    private MicroserviceInstance handlerInstance;
-    //microservice instance that collects dependencies of this request and computes it
-    private boolean computationCompleted = false;
-    private boolean dependenciesCompleted = false;
-    private transient NetworkRequestSendEvent sendEvent;
-    private transient NetworkRequestReceiveEvent receiveEvent;
-    private transient NetworkRequestCanceledEvent canceledEvent;
-    private TimeInstant timestampSend;
-    private TimeInstant timestampReceived;
-    private TimeInstant timestampReceivedAtHandler;
-    private TimeInstant timestampComputationCompleted;
-    private TimeInstant timestampDependenciesCompleted;
+	public final Operation operation;
+	private final Set<ServiceDependencyInstance> dependencies = new HashSet<>();
+	private final Request parent;
+	private final MicroserviceInstance requester;
+	private final PriorityQueue<IRequestUpdateListener> updateListeners = new PriorityQueue<>();
+	private final transient Random prob;
+	private MicroserviceInstance handlerInstance;
+	// microservice instance that collects dependencies of this request and computes
+	// it
+	private boolean computationCompleted = false;
+	private boolean dependenciesCompleted = false;
+	private transient NetworkRequestSendEvent sendEvent;
+	private transient NetworkRequestReceiveEvent receiveEvent;
+	private transient NetworkRequestCanceledEvent canceledEvent;
+	private TimeInstant timestampSend;
+	private TimeInstant timestampReceived;
+	private TimeInstant timestampReceivedAtHandler;
+	private TimeInstant timestampComputationCompleted;
+	private TimeInstant timestampDependenciesCompleted;
 
-    protected Request(Model model, String name, boolean showInTrace, Request parent, Operation operation,
-                      MicroserviceInstance requester) {
-        super(model, name, showInTrace);
-        this.operation = operation;
-        this.requester = requester;
-        this.parent = parent;
-        this.prob = RNGStorage.get(this.getClass().getName(),
-            () -> new Random(((MiSimModel) getModel()).getExperimentMetaData().getSeed()));
-        createDependencies();
-        if (dependencies.isEmpty()) {
-            //TODO: clean up this mess (this call is made to neatly trigger onDependenciesComplete)
-            notifyDependencyHasFinished(null);
-        }
-    }
+	protected Request(Model model, String name, boolean showInTrace, Request parent, Operation operation,
+			MicroserviceInstance requester) {
+		super(model, name, showInTrace);
+		this.operation = operation;
+		this.requester = requester;
+		this.parent = parent;
+		this.prob = RNGStorage.get(this.getClass().getName(),
+				() -> new Random(((MiSimModel) getModel()).getExperimentMetaData().getSeed()));
+		createDependencies();
+		if (dependencies.isEmpty()) {
+			// TODO: clean up this mess (this call is made to neatly trigger
+			// onDependenciesComplete)
+			notifyDependencyHasFinished(null);
+		}
+	}
 
+	private void createDependencies() {
+		for (DependencyDescription dependencyDescription : operation.getDependencyDescriptions()) {
+			dependencies.addAll(dependencyDescription.generateDependenciesForExecutions(this, prob));
+		}
+	}
 
-    private void createDependencies() {
+	public final Set<ServiceDependencyInstance> getDependencies() {
+		return dependencies;
+	}
 
-        for (DependencyDescription dependencyDescription : operation.getDependencyDescriptions()) {
+	public final Request getParent() {
+		return parent;
+	}
 
-            double probability = dependencyDescription.getProbability();
-            double sample = prob.nextDouble();
-            if (sample <= probability) {
+	public final boolean hasParent() {
+		return parent != null;
+	}
 
-                Operation nextOperationEntity = dependencyDescription.getTargetOperation();
+	public MicroserviceInstance getRequester() {
+		return requester;
+	}
 
-                ServiceDependencyInstance dep = new ServiceDependencyInstance(getModel(), this, nextOperationEntity,
-                    dependencyDescription);
+	public final boolean isCompleted() {
+		return computationCompleted && dependenciesCompleted;
+	}
 
-                dependencies.add(dep);
-            }
-        }
-    }
+	public boolean isComputationCompleted() {
+		return computationCompleted;
+	}
 
-    public final Set<ServiceDependencyInstance> getDependencies() {
-        return dependencies;
-    }
+	public boolean isDependenciesCompleted() {
+		return dependenciesCompleted;
+	}
 
-    public final Request getParent() {
-        return parent;
-    }
+	public TimeInstant getTimestampReceived() {
+		return timestampReceived;
+	}
 
-    public final boolean hasParent() {
-        return parent != null;
-    }
+	/**
+	 * Marks the point in time this request was received at the requester.
+	 */
+	private void setTimestampReceived(TimeInstant timestampReceived) {
+		if (this.timestampReceived != null) {
+			throw new IllegalStateException("Receive Stamp is already set!");
+		}
+		this.timestampReceived = timestampReceived;
+	}
 
-    public MicroserviceInstance getRequester() {
-        return requester;
-    }
+	public TimeInstant getTimestampSend() {
+		return timestampSend;
+	}
 
-    public final boolean isCompleted() {
-        return computationCompleted && dependenciesCompleted;
-    }
+	/**
+	 * Marks the point in time this request was send.
+	 */
+	private void setTimestampSend(TimeInstant timestampSend) {
+		if (this.timestampSend != null) {
+			throw new IllegalStateException("Send Stamp is already set!");
+		}
+		this.timestampSend = timestampSend;
+	}
 
-    public boolean isComputationCompleted() {
-        return computationCompleted;
-    }
+	public void resetSendTimeStamps() {
+		timestampSend = null;
+	}
 
-    public boolean isDependenciesCompleted() {
-        return dependenciesCompleted;
-    }
+	public void setSendEvent(NetworkRequestSendEvent sendEvent) {
+		this.sendEvent = sendEvent;
+	}
 
-    public TimeInstant getTimestampReceived() {
-        return timestampReceived;
-    }
+	public void setReceiveEvent(NetworkRequestReceiveEvent receiveEvent) {
+		this.receiveEvent = receiveEvent;
+	}
 
-    /**
-     * Marks the point in time this request was received at the requester.
-     */
-    private void setTimestampReceived(TimeInstant timestampReceived) {
-        if (this.timestampReceived != null) {
-            throw new IllegalStateException("Receive Stamp is already set!");
-        }
-        this.timestampReceived = timestampReceived;
-    }
+	// private void setDependenciesCompleted() {
+	// if (this.dependenciesCompleted) {
+	// throw new IllegalStateException("Dependencies were already completed!");
+	// }
+	// this.dependenciesCompleted = true;
+	// timestampDependenciesCompleted = presentTime();
+	// onDependenciesComplete();
+	// if (dependenciesCompleted && computationCompleted) {
+	// onCompletion();
+	// }
+	// if (handlerInstance != null && handlerInstance.checkIfCanHandle(this)) {
+	// handlerInstance.handle(this); //resubmitting itself for further handling
+	// }
+	// }
 
-    public TimeInstant getTimestampSend() {
-        return timestampSend;
-    }
+	public void setCanceledEvent(NetworkRequestCanceledEvent canceledEvent) {
+		this.canceledEvent = canceledEvent;
+	}
 
-    /**
-     * Marks the point in time this request was send.
-     */
-    private void setTimestampSend(TimeInstant timestampSend) {
-        if (this.timestampSend != null) {
-            throw new IllegalStateException("Send Stamp is already set!");
-        }
-        this.timestampSend = timestampSend;
-    }
+	/**
+	 * Marks the request computation demand as fulfilled at the present time.
+	 */
+	public final void setComputationCompleted() {
+		if (this.computationCompleted) {
+			throw new IllegalStateException("Computation was already completed!");
+		}
+		this.computationCompleted = true;
+		timestampComputationCompleted = presentTime();
+		onComputationComplete();
+		if (dependenciesCompleted && computationCompleted) {
+			onCompletion();
+		}
+	}
 
-    public void resetSendTimeStamps() {
-        timestampSend = null;
-    }
+	public final void stampReceived(TimeInstant stamp) {
+		this.setTimestampReceived(stamp);
+		onReceive();
+	}
 
-    public void setSendEvent(NetworkRequestSendEvent sendEvent) {
-        this.sendEvent = sendEvent;
-    }
+	/**
+	 * Marks the point in time this request was send.
+	 */
+	public final void stampSendoff(TimeInstant stamp) {
+		this.setTimestampSend(stamp);
+	}
 
-    public void setReceiveEvent(NetworkRequestReceiveEvent receiveEvent) {
-        this.receiveEvent = receiveEvent;
-    }
+	/**
+	 * Marks the point in time this request was received at a handler.
+	 */
+	public final void stampReceivedAtHandler(TimeInstant stamp) {
+		if (this.timestampReceivedAtHandler != null) {
+			throw new IllegalStateException("This Request was already received by its handler.");
+		}
+		this.timestampReceivedAtHandler = stamp;
+	}
 
+	/**
+	 * Tells this request that one {@link ServiceDependencyInstance} has finished.
+	 *
+	 * @param dep dependency that was completed
+	 * @return whether all dependencies are completed
+	 */
+	public boolean notifyDependencyHasFinished(ServiceDependencyInstance dep) {
+		if (this.dependenciesCompleted) {
+			throw new IllegalStateException("Dependencies were already completed!");
+		}
 
-    //    private void setDependenciesCompleted() {
-    //        if (this.dependenciesCompleted) {
-    //            throw new IllegalStateException("Dependencies were already completed!");
-    //        }
-    //        this.dependenciesCompleted = true;
-    //        timestampDependenciesCompleted = presentTime();
-    //        onDependenciesComplete();
-    //        if (dependenciesCompleted && computationCompleted) {
-    //            onCompletion();
-    //        }
-    //        if (handlerInstance != null && handlerInstance.checkIfCanHandle(this)) {
-    //            handlerInstance.handle(this); //resubmitting itself for further handling
-    //        }
-    //    }
+		long uncompletedCount = dependencies.stream().filter(networkDependency -> !networkDependency.isCompleted())
+				.count();
 
-    public void setCanceledEvent(NetworkRequestCanceledEvent canceledEvent) {
-        this.canceledEvent = canceledEvent;
-    }
+		if (dep != null) {
+			if (!dependencies.contains(dep)) {
+				throw new IllegalStateException("This dependency is not part of this Request");
+			}
+			dep.setCompleted();
+			uncompletedCount -= 1;
 
-    /**
-     * Marks the request computation demand as fulfilled at the present time.
-     */
-    public final void setComputationCompleted() {
-        if (this.computationCompleted) {
-            throw new IllegalStateException("Computation was already completed!");
-        }
-        this.computationCompleted = true;
-        timestampComputationCompleted = presentTime();
-        onComputationComplete();
-        if (dependenciesCompleted && computationCompleted) {
-            onCompletion();
-        }
-    }
+			this.sendTraceNote(String.format("Completed Dependency \"%s\".", dep));
+			this.sendTraceNote(String.format("Remaining Dependencies: %d.", uncompletedCount - 1));
+		}
 
-    public final void stampReceived(TimeInstant stamp) {
-        this.setTimestampReceived(stamp);
-        onReceive();
-    }
+		if (uncompletedCount == 0) {
+			this.dependenciesCompleted = true;
+			onDependenciesComplete();
+			if (dependenciesCompleted && computationCompleted) {
+				onCompletion();
+			}
+			this.sendTraceNote(String.format("Dependencies of Request \"%s\" are completed.", this.getName()));
+			return true;
+		}
+		return false;
+	}
 
-    /**
-     * Marks the point in time this request was send.
-     */
-    public final void stampSendoff(TimeInstant stamp) {
-        this.setTimestampSend(stamp);
-    }
+	/**
+	 * Gets the {@link ServiceDependencyInstance} that should be completed by the
+	 * given request.
+	 *
+	 * @param request child request of this request.
+	 * @return the {@link ServiceDependencyInstance} that is related to the given
+	 *         request, {@code null} otherwise. Returns {@code null} specifically,
+	 *         if the request was a child request, that has been canceled or
+	 *         replaced.
+	 */
+	public ServiceDependencyInstance getRelatedDependency(Request request) {
+		for (ServiceDependencyInstance serviceDependencyInstance : dependencies) {
+			if (serviceDependencyInstance.getChildRequest() == request) {
+				return serviceDependencyInstance;
+			}
+		}
+		return null;
+	}
 
-    /**
-     * Marks the point in time this request was received at a handler.
-     */
-    public final void stampReceivedAtHandler(TimeInstant stamp) {
-        if (this.timestampReceivedAtHandler != null) {
-            throw new IllegalStateException("This Request was already received by its handler.");
-        }
-        this.timestampReceivedAtHandler = stamp;
-    }
+	/**
+	 * Calculates the response time of this request.
+	 *
+	 * @return a double, describing the response time with the reference unit.
+	 */
+	public final double getResponseTime() {
+		if (timestampSend == null) {
+			throw new IllegalStateException("Can't retrieve response time: Request was not send yet.");
+		} else if (timestampReceived == null) {
+			throw new IllegalStateException("Can't retrieve response time: Request was not received yet.");
+		}
 
-    /**
-     * Tells this request that one {@link ServiceDependencyInstance} has finished.
-     *
-     * @param dep dependency that was completed
-     * @return whether all dependencies are completed
-     */
-    public boolean notifyDependencyHasFinished(ServiceDependencyInstance dep) {
-        if (this.dependenciesCompleted) {
-            throw new IllegalStateException("Dependencies were already completed!");
-        }
+		double responsetime = timestampReceived.getTimeAsDouble() - timestampSend.getTimeAsDouble();
+		responsetime = Precision.round(responsetime, 15);
+		return responsetime;
+	}
 
-        long uncompletedCount =
-            dependencies.stream().filter(networkDependency -> !networkDependency.isCompleted()).count();
+	public final double getDependencyWaitTime() {
+		return timestampDependenciesCompleted.getTimeAsDouble() - timestampSend.getTimeAsDouble();
+	}
 
-        if (dep != null) {
-            if (!dependencies.contains(dep)) {
-                throw new IllegalStateException("This dependency is not part of this Request");
-            }
-            dep.setCompleted();
-            uncompletedCount -= 1;
+	public final double getComputeTime() {
+		return timestampComputationCompleted.getTimeAsDouble() - timestampDependenciesCompleted.getTimeAsDouble();
+	}
 
-            this.sendTraceNote(String.format("Completed Dependency \"%s\".", dep));
-            this.sendTraceNote(String.format("Remaining Dependencies: %d.", uncompletedCount - 1));
-        }
+	public final boolean areDependenciesCompleted() {
+		return dependenciesCompleted;
+	}
 
-        if (uncompletedCount == 0) {
-            this.dependenciesCompleted = true;
-            onDependenciesComplete();
-            if (dependenciesCompleted && computationCompleted) {
-                onCompletion();
-            }
-            this.sendTraceNote(String.format("Dependencies of Request \"%s\" are completed.", this.getName()));
-            return true;
-        }
-        return false;
-    }
+	/*
+	 * Interface for subclasses to monitor their state, while keeping core functions
+	 * hidden. these are essentially Events in a programmatic sense (like in C#, not
+	 * like in DES)
+	 */
+	protected void onDependenciesComplete() {
+		sendDebugNote(String.format("Dependencies Completed: %s", getQuotedName()));
+	}
 
+	protected void onComputationComplete() {
+		sendDebugNote(String.format("Computation Completed: %s", getQuotedName()));
+	}
 
-    /**
-     * Gets the {@link ServiceDependencyInstance} that should be completed by the given request.
-     *
-     * @param request child request of this request.
-     * @return the {@link ServiceDependencyInstance} that is related to the given request, {@code null} otherwise.
-     *     Returns {@code null} specifically, if the request was a child request, that has been canceled or replaced.
-     */
-    public ServiceDependencyInstance getRelatedDependency(Request request) {
-        for (ServiceDependencyInstance serviceDependencyInstance : dependencies) {
-            if (serviceDependencyInstance.getChildRequest() == request) {
-                return serviceDependencyInstance;
-            }
-        }
-        return null;
-    }
+	protected void onCompletion() {
+		sendDebugNote(String.format("Completed %s!", getQuotedName()));
+	}
 
-    /**
-     * Calculates the response time of this request.
-     *
-     * @return a double, describing the response time with the reference unit.
-     */
-    public final double getResponseTime() {
-        if (timestampSend == null) {
-            throw new IllegalStateException("Can't retrieve response time: Request was not send yet.");
-        } else if (timestampReceived == null) {
-            throw new IllegalStateException("Can't retrieve response time: Request was not received yet.");
-        }
+	protected void onReceive() {
+		sendDebugNote(String.format("Arrived at Parent %s!", getQuotedName()));
+	}
 
-        double responsetime = timestampReceived.getTimeAsDouble() - timestampSend.getTimeAsDouble();
-        responsetime = Precision.round(responsetime, 15);
-        return responsetime;
-    }
+	public MicroserviceInstance getHandler() {
+		return handlerInstance;
+	}
 
-    public final double getDependencyWaitTime() {
-        return timestampDependenciesCompleted.getTimeAsDouble() - timestampSend.getTimeAsDouble();
-    }
+	public void setHandler(MicroserviceInstance handler) {
+		this.handlerInstance = handler;
+	}
 
-    public final double getComputeTime() {
-        return timestampComputationCompleted.getTimeAsDouble() - timestampDependenciesCompleted.getTimeAsDouble();
-    }
+	public Collection<IRequestUpdateListener> getUpdateListeners() {
+		return updateListeners;
+	}
 
-    public final boolean areDependenciesCompleted() {
-        return dependenciesCompleted;
-    }
+	/**
+	 * Adds a new {@link IRequestUpdateListener} to the request.
+	 *
+	 * @param updateListener listener to add.
+	 */
+	public void addUpdateListener(IRequestUpdateListener updateListener) {
+		this.updateListeners.add(updateListener);
+	}
 
+	/**
+	 * Cancels the sending process of this request. Also prevents it from starting.
+	 */
+	public void cancelSending() {
+		if (sendEvent.isScheduled()) {
+			sendEvent.cancel();
+		}
+		sendEvent.setCanceled();
+	}
 
-    /*
-     * Interface for subclasses to monitor their state, while keeping core functions hidden.
-     * these are essentially Events in a programmatic sense (like in C#, not like in DES)
-     */
-    protected void onDependenciesComplete() {
-        sendDebugNote(String.format("Dependencies Completed: %s", getQuotedName()));
-    }
-
-    protected void onComputationComplete() {
-        sendDebugNote(String.format("Computation Completed: %s", getQuotedName()));
-    }
-
-    protected void onCompletion() {
-        sendDebugNote(String.format("Completed %s!", getQuotedName()));
-    }
-
-    protected void onReceive() {
-        sendDebugNote(String.format("Arrived at Parent %s!", getQuotedName()));
-    }
-
-    public MicroserviceInstance getHandler() {
-        return handlerInstance;
-    }
-
-    public void setHandler(MicroserviceInstance handler) {
-        this.handlerInstance = handler;
-    }
-
-    public Collection<IRequestUpdateListener> getUpdateListeners() {
-        return updateListeners;
-    }
-
-    /**
-     * Adds a new {@link IRequestUpdateListener} to the request.
-     *
-     * @param updateListener listener to add.
-     */
-    public void addUpdateListener(IRequestUpdateListener updateListener) {
-        this.updateListeners.add(updateListener);
-    }
-
-
-    /**
-     * Cancels the sending process of this request. Also prevents it from starting.
-     */
-    public void cancelSending() {
-        if (sendEvent.isScheduled()) {
-            sendEvent.cancel();
-        }
-        sendEvent.setCanceled();
-    }
-
-    /**
-     * Use, to cancel this request.
-     */
-    public void cancelExecutionAtHandler() {
-        Request request = this;
-        NetworkRequestEvent cancelEvent =
-            new NetworkRequestCanceledEvent(getModel(), String.format("CANCEL Event for %s", request.getQuotedName()),
-                request.traceIsOn(), request, RequestFailedReason.HANDLING_INSTANCE_DIED);
-        cancelEvent.schedule(presentTime());
-        request.canceledEvent = canceledEvent;
-    }
-
+	/**
+	 * Use, to cancel this request.
+	 */
+	public void cancelExecutionAtHandler() {
+		Request request = this;
+		NetworkRequestEvent cancelEvent = new NetworkRequestCanceledEvent(getModel(),
+				String.format("CANCEL Event for %s", request.getQuotedName()), request.traceIsOn(), request,
+				RequestFailedReason.HANDLING_INSTANCE_DIED);
+		cancelEvent.schedule(presentTime());
+		request.canceledEvent = canceledEvent;
+	}
 
 }
