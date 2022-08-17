@@ -297,7 +297,7 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
     }
 
     /**
-     * Completes the shutdown and transistions the instance into the {@link InstanceState#SHUTDOWN} state. The instance
+     * Completes the shutdown and transitions the instance into the {@link InstanceState#SHUTDOWN} state. The instance
      * will not handle any requests in this state.
      */
     public final void endShutdown() {
