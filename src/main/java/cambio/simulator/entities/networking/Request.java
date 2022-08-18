@@ -24,8 +24,7 @@ public abstract class Request extends NamedEntity {
     private final PriorityQueue<IRequestUpdateListener> updateListeners = new PriorityQueue<>();
     private final transient Random prob;
     private MicroserviceInstance handlerInstance;
-    // microservice instance that collects dependencies of this request and computes
-    // it
+    // microservice instance that collects dependencies of this request and computes it
     private boolean computationCompleted = false;
     private boolean dependenciesCompleted = false;
     private transient NetworkRequestSendEvent sendEvent;
