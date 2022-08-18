@@ -3,6 +3,7 @@ package cambio.simulator.parsing.adapter.architecture;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
+import java.util.Objects;
 
 import cambio.simulator.entities.networking.AbstractDependencyDescription;
 import cambio.simulator.entities.networking.AlternativeDependencyDescription;
@@ -49,9 +50,7 @@ public class DependencyDescriptionAdapter extends MiSimModelReferencingTypeAdapt
 
     @Override
     public DependencyDescription read(JsonReader in) throws IOException {
-        if (in == null) {
-            throw new IllegalArgumentException("JsonReader must not be null");
-        }
+        Objects.requireNonNull(in, "JsonReader must not be null");
 
         JsonObject root = JsonParser.parseReader(in).getAsJsonObject();
         JsonElement jsonTypeElement = root.get("type");

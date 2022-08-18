@@ -2,6 +2,7 @@ package cambio.simulator.entities.networking;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -68,9 +69,7 @@ public abstract class IntermediateDependencyDescription extends AbstractDependen
 
     @Override
     public void applyExtraDelay(final NumericalDist<Double> dist, final Operation operationTrg) {
-        if (operationTrg == null) {
-            throw new IllegalStateException("Target operation must not be null");
-        }
+        Objects.requireNonNull(operationTrg, "Target operation must not be null");
         for (DependencyDescription dependencyDescription : dependencies) {
             dependencyDescription.applyExtraDelay(dist, operationTrg);
         }

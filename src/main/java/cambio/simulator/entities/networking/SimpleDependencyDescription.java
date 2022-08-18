@@ -200,9 +200,7 @@ public class SimpleDependencyDescription extends AbstractDependencyDescription {
      * @return the custom delay assigned to this dependency.
      */
     public synchronized double getNextCustomDelay() {
-        if (customDelay == null) {
-            throw new IllegalStateException("No Custom Delay was set for this Dependency.");
-        }
+        Objects.requireNonNull(customDelay, "No Custom Delay was set for this Dependency.");
 
         double nextlatency;
         do {
@@ -228,9 +226,7 @@ public class SimpleDependencyDescription extends AbstractDependencyDescription {
             return;
         }
 
-        if (targetOperationName == null) {
-            throw new IllegalStateException("Target operation was not defined.");
-        }
+        Objects.requireNonNull(targetOperationName, "Target operation was not defined.");
 
         String fullyQualifiedName = NameResolver.combineToFullyQualifiedName(targetServiceName, targetOperationName);
 

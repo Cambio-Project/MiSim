@@ -1,5 +1,6 @@
 package cambio.simulator.entities.networking;
 
+import java.util.Objects;
 import java.util.Random;
 
 import cambio.simulator.misc.Util;
@@ -45,9 +46,7 @@ public abstract class AbstractDependencyDescription implements DependencyDescrip
     public AbstractDependencyDescription(final Model model, final double probability,
                                          final double alternativeProbability) {
         super();
-        if (model == null) {
-            throw new IllegalArgumentException("Model must not be null!");
-        }
+        Objects.requireNonNull(model, "Model must not be null!");
         Util.requirePercentage(probability, "Probability hast to be a value between 0 and 1 (inclusive)");
         Util.requirePercentage(alternativeProbability, "Probability has to be a value between 0 and 1 (inclusive)");
         this.alternativeProbability =
