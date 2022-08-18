@@ -9,6 +9,7 @@ import java.util.List;
 import cambio.simulator.entities.microservice.Operation;
 import cambio.simulator.entities.networking.DependencyDescription;
 import cambio.simulator.entities.networking.SimpleDependencyDescription;
+import cambio.simulator.misc.NameResolver;
 import cambio.simulator.models.MiSimModel;
 import cambio.simulator.parsing.GsonHelper;
 import cambio.simulator.parsing.ParsingException;
@@ -71,6 +72,14 @@ public class OperationAdapter extends MiSimModelReferencingTypeAdapter<Operation
         return operation;
     }
 
+    private String extractOperationName(final JsonElement nameElement) {
+        String operationName = nameElement.getAsString().trim();
+        if (NameResolver.operationNameIsComposed(operationName)) {
+            operationName = NameResolver.operationNameFromComposed(operationName, null);
+        }
+        return operationName;
+    }
+
     private void setAsParentOperationForAllLeafDependencies(final Operation parentOperation)
         throws ReflectiveOperationException {
         assert parentOperation != null;
@@ -95,39 +104,6 @@ public class OperationAdapter extends MiSimModelReferencingTypeAdapter<Operation
             .create();
 
         return gson.fromJson(root, Operation.class);
-    }
-
-    private String extractOperationName(final JsonElement nameElement) {
-        String operationName = nameElement.getAsString().trim();
-        if (operationNameIsComposed(operationName)) {
-            operationName = operationNameFromComposed(operationName);
-        }
-        return operationName;
-    }
-
-    private boolean operationNameIsComposed(final String operationName) {
-        assert operationName != null;
-        return operationName.contains(".");
-    }
-
-    private String operationNameFromComposed(final String composedOperationName) {
-        assert composedOperationName != null;
-        assert composedOperationName.contains(".");
-        String[] names = composedOperationName.split("\\.");
-        String microserviceName = names[0];
-        String opNameFragment = names[1];
-        assureMicroserviceNameMatchesParent(microserviceName, opNameFragment);
-        return opNameFragment;
-    }
-
-    private void assureMicroserviceNameMatchesParent(final String microserviceName, final String operationName) {
-        assert microserviceName != null;
-        assert operationName != null;
-        if (!microserviceName.equals(parentMicroserviceName)) {
-            throw new ParsingException(
-                String.format("Fully qualified name \"%s\" does not match name of the parent \"%s\"", operationName,
-                    parentMicroserviceName));
-        }
     }
 
     private static final class OperationInstanceCreator implements InstanceCreator<Operation> {
