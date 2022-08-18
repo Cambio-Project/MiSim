@@ -63,5 +63,4 @@ public class ArchitectureModelAdapter extends MiSimModelReferencingTypeAdapter<A
             }
         }
     }
-
 }
