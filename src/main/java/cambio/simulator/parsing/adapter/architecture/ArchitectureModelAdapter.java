@@ -37,7 +37,8 @@ public class ArchitectureModelAdapter extends MiSimModelReferencingTypeAdapter<A
     }
 
     @Override
-    public void write(JsonWriter out, ArchitectureModel value) throws IOException {}
+    public void write(JsonWriter out, ArchitectureModel value) throws IOException {
+    }
 
     @Override
     public ArchitectureModel read(JsonReader in) throws IOException {
@@ -49,18 +50,15 @@ public class ArchitectureModelAdapter extends MiSimModelReferencingTypeAdapter<A
 
     private ArchitectureModel createArchitectureModelFrom(JsonObject root) {
         Gson gson = GsonHelper.getGsonBuilder().excludeFieldsWithoutExposeAnnotation()
-                .registerTypeAdapter(ContDistNormal.class, new NormalDistributionAdapter(model))
-                .registerTypeAdapter(Microservice.class,
-                        new MicroserviceAdapter(model, dependencies))
-                .create();
+            .registerTypeAdapter(ContDistNormal.class, new NormalDistributionAdapter(model))
+            .registerTypeAdapter(Microservice.class, new MicroserviceAdapter(model, dependencies)).create();
 
         return gson.fromJson(root, ArchitectureModel.class);
     }
 
     private void lateResolveReferencesInAllDependencies(final ArchitectureModel architectureModel) {
         for (final DependencyDescription dependency : dependencies) {
-            for (final SimpleDependencyDescription simpleDependency : dependency
-                    .getLeafDescendants()) {
+            for (final SimpleDependencyDescription simpleDependency : dependency.getLeafDescendants()) {
                 simpleDependency.resolveNames(architectureModel);
             }
         }

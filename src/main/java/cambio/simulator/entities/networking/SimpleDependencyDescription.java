@@ -50,7 +50,7 @@ public class SimpleDependencyDescription extends AbstractDependencyDescription {
      * The target operation will be always be required for the parent operation to complete.
      * Messages do not use a custom delay.
      *
-     * @param parent parent operation that requires this dependency
+     * @param parent          parent operation that requires this dependency
      * @param targetOperation child operation that may be need to complete the parent operation
      */
     public SimpleDependencyDescription(Operation parent, Operation targetOperation) {
@@ -61,13 +61,12 @@ public class SimpleDependencyDescription extends AbstractDependencyDescription {
      * Constructs a new Dependency object to represent the need of one operation to call another.
      * Messages do not use a custom delay.
      *
-     * @param parent parent operation that potentially requires this dependency
+     * @param parent          parent operation that potentially requires this dependency
      * @param targetOperation child operation that may be need to complete the parent operation
-     * @param probability probability with which the parent operation needs to call the
-     *        {@code targetOperation}
+     * @param probability     probability with which the parent operation needs to call the
+     *                        {@code targetOperation}
      */
-    public SimpleDependencyDescription(Operation parent, Operation targetOperation,
-            double probability) {
+    public SimpleDependencyDescription(Operation parent, Operation targetOperation, double probability) {
         this(parent, targetOperation, probability, null);
     }
 
@@ -75,15 +74,15 @@ public class SimpleDependencyDescription extends AbstractDependencyDescription {
      * Constructs a new Dependency object to represent the need of one operation to call another.
      * Messages can use a custom delay.
      *
-     * @param parent parent operation that potentially requires this dependency
+     * @param parent          parent operation that potentially requires this dependency
      * @param targetOperation child operation that may be need to complete the parent operation
-     * @param probability probability with which the parent operation needs to call the
-     *        {@code targetOperation}
-     * @param customDelay delay of this dependency that overrides the default network delay, null
-     *        values will be ignored
+     * @param probability     probability with which the parent operation needs to call the
+     *                        {@code targetOperation}
+     * @param customDelay     delay of this dependency that overrides the default network delay, null
+     *                        values will be ignored
      */
-    public SimpleDependencyDescription(Operation parent, Operation targetOperation,
-            double probability, Double customDelay) {
+    public SimpleDependencyDescription(Operation parent, Operation targetOperation, double probability,
+                                       Double customDelay) {
         this(targetOperation, targetOperation, probability, customDelay, 1);
     }
 
@@ -91,18 +90,18 @@ public class SimpleDependencyDescription extends AbstractDependencyDescription {
      * Constructs a new Dependency object to represent the need of one operation to call another.
      * Messages can use a custom delay.
      *
-     * @param parent parent operation that potentially requires this dependency
-     * @param targetOperation child operation that may be need to complete the parent operation
-     * @param probability probability with which the parent operation needs to call the
-     *        {@code targetOperation}
-     * @param customDelay delay of this dependency that overrides the default network delay, null
-     *        values will be ignored
+     * @param parent                 parent operation that potentially requires this dependency
+     * @param targetOperation        child operation that may be need to complete the parent operation
+     * @param probability            probability with which the parent operation needs to call the
+     *                               {@code targetOperation}
+     * @param customDelay            delay of this dependency that overrides the default network delay, null
+     *                               values will be ignored
      * @param alternativeProbability probability at which the dependency - and its descendants - is
-     *        selected from a group of dependencies for execution when inside of an
-     *        {@link AlternativeDependencyDescription}
+     *                               selected from a group of dependencies for execution when inside of an
+     *                               {@link AlternativeDependencyDescription}
      */
-    public SimpleDependencyDescription(Operation parent, Operation targetOperation,
-            double probability, Double customDelay, double alternativeProbability) {
+    public SimpleDependencyDescription(Operation parent, Operation targetOperation, double probability,
+                                       Double customDelay, double alternativeProbability) {
         super(parent.getModel(), probability, alternativeProbability);
         Objects.requireNonNull(parent);
         Objects.requireNonNull(targetOperation);
@@ -112,8 +111,8 @@ public class SimpleDependencyDescription extends AbstractDependencyDescription {
 
         this.parentOperation = parent;
         this.targetOperation = targetOperation;
-        this.customDelay = customDelay == null ? null
-                : new ContDistNormal(parent.getModel(), null, customDelay, 0, false, false);
+        this.customDelay =
+            customDelay == null ? null : new ContDistNormal(parent.getModel(), null, customDelay, 0, false, false);
         this.extraDelay = null;
     }
 
@@ -136,12 +135,12 @@ public class SimpleDependencyDescription extends AbstractDependencyDescription {
 
     @Override
     public List<ServiceDependencyInstance> generateDependenciesForExecutions(final Request request,
-            final Random random) {
+                                                                             final Random random) {
         List<ServiceDependencyInstance> result = new ArrayList<>();
         if (isExecuted(random)) {
             Operation nextOperationEntity = this.getTargetOperation();
-            ServiceDependencyInstance dep = new ServiceDependencyInstance(request.getModel(),
-                    request, nextOperationEntity, this);
+            ServiceDependencyInstance dep =
+                new ServiceDependencyInstance(request.getModel(), request, nextOperationEntity, this);
             result.add(dep);
         }
         return result;
@@ -222,7 +221,7 @@ public class SimpleDependencyDescription extends AbstractDependencyDescription {
      * called once per {@link SimpleDependencyDescription} object.
      *
      * @param model {@link ArchitectureModel} that this {@link SimpleDependencyDescription} belongs
-     *        to.
+     *              to.
      */
     public void resolveNames(final ArchitectureModel model) {
         if (hasResolvedNames) {
@@ -233,8 +232,7 @@ public class SimpleDependencyDescription extends AbstractDependencyDescription {
             throw new IllegalStateException("Target operation was not defined.");
         }
 
-        String fullyQualifiedName =
-                NameResolver.combineToFullyQualifiedName(targetServiceName, targetOperationName);
+        String fullyQualifiedName = NameResolver.combineToFullyQualifiedName(targetServiceName, targetOperationName);
 
         Operation targetOperation = NameResolver.resolveOperationName(model, fullyQualifiedName);
 

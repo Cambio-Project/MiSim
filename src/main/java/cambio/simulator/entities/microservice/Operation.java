@@ -25,10 +25,9 @@ public class Operation extends NamedEntity {
      * Constructs a new endpoint for a microservice.
      *
      * @param ownerMS {@link Microservice} that owns this operation.
-     * @param demand CPU demand of this operation.
+     * @param demand  CPU demand of this operation.
      */
-    public Operation(Model model, String name, boolean showInTrace, Microservice ownerMS,
-            int demand) {
+    public Operation(Model model, String name, boolean showInTrace, Microservice ownerMS, int demand) {
         super(model, (ownerMS == null ? "" : ownerMS.getPlainName() + ".") + name, showInTrace);
         this.demand = demand;
         this.ownerMS = ownerMS;
@@ -80,9 +79,9 @@ public class Operation extends NamedEntity {
     /**
      * Add additional delay to this operation.
      *
-     * @param dist {@link NumericalDist} of the delay.
+     * @param dist         {@link NumericalDist} of the delay.
      * @param operationTrg target {@link Operation} of this that should be affected, can be set to
-     *        {@code null} to affect all outgoing {@link ServiceDependencyInstance}s
+     *                     {@code null} to affect all outgoing {@link ServiceDependencyInstance}s
      */
     public void applyExtraDelay(NumericalDist<Double> dist, Operation operationTrg) {
         if (operationTrg == null) {
@@ -94,7 +93,7 @@ public class Operation extends NamedEntity {
 
     /**
      * Add additional delay to all dependencies.
-     * 
+     *
      * @param dist {@link NumericalDist} of the delay.
      */
     private void applyExtraDelayToAllDependencies(NumericalDist<Double> dist) {
@@ -106,13 +105,12 @@ public class Operation extends NamedEntity {
 
     /**
      * Add additional delay to the dependencies found with the given target.
-     * 
-     * @param dist {@link NumericalDist} of the delay.
+     *
+     * @param dist         {@link NumericalDist} of the delay.
      * @param operationTrg target {@link Operation} of this that should be affected. Must not be
-     *        null.
+     *                     null.
      */
-    private void applyExtraDelayToSpecificDependencies(NumericalDist<Double> dist,
-            Operation operationTrg) {
+    private void applyExtraDelayToSpecificDependencies(NumericalDist<Double> dist, Operation operationTrg) {
         assert operationTrg != null;
         for (DependencyDescription dependencyDescription : dependencies) {
             dependencyDescription.applyExtraDelay(dist, operationTrg);

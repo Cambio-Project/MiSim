@@ -32,12 +32,8 @@ public class ServiceDependencyInstance extends NamedEntity {
      */
     public ServiceDependencyInstance(Model model, Request parentRequest, Operation targetOp,
                                      SimpleDependencyDescription dependencyDescription) {
-        super(model,
-            String.format(
-                "%s_depends_on_%s",
-                parentRequest.operation.getFullyQualifiedPlainName(),
-                targetOp.getFullyQualifiedPlainName()),
-            false);
+        super(model, String.format("%s_depends_on_%s", parentRequest.operation.getFullyQualifiedPlainName(),
+            targetOp.getFullyQualifiedPlainName()), false);
         this.parentRequest = parentRequest;
         this.targetOp = targetOp;
         this.targetMicroservice = targetOp.getOwnerMS();

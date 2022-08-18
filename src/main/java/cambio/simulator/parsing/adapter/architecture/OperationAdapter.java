@@ -35,13 +35,12 @@ public class OperationAdapter extends MiSimModelReferencingTypeAdapter<Operation
      * {@link Operation}s have been initialized. Instead, it will provide a list of dependencies,
      * that can be resolved later.
      *
-     * @param baseModel Base model of the simulation.
-     * @param name Name of the parent {@link cambio.simulator.entities.microservice.Microservice}.
+     * @param baseModel    Base model of the simulation.
+     * @param name         Name of the parent {@link cambio.simulator.entities.microservice.Microservice}.
      * @param dependencies A mutable {@link List} to which all dependencies of the operation will be
-     *        added.
+     *                     added.
      */
-    public OperationAdapter(MiSimModel baseModel, String name,
-            List<DependencyDescription> dependencies) {
+    public OperationAdapter(MiSimModel baseModel, String name, List<DependencyDescription> dependencies) {
         super(baseModel);
         parentMicroserviceName = name;
         this.dependencies = dependencies;
@@ -67,22 +66,19 @@ public class OperationAdapter extends MiSimModelReferencingTypeAdapter<Operation
         try {
             setAsParentOperationForAllLeafDependencies(operation);
         } catch (ReflectiveOperationException e) {
-            throw new ParsingException(
-                    "Failed to set parent operations for contained dependencies.", e);
+            throw new ParsingException("Failed to set parent operations for contained dependencies.", e);
         }
         return operation;
     }
 
     private void setAsParentOperationForAllLeafDependencies(final Operation parentOperation)
-            throws ReflectiveOperationException {
+        throws ReflectiveOperationException {
         assert parentOperation != null;
         // TODO: There is certainly a better option than using reflection
-        Field parentOperationField =
-                SimpleDependencyDescription.class.getDeclaredField("parentOperation");
+        Field parentOperationField = SimpleDependencyDescription.class.getDeclaredField("parentOperation");
         parentOperationField.setAccessible(true);
         for (final DependencyDescription dependency : parentOperation.getDependencyDescriptions()) {
-            for (final SimpleDependencyDescription leafDependency : dependency
-                    .getLeafDescendants()) {
+            for (final SimpleDependencyDescription leafDependency : dependency.getLeafDescendants()) {
                 parentOperationField.set(leafDependency, parentOperation);
             }
         }
@@ -93,12 +89,10 @@ public class OperationAdapter extends MiSimModelReferencingTypeAdapter<Operation
         assert operationName != null;
 
         Gson gson = GsonHelper.getGsonBuilder().excludeFieldsWithoutExposeAnnotation()
-                .registerTypeAdapter(Operation.class,
-                        new OperationInstanceCreator(model, operationName))
-                .registerTypeAdapter(ContDistNormal.class, new NormalDistributionAdapter(model))
-                .registerTypeAdapter(DependencyDescription.class,
-                        new DependencyDescriptionAdapter(model, operationName))
-                .create();
+            .registerTypeAdapter(Operation.class, new OperationInstanceCreator(model, operationName))
+            .registerTypeAdapter(ContDistNormal.class, new NormalDistributionAdapter(model))
+            .registerTypeAdapter(DependencyDescription.class, new DependencyDescriptionAdapter(model, operationName))
+            .create();
 
         return gson.fromJson(root, Operation.class);
     }
@@ -126,14 +120,13 @@ public class OperationAdapter extends MiSimModelReferencingTypeAdapter<Operation
         return opNameFragment;
     }
 
-    private void assureMicroserviceNameMatchesParent(final String microserviceName,
-            final String operationName) {
+    private void assureMicroserviceNameMatchesParent(final String microserviceName, final String operationName) {
         assert microserviceName != null;
         assert operationName != null;
         if (!microserviceName.equals(parentMicroserviceName)) {
-            throw new ParsingException(String.format(
-                    "Fully qualified name \"%s\" does not match name of the parent \"%s\"",
-                    operationName, parentMicroserviceName));
+            throw new ParsingException(
+                String.format("Fully qualified name \"%s\" does not match name of the parent \"%s\"", operationName,
+                    parentMicroserviceName));
         }
     }
 

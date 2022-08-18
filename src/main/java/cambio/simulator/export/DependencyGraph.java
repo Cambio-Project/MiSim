@@ -23,7 +23,7 @@ public class DependencyGraph {
     /**
      * Instantiates a <code>DependencyGraph</code>.
      *
-     * @param model The model which owns this DependencyGraph
+     * @param model         The model which owns this DependencyGraph
      * @param microservices all known services
      */
     public DependencyGraph(MiSimModel model, Collection<Microservice> microservices) {
@@ -39,8 +39,8 @@ public class DependencyGraph {
     public String printGraph() {
         String nodes = printNodes();
         String links = printLinks();
-        String html = "var graphMinimalistic = '" + model.getExperimentMetaData().getReportType()
-                + "';\n" + "var graph = {nodes:[";
+        String html = "var graphMinimalistic = '" + model.getExperimentMetaData().getReportType() + "';\n"
+            + "var graph = {nodes:[";
         if (nodes.length() > 2) {
             html += nodes.substring(0, nodes.length() - 1) + "], ";
         } else {
@@ -64,18 +64,16 @@ public class DependencyGraph {
     private String printNodes() {
         StringBuilder json = new StringBuilder();
         for (Microservice ms : microservices) {
-            String labels = String.join(",", Arrays.stream(ms.getOperations())
-                    .map(Operation::getQuotedName).collect(Collectors.toSet()));
+            String labels = String.join(",",
+                Arrays.stream(ms.getOperations()).map(Operation::getQuotedName).collect(Collectors.toSet()));
             int instanceLimit =
-                    !model.getExperimentMetaData().getReportType().equals("minimalistic")
-                            ? ms.getInstancesCount()
-                            : Math.min(ms.getInstancesCount(), 10);
+                !model.getExperimentMetaData().getReportType().equals("minimalistic") ? ms.getInstancesCount() :
+                    Math.min(ms.getInstancesCount(), 10);
 
             for (int i = 0; i < instanceLimit; ++i) {
                 long instanceIdentifier = (long) ms.hashCode() * hashMultiplier + i;
-                json.append("{name:").append(ms.getQuotedName()).append(",id:")
-                        .append(instanceIdentifier).append(",labels:[").append(labels)
-                        .append("],group:").append(ms.getIdentNumber()).append("},");
+                json.append("{name:").append(ms.getQuotedName()).append(",id:").append(instanceIdentifier)
+                    .append(",labels:[").append(labels).append("],group:").append(ms.getIdentNumber()).append("},");
             }
 
         }
@@ -94,20 +92,18 @@ public class DependencyGraph {
         for (Microservice ms : microservices) {
 
             int instanceLimit =
-                    !model.getExperimentMetaData().getReportType().equals("minimalistic")
-                            ? ms.getInstancesCount()
-                            : Math.min(ms.getInstancesCount(), 10);
+                !model.getExperimentMetaData().getReportType().equals("minimalistic") ? ms.getInstancesCount() :
+                    Math.min(ms.getInstancesCount(), 10);
 
             StringBuilder labels = new StringBuilder();
             for (Operation op : ms.getOperations()) {
                 labels.append("'").append(op.getName()).append("',");
                 for (DependencyDescription depService : op.getDependencyDescriptions()) {
-                    for (SimpleDependencyDescription leafDependency : depService
-                            .getLeafDescendants()) {
+                    for (SimpleDependencyDescription leafDependency : depService.getLeafDescendants()) {
 
                         long depId = leafDependency.getTargetMicroservice().getIdentNumber();
-                        json.append("{source:").append(ms.getIdentNumber()).append(",target:")
-                                .append(depId).append(",value:").append(instanceLimit).append("},");
+                        json.append("{source:").append(ms.getIdentNumber()).append(",target:").append(depId)
+                            .append(",value:").append(instanceLimit).append("},");
                     }
                 }
             }

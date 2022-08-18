@@ -37,14 +37,14 @@ public abstract class Request extends NamedEntity {
     private TimeInstant timestampComputationCompleted;
     private TimeInstant timestampDependenciesCompleted;
 
-    protected Request(Model model, String name, boolean showInTrace, Request parent,
-            Operation operation, MicroserviceInstance requester) {
+    protected Request(Model model, String name, boolean showInTrace, Request parent, Operation operation,
+                      MicroserviceInstance requester) {
         super(model, name, showInTrace);
         this.operation = operation;
         this.requester = requester;
         this.parent = parent;
         this.prob = RNGStorage.get(this.getClass().getName(),
-                () -> new Random(((MiSimModel) getModel()).getExperimentMetaData().getSeed()));
+            () -> new Random(((MiSimModel) getModel()).getExperimentMetaData().getSeed()));
         createDependencies();
         if (dependencies.isEmpty()) {
             // TODO: clean up this mess (this call is made to neatly trigger
@@ -55,8 +55,7 @@ public abstract class Request extends NamedEntity {
 
     private void createDependencies() {
         for (DependencyDescription dependencyDescription : operation.getDependencyDescriptions()) {
-            dependencies
-                    .addAll(dependencyDescription.generateDependenciesForExecutions(this, prob));
+            dependencies.addAll(dependencyDescription.generateDependenciesForExecutions(this, prob));
         }
     }
 
@@ -195,8 +194,8 @@ public abstract class Request extends NamedEntity {
             throw new IllegalStateException("Dependencies were already completed!");
         }
 
-        long uncompletedCount = dependencies.stream()
-                .filter(networkDependency -> !networkDependency.isCompleted()).count();
+        long uncompletedCount =
+            dependencies.stream().filter(networkDependency -> !networkDependency.isCompleted()).count();
 
         if (dep != null) {
             if (!dependencies.contains(dep)) {
@@ -215,8 +214,7 @@ public abstract class Request extends NamedEntity {
             if (dependenciesCompleted && computationCompleted) {
                 onCompletion();
             }
-            this.sendTraceNote(
-                    String.format("Dependencies of Request \"%s\" are completed.", this.getName()));
+            this.sendTraceNote(String.format("Dependencies of Request \"%s\" are completed.", this.getName()));
             return true;
         }
         return false;
@@ -227,8 +225,8 @@ public abstract class Request extends NamedEntity {
      *
      * @param request child request of this request.
      * @return the {@link ServiceDependencyInstance} that is related to the given request,
-     *         {@code null} otherwise. Returns {@code null} specifically, if the request was a child
-     *         request, that has been canceled or replaced.
+     *     {@code null} otherwise. Returns {@code null} specifically, if the request was a child
+     *     request, that has been canceled or replaced.
      */
     public ServiceDependencyInstance getRelatedDependency(Request request) {
         for (ServiceDependencyInstance serviceDependencyInstance : dependencies) {
@@ -246,11 +244,9 @@ public abstract class Request extends NamedEntity {
      */
     public final double getResponseTime() {
         if (timestampSend == null) {
-            throw new IllegalStateException(
-                    "Can't retrieve response time: Request was not send yet.");
+            throw new IllegalStateException("Can't retrieve response time: Request was not send yet.");
         } else if (timestampReceived == null) {
-            throw new IllegalStateException(
-                    "Can't retrieve response time: Request was not received yet.");
+            throw new IllegalStateException("Can't retrieve response time: Request was not received yet.");
         }
 
         double responsetime = timestampReceived.getTimeAsDouble() - timestampSend.getTimeAsDouble();
@@ -263,8 +259,7 @@ public abstract class Request extends NamedEntity {
     }
 
     public final double getComputeTime() {
-        return timestampComputationCompleted.getTimeAsDouble()
-                - timestampDependenciesCompleted.getTimeAsDouble();
+        return timestampComputationCompleted.getTimeAsDouble() - timestampDependenciesCompleted.getTimeAsDouble();
     }
 
     public final boolean areDependenciesCompleted() {
@@ -327,9 +322,9 @@ public abstract class Request extends NamedEntity {
      */
     public void cancelExecutionAtHandler() {
         Request request = this;
-        NetworkRequestEvent cancelEvent = new NetworkRequestCanceledEvent(getModel(),
-                String.format("CANCEL Event for %s", request.getQuotedName()), request.traceIsOn(),
-                request, RequestFailedReason.HANDLING_INSTANCE_DIED);
+        NetworkRequestEvent cancelEvent =
+            new NetworkRequestCanceledEvent(getModel(), String.format("CANCEL Event for %s", request.getQuotedName()),
+                request.traceIsOn(), request, RequestFailedReason.HANDLING_INSTANCE_DIED);
         cancelEvent.schedule(presentTime());
         request.canceledEvent = canceledEvent;
     }

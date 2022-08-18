@@ -14,7 +14,7 @@ import desmoj.core.simulator.Model;
 /**
  * These dependencies act (only) as intermediate dependencies inside a hierarchy of
  * {@link DependencyDescription}. They have at least one child dependency.
- * 
+ *
  * @author Sebastian Frank
  */
 public abstract class IntermediateDependencyDescription extends AbstractDependencyDescription {
@@ -25,32 +25,31 @@ public abstract class IntermediateDependencyDescription extends AbstractDependen
     /**
      * Creates a new intermediate dependency. You should use {@link #getChildren()} to modify the
      * children.
-     * 
-     * @param model the MiSim model
-     * @param probability probability with which the dependency - and its descendants - are
-     *        executed.
+     *
+     * @param model                  the MiSim model
+     * @param probability            probability with which the dependency - and its descendants - are
+     *                               executed.
      * @param alternativeProbability probability at which the dependency - and its descendants - is
-     *        selected from a group of dependencies for execution when inside of an
-     *        {@link AlternativeDependencyDescription}
+     *                               selected from a group of dependencies for execution when inside of an
+     *                               {@link AlternativeDependencyDescription}
      */
-    public IntermediateDependencyDescription(Model model, double probability,
-            double alternativeProbability) {
+    public IntermediateDependencyDescription(Model model, double probability, double alternativeProbability) {
         this(model, probability, alternativeProbability, new DependencyDescription[0]);
     }
 
     /**
      * Creates a new intermediate dependency.
-     * 
-     * @param model the MiSim model
-     * @param probability probability with which the dependency - and its descendants - are
-     *        executed.
+     *
+     * @param model                  the MiSim model
+     * @param probability            probability with which the dependency - and its descendants - are
+     *                               executed.
      * @param alternativeProbability probability at which the dependency - and its descendants - is
-     *        selected from a group of dependencies for execution when inside of an
-     *        {@link AlternativeDependencyDescription}
-     * @param dependencies the children of this intermediate dependency. There must be at least one.
+     *                               selected from a group of dependencies for execution when inside of an
+     *                               {@link AlternativeDependencyDescription}
+     * @param dependencies           the children of this intermediate dependency. There must be at least one.
      */
-    public IntermediateDependencyDescription(Model model, double probability,
-            double alternativeProbability, DependencyDescription[] dependencies) {
+    public IntermediateDependencyDescription(Model model, double probability, double alternativeProbability,
+                                             DependencyDescription[] dependencies) {
         super(model, probability, alternativeProbability);
         this.dependencies = dependencies;
     }
@@ -79,20 +78,19 @@ public abstract class IntermediateDependencyDescription extends AbstractDependen
 
     @Override
     public Set<Operation> getAllTargetOperations() {
-        return Stream.of(dependencies)
-                .flatMap(depdendency -> depdendency.getAllTargetOperations().stream())
-                .collect(Collectors.toSet());
+        return Stream.of(dependencies).flatMap(dependency -> dependency.getAllTargetOperations().stream())
+            .collect(Collectors.toSet());
     }
 
     @Override
     public List<SimpleDependencyDescription> getLeafDescendants() {
-        return Stream.of(dependencies)
-                .flatMap(depdendency -> depdendency.getLeafDescendants().stream()).collect(Collectors.toList());
+        return Stream.of(dependencies).flatMap(dependency -> dependency.getLeafDescendants().stream())
+            .collect(Collectors.toList());
     }
 
     /**
      * Sets the child dependencies of this dependency.
-     * 
+     *
      * @param dependencies should not be empty.
      */
     protected void setDependencies(final DependencyDescription[] dependencies) {

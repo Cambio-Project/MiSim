@@ -132,7 +132,7 @@ public class Microservice extends NamedEntity {
     }
 
     /**
-     * Schedules the immeidate start or shutdown of {@link MicroserviceInstance}s until the amount of active instances
+     * Schedules the immediate start or shutdown of {@link MicroserviceInstance}s until the amount of active instances
      * reaches the target instance count.
      *
      * <p>
@@ -214,7 +214,7 @@ public class Microservice extends NamedEntity {
 
     /**
      * Searches an {@code Operation} that has the name that is given as an argument. The real name of the operation may
-     * differ. It may starts with the name of this mircoservice instance or ands with a '#' and a number.
+     * differ. It may starts with the name of this microservice instance or ands with a '#' and a number.
      *
      * @param name name of the operation that should be found
      * @return an operation that has exactly that name, {@code null} if not found

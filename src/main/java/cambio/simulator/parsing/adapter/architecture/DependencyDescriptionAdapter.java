@@ -30,12 +30,10 @@ import desmoj.core.dist.DiscreteDistConstant;
 
 /**
  * Adapter for parsing {@link DependencyDescription}s from JSON.
- * 
- * @author Sebastian Frank, Lion Wagner
  *
+ * @author Sebastian Frank, Lion Wagner
  */
-public class DependencyDescriptionAdapter
-        extends MiSimModelReferencingTypeAdapter<DependencyDescription> {
+public class DependencyDescriptionAdapter extends MiSimModelReferencingTypeAdapter<DependencyDescription> {
 
     private final String parentMicroserviceName;
 
@@ -77,29 +75,24 @@ public class DependencyDescriptionAdapter
             case "loop":
                 return LoopDependencyDescription.class;
             default:
-                throw new JsonParseException(
-                        "Could not recognize dependency type: " + lowerCaseType);
+                throw new JsonParseException("Could not recognize dependency type: " + lowerCaseType);
         }
     }
 
-    private DependencyDescription createDependencyFrom(final JsonObject root,
-            final Type instanceType) {
+    private DependencyDescription createDependencyFrom(final JsonObject root, final Type instanceType) {
         assert root != null;
         assert instanceType != null;
 
         Gson gson = GsonHelper.getGsonBuilder().excludeFieldsWithoutExposeAnnotation()
-                .registerTypeAdapter(instanceType, new DependencyDescriptionCreator(model))
-                .registerTypeAdapter(DependencyDescription.class,
-                        new DependencyDescriptionAdapter(model, parentMicroserviceName))
-                .registerTypeAdapter(ContDistNormal.class, new NormalDistributionAdapter(model))
-                .registerTypeHierarchyAdapter(DiscreteDist.class,
-                        new DiscreteDistributionAdapter(model))
-                .create();
+            .registerTypeAdapter(instanceType, new DependencyDescriptionCreator(model))
+            .registerTypeAdapter(DependencyDescription.class,
+                new DependencyDescriptionAdapter(model, parentMicroserviceName))
+            .registerTypeAdapter(ContDistNormal.class, new NormalDistributionAdapter(model))
+            .registerTypeHierarchyAdapter(DiscreteDist.class, new DiscreteDistributionAdapter(model)).create();
         return gson.fromJson(root, instanceType);
     }
 
-    private static final class DependencyDescriptionCreator
-            implements InstanceCreator<DependencyDescription> {
+    private static final class DependencyDescriptionCreator implements InstanceCreator<DependencyDescription> {
         private final MiSimModel baseModel;
 
         public DependencyDescriptionCreator(MiSimModel baseModel) {
@@ -119,8 +112,7 @@ public class DependencyDescriptionAdapter
                 // only used for parsing.
                 // TODO: Should be changed since this kind of 'black magic' can cause a lot of
                 // trouble ;)
-                DependencyDescription dependencyDescription =
-                        UnsafeAllocator.create().newInstance(clazz);
+                DependencyDescription dependencyDescription = UnsafeAllocator.create().newInstance(clazz);
                 setDefaultProbability(dependencyDescription);
                 setDefaultAlternativeProbability(dependencyDescription);
                 setDefaultIterations(dependencyDescription);
@@ -132,34 +124,33 @@ public class DependencyDescriptionAdapter
         }
 
         private void setDefaultProbability(DependencyDescription dependencyDescription)
-                throws ReflectiveOperationException {
+            throws ReflectiveOperationException {
             if (dependencyDescription instanceof AbstractDependencyDescription) {
-                Field defaultProbability =
-                        AbstractDependencyDescription.class.getDeclaredField("probability");
+                Field defaultProbability = AbstractDependencyDescription.class.getDeclaredField("probability");
                 defaultProbability.setAccessible(true);
-                defaultProbability.set(dependencyDescription, new ContDistNormal(baseModel,
-                        "DependencyDistribution", 1, 0, false, false));
+                defaultProbability.set(dependencyDescription,
+                    new ContDistNormal(baseModel, "DependencyDistribution", 1, 0, false, false));
             }
         }
 
         private void setDefaultAlternativeProbability(DependencyDescription dependencyDescription)
-                throws ReflectiveOperationException {
+            throws ReflectiveOperationException {
             if (dependencyDescription instanceof AbstractDependencyDescription) {
-                Field defaultAlternativeProbability = AbstractDependencyDescription.class
-                        .getDeclaredField("alternativeProbability");
+                Field defaultAlternativeProbability =
+                    AbstractDependencyDescription.class.getDeclaredField("alternativeProbability");
                 defaultAlternativeProbability.setAccessible(true);
-                defaultAlternativeProbability.set(dependencyDescription, new ContDistNormal(
-                        baseModel, "DependencyAlternativeDistribution", 1, 0, false, false));
+                defaultAlternativeProbability.set(dependencyDescription,
+                    new ContDistNormal(baseModel, "DependencyAlternativeDistribution", 1, 0, false, false));
             }
         }
 
         private void setDefaultIterations(DependencyDescription dependencyDescription)
-                throws ReflectiveOperationException {
+            throws ReflectiveOperationException {
             if (dependencyDescription instanceof LoopDependencyDescription) {
                 Field iterations = LoopDependencyDescription.class.getDeclaredField("iterations");
                 iterations.setAccessible(true);
-                iterations.set(dependencyDescription, new DiscreteDistConstant<Integer>(baseModel,
-                        "DependencyIterationsDistribution", 1, false, false));
+                iterations.set(dependencyDescription,
+                    new DiscreteDistConstant<>(baseModel, "DependencyIterationsDistribution", 1, false, false));
             }
         }
 
