@@ -87,7 +87,7 @@ public abstract class IntermediateDependencyDescription extends AbstractDependen
     @Override
     public List<SimpleDependencyDescription> getLeafDescendants() {
         return Stream.of(dependencies)
-                .flatMap(depdendency -> depdendency.getLeafDescendants().stream()).toList();
+                .flatMap(depdendency -> depdendency.getLeafDescendants().stream()).collect(Collectors.toList());
     }
 
     /**
