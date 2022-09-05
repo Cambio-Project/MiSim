@@ -1,0 +1,157 @@
+<html>
+<head>
+</head>
+<!-- width attribute is substituted by body width -->
+<body width="xxx">
+<center><h1> Guide of DESMO-J 2D Viewer</h1></center>
+<center><h2> Version 1.0, February 2011</h2></center>
+<h2>Content:</h2>
+<ul>
+    <li>Open and Close a Animation</li>
+    <li>Run a Animation</li>
+    <li>View, Position and Zoom</li>
+    <li>Additional Informations</li>
+    <li>Help</li>
+    <li>Menu Overview</li>
+</ul>
+<br>
+<h2>Open and Close an Animation</h2>
+This viewer is java a swing application. There is a version as desktop-
+and as an applet-application. For both, all animation instructions
+are stored in a commands-file (CmdsFile). The animated entities are
+pictured by icons. These icons are stored in a icon directory
+(IconDir). To run an animation CmdsFile and IconDir must known by
+viewer. This can be done automaticly by viewer call or manually with
+settings in viewer menu.<br>
+For manually opening an animation, choose<br>
+<ol>
+    <li><code>Data-&gt;IconDir</code> to select the directory which contains the needed icons, and</li>
+    <li><code>Data-&gt;Open</code> to read the CmdsFile.</li>
+</ol>
+After this, the viewer is ready to run the animation. To close a
+animation, please use <code>Data-&gt;Close</code>.<br>
+<h2>Run an Animation</h2>
+With the buttons Start, Pause, Continue and Stop you can run the
+animation. The same is possible with menu functions
+(<code>Simulation-&gt;Start</code>,&nbsp;<code>Simulation-&gt;Pause</code>,&nbsp;<code>Simulation-&gt;Continue</code>
+and <code>Simulation-&gt;Stop</code>).
+With the speedbar you can specify the simulation speed. The <var>speedvalue</var>
+is shown in a textfield at right-handside of speedbar. In
+this field, you can set also this value directly. Alternativly, you can use the menu
+<code>Simulation-&gt;SetSpeed</code>.<br>
+To run an animation, we have 3 modes, named TimeFlowMode:<br>
+<ul>
+    <li><span style="font-weight: bold;">ContiniusFlow:</span>&nbsp;Here,
+        the animation runs <var>speedvalue</var> faster than real time.
+    </li>
+    <li><span style="font-weight: bold;">StepFlow:</span>&nbsp;Here,
+        alle annimation-commands are grouped to command-groups that
+        must run at same time. In this mode, the real-timespan between two
+        groups in a neighbourhood has the same value. This value depends only
+        on your <var>speedvalue</var>. Normally, this is the preferred
+        mode, because in this mode the animation speed is stretched in dependency
+        of simulation activity.
+    </li>
+    <li><span style="font-weight: bold;">SingleSteps:</span>&nbsp;Here,
+        between two command-groups, you must press the
+        Continue-Button. In this way, you can go step by step through the
+        animation.
+    </li>
+</ul>
+<h2>View, Position and Zoom</h2>
+Each animated object has a position and a view. All objects with the
+same view are shown in the same viewpane. The coordinates of
+coursor-position in the actual viewpane are shown at
+right-handside of statusline. For each viewpane you can set a zoom property. The
+zoom property is composed of a zoom center point and a zoom factor. The
+zoom center point is signed as a target on each viewpane. You can shift
+this point by drag and drop. The zoom factor can be changed by zoombar
+or in a textfield at right-handside of zoombar. Alternatively, you can
+use the menu <code>View-&gt;Zoom</code>.<br>
+<h2>Additional Informations</h2>
+With a click on each entity you can get some additional informations
+about the history and the attributes of this entity. With a click on a
+statistical-object (data-collector) you can show its timeseries or
+histogram.<br>
+<h2>Help</h2>
+In Help-Menu there is a :<br>
+<ul>
+    <li>a dialog about the actual loaded simulation model. The
+        informations of this dialog are specified in the constructor of your
+        Desmo-J Model and
+    </li>
+    <li>a dialog about the Desmo-J Framework.</li>
+</ul>
+<h2>Menu Overview</h2>
+The menu has the following structure:
+<table border="0" width="100%">
+    <tbody>
+    <tr>
+        <td>Data</td>
+        <td>Open</td>
+        <td>Load a CmdsFile and open an animation. A IconDir must set before.</td>
+    </tr>
+    <tr>
+        <td></td>
+        <td>Close</td>
+        <td>Close an animation.</td>
+    </tr>
+    <tr>
+        <td></td>
+        <td>IconDir</td>
+        <td>Set an icon directory.</td>
+    </tr>
+    <tr>
+        <td></td>
+        <td>Exit</td>
+        <td>Close the viewer application.</td>
+    </tr>
+    <tr>
+        <td>Simulation</td>
+        <td>Start</td>
+        <td>Start the animation.</td>
+    </tr>
+    <tr>
+        <td></td>
+        <td>Pause</td>
+        <td>Pause the animation.</td>
+    </tr>
+    <tr>
+        <td></td>
+        <td>Stop</td>
+        <td>Stop the animation.</td>
+    </tr>
+    <tr>
+        <td></td>
+        <td>SetSpeed</td>
+        <td>Set speedfactor.</td>
+    </tr>
+    <tr>
+        <td></td>
+        <td>TimeFlowMode</td>
+        <td>Set TimeFlowMode.</td>
+    </tr>
+    <tr>
+        <td>View</td>
+        <td>Zoom</td>
+        <td>Set zoomfactor of actual view.</td>
+    </tr>
+    <tr>
+        <td>Help</td>
+        <td>Help</td>
+        <td>This menue.</td>
+    </tr>
+    <tr>
+        <td></td>
+        <td>About Simulation Project</td>
+        <td>Some information about the actual simulation model.</td>
+    </tr>
+    <tr>
+        <td></td>
+        <td>About Simulation Framework</td>
+        <td>Some information about the DESMO-J simulation framework.</td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>
