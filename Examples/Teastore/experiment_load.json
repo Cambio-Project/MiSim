@@ -1,0 +1,96 @@
+{
+  "simulation_meta_data": {
+    "experiment_name": "Teastore-Load-Experiment",
+    "model_name": "Teastore Load",
+    "duration": 3600,
+    "report": "",
+    "datapoints": 3600,
+    "seed": 1337
+  },
+  "request_generators": [
+    {
+      "microservice": "webui",
+      "operation": "index",
+      "limbo_model": "./fifa.csv",
+      "repeating": false,
+      "repetition_skip": 5
+    },
+    {
+      "microservice": "webui",
+      "operation": "loginAction.login",
+      "limbo_model": "./fifa.csv",
+      "repeating": false,
+      "repetition_skip": 5
+    },
+    {
+      "microservice": "webui",
+      "operation": "category",
+      "limbo_model": "./fifa.csv",
+      "repeating": false,
+      "repetition_skip": 5
+    },
+    {
+      "microservice": "webui",
+      "operation": "product",
+      "limbo_model": "./fifa.csv",
+      "repeating": false,
+      "repetition_skip": 5
+    },
+    {
+      "microservice": "webui",
+      "operation": "cartAction.addToCart",
+      "limbo_model": "./fifa.csv",
+      "repeating": false,
+      "repetition_skip": 5
+    },
+    {
+      "microservice": "webui",
+      "operation": "category",
+      "limbo_model": "./fifa.csv",
+      "repeating": false,
+      "repetition_skip": 5
+    },
+    {
+      "microservice": "webui",
+      "operation": "category",
+      "limbo_model": "./fifa.csv",
+      "repeating": false,
+      "repetition_skip": 5
+    },
+    {
+      "microservice": "webui",
+      "operation": "cartAction.addToCart",
+      "limbo_model": "./fifa.csv",
+      "repeating": false,
+      "repetition_skip": 5
+    },
+    {
+      "microservice": "webui",
+      "operation": "cartAction.proceedToCheckout",
+      "limbo_model": "./fifa.csv",
+      "repeating": false,
+      "repetition_skip": 5
+    },
+    {
+      "microservice": "webui",
+      "operation": "cartAction.confirmOrder",
+      "limbo_model": "./fifa.csv",
+      "repeating": false,
+      "repetition_skip": 5
+    },
+    {
+      "microservice": "webui",
+      "operation": "profile",
+      "limbo_model": "./fifa.csv",
+      "repeating": false,
+      "repetition_skip": 5
+    },
+    {
+      "microservice": "webui",
+      "operation": "loginAction.logout",
+      "limbo_model": "./fifa.csv",
+      "repeating": false,
+      "repetition_skip": 5
+    }
+  ]
+}

@@ -1,0 +1,453 @@
+{
+  "microservices": [
+    {
+      "name": "auth",
+      "instances": 1,
+      "patterns": [],
+      "capacity": 1000,
+      "operations": [
+        {
+          "name": "placeOrder",
+          "demand": 1100,
+          "dependencies": [
+            {
+              "service": "persistence",
+              "operation": "orders.create",
+              "probability": 1.0
+            },
+            {
+              "service": "persistence",
+              "operation": "orderitems.create",
+              "probability": 1.0
+            }
+          ]
+        },
+        {
+          "name": "login",
+          "demand": 500,
+          "dependencies": [
+            {
+              "service": "persistence",
+              "operation": "users.findById",
+              "probability": 1.0
+            }
+          ]
+        },
+        {
+          "name": "logout",
+          "demand": 1250,
+          "dependencies": []
+        },
+        {
+          "name": "isloggedin",
+          "demand": 100,
+          "dependencies": []
+        },
+        {
+          "name": "cartAdd",
+          "demand": 100,
+          "dependencies": [
+            {
+              "service": "persistence",
+              "operation": "products.findById",
+              "probability": 1.0
+            }
+          ]
+        },
+        {
+          "name": "cartRemove",
+          "demand": 100,
+          "dependencies": []
+        },
+        {
+          "name": "cartUpdate",
+          "demand": 100,
+          "dependencies": []
+        }
+      ]
+    },
+    {
+      "name": "image",
+      "instances": 1,
+      "patterns": [],
+      "capacity": 1000,
+      "operations": [
+        {
+          "name": "getProductImages",
+          "demand": 10,
+          "dependencies": []
+        },
+        {
+          "name": "getWebUIImages",
+          "demand": 10,
+          "dependencies": []
+        }
+      ]
+    },
+    {
+      "name": "persistence",
+      "instances": 1,
+      "patterns": [],
+      "capacity": 1000,
+      "operations": [
+        {
+          "name": "products.findById",
+          "demand": 39,
+          "dependencies": []
+        },
+        {
+          "name": "products.listCategory",
+          "demand": 48,
+          "dependencies": []
+        },
+        {
+          "name": "products.countCategory",
+          "demand": 10,
+          "dependencies": []
+        },
+        {
+          "name": "orders.listAllForUser",
+          "demand": 10,
+          "dependencies": []
+        },
+        {
+          "name": "orders.create",
+          "demand": 10,
+          "dependencies": []
+        },
+        {
+          "name": "orderitems.listAllForProduct",
+          "demand": 10,
+          "dependencies": []
+        },
+        {
+          "name": "orderitems.listAllForOrder",
+          "demand": 10,
+          "dependencies": []
+        },
+        {
+          "name": "orderitems.create",
+          "demand": 10,
+          "dependencies": []
+        },
+        {
+          "name": "users.findById",
+          "demand": 10,
+          "dependencies": []
+        },
+        {
+          "name": "categories.listAll",
+          "demand": 10,
+          "dependencies": []
+        },
+        {
+          "name": "categories.findById",
+          "demand": 10,
+          "dependencies": []
+        }
+      ]
+    },
+    {
+      "name": "recommender",
+      "instances": 1,
+      "patterns": [],
+      "capacity": 1000,
+      "operations": [
+        {
+          "name": "recommend",
+          "demand": 30,
+          "dependencies": []
+        }
+      ]
+    },
+    {
+      "name": "registry",
+      "instances": 1,
+      "patterns": [],
+      "capacity": 1000,
+      "operations": [
+        {
+          "name": "register",
+          "demand": 30,
+          "dependencies": []
+        },
+        {
+          "name": "unregister",
+          "demand": 30,
+          "dependencies": []
+        },
+        {
+          "name": "getInstances",
+          "demand": 30,
+          "dependencies": []
+        }
+      ]
+    },
+    {
+      "name": "webui",
+      "instances": 1,
+      "patterns": [],
+      "capacity": 1000,
+      "operations": [
+        {
+          "name": "cartAction.addToCart",
+          "demand": 30,
+          "dependencies": [
+            {
+              "service": "auth",
+              "operation": "cartAdd",
+              "probability": 1.0
+            }
+          ]
+        },
+        {
+          "name": "cartAction.removeFromCart",
+          "demand": 30,
+          "dependencies": [
+            {
+              "service": "auth",
+              "operation": "cartRemove",
+              "probability": 1.0
+            }
+          ]
+        },
+        {
+          "name": "cartAction.updateCart",
+          "demand": 30,
+          "dependencies": [
+            {
+              "service": "auth",
+              "operation": "cartUpdate",
+              "probability": 1.0
+            }
+          ]
+        },
+        {
+          "name": "cartAction.proceedToCheckout",
+          "demand": 30,
+          "dependencies": [
+            {
+              "service": "auth",
+              "operation": "isloggedin",
+              "probability": 1.0
+            },
+            {
+              "service": "auth",
+              "operation": "cartUpdate",
+              "probability": 1.0
+            }
+          ]
+        },
+        {
+          "name": "cartAction.confirmOrder",
+          "demand": 30,
+          "dependencies": [
+            {
+              "service": "auth",
+              "operation": "placeOrder",
+              "probability": 1.0
+            }
+          ]
+        },
+        {
+          "name": "cart",
+          "demand": 30,
+          "dependencies": [
+            {
+              "service": "persistence",
+              "operation": "products.findById",
+              "probability": 1.0
+            },
+            {
+              "service": "image",
+              "operation": "getWebUIImages",
+              "probability": 1.0
+            },
+            {
+              "service": "persistence",
+              "operation": "categories.listAll",
+              "probability": 1.0
+            },
+            {
+              "service": "auth",
+              "operation": "isloggedin",
+              "probability": 1.0
+            },
+            {
+              "service": "recommender",
+              "operation": "recommend",
+              "probability": 1.0
+            }
+          ]
+        },
+        {
+          "name": "category",
+          "demand": 30,
+          "dependencies": [
+            {
+              "service": "persistence",
+              "operation": "categories.findById",
+              "probability": 1.0
+            },
+            {
+              "service": "persistence",
+              "operation": "products.countCategory",
+              "probability": 1.0
+            },
+            {
+              "service": "persistence",
+              "operation": "products.listCategory",
+              "probability": 1.0
+            },
+            {
+              "service": "image",
+              "operation": "getProductImages",
+              "probability": 1.0
+            },
+            {
+              "service": "image",
+              "operation": "getWebUIImages",
+              "probability": 1.0
+            },
+            {
+              "service": "persistence",
+              "operation": "categories.listAll",
+              "probability": 1.0
+            },
+            {
+              "service": "auth",
+              "operation": "isloggedin",
+              "probability": 1.0
+            }
+          ]
+        },
+        {
+          "name": "index",
+          "demand": 30,
+          "dependencies": [
+            {
+              "service": "persistence",
+              "operation": "categories.listAll",
+              "probability": 1.0
+            },
+            {
+              "service": "auth",
+              "operation": "isloggedin",
+              "probability": 1.0
+            },
+            {
+              "service": "image",
+              "operation": "getWebUIImages",
+              "probability": 1.0
+            }
+          ]
+        },
+        {
+          "name": "loginAction.login",
+          "demand": 30,
+          "dependencies": [
+            {
+              "service": "auth",
+              "operation": "login",
+              "probability": 1.0
+            }
+          ]
+        },
+        {
+          "name": "loginAction.logout",
+          "demand": 30,
+          "dependencies": [
+            {
+              "service": "auth",
+              "operation": "logout",
+              "probability": 1.0
+            }
+          ]
+        },
+        {
+          "name": "order",
+          "demand": 30,
+          "dependencies": [
+            {
+              "service": "persistence",
+              "operation": "categories.listAll",
+              "probability": 1.0
+            },
+            {
+              "service": "auth",
+              "operation": "isloggedin",
+              "probability": 1.0
+            },
+            {
+              "service": "image",
+              "operation": "getWebUIImages",
+              "probability": 1.0
+            }
+          ]
+        },
+        {
+          "name": "product",
+          "demand": 30,
+          "dependencies": [
+            {
+              "service": "persistence",
+              "operation": "categories.listAll",
+              "probability": 1.0
+            },
+            {
+              "service": "auth",
+              "operation": "isloggedin",
+              "probability": 1.0
+            },
+            {
+              "service": "persistence",
+              "operation": "products.findById",
+              "probability": 1.0
+            },
+            {
+              "service": "recommender",
+              "operation": "recommend",
+              "probability": 1.0
+            },
+            {
+              "service": "image",
+              "operation": "getProductImages",
+              "probability": 1.0
+            }
+          ]
+        },
+        {
+          "name": "profile",
+          "demand": 30,
+          "dependencies": [
+            {
+              "service": "auth",
+              "operation": "isloggedin",
+              "probability": 1.0
+            },
+            {
+              "service": "image",
+              "operation": "getWebUIImages",
+              "probability": 1.0
+            },
+            {
+              "service": "persistence",
+              "operation": "categories.listAll",
+              "probability": 1.0
+            },
+            {
+              "service": "persistence",
+              "operation": "users.findById",
+              "probability": 1.0
+            },
+            {
+              "service": "persistence",
+              "operation": "orders.listAllForUser",
+              "probability": 1.0
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
