@@ -30,13 +30,12 @@ public class OperationAdapter extends MiSimModelReferencingTypeAdapter<Operation
     private final List<DependencyDescription> dependencies;
 
     /**
-     * Constructor creating an adapter for parsing Operations.
-     * This adapter will not parse the underlying {@link DependencyDescription}s, since they can only be resolved once
-     * all {@link Operation}s have been initialized.
+     * Constructor creating an adapter for parsing Operations. This adapter will not parse the underlying {@link
+     * DependencyDescription}s, since they can only be resolved once all {@link Operation}s have been initialized.
      * Instead, it will provide a list of dependencies, that can be resolved later.
      *
-     * @param baseModel Base model of the simulation.
-     * @param name Name of the parent {@link cambio.simulator.entities.microservice.Microservice}.
+     * @param baseModel    Base model of the simulation.
+     * @param name         Name of the parent {@link cambio.simulator.entities.microservice.Microservice}.
      * @param dependencies A mutable {@link List} to which all dependencies of the operation will be added.
      */
     public OperationAdapter(MiSimModel baseModel, String name,
@@ -55,16 +54,9 @@ public class OperationAdapter extends MiSimModelReferencingTypeAdapter<Operation
     public Operation read(JsonReader in) throws IOException {
         JsonObject root = JsonParser.parseReader(in).getAsJsonObject();
         String name = root.get("name").getAsString().trim();
-        if (name.contains(".")) {
-            String[] names = name.split("\\.");
-            String msName = names[0];
-            String opName = names[1];
-            if (!msName.equals(parentMicroserviceName)) {
-                throw new ParsingException(
-                    String.format("Fully qualified name \"%s\" does not match name of the parent \"%s\"", name,
-                        parentMicroserviceName));
-            }
-            name = opName;
+
+        if (name.startsWith(parentMicroserviceName)) {
+            name = name.substring(parentMicroserviceName.length() + 1);
         }
 
         Gson gson = GsonHelper.getGsonBuilder()

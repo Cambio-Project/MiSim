@@ -104,9 +104,6 @@ public class ConfigurableNamedTypeAdapter<T> extends TypeAdapter<T> {
             }
             return gson.fromJson(typeNameAssociatedConfigurationData.getConfigAsJsonString(), targetType);
         }
-
         return null;
     }
-
-
 }

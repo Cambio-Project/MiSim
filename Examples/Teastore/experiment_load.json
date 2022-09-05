@@ -3,94 +3,108 @@
     "experiment_name": "Teastore-Load-Experiment",
     "model_name": "Teastore Load",
     "duration": 3600,
-    "report": "",
-    "datapoints": 3600,
     "seed": 1337
   },
   "request_generators": [
     {
-      "microservice": "webui",
-      "operation": "index",
-      "limbo_model": "./fifa.csv",
-      "repeating": false,
-      "repetition_skip": 5
+      "type": "limbo",
+      "config": {
+        "operation": "webui.index",
+        "limbo_model": "./Examples/TeaStore/fifa.csv",
+        "repeating": false,
+        "repetition_skip": 5
+      }
     },
     {
-      "microservice": "webui",
-      "operation": "loginAction.login",
-      "limbo_model": "./fifa.csv",
-      "repeating": false,
-      "repetition_skip": 5
+      "type": "limbo",
+      "config": {
+        "operation": "webui.loginAction.login",
+        "limbo_model": "./Examples/TeaStore/fifa.csv",
+        "repeating": false,
+        "repetition_skip": 5
+      }
     },
     {
-      "microservice": "webui",
-      "operation": "category",
-      "limbo_model": "./fifa.csv",
-      "repeating": false,
-      "repetition_skip": 5
+      "type": "limbo",
+      "config": {
+        "operation": "webui.category",
+        "limbo_model": "./Examples/TeaStore/fifa.csv",
+        "repeating": false,
+        "repetition_skip": 5
+      }
     },
     {
-      "microservice": "webui",
-      "operation": "product",
-      "limbo_model": "./fifa.csv",
-      "repeating": false,
-      "repetition_skip": 5
+      "type": "limbo",
+      "config": {
+        "operation": "webui.product",
+        "limbo_model": "./Examples/TeaStore/fifa.csv",
+        "repeating": false,
+        "repetition_skip": 5
+      }
     },
     {
-      "microservice": "webui",
-      "operation": "cartAction.addToCart",
-      "limbo_model": "./fifa.csv",
-      "repeating": false,
-      "repetition_skip": 5
+      "type": "limbo",
+      "config": {
+        "operation": "webui.category",
+        "limbo_model": "./Examples/TeaStore/fifa.csv",
+        "repeating": false,
+        "repetition_skip": 5
+      }
     },
     {
-      "microservice": "webui",
-      "operation": "category",
-      "limbo_model": "./fifa.csv",
-      "repeating": false,
-      "repetition_skip": 5
+      "type": "limbo",
+      "config": {
+        "microservice": "webui",
+        "operation": "category",
+        "limbo_model": "./Examples/TeaStore/fifa.csv",
+        "repeating": false,
+        "repetition_skip": 5
+      }
     },
     {
-      "microservice": "webui",
-      "operation": "category",
-      "limbo_model": "./fifa.csv",
-      "repeating": false,
-      "repetition_skip": 5
+      "type": "limbo",
+      "config": {
+        "operation": "webui.cartAction.addToCart",
+        "limbo_model": "./Examples/TeaStore/fifa.csv",
+        "repeating": false,
+        "repetition_skip": 5
+      }
     },
     {
-      "microservice": "webui",
-      "operation": "cartAction.addToCart",
-      "limbo_model": "./fifa.csv",
-      "repeating": false,
-      "repetition_skip": 5
+      "type": "limbo",
+      "config": {
+        "operation": "webui.cartAction.proceedToCheckout",
+        "limbo_model": "./Examples/TeaStore/fifa.csv",
+        "repeating": false,
+        "repetition_skip": 5
+      }
     },
     {
-      "microservice": "webui",
-      "operation": "cartAction.proceedToCheckout",
-      "limbo_model": "./fifa.csv",
-      "repeating": false,
-      "repetition_skip": 5
+      "type": "limbo",
+      "config": {
+        "operation": "webui.cartAction.confirmOrder",
+        "limbo_model": "./Examples/TeaStore/fifa.csv",
+        "repeating": false,
+        "repetition_skip": 5
+      }
     },
     {
-      "microservice": "webui",
-      "operation": "cartAction.confirmOrder",
-      "limbo_model": "./fifa.csv",
-      "repeating": false,
-      "repetition_skip": 5
+      "type": "limbo",
+      "config": {
+        "operation": "webui.profile",
+        "limbo_model": "./Examples/TeaStore/fifa.csv",
+        "repeating": false,
+        "repetition_skip": 5
+      }
     },
     {
-      "microservice": "webui",
-      "operation": "profile",
-      "limbo_model": "./fifa.csv",
-      "repeating": false,
-      "repetition_skip": 5
-    },
-    {
-      "microservice": "webui",
-      "operation": "loginAction.logout",
-      "limbo_model": "./fifa.csv",
-      "repeating": false,
-      "repetition_skip": 5
+      "type": "limbo",
+      "config": {
+        "operation": "webui.loginAction.logout",
+        "limbo_model": "./Examples/TeaStore/fifa.csv",
+        "repeating": false,
+        "repetition_skip": 5
+      }
     }
   ]
 }

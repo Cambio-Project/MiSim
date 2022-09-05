@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collector;
 
 import cambio.simulator.misc.CollectorImpl;
@@ -89,17 +90,23 @@ public class LimboLoadGeneratorDescription extends LoadGeneratorDescription {
 
         private List<Pair<Double, Integer>> getPairList(File limboProfile) {
             List<Pair<Double, Integer>> tmpList;
+            AtomicInteger lineNumber = new AtomicInteger(0);
             try {
                 List<String> lines = Files.readAllLines(limboProfile.toPath());
-                tmpList = lines.parallelStream()
+                tmpList = lines.stream()
                     .filter(line -> !Strings.isNullOrEmpty(line))
                     .map(line -> {
+                        //Orientated at the HTTP Loadgenerator, which just casts double values to ints
                         String[] split = line.split("[;,]");
-                        if (split.length != 2) {
-                            throw new ArrayIndexOutOfBoundsException("Malformed Limbo File");
+                        if (split.length == 1) {
+                            return new Pair<>((double) lineNumber.getAndIncrement(),
+                                (int) Math.round(Double.parseDouble(split[0])));
+                        } else if (split.length == 2) {
+                            return new Pair<>(Double.valueOf(split[0]),
+                                (int) Math.round(Double.parseDouble(split[1])));
                         }
-                        return new Pair<>(Double.valueOf(split[0]), (int) Math.round(Double.parseDouble(
-                            split[1]))); //Orientated at the HTTP Loadgenerator, which just casts double values to ints
+                        throw new ArrayIndexOutOfBoundsException("Malformed Limbo File");
+
                     })
                     // ensure time constraints and remove entries with 0 (or negative) load
                     .filter(pair -> pair.getValue0() >= 0 && pair.getValue1() > 0)

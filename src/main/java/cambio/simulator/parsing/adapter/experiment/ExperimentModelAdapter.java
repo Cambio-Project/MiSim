@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import cambio.simulator.entities.generator.LoadGeneratorDescriptionExecutor;
+import cambio.simulator.entities.microservice.Operation;
 import cambio.simulator.events.ExperimentAction;
 import cambio.simulator.models.ExperimentModel;
 import cambio.simulator.models.MiSimModel;
@@ -17,6 +18,7 @@ import cambio.simulator.parsing.GsonHelper;
 import cambio.simulator.parsing.ParsingException;
 import cambio.simulator.parsing.adapter.MiSimModelReferencingTypeAdapter;
 import cambio.simulator.parsing.adapter.NormalDistributionAdapter;
+import cambio.simulator.parsing.adapter.architecture.OperationAdapter;
 import com.google.gson.*;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.stream.*;

@@ -65,10 +65,10 @@ public final class NameResolver {
      * @return a {@link Operation} with the given name or null if none is found
      * @see Operation#getPlainName()
      */
-    public static Operation resolveOperationName(@NotNull ArchitectureModel model, @NotNull String name) {
-
+    public static Operation resolveOperationName(@NotNull ArchitectureModel model, String name) {
+        //TODO: instead of this, build a lookup table for all operations
         if (name.contains(".")) {
-            String[] names = name.split("\\.");
+            String[] names = name.split("\\.",2);
             String serviceName = names[0];
             String operationName = names[1];
             Microservice ms = resolveMicroserviceName(model, serviceName);
@@ -83,8 +83,6 @@ public final class NameResolver {
                 .findFirst()
                 .orElse(null);
         }
-
-
     }
 
     private static Operation findOperation(Operation[] operations, String name) {
@@ -106,22 +104,11 @@ public final class NameResolver {
      *                                            match.
      */
 
-    public static String combineToFullyQualifiedName(String serviceName, String operationName)
-        throws java.lang.IllegalStateException {
-        String fullyQualifiedName;
+    public static String combineToFullyQualifiedName(String serviceName, String operationName) {
         if (serviceName != null && !operationName.startsWith(serviceName)) {
-
-            if (operationName.contains(".")) {
-                throw new IllegalArgumentException(
-                    "Inconsistent Operation description. (Service name and fully qualified operation name do not "
-                        + "match.)");
-            }
-            fullyQualifiedName = serviceName + "." + operationName;
-
+            return serviceName + "." + operationName;
         } else {
-            fullyQualifiedName = operationName;
+            return operationName;
         }
-
-        return fullyQualifiedName;
     }
 }
