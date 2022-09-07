@@ -3,8 +3,15 @@
     {
       "name": "auth",
       "instances": 1,
-      "patterns": [],
-      "capacity": 1000,
+      "s_patterns": [
+        {
+          "type": "autoscaling",
+          "strategy": {
+            "type": "reactive"
+          }
+        }
+      ],
+      "capacity": 100000,
       "operations": [
         {
           "name": "placeOrder",
@@ -69,8 +76,15 @@
     {
       "name": "image",
       "instances": 1,
-      "patterns": [],
-      "capacity": 1000,
+      "s_patterns": [
+        {
+          "type": "autoscaling",
+          "strategy": {
+            "type": "reactive"
+          }
+        }
+      ],
+      "capacity": 100000,
       "operations": [
         {
           "name": "getProductImages",
@@ -87,8 +101,15 @@
     {
       "name": "persistence",
       "instances": 1,
-      "patterns": [],
-      "capacity": 1000,
+      "s_patterns": [
+        {
+          "type": "autoscaling",
+          "strategy": {
+            "type": "reactive"
+          }
+        }
+      ],
+      "capacity": 100000,
       "operations": [
         {
           "name": "products.findById",
@@ -150,8 +171,15 @@
     {
       "name": "recommender",
       "instances": 1,
-      "patterns": [],
-      "capacity": 1000,
+      "s_patterns": [
+        {
+          "type": "autoscaling",
+          "strategy": {
+            "type": "reactive"
+          }
+        }
+      ],
+      "capacity": 100000,
       "operations": [
         {
           "name": "recommend",
@@ -163,8 +191,15 @@
     {
       "name": "registry",
       "instances": 1,
-      "patterns": [],
-      "capacity": 1000,
+      "s_patterns": [
+        {
+          "type": "autoscaling",
+          "strategy": {
+            "type": "reactive"
+          }
+        }
+      ],
+      "capacity": 100000,
       "operations": [
         {
           "name": "register",
@@ -186,8 +221,15 @@
     {
       "name": "webui",
       "instances": 1,
-      "patterns": [],
-      "capacity": 1000,
+      "s_patterns": [
+        {
+          "type": "autoscaling",
+          "strategy": {
+            "type": "reactive"
+          }
+        }
+      ],
+      "capacity": 100000,
       "operations": [
         {
           "name": "cartAction.addToCart",

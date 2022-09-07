@@ -75,13 +75,15 @@ public class Retry extends StrategicInstanceOwnedPattern<IRetryStrategy> impleme
             //                newRequest, handler, new TimeSpan(delay));
             //            }
             //for now we just send the request to the load balancer, which can decide which instance to use
-            owner.sendRequest(String.format("Collecting dependency %s", dep.getQuotedPlainName()), newRequest,
+            owner.sendRequest("Collecting dependency " + dep.getQuotedPlainName(), newRequest,
                 dep.getTargetService(), new TimeSpan(delay));
-            sendTraceNote(String.format("Try %d, send Request: %s", tries + 1, newRequest.getQuotedPlainName()));
+            if (traceIsOn()) {
+                sendTraceNote("Try " + (tries + 1) + ", send Request: " + newRequest.getQuotedPlainName());
+            }
         } else {
             request.getUpdateListeners().forEach(iRequestUpdateListener -> iRequestUpdateListener
                 .onRequestFailed(request, when, RequestFailedReason.MAX_RETRIES_REACHED));
-            sendTraceNote(String.format("Max Retries Reached for Dependency %s", dep));
+            sendTraceNote("Max Retries Reached for Dependency " + dep);
             return true;
         }
         return false;
@@ -116,7 +118,7 @@ public class Retry extends StrategicInstanceOwnedPattern<IRetryStrategy> impleme
     public void shutdown() {
         requestIndex.clear();
         traceOn();
-        sendTraceNote(String.format("Clearing Retry %s", this.getQuotedName()));
+        sendTraceNote("Clearing Retry " + this.getQuotedName());
         traceOff();
     }
 }

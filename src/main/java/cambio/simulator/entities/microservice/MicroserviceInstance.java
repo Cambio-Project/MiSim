@@ -59,11 +59,11 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
     /**
      * Creates a new {@link MicroserviceInstance} for the given {@link Microservice} parent.
      *
-     * @param model Base model of the simulation.
-     * @param name Name of the instance.
-     * @param showInTrace Whether the instance outputs should be shown in the trace.
+     * @param model        Base model of the simulation.
+     * @param name         Name of the instance.
+     * @param showInTrace  Whether the instance outputs should be shown in the trace.
      * @param microservice Parent microservice of the instance.
-     * @param instanceID ID of the instance.
+     * @param instanceID   ID of the instance.
      */
     public MicroserviceInstance(Model model, String name, boolean showInTrace, Microservice microservice,
                                 int instanceID) {
@@ -82,9 +82,8 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
     }
 
     /**
-     *  Activates the patterns that are owned by this instance.
-     *  This will call registers {@link IRequestUpdateListener}s on this instance and
-     *  call the {@link InstanceOwnedPattern#start()} method on each pattern instance.
+     * Activates the patterns that are owned by this instance. This will call registers {@link IRequestUpdateListener}s
+     * on this instance and call the {@link InstanceOwnedPattern#start()} method on each pattern instance.
      */
     public void activatePatterns(InstanceOwnedPatternConfiguration[] patterns) {
         this.patterns = Arrays.stream(patterns)
@@ -231,9 +230,11 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
                 currentlyOpenDependencies.add(dependency);
 
                 Request internalRequest = new InternalRequest(getModel(), this.traceIsOn(), dependency, this);
-                sendRequest(String.format("Collecting dependency %s", dependency.getQuotedName()), internalRequest,
+                sendRequest("Collecting dependency " + dependency.getQuotedPlainName(), internalRequest,
                     dependency.getTargetService());
-                sendTraceNote(String.format("Try 1, send Request: %s ", internalRequest.getQuotedPlainName()));
+                if (this.traceIsOn()) {
+                    sendTraceNote("Try 1, send Request: " + internalRequest.getQuotedPlainName() + " ");
+                }
             }
         }
     }

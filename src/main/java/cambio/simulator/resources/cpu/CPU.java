@@ -149,8 +149,7 @@ public class CPU extends NamedExternalEvent {
             TimeSpan processBurstDuration = new TimeSpan(nextTotalDemand / capacityPerThread);
 
             ComputationBurstCompletedEvent endEvent = new ComputationBurstCompletedEvent(getModel(),
-                String.format("Computation burst finished of %s",
-                    nextProcess.getRequest().getQuotedPlainName()),
+                "Computation burst finished of " + nextProcess.getRequest().getQuotedPlainName(),
                 debugIsOn(),
                 nextProcess,
                 this,
@@ -185,8 +184,10 @@ public class CPU extends NamedExternalEvent {
         Objects.requireNonNull(process);
 
         if (process.getDemandRemainder() > 0) { //if process is not finished reschedule it
-            sendTraceNote(String.format("Burst for process of %s completed, but has %d demand remaining",
-                process.getRequest().getName(), process.getDemandRemainder()));
+            if (traceIsOn()) {
+                sendTraceNote(String.format("Burst for process of %s completed, but has %d demand remaining",
+                    process.getRequest().getName(), process.getDemandRemainder()));
+            }
             scheduler.enterProcess(process);
         }
 

@@ -75,11 +75,10 @@ public final class LoadGeneratorDescriptionExecutor extends RequestSender implem
     }
 
     private void sendNewUserRequest() {
-        UserRequest request = new UserRequest(model, String.format("UserRequest@[%s]",
-            targetOperation.getFullyQualifiedPlainName()), true, targetOperation);
+        UserRequest request = new UserRequest(model,
+            "UserRequest@[" + targetOperation.getFullyQualifiedPlainName() + "]", true, targetOperation);
         try {
-            sendRequest(String.format("SendingUserRequest(%s)", request.getPlainName()), request,
-                targetOperation.getOwnerMS());
+            sendRequest("SendingUserRequest(" + request.getPlainName() + ")", request, targetOperation.getOwnerMS());
         } catch (NoInstanceAvailableException e) {
             onRequestFailed(request, presentTime(), RequestFailedReason.NO_INSTANCE_AVAILABLE);
         }
@@ -91,7 +90,7 @@ public final class LoadGeneratorDescriptionExecutor extends RequestSender implem
      */
     @Override
     public boolean onRequestFailed(Request request, TimeInstant when, RequestFailedReason reason) {
-        sendTraceNote(String.format("Arrival of Request %s failed at %s.", request, when));
+        sendTraceNote("Arrival of Request " + request + " failed at " + when + ".");
         TimeInstant currentTime = new TimeInstant(Math.ceil(presentTime().getTimeAsDouble()));
 
         accReporter.addDatapoint("FailedRequests", currentTime, 1);
@@ -110,7 +109,7 @@ public final class LoadGeneratorDescriptionExecutor extends RequestSender implem
      */
     @Override
     public boolean onRequestResultArrivedAtRequester(Request request, TimeInstant when) {
-        sendTraceNote(String.format("Successfully completed Request %s at %s.", request, when));
+        sendTraceNote("Successfully completed Request " + request + " at " + when + ".");
         TimeInstant currentTime = new TimeInstant(Math.ceil(presentTime().getTimeAsDouble()));
 
         accReporter.addDatapoint("SuccessfulRequests", currentTime, 1);

@@ -36,6 +36,7 @@ public class ReportCollector extends ReportManager {
      * @param model The model that contains the metadata to reference.
      */
     public void printReport(MiSimModel model) {
+        model.getExperimentMetaData().markEndOfExecution(System.nanoTime());
         //update the report metadata
         try {
             ExportUtils.updateMetaData(model.getExperimentMetaData());
