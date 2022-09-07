@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.javatuples.Pair;
@@ -49,8 +50,8 @@ public class LineBreakingWriterThread extends WriterThread {
     }
 
     @Override
-    public void run() {
-        executor.scheduleAtFixedRate(this::pollAndWrite, 0, 100, TimeUnit.MILLISECONDS);
+    protected ScheduledFuture<?> getScheduledFuture() {
+        return threadPool.scheduleAtFixedRate(this::pollAndWrite, 0, 100, TimeUnit.MILLISECONDS);
     }
 
     private void pollAndWrite() {
@@ -63,5 +64,4 @@ public class LineBreakingWriterThread extends WriterThread {
             }
         }
     }
-
 }
