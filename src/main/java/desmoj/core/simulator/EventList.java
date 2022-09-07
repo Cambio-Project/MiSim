@@ -28,7 +28,7 @@ public abstract class EventList {
      *
      * @return EventNote : The first event-note in the event-list
      */
-    abstract EventNote firstNote();
+    protected abstract EventNote firstNote();
 
     /**
      * Inserts a new event-note into the event-list. Event notes are sorted by the point if time they are scheduled to

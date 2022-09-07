@@ -74,7 +74,7 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
             new FIFOScheduler("Scheduler"), this);
 
         String[] names = name.split("_");
-        reporter = new MultiDataPointReporter(String.format("I[%s]_", name));
+        reporter = new MultiDataPointReporter(String.format("I[%s]_", name), model);
 
         changeState(InstanceState.CREATED);
 
@@ -332,6 +332,9 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
 
         //notify sender of currently handled requests, that the requests failed (TCP/behavior)
         currentRequestsToHandle.forEach(Request::cancelExecutionAtHandler);
+
+        //cancel reporter to clear resources
+        reporter.finalizeReport();
     }
 
     public final Microservice getOwner() {

@@ -2,6 +2,7 @@ package cambio.simulator.events;
 
 import cambio.simulator.entities.NamedExternalEvent;
 import cambio.simulator.entities.microservice.Microservice;
+import cambio.simulator.export.MiSimReporters;
 import cambio.simulator.misc.Priority;
 import cambio.simulator.models.MiSimModel;
 import co.paralleluniverse.fibers.SuspendExecution;
@@ -33,5 +34,6 @@ public class SimulationEndEvent extends NamedExternalEvent {
     @Override
     public void eventRoutine() throws SuspendExecution {
         model.getArchitectureModel().getMicroservices().forEach(Microservice::finalizeStatistics);
+        MiSimReporters.finalizeReports();
     }
 }

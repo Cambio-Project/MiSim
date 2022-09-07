@@ -419,7 +419,7 @@ public abstract class Model extends Reportable {
      */
     long linkWithIdentNumber(Entity e) {
         _numberOfEntitiesCreated++;
-        _entityMap.put(_numberOfEntitiesCreated, e);
+        //_entityMap.put(_numberOfEntitiesCreated, e);
         return _numberOfEntitiesCreated;
     }
 

@@ -1,7 +1,8 @@
 package cambio.simulator.export;
 
-import java.util.*;
+import java.util.HashMap;
 
+import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 
 /**
@@ -11,11 +12,14 @@ import desmoj.core.simulator.TimeInstant;
  */
 public class AccumulativeDataPointReporter extends MultiDataPointReporter {
 
-    public AccumulativeDataPointReporter() {
+    private final HashMap<String, Double> lastValues = new HashMap<>();
+
+    public AccumulativeDataPointReporter(Model model) {
+        this("", model);
     }
 
-    public AccumulativeDataPointReporter(String datasetsPrefix) {
-        super(datasetsPrefix);
+    public AccumulativeDataPointReporter(String datasetsPrefix, Model model) {
+        super(datasetsPrefix, model);
     }
 
     /**
@@ -24,31 +28,13 @@ public class AccumulativeDataPointReporter extends MultiDataPointReporter {
     public void addDatapoint(String dataSetName, TimeInstant when, Number data) {
         checkArgumentsAreNotNull(dataSetName, when, data);
 
-        Map<Double, Number> dataSet =
-            (HashMap<Double, Number>) dataSets.computeIfAbsent(datasetsPrefix + dataSetName,
-                s -> new HashMap<Double, Number>());
-        dataSet.merge(when.getTimeAsDouble(), data, (number, number2) -> number.doubleValue() + number2.doubleValue());
-    }
+        if (lastValues.containsKey(dataSetName)) {
+            double lastValue = lastValues.get(dataSetName);
+            lastValues.put(dataSetName, lastValue + data.doubleValue());
+        } else {
+            lastValues.put(dataSetName, data.doubleValue());
+        }
 
-    /**
-     * {@inheritDoc}
-     */
-    public <T> void addDatapoint(String dataSetName, TimeInstant when, List<T> data) {
-        checkArgumentsAreNotNull(dataSetName, when, data);
-
-        Map<Double, List<T>> dataSet =
-            (HashMap<Double, List<T>>) dataSets.computeIfAbsent(datasetsPrefix + dataSetName,
-                s -> new HashMap<Double, List<T>>());
-        dataSet.merge(when.getTimeAsDouble(), data, (list1, list2) -> {
-            list1.addAll(list2);
-            return list1;
-        });
-    }
-
-
-    private <T> void checkArgumentsAreNotNull(String dataSetName, TimeInstant when, T data) {
-        Objects.requireNonNull(dataSetName);
-        Objects.requireNonNull(when);
-        Objects.requireNonNull(data);
+        super.addDatapoint(dataSetName, when, lastValues.get(dataSetName));
     }
 }

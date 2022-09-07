@@ -1,6 +1,6 @@
 package cambio.simulator.entities.patterns;
 
-import static cambio.simulator.export.ReportCollector.RETRY_MANAGER_REPORTER;
+import static cambio.simulator.export.MiSimReporters.RETRY_MANAGER_REPORTER;
 
 import java.util.*;
 

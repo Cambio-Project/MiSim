@@ -17,12 +17,6 @@ import desmoj.core.report.ReportManager;
  */
 public class ReportCollector extends ReportManager {
 
-    //this requires instance to exist, so all static DataPointReporters need to be initialized here
-    public static final MultiDataPointReporter RETRY_MANAGER_REPORTER = new MultiDataPointReporter("RM_");
-    public static final MultiDataPointReporter NETWORK_LATENCY_REPORTER = new MultiDataPointReporter("NL_");
-    public static final MultiDataPointReporter USER_REQUEST_REPORTER = new MultiDataPointReporter("R");
-    public static final AccumulativeDataPointReporter GENERATOR_REPORTER = new AccumulativeDataPointReporter(
-        "GEN_ALL_");
     private static ReportCollector instance;
 
 
@@ -34,50 +28,6 @@ public class ReportCollector extends ReportManager {
         return (instance == null) ? instance = new ReportCollector("Main") : instance;
     }
 
-    /**
-     * Collects (and potentially combines) all results of all registered {@link MultiDataPointReporter}.
-     *
-     * @return returns the values of all MultiDataPointReporters
-     */
-    public Map<String, TreeMap<Double, Object>> collectData() {
-        //collect_datasets
-        Map<String, Map<Double, Object>> dataSets = new ConcurrentHashMap<>();
-
-        elements().stream().parallel()
-            .filter(reporter -> reporter instanceof MultiDataPointReporter)
-            .map(reporter -> (MultiDataPointReporter) reporter)
-            .map(MultiDataPointReporter::getDataSets)
-            .flatMap(dataSetsOfReporter -> dataSetsOfReporter.entrySet().stream())
-            .forEach(datasetsOfReporterEntry -> {
-                String currentKey = datasetsOfReporterEntry.getKey();
-                HashMap<Double, ?> dataSetOfReporter = datasetsOfReporterEntry.getValue();
-                Map<Double, Object> targetDataSet =
-                    dataSets.computeIfAbsent(currentKey, key -> new ConcurrentHashMap<>());
-                dataSetOfReporter.entrySet().stream().parallel().forEach(entry -> targetDataSet
-                    .merge(entry.getKey(), entry.getValue(), (value1, value2) -> value1));
-            });
-
-        Map<String, TreeMap<Double, Object>> output = new ConcurrentHashMap<>();
-        dataSets.entrySet().stream().parallel()
-            .forEach((entry) -> output.put(entry.getKey(), new TreeMap<>(entry.getValue())));
-        return output;
-    }
-
-    /**
-     * Resets the collector and all registered reporters.
-     */
-    public void reset() {
-        this.elements().forEach(reporter -> {
-            if (reporter instanceof MultiDataPointReporter) {
-                ((MultiDataPointReporter) reporter).reset();
-            }
-            this.deRegister(reporter);
-        });
-        this.register(USER_REQUEST_REPORTER);
-        this.register(NETWORK_LATENCY_REPORTER);
-        this.register(GENERATOR_REPORTER);
-        this.register(RETRY_MANAGER_REPORTER);
-    }
 
     /**
      * Writes the collected data to the report directory. Also updates the metadata file with the new execution
@@ -86,10 +36,6 @@ public class ReportCollector extends ReportManager {
      * @param model The model that contains the metadata to reference.
      */
     public void printReport(MiSimModel model) {
-        model.getExperimentMetaData().markStartOfReport(System.nanoTime());
-        sortAndWriteReport(model);
-        model.getExperimentMetaData().markEndOfExecution(System.nanoTime());
-
         //update the report metadata
         try {
             ExportUtils.updateMetaData(model.getExperimentMetaData());
@@ -99,14 +45,6 @@ public class ReportCollector extends ReportManager {
         }
 
         writeCommandLineReport(model);
-    }
-
-    private void sortAndWriteReport(MiSimModel model) {
-        Map<String, TreeMap<Double, Object>> data = ReportCollector.getInstance().collectData();
-        TreeMap<String, TreeMap<Double, Object>> sortedData = new TreeMap<>(data);
-        ReportWriter.writeReporterCollectorOutput(sortedData,
-            model.getExperimentMetaData().getReportLocation());
-        ReportCollector.getInstance().reset(); //reset the collector for static usage
     }
 
     private void writeCommandLineReport(MiSimModel model) {
@@ -120,7 +58,7 @@ public class ReportCollector extends ReportManager {
             + metaData.getReportLocation().toAbsolutePath());
         System.out.println("Setup took:                 " + Util.timeFormat(metaData.getSetupExecutionDuration()));
         System.out.println("Experiment took:            " + Util.timeFormat(metaData.getExperimentExecutionDuration()));
-        System.out.println("Report took:                " + Util.timeFormat(metaData.getReportExecutionDuration()));
+//        System.out.println("Report took:                " + Util.timeFormat(metaData.getReportExecutionDuration()));
         System.out.println("Execution took:             " + Util.timeFormat(metaData.getExecutionDuration()));
     }
 

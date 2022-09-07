@@ -28,6 +28,6 @@ public class SSP2021 extends TestBase {
     void ExecuteDemonstration_Experiment() {
         File architecture = FileLoaderUtil.loadFromTestResources("SSPExample", "ssp_architecture.json");
         File experiment = FileLoaderUtil.loadFromTestResources("SSPExample", "ssp_experiment.json");
-        runSimulationCheckExitTempOutput(0, architecture,experiment);
+        runSimulationCheckExit(0, architecture,experiment, "-p");
     }
 }

@@ -15,6 +15,6 @@ public class Teastore extends TestBase {
     public void simulateTeastore() {
         File arch = FileLoaderUtil.loadFromExampleResources("Teastore", "architecture_model.json");
         File experiment = FileLoaderUtil.loadFromExampleResources("Teastore", "experiment_load.json");
-        runSimulationCheckExit(0, arch, experiment, "-p");
+        runSimulationCheckExit(0, arch, experiment, "-p", "-t");
     }
 }

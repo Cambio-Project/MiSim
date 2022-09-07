@@ -40,7 +40,7 @@ public final class BinnedCPUUtilizationTracker extends NamedSimProcess implement
     BinnedCPUUtilizationTracker(CPU owner) {
         super(owner.getModel(), String.format("Utilization Tracker of %s", owner.getName()), true, true);
         setSchedulingPriority(Priority.Very_LOW);
-        reporter = new MultiDataPointReporter(String.format("C[%s]_", owner.getPlainName()));
+        reporter = new MultiDataPointReporter(String.format("C[%s]_", owner.getPlainName()), owner.getModel());
 
         utilizationHistory.add(new HistoryEntry(0.0, 0L, Long.MAX_VALUE));
 

@@ -662,7 +662,7 @@ public class Experiment extends NamedObject {
 		}
 
         // building the scheduler: prepare event list...
-        EventList eventList = new EventTreeList(); // new SortedMapEventList();
+        EventList eventList = new MiSimEventList(); // new EventTreeList(); // new SortedMapEventList();
 
         // create the scheduler (and clock)
         clientScheduler = new Scheduler(this, name, eventList);
