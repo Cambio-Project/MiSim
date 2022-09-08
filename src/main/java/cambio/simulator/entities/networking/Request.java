@@ -217,8 +217,8 @@ public abstract class Request extends NamedEntity {
             uncompletedCount -= 1;
 
             if (this.traceIsOn()) {
-                this.sendTraceNote(String.format("Completed Dependency \"%s\".", dep));
-                this.sendTraceNote(String.format("Remaining Dependencies: %d.", uncompletedCount - 1));
+                this.sendTraceNote("Completed Dependency \"" + dep + "\".");
+                this.sendTraceNote("Remaining Dependencies: " + (uncompletedCount - 1) + ".");
             }
         }
 

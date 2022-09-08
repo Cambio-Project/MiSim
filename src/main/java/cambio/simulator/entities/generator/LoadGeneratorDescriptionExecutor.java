@@ -76,7 +76,7 @@ public final class LoadGeneratorDescriptionExecutor extends RequestSender implem
 
     private void sendNewUserRequest() {
         UserRequest request = new UserRequest(model,
-            "UserRequest@[" + targetOperation.getFullyQualifiedPlainName() + "]", true, targetOperation);
+            "UserRequest@[" + targetOperation.getFullyQualifiedPlainName() + "]", model.traceIsOn(), targetOperation);
         try {
             sendRequest("SendingUserRequest(" + request.getPlainName() + ")", request, targetOperation.getOwnerMS());
         } catch (NoInstanceAvailableException e) {
