@@ -56,8 +56,8 @@ public class ReportCollector extends ReportManager {
         System.out.println("Executed Experiment:        "
             + metaData.getExperimentDescriptionLocation().getAbsolutePath());
         System.out.println("Report Location:            "
-            + metaData.getReportLocation().toAbsolutePath());
-        System.out.println("Setup took:                 " + Util.timeFormat(metaData.getSetupExecutionDuration()));
+            + metaData.getReportLocation().toAbsolutePath().normalize());
+        System.out.println("Parsing took:                 " + Util.timeFormat(metaData.getSetupExecutionDuration()));
         System.out.println("Experiment took:            " + Util.timeFormat(metaData.getExperimentExecutionDuration()));
 //        System.out.println("Report took:                " + Util.timeFormat(metaData.getReportExecutionDuration()));
         System.out.println("Execution took:             " + Util.timeFormat(metaData.getExecutionDuration()));

@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.javatuples.Pair;
 
@@ -23,13 +24,14 @@ public class WriterThread implements Runnable {
 
     protected boolean hasStarted = false;
     private ScheduledFuture<?> scheduledFuture;
-    private final Semaphore semaphore = new Semaphore(1);
+    private final ReentrantLock lock = new ReentrantLock();
 
     public WriterThread(Path datasetPath) throws IOException {
         this.datasetPath = datasetPath;
         this.fileOutputStream = new FileOutputStream(datasetPath.toFile());
 
-        fileOutputStream.write("Simulation Time,Value\n".getBytes(StandardCharsets.UTF_8));
+        fileOutputStream.write(
+            ("Simulation Time" + MiSimReporters.csvSeperator + "Value\n").getBytes(StandardCharsets.UTF_8));
         fileOutputStream.flush();
     }
 
@@ -41,7 +43,7 @@ public class WriterThread implements Runnable {
 
     public void finalizeWriteout() {
         try {
-            scheduledFuture.cancel(false);
+            scheduledFuture.cancel(false); //cancel periodic scheduling
             pollAndWrite(); // flush the rest of the buffer into the output stream
             fileOutputStream.flush(); //flush the output stream to the file
             fileOutputStream.close();
@@ -61,20 +63,18 @@ public class WriterThread implements Runnable {
 
     private void pollAndWrite() {
         try {
-            semaphore.acquire();
+            lock.lock(); //ensure that at maximum 1 thread is writing at a time
             while (!buffer.isEmpty()) {
                 try {
                     Pair<Double, Object> data = buffer.remove(0);
-                    fileOutputStream.write((data.getValue0() + "," + data.getValue1() + "\n")
+                    fileOutputStream.write((data.getValue0() + MiSimReporters.csvSeperator + data.getValue1() + "\n")
                         .getBytes(StandardCharsets.UTF_8));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
         } finally {
-            semaphore.release();
+            lock.unlock();
         }
     }
 }

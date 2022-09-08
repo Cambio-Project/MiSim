@@ -15,6 +15,8 @@ public final class MiSimReporters {
     public static MultiDataPointReporter USER_REQUEST_REPORTER;
     public static AccumulativeDataPointReporter GENERATOR_REPORTER;
 
+    public static final String csvSeperator = ";";
+
     public static void initializeStaticReporters(MiSimModel model) {
 
         RETRY_MANAGER_REPORTER = new MultiDataPointReporter("RM_", model);

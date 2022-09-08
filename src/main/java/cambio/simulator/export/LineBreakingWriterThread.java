@@ -1,6 +1,5 @@
 package cambio.simulator.export;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -31,12 +30,12 @@ public class LineBreakingWriterThread extends WriterThread {
             buffer.add(new Pair<>(time, data));
             hasStarted = true;
         }
-        buffer.add(new Pair<>(time, ", " + data));
+        buffer.add(new Pair<>(time, MiSimReporters.csvSeperator + " " + data));
     }
 
     private void startNewLine(double time) {
         currentTime = time;
-        buffer.add(new Pair<>(time, time + ", ["));
+        buffer.add(new Pair<>(time, time + MiSimReporters.csvSeperator + " ["));
     }
 
     private void closeLine() {
