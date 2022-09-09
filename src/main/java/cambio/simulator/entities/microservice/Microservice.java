@@ -38,10 +38,12 @@ import desmoj.core.simulator.Model;
  * @see InstanceOwnedPattern
  */
 public class Microservice extends NamedEntity {
+
     protected final transient Set<MicroserviceInstance> instancesSet =
         new TreeSet<>(Comparator.comparingInt(MicroserviceInstance::getInstanceID));
     protected final transient MultiDataPointReporter reporter;
     protected final transient ListCollectingReporter accReporter;
+    protected final ServiceCPUUtilizationTracker cpuUtilizationTracker;
 
     @Expose
     @SerializedName(value = "loadbalancer_strategy", alternate = {"load_balancer", "loadbalancer"})
@@ -74,6 +76,8 @@ public class Microservice extends NamedEntity {
     private ServiceOwnedPattern[] serviceOwnedPatterns = new ServiceOwnedPattern[0];
 
 
+
+
     /**
      * Creates a new instance of a {@link Microservice}.
      */
@@ -83,6 +87,7 @@ public class Microservice extends NamedEntity {
         loadBalancer = new LoadBalancer(model, "Loadbalancer", traceIsOn(), null);
         reporter = new MultiDataPointReporter(String.format("S[%s]_", name), model);
         accReporter = new ListCollectingReporter(String.format("S[%s]_", name), model);
+        this.cpuUtilizationTracker = new ServiceCPUUtilizationTracker(this, reporter);
     }
 
     /**
@@ -171,7 +176,6 @@ public class Microservice extends NamedEntity {
         }
 
         reporter.addDatapoint("InstanceCount", presentTime(), instancesSet.size());
-
     }
 
 
@@ -296,4 +300,6 @@ public class Microservice extends NamedEntity {
     public Set<MicroserviceInstance> getInstancesSet() {
         return instancesSet;
     }
+
+
 }

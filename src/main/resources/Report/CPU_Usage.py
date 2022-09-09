@@ -9,15 +9,15 @@ import util
 
 datasets = []
 
-for file in glob.glob("./raw/C*_Usage.csv"):
+for file in glob.glob("./raw/C*_Utilization.csv"):
     dataUsage = pd.read_csv(file, sep=";", usecols=[0, 1])
     dataActive = pd.read_csv(file.replace(
-        "_Usage", "_ActiveProcesses"), sep=";", usecols=[0, 1])
+        "_Utilization", "_ActiveProcesses"), sep=";", usecols=[0, 1])
     dataTotal = pd.read_csv(file.replace(
-        "_Usage", "_TotalProcesses"), sep=";", usecols=[0, 1])
+        "_Utilization", "_TotalProcesses"), sep=";", usecols=[0, 1])
 
     joined = dataUsage.merge(
-        dataActive, on="Simulation Time", suffixes=("_Usage", "_Active"))
+        dataActive, on="Simulation Time", suffixes=("_Utilization", "_Active"))
     joined = joined.merge(dataTotal, on="Simulation Time")
     joined = joined.rename(columns={"Value": "Value_Total"})
 
@@ -41,12 +41,12 @@ def write_data(ax: Axes, ax2: Axes, dataset: DataFrame):
     ax.legend()
 
     ax2.step(dataset["Simulation Time"],
-             dataset["Value_Usage"],
+             dataset["Value_Utilization"],
              where="post",
              label="Usage (%)",
              linewidth=0.25)
     ax2.scatter(x=dataset["Simulation Time"],
-                y=dataset["Value_Usage"],
+                y=dataset["Value_Utilization"],
                 c="black",
                 marker="2")
     ax2.set_ylim(-0.01, 1.01)
