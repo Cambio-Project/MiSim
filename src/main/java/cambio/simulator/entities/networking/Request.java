@@ -24,7 +24,7 @@ public abstract class Request extends NamedEntity {
     private final PriorityQueue<IRequestUpdateListener> updateListeners = new PriorityQueue<>();
     private final transient Random prob;
     private MicroserviceInstance handlerInstance;
-    //microservice instance that collects dependencies of this request and computes it
+    // microservice instance that collects dependencies of this request and computes it
     private boolean computationCompleted = false;
     private boolean dependenciesCompleted = false;
     private transient NetworkRequestSendEvent sendEvent;
@@ -46,27 +46,15 @@ public abstract class Request extends NamedEntity {
             () -> new Random(((MiSimModel) getModel()).getExperimentMetaData().getSeed()));
         createDependencies();
         if (dependencies.isEmpty()) {
-            //TODO: clean up this mess (this call is made to neatly trigger onDependenciesComplete)
+            // TODO: clean up this mess (this call is made to neatly trigger
+            // onDependenciesComplete)
             notifyDependencyHasFinished(null);
         }
     }
 
-
     private void createDependencies() {
-
         for (DependencyDescription dependencyDescription : operation.getDependencyDescriptions()) {
-
-            double probability = dependencyDescription.getProbability();
-            double sample = prob.nextDouble();
-            if (sample <= probability) {
-
-                Operation nextOperationEntity = dependencyDescription.getTargetOperation();
-
-                ServiceDependencyInstance dep = new ServiceDependencyInstance(getModel(), this, nextOperationEntity,
-                    dependencyDescription);
-
-                dependencies.add(dep);
-            }
+            dependencies.addAll(dependencyDescription.generateDependenciesForExecutions(this, prob));
         }
     }
 
@@ -138,21 +126,20 @@ public abstract class Request extends NamedEntity {
         this.receiveEvent = receiveEvent;
     }
 
-
-    //    private void setDependenciesCompleted() {
-    //        if (this.dependenciesCompleted) {
-    //            throw new IllegalStateException("Dependencies were already completed!");
-    //        }
-    //        this.dependenciesCompleted = true;
-    //        timestampDependenciesCompleted = presentTime();
-    //        onDependenciesComplete();
-    //        if (dependenciesCompleted && computationCompleted) {
-    //            onCompletion();
-    //        }
-    //        if (handlerInstance != null && handlerInstance.checkIfCanHandle(this)) {
-    //            handlerInstance.handle(this); //resubmitting itself for further handling
-    //        }
-    //    }
+    // private void setDependenciesCompleted() {
+    // if (this.dependenciesCompleted) {
+    // throw new IllegalStateException("Dependencies were already completed!");
+    // }
+    // this.dependenciesCompleted = true;
+    // timestampDependenciesCompleted = presentTime();
+    // onDependenciesComplete();
+    // if (dependenciesCompleted && computationCompleted) {
+    // onCompletion();
+    // }
+    // if (handlerInstance != null && handlerInstance.checkIfCanHandle(this)) {
+    // handlerInstance.handle(this); //resubmitting itself for further handling
+    // }
+    // }
 
     public void setCanceledEvent(NetworkRequestCanceledEvent canceledEvent) {
         this.canceledEvent = canceledEvent;
@@ -232,13 +219,13 @@ public abstract class Request extends NamedEntity {
         return false;
     }
 
-
     /**
      * Gets the {@link ServiceDependencyInstance} that should be completed by the given request.
      *
      * @param request child request of this request.
-     * @return the {@link ServiceDependencyInstance} that is related to the given request, {@code null} otherwise.
-     *     Returns {@code null} specifically, if the request was a child request, that has been canceled or replaced.
+     * @return the {@link ServiceDependencyInstance} that is related to the given request,
+     *     {@code null} otherwise. Returns {@code null} specifically, if the request was a child
+     *     request, that has been canceled or replaced.
      */
     public ServiceDependencyInstance getRelatedDependency(Request request) {
         for (ServiceDependencyInstance serviceDependencyInstance : dependencies) {
@@ -278,10 +265,9 @@ public abstract class Request extends NamedEntity {
         return dependenciesCompleted;
     }
 
-
     /*
-     * Interface for subclasses to monitor their state, while keeping core functions hidden.
-     * these are essentially Events in a programmatic sense (like in C#, not like in DES)
+     * Interface for subclasses to monitor their state, while keeping core functions hidden. these
+     * are essentially Events in a programmatic sense (like in C#, not like in DES)
      */
     protected void onDependenciesComplete() {
         sendDebugNote(String.format("Dependencies Completed: %s", getQuotedName()));
@@ -320,7 +306,6 @@ public abstract class Request extends NamedEntity {
         this.updateListeners.add(updateListener);
     }
 
-
     /**
      * Cancels the sending process of this request. Also prevents it from starting.
      */
@@ -342,6 +327,5 @@ public abstract class Request extends NamedEntity {
         cancelEvent.schedule(presentTime());
         request.canceledEvent = canceledEvent;
     }
-
 
 }

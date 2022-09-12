@@ -5,7 +5,7 @@ import cambio.simulator.entities.microservice.*;
 import desmoj.core.simulator.Model;
 
 /**
- * This is an instance of a {@link DependencyDescription}. It describes an actual existing dependency of a {@code
+ * This is an instance of a {@link SimpleDependencyDescription}. It describes an actual existing dependency of a {@code
  * Request}, that arrived at a {@code MicroserviceInstance}.
  *
  * @author Lion Wagner
@@ -18,12 +18,12 @@ public class ServiceDependencyInstance extends NamedEntity {
     private final Request parentRequest;
     private final Microservice targetMicroservice;
     private final Operation targetOp;
-    private final DependencyDescription dependencyDescription;
+    private final SimpleDependencyDescription dependencyDescription;
     private boolean completed;
     private InternalRequest childRequest;
 
     /**
-     * Creates an actual instance of a {@link DependencyDescription}.
+     * Creates an actual instance of a {@link SimpleDependencyDescription}.
      *
      * @param model                 DESMO-J model
      * @param parentRequest         {@link Request} that requires this dependency.
@@ -31,13 +31,9 @@ public class ServiceDependencyInstance extends NamedEntity {
      * @param dependencyDescription generic data that describes this dependency.
      */
     public ServiceDependencyInstance(Model model, Request parentRequest, Operation targetOp,
-                                     DependencyDescription dependencyDescription) {
-        super(model,
-            String.format(
-                "%s_depends_on_%s",
-                parentRequest.operation.getFullyQualifiedPlainName(),
-                targetOp.getFullyQualifiedPlainName()),
-            false);
+                                     SimpleDependencyDescription dependencyDescription) {
+        super(model, String.format("%s_depends_on_%s", parentRequest.operation.getFullyQualifiedPlainName(),
+            targetOp.getFullyQualifiedPlainName()), false);
         this.parentRequest = parentRequest;
         this.targetOp = targetOp;
         this.targetMicroservice = targetOp.getOwnerMS();

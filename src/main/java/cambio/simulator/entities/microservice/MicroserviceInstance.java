@@ -59,11 +59,11 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
     /**
      * Creates a new {@link MicroserviceInstance} for the given {@link Microservice} parent.
      *
-     * @param model Base model of the simulation.
-     * @param name Name of the instance.
-     * @param showInTrace Whether the instance outputs should be shown in the trace.
+     * @param model        Base model of the simulation.
+     * @param name         Name of the instance.
+     * @param showInTrace  Whether the instance outputs should be shown in the trace.
      * @param microservice Parent microservice of the instance.
-     * @param instanceID ID of the instance.
+     * @param instanceID   ID of the instance.
      */
     public MicroserviceInstance(Model model, String name, boolean showInTrace, Microservice microservice,
                                 int instanceID) {
@@ -82,19 +82,16 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
     }
 
     /**
-     *  Activates the patterns that are owned by this instance.
-     *  This will call registers {@link IRequestUpdateListener}s on this instance and
-     *  call the {@link InstanceOwnedPattern#start()} method on each pattern instance.
+     * Activates the patterns that are owned by this instance.
+     * This will call registers {@link IRequestUpdateListener}s on this instance and
+     * call the {@link InstanceOwnedPattern#start()} method on each pattern instance.
      */
     public void activatePatterns(InstanceOwnedPatternConfiguration[] patterns) {
-        this.patterns = Arrays.stream(patterns)
-            .map(patternData -> patternData.getPatternInstance(this))
-            .filter(Objects::nonNull)
-            .collect(Collectors.toSet());
-        this.patterns.stream()
-            .filter(pattern -> pattern instanceof IRequestUpdateListener)
-            .map(pattern -> (IRequestUpdateListener) pattern)
-            .forEach(this::addUpdateListener);
+        this.patterns =
+            Arrays.stream(patterns).map(patternData -> patternData.getPatternInstance(this)).filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        this.patterns.stream().filter(pattern -> pattern instanceof IRequestUpdateListener)
+            .map(pattern -> (IRequestUpdateListener) pattern).forEach(this::addUpdateListener);
         this.patterns.forEach(InstanceOwnedPattern::start);
     }
 
@@ -160,8 +157,8 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
 
         //if the instance is shutting down but already received the request it can continue to finish it.
         // else the instance can't handle the instance
-        return state == InstanceState.SHUTTING_DOWN
-            && (currentRequestsToHandle.contains(request) || currentRequestsToHandle.contains(request.getParent()));
+        return state == InstanceState.SHUTTING_DOWN && (currentRequestsToHandle.contains(request)
+            || currentRequestsToHandle.contains(request.getParent()));
     }
 
     private void handleRequestAnswer(RequestAnswer answer) {
@@ -169,18 +166,17 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
 
         if (!(answeredRequest instanceof InternalRequest)) {
             throw new IllegalArgumentException(
-                String.format("Dont know how to handle a %s", answeredRequest.getClass().getSimpleName()));
+                String.format("Don't know how to handle a %s", answeredRequest.getClass().getSimpleName()));
         }
 
         InternalRequest request = (InternalRequest) answeredRequest;
         ServiceDependencyInstance dep = request.getDependency();
 
 
-        if (!currentlyOpenDependencies.remove(dep)
-            || !currentRequestsToHandle.contains(dep.getParentRequest())
+        if (!currentlyOpenDependencies.remove(dep) || !currentRequestsToHandle.contains(dep.getParentRequest())
             || request.getParent().getRelatedDependency(request) == null) {
-            throw new IllegalStateException("This Request is not handled by this Instance (anymore). "
-                + "Maybe due to timeout.");
+            throw new IllegalStateException(
+                "This Request is not handled by this Instance (anymore). " + "Maybe due to timeout.");
         } else if (getModel().debugIsOn()) {
             closedDependencies.add(dep);
         }
@@ -199,10 +195,10 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
             waiting++;
         }
 
-        //three possiblities:
+        //three possibilities:
         //1. request is completed -> send it back to its sender (target is retrieved by the SendEvent)
-        //2. requests' dependecies were all recevied -> send it to the cpu for handling.
-        //   The CPU will "send" it back to this method once its done.
+        //2. requests' dependencies were all received -> send it to the cpu for handling.
+        //   The CPU will "send" it back to this method once it is done.
         //3. request does have dependencies -> create internal request
         if (request.isCompleted()) {
             notComputed--;
@@ -216,9 +212,7 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
             //shutdown after the last answer was send. It doesn't care if the original sender does not live anymore
             if (currentRequestsToHandle.isEmpty() && getState() == InstanceState.SHUTTING_DOWN) {
                 InstanceShutdownEndEvent event = new InstanceShutdownEndEvent(getModel(),
-                    String.format("Instance %s Shutdown End",
-                        this.getQuotedName()),
-                    traceIsOn());
+                    String.format("Instance %s Shutdown End", this.getQuotedName()), traceIsOn());
                 event.schedule(this, presentTime());
             }
 
@@ -262,9 +256,9 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
      */
     public void start() {
         if (!(this.state == InstanceState.CREATED || this.state == InstanceState.SHUTDOWN)) {
-            throw new IllegalStateException(String.format(
-                "Cannot start Instance %s: Was not recently created or Shutdown. (Current State [%s])",
-                this.getQuotedName(), state.name()));
+            throw new IllegalStateException(
+                String.format("Cannot start Instance %s: Was not recently created or Shutdown. (Current State [%s])",
+                    this.getQuotedName(), state.name()));
         }
 
         changeState(InstanceState.STARTING);
@@ -286,10 +280,7 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
 
         if (currentRequestsToHandle.isEmpty()) { //schedule immediate shutdown if currently there is nothing to do
             InstanceShutdownEndEvent shutDownEvent = new InstanceShutdownEndEvent(getModel(),
-                String.format(
-                    "Instance %s Shutdown End",
-                    this.getQuotedName()),
-                traceIsOn());
+                String.format("Instance %s Shutdown End", this.getQuotedName()), traceIsOn());
             shutDownEvent.schedule(this, new TimeSpan(0));
         }
 
@@ -297,7 +288,7 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
     }
 
     /**
-     * Completes the shutdown and transistions the instance into the {@link InstanceState#SHUTDOWN} state. The instance
+     * Completes the shutdown and transitions the instance into the {@link InstanceState#SHUTDOWN} state. The instance
      * will not handle any requests in this state.
      */
     public final void endShutdown() {
@@ -315,9 +306,9 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
      */
     public final void die() {
         if (this.state == InstanceState.KILLED) {
-            throw new IllegalStateException(String.format(
-                "Cannot kill Instance %s: This instance was already killed. (Current State [%s])",
-                this.getQuotedName(), state.name()));
+            throw new IllegalStateException(
+                String.format("Cannot kill Instance %s: This instance was already killed. (Current State [%s])",
+                    this.getQuotedName(), state.name()));
         }
         changeState(InstanceState.KILLED);
 
@@ -372,8 +363,8 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
         }
 
 
-        if (reason != RequestFailedReason.MAX_RETRIES_REACHED
-            && patterns.stream().anyMatch(pattern -> pattern instanceof Retry)) {
+        if (reason != RequestFailedReason.MAX_RETRIES_REACHED && patterns.stream()
+            .anyMatch(pattern -> pattern instanceof Retry)) {
             return false;
         }
 
@@ -435,29 +426,23 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
         }
 
 
-        if (!currentlyOpenDependencies.contains(failedDependency)
-            || !currentRequestsToHandle.contains(request.getParent())) {
+        if (!currentlyOpenDependencies.contains(failedDependency) || !currentRequestsToHandle.contains(
+            request.getParent())) {
             throw new IllegalArgumentException("The given request was not requested by this Instance.");
         }
 
         Request parentToCancel = request.getParent();
 
         //cancel parent
-        NetworkRequestEvent cancelEvent
-            = new NetworkRequestCanceledEvent(getModel(),
-            "Canceling of request " + parentToCancel.getQuotedName(),
-            traceIsOn(),
-            parentToCancel,
-            RequestFailedReason.DEPENDENCY_NOT_AVAILABLE,
-            "Dependency " + request.getQuotedName());
+        NetworkRequestEvent cancelEvent =
+            new NetworkRequestCanceledEvent(getModel(), "Canceling of request " + parentToCancel.getQuotedName(),
+                traceIsOn(), parentToCancel, RequestFailedReason.DEPENDENCY_NOT_AVAILABLE,
+                "Dependency " + request.getQuotedName());
         cancelEvent.schedule(presentTime());
 
         //cancel all other children of the parent
-        parentToCancel.getDependencies()
-            .stream()
-            .map(ServiceDependencyInstance::getChildRequest)
-            .filter(Schedulable::isScheduled)
-            .forEach(InternalRequest::cancel);
+        parentToCancel.getDependencies().stream().map(ServiceDependencyInstance::getChildRequest)
+            .filter(Schedulable::isScheduled).forEach(InternalRequest::cancel);
 
         if (getModel().debugIsOn()) {
             abortedDependencies.addAll(parentToCancel.getDependencies());

@@ -1,0 +1,103 @@
+{
+	"network_latency": ".0020+.0010-.0005",
+	"microservices": [
+		{
+			"name": "gateway",
+			"instances": 1,
+			"capacity": 1336,
+			"loadbalancer_strategy": "even",
+			"operations": [
+				{
+					"name": "gateway.PING",
+					"demand": 1,
+					"dependencies": []
+				},
+				{
+					"name": "INTERNAL_DEP",
+					"demand": 1,
+					"dependencies": [
+						{
+							"type": "loop",
+							"iterations": "2", 
+							"dependencies": [
+								{
+									"service": "gateway",
+									"operation": "INTERNAL_DEP2"
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "INTERNAL_DEP2",
+					"demand": 1,
+					"dependencies": [
+						{
+							"type": "alternative",
+							"dependencies": [
+								{
+									"service": "example-service",
+									"operation": "example-service.get",
+									"alternativeProbability": "0.8"
+								},
+								{
+									"service": "example-service2",
+									"operation": "example-service2.get2",
+									"alternativeProbability": "0.2"
+								}
+							]
+						}
+					]
+				}
+			],
+			"patterns": [
+				{
+					"type": "retry",
+					"config": {
+						"maxTries": 5
+					},
+					"strategy": {
+						"type": "jittering",
+						"config": {
+							"baseBackoff": 0.02,
+							"maxBackoff": 1,
+							"base": 2
+						}
+					}
+				},
+				{
+					"type": "circuitbreaker",
+					"config": {
+						"errorThresholdPercentage": 0.7
+					}
+				}
+			]
+		},
+		{
+			"name": "example-service",
+			"instances": 2,
+			"patterns": [],
+			"capacity": 100,
+			"operations": [
+				{
+					"name": "example-service.get",
+					"demand": 20,
+					"dependencies": []
+				}
+			]
+		},
+		{
+			"name": "example-service2",
+			"instances": 1,
+			"patterns": [],
+			"capacity": 200,
+			"operations": [
+				{
+					"name": "example-service2.get2",
+					"demand": 5,
+					"dependencies": []
+				}
+			]
+		}
+	]
+}

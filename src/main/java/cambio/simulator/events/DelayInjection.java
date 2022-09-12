@@ -72,7 +72,7 @@ public class DelayInjection extends SelfScheduledExperimentAction {
             }
             if (operationTrg != null
                 && Arrays.stream(operationSrc.getDependencyDescriptions())
-                .noneMatch(dependency -> dependency.getTargetOperation() == operationTrg)) {
+                .noneMatch(dependency -> dependency.getAllTargetOperations().contains(operationTrg))) {
                 throw new IllegalArgumentException(
                     String.format("Operation %s is not a dependency of operation %s", operationTrg, operationSrc));
             }

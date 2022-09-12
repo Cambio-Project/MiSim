@@ -8,13 +8,14 @@ import java.util.List;
 
 import cambio.simulator.entities.microservice.Operation;
 import cambio.simulator.entities.networking.DependencyDescription;
+import cambio.simulator.entities.networking.SimpleDependencyDescription;
+import cambio.simulator.misc.NameResolver;
 import cambio.simulator.models.MiSimModel;
 import cambio.simulator.parsing.GsonHelper;
 import cambio.simulator.parsing.ParsingException;
 import cambio.simulator.parsing.adapter.MiSimModelReferencingTypeAdapter;
 import cambio.simulator.parsing.adapter.NormalDistributionAdapter;
 import com.google.gson.*;
-import com.google.gson.internal.UnsafeAllocator;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import desmoj.core.dist.ContDistNormal;
@@ -22,7 +23,7 @@ import desmoj.core.dist.ContDistNormal;
 /**
  * Adapter for parsing {@link Operation}s from JSON.
  *
- * @author Lion Wagner
+ * @author Lion Wagner, Sebastian Frank
  */
 public class OperationAdapter extends MiSimModelReferencingTypeAdapter<Operation> {
 
@@ -30,17 +31,17 @@ public class OperationAdapter extends MiSimModelReferencingTypeAdapter<Operation
     private final List<DependencyDescription> dependencies;
 
     /**
-     * Constructor creating an adapter for parsing Operations.
-     * This adapter will not parse the underlying {@link DependencyDescription}s, since they can only be resolved once
-     * all {@link Operation}s have been initialized.
-     * Instead, it will provide a list of dependencies, that can be resolved later.
+     * Constructor creating an adapter for parsing Operations. This adapter will not parse the
+     * underlying {@link DependencyDescription}s, since they can only be resolved once all
+     * {@link Operation}s have been initialized. Instead, it will provide a list of dependencies,
+     * that can be resolved later.
      *
-     * @param baseModel Base model of the simulation.
-     * @param name Name of the parent {@link cambio.simulator.entities.microservice.Microservice}.
-     * @param dependencies A mutable {@link List} to which all dependencies of the operation will be added.
+     * @param baseModel    Base model of the simulation.
+     * @param name         Name of the parent {@link cambio.simulator.entities.microservice.Microservice}.
+     * @param dependencies A mutable {@link List} to which all dependencies of the operation will be
+     *                     added.
      */
-    public OperationAdapter(MiSimModel baseModel, String name,
-                            List<DependencyDescription> dependencies) {
+    public OperationAdapter(MiSimModel baseModel, String name, List<DependencyDescription> dependencies) {
         super(baseModel);
         parentMicroserviceName = name;
         this.dependencies = dependencies;
@@ -48,51 +49,64 @@ public class OperationAdapter extends MiSimModelReferencingTypeAdapter<Operation
 
     @Override
     public void write(JsonWriter out, Operation value) throws IOException {
-
+        throw new UnsupportedOperationException("Not implemented yet!");
     }
 
     @Override
     public Operation read(JsonReader in) throws IOException {
         JsonObject root = JsonParser.parseReader(in).getAsJsonObject();
-        String name = root.get("name").getAsString().trim();
-        if (name.contains(".")) {
-            String[] names = name.split("\\.");
-            String msName = names[0];
-            String opName = names[1];
-            if (!msName.equals(parentMicroserviceName)) {
-                throw new ParsingException(
-                    String.format("Fully qualified name \"%s\" does not match name of the parent \"%s\"", name,
-                        parentMicroserviceName));
-            }
-            name = opName;
+        JsonElement nameElement = root.get("name");
+        if (nameElement == null) {
+            throw new ParsingException("name element is mandatory but not present");
         }
 
-        Gson gson = GsonHelper.getGsonBuilder()
-            .excludeFieldsWithoutExposeAnnotation()
-            .registerTypeAdapter(Operation.class, new OperationInstanceCreator(model, name))
-            .registerTypeAdapter(ContDistNormal.class, new NormalDistributionAdapter(model))
-            .registerTypeAdapter(DependencyDescription.class, new DependencyDescriptionCreator(model))
-            .create();
-
-        Operation operation = gson.fromJson(root, Operation.class);
+        String operationName = extractOperationName(nameElement);
+        Operation operation = createOperationFrom(root, operationName);
 
         Collections.addAll(this.dependencies, operation.getDependencyDescriptions());
         try {
-            Field parentOperationField = DependencyDescription.class.getDeclaredField("parentOperation");
-            parentOperationField.setAccessible(true);
-            for (DependencyDescription dependency : operation.getDependencyDescriptions()) {
-                parentOperationField.set(dependency, operation);
-            }
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            throw new ParsingException("Failed to parse a dependency.", e);
+            setAsParentOperationForAllLeafDependencies(operation);
+        } catch (ReflectiveOperationException e) {
+            throw new ParsingException("Failed to set parent operations for contained dependencies.", e);
         }
-
         return operation;
     }
 
+    private String extractOperationName(final JsonElement nameElement) {
+        String operationName = nameElement.getAsString().trim();
+        if (NameResolver.operationNameIsComposed(operationName)) {
+            operationName = NameResolver.operationNameFromComposed(operationName, null);
+        }
+        return operationName;
+    }
+
+    private void setAsParentOperationForAllLeafDependencies(final Operation parentOperation)
+        throws ReflectiveOperationException {
+        assert parentOperation != null;
+        // TODO: There is certainly a better option than using reflection
+        Field parentOperationField = SimpleDependencyDescription.class.getDeclaredField("parentOperation");
+        parentOperationField.setAccessible(true);
+        for (final DependencyDescription dependency : parentOperation.getDependencyDescriptions()) {
+            for (final SimpleDependencyDescription leafDependency : dependency.getLeafDescendants()) {
+                parentOperationField.set(leafDependency, parentOperation);
+            }
+        }
+    }
+
+    private Operation createOperationFrom(final JsonObject root, final String operationName) {
+        assert root != null;
+        assert operationName != null;
+
+        Gson gson = GsonHelper.getGsonBuilder().excludeFieldsWithoutExposeAnnotation()
+            .registerTypeAdapter(Operation.class, new OperationInstanceCreator(model, operationName))
+            .registerTypeAdapter(ContDistNormal.class, new NormalDistributionAdapter(model))
+            .registerTypeAdapter(DependencyDescription.class, new DependencyDescriptionAdapter(model, operationName))
+            .create();
+
+        return gson.fromJson(root, Operation.class);
+    }
 
     private static final class OperationInstanceCreator implements InstanceCreator<Operation> {
-
         private final MiSimModel model;
         private final String name;
 
@@ -104,33 +118,6 @@ public class OperationAdapter extends MiSimModelReferencingTypeAdapter<Operation
         @Override
         public Operation createInstance(Type type) {
             return new Operation(model, name, true, null, 0);
-        }
-    }
-
-    private static final class DependencyDescriptionCreator implements InstanceCreator<DependencyDescription> {
-        private final MiSimModel baseModel;
-
-        public DependencyDescriptionCreator(MiSimModel baseModel) {
-
-            this.baseModel = baseModel;
-        }
-
-        @Override
-        public DependencyDescription createInstance(Type type) {
-
-            try {
-                Field defaultProbability = DependencyDescription.class.getDeclaredField("probability");
-                defaultProbability.setAccessible(true);
-
-                //using Gson's UnsafeAllocator to work around having constructors that are only used for parsing.
-                DependencyDescription dependencyDescription =
-                    UnsafeAllocator.create().newInstance(DependencyDescription.class);
-                defaultProbability.set(dependencyDescription,
-                    new ContDistNormal(baseModel, "DependencyDistribution", 1, 0, false, false));
-                return dependencyDescription;
-            } catch (Exception e) {
-                throw new ParsingException("Parsing failed", e);
-            }
         }
     }
 }
