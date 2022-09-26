@@ -98,9 +98,9 @@ public class LimboLoadGeneratorDescription extends LoadGeneratorDescription {
                     .map(line -> {
                         //Orientated at the HTTP Loadgenerator, which just casts double values to ints
                         String[] split = line.split("[;,]");
-                        if (split.length == 1) {
+                        if (split.length == 1 || (split.length == 2 && split[1].isEmpty())) {
                             return new Pair<>((double) lineNumber.getAndIncrement(),
-                                (int) Math.ceil(Double.parseDouble(split[0]) / 90.0));
+                                (int) Math.ceil(Double.parseDouble(split[0]) / 110.0));
                         } else if (split.length == 2) {
                             return new Pair<>(Double.valueOf(split[0]),
                                 (int) Math.round(Double.parseDouble(split[1])));

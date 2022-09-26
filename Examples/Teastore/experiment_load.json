@@ -3,7 +3,8 @@
     "experiment_name": "Teastore-Load-Experiment",
     "model_name": "Teastore Load",
     "duration": 3600,
-    "seed": 1337
+    "seed": 1337,
+    "report_location": "D:\\Repositories\\capsule-9682966\\data"
   },
   "request_generators": [
     {

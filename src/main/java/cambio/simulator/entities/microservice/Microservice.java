@@ -75,9 +75,6 @@ public class Microservice extends NamedEntity {
     @SerializedName(value = "s_patterns", alternate = {"service_patterns", "s_pattern", "service_pattern"})
     private ServiceOwnedPattern[] serviceOwnedPatterns = new ServiceOwnedPattern[0];
 
-
-
-
     /**
      * Creates a new instance of a {@link Microservice}.
      */

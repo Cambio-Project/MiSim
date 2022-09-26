@@ -11,11 +11,11 @@
           }
         }
       ],
-      "capacity": 1000,
+      "capacity": 12000,
       "operations": [
         {
           "name": "placeOrder",
-          "demand": 11,
+          "demand": 150,
           "dependencies": [
             {
               "service": "persistence",
@@ -31,7 +31,7 @@
         },
         {
           "name": "login",
-          "demand": 5,
+          "demand": 150,
           "dependencies": [
             {
               "service": "persistence",
@@ -42,17 +42,17 @@
         },
         {
           "name": "logout",
-          "demand": 125,
+          "demand": 150,
           "dependencies": []
         },
         {
           "name": "isloggedin",
-          "demand": 10,
+          "demand": 30,
           "dependencies": []
         },
         {
           "name": "cartAdd",
-          "demand": 10,
+          "demand": 150,
           "dependencies": [
             {
               "service": "persistence",
@@ -63,12 +63,12 @@
         },
         {
           "name": "cartRemove",
-          "demand": 10,
+          "demand": 150,
           "dependencies": []
         },
         {
           "name": "cartUpdate",
-          "demand": 10,
+          "demand": 150,
           "dependencies": []
         }
       ]
@@ -88,12 +88,12 @@
       "operations": [
         {
           "name": "getProductImages",
-          "demand": 1,
+          "demand": 40,
           "dependencies": []
         },
         {
           "name": "getWebUIImages",
-          "demand": 1,
+          "demand": 40,
           "dependencies": []
         }
       ]
@@ -109,61 +109,61 @@
           }
         }
       ],
-      "capacity": 10000,
+      "capacity": 27000,
       "operations": [
         {
           "name": "products.findById",
-          "demand": 3,
+          "demand": 40,
           "dependencies": []
         },
         {
           "name": "products.listCategory",
-          "demand": 4,
+          "demand": 50,
           "dependencies": []
         },
         {
           "name": "products.countCategory",
-          "demand": 1,
+          "demand": 40,
           "dependencies": []
         },
         {
           "name": "orders.listAllForUser",
-          "demand": 1,
+          "demand": 50,
           "dependencies": []
         },
         {
           "name": "orders.create",
-          "demand": 1,
+          "demand": 40,
           "dependencies": []
         },
         {
           "name": "orderitems.listAllForProduct",
-          "demand": 1,
+          "demand": 50,
           "dependencies": []
         },
         {
           "name": "orderitems.listAllForOrder",
-          "demand": 1,
+          "demand": 50,
           "dependencies": []
         },
         {
           "name": "orderitems.create",
-          "demand": 1,
+          "demand": 40,
           "dependencies": []
         },
         {
           "name": "users.findById",
-          "demand": 1,
+          "demand": 40,
           "dependencies": []
         },
         {
           "name": "categories.listAll",
-          "demand": 1,
+          "demand": 50,
           "dependencies": []
         },
         {
           "name": "categories.findById",
-          "demand": 1,
+          "demand": 40,
           "dependencies": []
         }
       ]
@@ -179,11 +179,11 @@
           }
         }
       ],
-      "capacity": 10000,
+      "capacity": 6400,
       "operations": [
         {
           "name": "recommend",
-          "demand": 3,
+          "demand": 100,
           "dependencies": []
         }
       ]
@@ -199,21 +199,21 @@
           }
         }
       ],
-      "capacity": 10000,
+      "capacity": 100000,
       "operations": [
         {
           "name": "register",
-          "demand": 3,
+          "demand": 30,
           "dependencies": []
         },
         {
           "name": "unregister",
-          "demand": 3,
+          "demand": 30,
           "dependencies": []
         },
         {
           "name": "getInstances",
-          "demand": 3,
+          "demand": 30,
           "dependencies": []
         }
       ]
@@ -233,7 +233,7 @@
       "operations": [
         {
           "name": "cartAction.addToCart",
-          "demand": 3,
+          "demand": 30,
           "dependencies": [
             {
               "service": "auth",
@@ -244,7 +244,7 @@
         },
         {
           "name": "cartAction.removeFromCart",
-          "demand": 3,
+          "demand": 30,
           "dependencies": [
             {
               "service": "auth",
@@ -255,7 +255,7 @@
         },
         {
           "name": "cartAction.updateCart",
-          "demand": 3,
+          "demand": 30,
           "dependencies": [
             {
               "service": "auth",
@@ -266,7 +266,7 @@
         },
         {
           "name": "cartAction.proceedToCheckout",
-          "demand": 3,
+          "demand": 30,
           "dependencies": [
             {
               "service": "auth",
@@ -282,7 +282,7 @@
         },
         {
           "name": "cartAction.confirmOrder",
-          "demand": 3,
+          "demand": 30,
           "dependencies": [
             {
               "service": "auth",
@@ -293,7 +293,7 @@
         },
         {
           "name": "cart",
-          "demand": 3,
+          "demand": 30,
           "dependencies": [
             {
               "service": "persistence",
@@ -324,7 +324,7 @@
         },
         {
           "name": "category",
-          "demand": 3,
+          "demand": 30,
           "dependencies": [
             {
               "service": "persistence",
@@ -365,7 +365,7 @@
         },
         {
           "name": "index",
-          "demand": 3,
+          "demand": 30,
           "dependencies": [
             {
               "service": "persistence",
@@ -386,7 +386,7 @@
         },
         {
           "name": "loginAction.login",
-          "demand": 3,
+          "demand": 30,
           "dependencies": [
             {
               "service": "auth",
@@ -397,7 +397,7 @@
         },
         {
           "name": "loginAction.logout",
-          "demand": 3,
+          "demand": 30,
           "dependencies": [
             {
               "service": "auth",
@@ -408,7 +408,7 @@
         },
         {
           "name": "order",
-          "demand": 3,
+          "demand": 30,
           "dependencies": [
             {
               "service": "persistence",
@@ -429,7 +429,7 @@
         },
         {
           "name": "product",
-          "demand": 3,
+          "demand": 30,
           "dependencies": [
             {
               "service": "persistence",
@@ -460,7 +460,7 @@
         },
         {
           "name": "profile",
-          "demand": 3,
+          "demand": 30,
           "dependencies": [
             {
               "service": "auth",

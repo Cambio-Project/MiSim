@@ -19,7 +19,7 @@ class ReactiveAutoscalingPolicy implements IAutoscalingPolicy {
     /**
      * Minimum time an instance has to run before it can be shutdown by down-scaling.
      */
-    private double holdTime = 120;
+    private double holdTime = 180;
     private transient TimeInstant lastScaleUp = new TimeInstant(0);
 
     @Override
