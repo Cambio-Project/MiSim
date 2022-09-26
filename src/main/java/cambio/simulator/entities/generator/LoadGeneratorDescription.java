@@ -96,8 +96,7 @@ public abstract class LoadGeneratorDescription implements ISelfScheduled {
         if (arrivalRateModel.hasNext()) {
             double nextTarget = arrivalRateModel.getNextTimeInstant();
             if (arrivalRateModel.getDuration() < Double.POSITIVE_INFINITY) {
-                nextTarget = repetitions * (arrivalRateModel.getDuration() + repetitionSkip)
-                    + nextTarget;
+                nextTarget = repetitions * (arrivalRateModel.getDuration() + repetitionSkip) + nextTarget;
             }
             return new TimeInstant(initialArrivalTime + nextTarget);
 
@@ -111,6 +110,10 @@ public abstract class LoadGeneratorDescription implements ISelfScheduled {
         } else {
             throw new LoadGeneratorStopException("No more Arrival Rate definitions available.");
         }
+    }
+
+    public void scaleLoad(double scaleFactor) {
+        arrivalRateModel.scaleLoad(scaleFactor);
     }
 
     @Override

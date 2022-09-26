@@ -44,9 +44,9 @@ public final class IntervalLoadGeneratorDescription extends LoadGeneratorDescrip
 
     private final class IntervalArrivalRateModel extends ArrivalRateModel {
 
-        private final transient double interArrivalTime;
-        private final transient int actualLoad;
-        private transient int currentLoadCounter;
+        private double interArrivalTime;
+        private int actualLoad;
+        private int currentLoadCounter;
 
         public IntervalArrivalRateModel() {
             if (loadDistribution.equals("even")) {
@@ -66,6 +66,16 @@ public final class IntervalLoadGeneratorDescription extends LoadGeneratorDescrip
         @Override
         protected void resetModelIteration() {
             currentLoadCounter = 0;
+        }
+
+        @Override
+        public void scaleLoad(double scaleFactor) {
+            currentLoadCounter = (int) (currentLoadCounter * scaleFactor);
+            actualLoad = (int) (actualLoad * scaleFactor);
+
+            if (loadDistribution.equals("even")) {
+                interArrivalTime = 1.0 / actualLoad;
+            }
         }
 
         @Override

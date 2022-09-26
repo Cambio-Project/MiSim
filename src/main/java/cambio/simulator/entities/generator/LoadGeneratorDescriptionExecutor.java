@@ -123,6 +123,15 @@ public final class LoadGeneratorDescriptionExecutor extends RequestSender implem
         return true;
     }
 
+    public void scaleLoad(double scaleFactor) {
+        this.sendTraceNote("Scaling load by " + scaleFactor);
+        loadGeneratorDescription.scaleLoad(scaleFactor);
+    }
+
+    public LoadGeneratorDescription getLoadGeneratorDescription() {
+        return loadGeneratorDescription;
+    }
+
     private final class GeneratorDescriptionExecutorScheduler extends NamedSimProcess implements ISelfScheduled {
 
         private GeneratorDescriptionExecutorScheduler(String plainName) {

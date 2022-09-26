@@ -17,13 +17,13 @@ public class PaperOutputDemonstrationTests extends TestBase {
     void MinimalScenario() {
         File scenario = FileLoaderUtil.loadFromExampleResources("PaperExample/paper_scenario.json");
         File architecture = FileLoaderUtil.loadFromExampleResources("PaperExample/paper_architecture.json");
-        runSimulationCheckExitTempOutput(0, architecture, scenario);
+        runSimulationCheckExit(0, architecture, scenario, "-o", "Report", "-t");
     }
 
     @Test
     void MinimalExperiment() {
         File experiment = FileLoaderUtil.loadFromExampleResources("PaperExample/paper_experiment.json");
         File architecture = FileLoaderUtil.loadFromExampleResources("PaperExample/paper_architecture.json");
-        runSimulationCheckExitTempOutput(0, architecture, experiment);
+        runSimulationCheckExit(0, architecture, experiment, "-o", "Report");
     }
 }

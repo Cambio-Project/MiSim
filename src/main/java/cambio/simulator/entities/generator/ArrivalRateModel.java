@@ -23,6 +23,8 @@ public abstract class ArrivalRateModel implements Iterator<Double> {
 
     protected abstract void resetModelIteration();
 
+    public abstract void scaleLoad(double scaleFactor);
+
     public final void reset() {
         resetModelIteration();
         lastTimeInstant = null;
@@ -59,4 +61,5 @@ public abstract class ArrivalRateModel implements Iterator<Double> {
     public final void forEachRemaining(Consumer<? super Double> action) {
         throw new UnsupportedOperationException("forEachRemaining");
     }
+
 }

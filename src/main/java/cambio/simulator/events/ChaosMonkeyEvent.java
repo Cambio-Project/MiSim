@@ -73,4 +73,7 @@ public class ChaosMonkeyEvent extends SelfScheduledExperimentAction {
         return "ChaosMonkeyEvent";
     }
 
+    public Microservice getTargetService() {
+        return this.microservice;
+    }
 }

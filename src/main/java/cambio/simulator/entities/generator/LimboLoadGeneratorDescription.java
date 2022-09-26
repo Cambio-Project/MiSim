@@ -40,6 +40,8 @@ public class LimboLoadGeneratorDescription extends LoadGeneratorDescription {
 
         private int leftOverDemandForCurrentTargetTime = 0;
         private double currentTargetTime = Double.NEGATIVE_INFINITY;
+        private double scaleFactor = 1.0d;
+
 
         public LimboArrivalRateModel(File modelFile) {
             Objects.requireNonNull(modelFile, () -> {
@@ -64,6 +66,12 @@ public class LimboLoadGeneratorDescription extends LoadGeneratorDescription {
         }
 
         @Override
+        public void scaleLoad(double scaleFactor) {
+            leftOverDemandForCurrentTargetTime = (int) (leftOverDemandForCurrentTargetTime * scaleFactor);
+            this.scaleFactor *= scaleFactor;
+        }
+
+        @Override
         public boolean hasNext() {
             return arrivalPairsIterator.hasNext()
                 || (leftOverDemandForCurrentTargetTime > 0 && currentTargetTime >= 0);
@@ -78,7 +86,7 @@ public class LimboLoadGeneratorDescription extends LoadGeneratorDescription {
             if (leftOverDemandForCurrentTargetTime <= 0) {
                 Pair<Double, Integer> next = arrivalPairsIterator.next();
                 currentTargetTime = next.getValue0();
-                leftOverDemandForCurrentTargetTime = next.getValue1();
+                leftOverDemandForCurrentTargetTime = (int) (next.getValue1() * scaleFactor);
                 return next();
             } else {
                 leftOverDemandForCurrentTargetTime--;

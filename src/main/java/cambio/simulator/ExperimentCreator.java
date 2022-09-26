@@ -1,14 +1,21 @@
 package cambio.simulator;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.nio.file.Path;
+import java.io.*;
+import java.nio.file.*;
+import java.util.List;
 import java.time.LocalDateTime;
 
+import cambio.simulator.behavior.EventBusConnector;
+import cambio.simulator.behavior.MTLActivationListener;
 import cambio.simulator.export.ExportUtils;
 import cambio.simulator.misc.FileUtilities;
 import cambio.simulator.models.ExperimentMetaData;
 import cambio.simulator.models.MiSimModel;
+import cambio.tltea.interpreter.BehaviorInterpretationResult;
+import cambio.tltea.interpreter.Interpreter;
+import cambio.tltea.parser.core.ASTNode;
+import cambio.tltea.parser.mtl.generated.MTLParser;
+import cambio.tltea.parser.mtl.generated.ParseException;
 import desmoj.core.simulator.Experiment;
 import desmoj.core.simulator.TimeInstant;
 import org.jetbrains.annotations.NotNull;
@@ -59,9 +66,11 @@ public class ExperimentCreator {
         return experimentDescription;
     }
 
-
+    /**
+     * Parsing additional configuration options, besides the model locations.
+     */
     @NotNull
-    protected Experiment setupExperiment(ExperimentStartupConfig config, MiSimModel model) {
+    private static Experiment setupExperiment(ExperimentStartupConfig config, @NotNull MiSimModel model) {
         ExperimentMetaData metaData = model.getExperimentMetaData();
         metaData.setStartDate(LocalDateTime.now());
         Path reportLocation = ExportUtils.prepareReportDirectory(config, model);
@@ -91,6 +100,37 @@ public class ExperimentCreator {
             exp.debugOff(new TimeInstant(0, metaData.getTimeUnit()));
         }
 
+        parseMtlFormula(config.mtlLoc(), model, config.debugOutputOn());
         return exp;
     }
+
+    private static void parseMtlFormula(String mtlLoc, @NotNull MiSimModel model, boolean isDebugOn) {
+        try {
+
+            if (mtlLoc == null) {
+                return;
+            } else if (!Paths.get(mtlLoc).toFile().exists()) {
+                System.out.println("[WARNING] Did not find MTL formula file at " + mtlLoc);
+                return;
+            }
+
+            List<String> lines = Files.readAllLines(Paths.get(mtlLoc));
+
+            for (String line : lines) {
+                ASTNode parsed = MTLParser.parse(line);
+                BehaviorInterpretationResult result = Interpreter.INSTANCE.interpretAsBehavior(parsed);
+                new MTLActivationListener(result, model);
+                result.getTriggerManager()
+                    .getEventActivationListeners()
+                    .forEach(listener -> EventBusConnector.createActivators(listener, model));
+                result.activateProcessing();
+            }
+        } catch (IOException | ParseException e) {
+            if (isDebugOn) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
 }
