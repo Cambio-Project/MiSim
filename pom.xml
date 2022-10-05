@@ -62,7 +62,7 @@
         <dependency>
             <groupId>com.github.Cambio-Project.TL-Tea</groupId>
             <artifactId>interpreter</artifactId>
-            <version>0.3.2.1</version>
+            <version>0.3.2.2</version>
         </dependency>
 
         <!-- util -->
