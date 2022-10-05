@@ -123,8 +123,8 @@ public final class LoadGeneratorDescriptionExecutor extends RequestSender implem
         return true;
     }
 
-    public void scaleLoad(double scaleFactor) {
-        this.sendTraceNote("Scaling load by " + scaleFactor);
+    public void scaleLoad(final ScaleFactor scaleFactor) {
+        this.sendTraceNote("Scaling load");
         loadGeneratorDescription.scaleLoad(scaleFactor);
     }
 

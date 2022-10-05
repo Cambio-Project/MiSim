@@ -1,5 +1,8 @@
 package cambio.simulator.entities.generator;
 
+import java.util.Objects;
+import java.util.Optional;
+
 import cambio.simulator.parsing.JsonTypeName;
 import com.google.gson.annotations.SerializedName;
 
@@ -42,20 +45,44 @@ public final class IntervalLoadGeneratorDescription extends LoadGeneratorDescrip
         return new IntervalArrivalRateModel();
     }
 
+    public double getInterval() {
+        return interval;
+    }
+
+    public void setInterval(double interval) {
+        this.interval = interval;
+    }
+
     private final class IntervalArrivalRateModel extends ArrivalRateModel {
 
         private double interArrivalTime;
         private int actualLoad;
-        private int currentLoadCounter;
+        private int currentTimeInstantLoadCounter;
+
+        private Optional<ScaleFactor> scaleFactor = Optional.empty();
 
         public IntervalArrivalRateModel() {
             if (loadDistribution.equals("even")) {
                 this.interArrivalTime = interval / load;
-                actualLoad = load == 0 ? 0 : 1;
+                this.actualLoad = load == 0 ? 0 : 1;
             } else { //if (loadDistribution.equals("spike"))
                 this.interArrivalTime = interval;
                 this.actualLoad = (int) load;
             }
+        }
+
+        private boolean requiresUpdate() {
+            return scaleFactor.isPresent();
+        }
+
+        // For even
+        private void updateInterArrivalTime(final double currentTime) {
+            this.interArrivalTime = interval / (load * scaleFactor.get().getValue(currentTime));
+        }
+
+        // For spike
+        private void updateLoad(final double currentTime) {
+            this.actualLoad = (int) (load * scaleFactor.get().getValue(currentTime));
         }
 
         @Override
@@ -65,17 +92,15 @@ public final class IntervalLoadGeneratorDescription extends LoadGeneratorDescrip
 
         @Override
         protected void resetModelIteration() {
-            currentLoadCounter = 0;
+            currentTimeInstantLoadCounter = 0;
         }
 
         @Override
-        public void scaleLoad(double scaleFactor) {
-            currentLoadCounter = (int) (currentLoadCounter * scaleFactor);
-            actualLoad = (int) (actualLoad * scaleFactor);
-
-            if (loadDistribution.equals("even")) {
-                interArrivalTime = 1.0 / actualLoad;
-            }
+        public void scaleLoad(ScaleFactor scaleFactor) {
+            Objects.requireNonNull(scaleFactor);
+            double currentTime = lastTimeInstant;
+            currentTimeInstantLoadCounter = (int) (currentTimeInstantLoadCounter * scaleFactor.getValue(currentTime));
+            this.scaleFactor = Optional.of(scaleFactor);
         }
 
         @Override
@@ -88,25 +113,32 @@ public final class IntervalLoadGeneratorDescription extends LoadGeneratorDescrip
             if (!hasNext()) {
                 return null;
             }
-            if (currentLoadCounter <= 0) {
-                currentLoadCounter = actualLoad - 1;
+            if (finishedCurrentTimeInstant()) {
+                handleUpdates();
+                currentTimeInstantLoadCounter = actualLoad - 1;
                 if (lastTimeInstant == null) {
                     return 0.0;
                 } else {
                     return lastTimeInstant + interArrivalTime;
                 }
             } else {
-                currentLoadCounter--;
+                currentTimeInstantLoadCounter--;
                 return lastTimeInstant;
             }
         }
-    }
 
-    public double getInterval() {
-        return interval;
-    }
+        private void handleUpdates() {
+            if (requiresUpdate()) {
+                if (loadDistribution.equals("even")) {
+                    updateInterArrivalTime(lastTimeInstant);
+                } else { // spike
+                    updateLoad(lastTimeInstant + interArrivalTime);
+                }
+            }
+        }
 
-    public void setInterval(double interval) {
-        this.interval = interval;
+        private boolean finishedCurrentTimeInstant() {
+            return currentTimeInstantLoadCounter <= 0;
+        }
     }
 }

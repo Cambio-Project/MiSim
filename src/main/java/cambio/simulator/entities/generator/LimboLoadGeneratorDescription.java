@@ -40,8 +40,7 @@ public class LimboLoadGeneratorDescription extends LoadGeneratorDescription {
 
         private int leftOverDemandForCurrentTargetTime = 0;
         private double currentTargetTime = Double.NEGATIVE_INFINITY;
-        private double scaleFactor = 1.0d;
-
+        private Optional<ScaleFactor> scaleFactor = Optional.empty();
 
         public LimboArrivalRateModel(File modelFile) {
             Objects.requireNonNull(modelFile, () -> {
@@ -66,9 +65,10 @@ public class LimboLoadGeneratorDescription extends LoadGeneratorDescription {
         }
 
         @Override
-        public void scaleLoad(double scaleFactor) {
-            leftOverDemandForCurrentTargetTime = (int) (leftOverDemandForCurrentTargetTime * scaleFactor);
-            this.scaleFactor *= scaleFactor;
+        public void scaleLoad(final ScaleFactor scaleFactor) {
+            leftOverDemandForCurrentTargetTime =
+                (int) (leftOverDemandForCurrentTargetTime * scaleFactor.getValue(currentTargetTime));
+            this.scaleFactor = Optional.of(scaleFactor);
         }
 
         @Override
@@ -86,6 +86,10 @@ public class LimboLoadGeneratorDescription extends LoadGeneratorDescription {
             if (leftOverDemandForCurrentTargetTime <= 0) {
                 Pair<Double, Integer> next = arrivalPairsIterator.next();
                 currentTargetTime = next.getValue0();
+                double scaleFactor = 1.0;
+                if (this.scaleFactor.isPresent()) {
+                    scaleFactor = this.scaleFactor.get().getValue(currentTargetTime);
+                }
                 leftOverDemandForCurrentTargetTime = (int) (next.getValue1() * scaleFactor);
                 return next();
             } else {
@@ -117,7 +121,7 @@ public class LimboLoadGeneratorDescription extends LoadGeneratorDescription {
                             LinkedList<Pair<Double, Integer>>>(LinkedList::new, LinkedList::add, (pairs, pairs2) -> {
                             pairs.addAll(pairs2);
                             return pairs;
-                        }, new HashSet<Collector.Characteristics>() {
+                        }, new HashSet<>() {
                             {
                                 add(Collector.Characteristics.IDENTITY_FINISH);
                             }

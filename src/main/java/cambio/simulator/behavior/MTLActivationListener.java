@@ -143,22 +143,8 @@ public class MTLActivationListener {
         killer.schedule(targetTime.get());
     }
 
-
-    private void onLoadEvent(LoadModificationEventData data) {
-        var targetTime = tryFindStartTime(data.getTemporalContext());
-        var stopTime = tryFindStopTime(data.getTemporalContext());
-        var targetName = data.getLoad_str();
+    private ArrayList<Operation> findOperations(String targetName) {
         var targetOperations = new ArrayList<Operation>();
-
-
-        if (targetTime.isEmpty()) {
-            System.out.println("Could not find target time for service failure event. " + data.getTemporalContext());
-            return;
-        }
-
-        var targetDouble = targetTime.get().getTimeAsDouble();
-        var duration = new TimeSpan(stopTime.get().getTimeAsDouble() - targetDouble);
-
         if (targetName.contains(".")) {
             var targetOperation = NameResolver.resolveOperationName(model, targetName);
             targetOperations.add(targetOperation);
@@ -166,8 +152,29 @@ public class MTLActivationListener {
             var tmp = NameResolver.resolveMicroserviceName(model, targetName).getOperations();
             targetOperations.addAll(List.of(tmp));
         }
+        return targetOperations;
+    }
+
+    private void onLoadEvent(LoadModificationEventData data) {
+        var targetTime = tryFindStartTime(data.getTemporalContext());
+        var stopTime = tryFindStopTime(data.getTemporalContext());
+        var targetName = data.getLoad_str();
+        var targetOperations = findOperations(targetName);
+
+        if (targetTime.isEmpty() || stopTime.isEmpty()) {
+            System.out.println("Could not find target time for service failure event. " + data.getTemporalContext());
+            return;
+        }
+
+        var targetDouble = targetTime.get().getTimeAsDouble();
+        var stopDouble = stopTime.get().getTimeAsDouble();
+        var durationDouble = stopDouble - targetDouble;
+        var duration = new TimeSpan(durationDouble);
 
         if (data.isFactor()) {
+            ScaleFactor scaleFactor = new ScaleFactor(data.getModificationValue(), targetDouble, durationDouble,
+                ScaleFunction.detect(data.getFunctionType()));
+
             model.getExperimentModel()
                 .getAllSelfSchedulesEntities()
                 .stream()
@@ -175,7 +182,7 @@ public class MTLActivationListener {
                 .map(e -> (LoadGeneratorDescriptionExecutor) e)
                 .filter(exec -> targetOperations.contains(exec.getLoadGeneratorDescription().getTargetOperation()))
                 .map(exec ->
-                    new ScaleLoadEvent(model, "Load Scaling", true, exec, data.getModificationValue(), duration))
+                    new ScaleLoadEvent(model, "Load Scaling", true, exec, scaleFactor, duration))
                 .forEach(event -> event.schedule(targetTime.get()));
         } else {
             var targetLoad = data.getModificationValue() / targetOperations.size();

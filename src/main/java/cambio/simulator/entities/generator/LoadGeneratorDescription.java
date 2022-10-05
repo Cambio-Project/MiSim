@@ -112,7 +112,7 @@ public abstract class LoadGeneratorDescription implements ISelfScheduled {
         }
     }
 
-    public void scaleLoad(double scaleFactor) {
+    public void scaleLoad(final ScaleFactor scaleFactor) {
         arrivalRateModel.scaleLoad(scaleFactor);
     }
 

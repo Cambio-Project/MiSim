@@ -23,7 +23,7 @@ public abstract class ArrivalRateModel implements Iterator<Double> {
 
     protected abstract void resetModelIteration();
 
-    public abstract void scaleLoad(double scaleFactor);
+    public abstract void scaleLoad(final ScaleFactor scaleFactor);
 
     public final void reset() {
         resetModelIteration();
