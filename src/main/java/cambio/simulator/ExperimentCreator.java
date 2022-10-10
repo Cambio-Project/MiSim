@@ -13,9 +13,6 @@ import cambio.simulator.models.ExperimentMetaData;
 import cambio.simulator.models.MiSimModel;
 import cambio.tltea.interpreter.BehaviorInterpretationResult;
 import cambio.tltea.interpreter.Interpreter;
-import cambio.tltea.parser.core.ASTNode;
-import cambio.tltea.parser.mtl.generated.MTLParser;
-import cambio.tltea.parser.mtl.generated.ParseException;
 import desmoj.core.simulator.Experiment;
 import desmoj.core.simulator.TimeInstant;
 import org.jetbrains.annotations.NotNull;
@@ -105,33 +102,12 @@ public class ExperimentCreator {
     }
 
     private static void parseMtlFormula(String mtlLoc, @NotNull MiSimModel model, boolean isDebugOn) {
-        try {
-
-            if (mtlLoc == null) {
-                return;
-            } else if (!Paths.get(mtlLoc).toFile().exists()) {
-                System.out.println("[WARNING] Did not find MTL formula file at " + mtlLoc);
-                return;
-            }
-
-            List<String> lines = Files.readAllLines(Paths.get(mtlLoc));
-
-            for (String line : lines) {
-                ASTNode parsed = MTLParser.parse(line);
-                BehaviorInterpretationResult result =
-                    Interpreter.INSTANCE.interpretAsBehavior(parsed);
-                new MTLActivationListener(result, model);
-                result.getTriggerManager()
-                    .getEventActivationListeners()
-                    .forEach(listener -> EventBusConnector.createActivators(listener, model));
-                result.activateProcessing();
-            }
-        } catch (IOException | ParseException e) {
-            if (isDebugOn) {
-                e.printStackTrace();
-            }
+        for (BehaviorInterpretationResult result : Interpreter.INSTANCE.interpretAllAsBehavior(mtlLoc, isDebugOn)) {
+            new MTLActivationListener(result, model);
+            result.getTriggerManager()
+                .getEventActivationListeners()
+                .forEach(listener -> EventBusConnector.createActivators(listener, model));
+            result.activateProcessing();
         }
     }
-
-
 }
