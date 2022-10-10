@@ -6,6 +6,7 @@ import cambio.simulator.entities.generator.*;
 import cambio.simulator.entities.microservice.MicroserviceScaleEvent;
 import cambio.simulator.entities.microservice.Operation;
 import cambio.simulator.events.ChaosMonkeyEvent;
+import cambio.simulator.events.HookEvent;
 import cambio.simulator.misc.NameResolver;
 import cambio.simulator.misc.Util;
 import cambio.simulator.models.MiSimModel;
@@ -24,7 +25,6 @@ import desmoj.core.simulator.TimeSpan;
 public class MTLActivationListener {
 
     private final MiSimModel model;
-    private final ISubscribableTriggerNotifier triggerNotifier;
 
     /**
      * Creates a new instance of an MTL listener.
@@ -34,18 +34,19 @@ public class MTLActivationListener {
      */
     public MTLActivationListener(ISubscribableTriggerNotifier triggerNotifier, MiSimModel model) {
         this.model = model;
-        this.triggerNotifier = triggerNotifier;
-        this.triggerNotifier.subscribeEventListenerWithFilter(this::onEventActivation, EventActivationData.class);
-        this.triggerNotifier.subscribeEventListenerWithFilter(this::onEventPrevention, EventPreventionData.class);
-        this.triggerNotifier.subscribeEventListenerWithFilter(this::onValueEvent, ValueEventActivationData.class);
-        this.triggerNotifier.subscribeEventListenerWithFilter(this::onServiceStartEvent, ServiceStartEventData.class);
-        this.triggerNotifier.subscribeEventListenerWithFilter(this::onServiceStopEvent, ServiceStopEventData.class);
-        this.triggerNotifier.subscribeEventListenerWithFilter(this::onServiceKillEvent, ServiceFailureEventData.class);
-        this.triggerNotifier.subscribeEventListenerWithFilter(this::onLoadEvent, LoadModificationEventData.class);
-        this.triggerNotifier.subscribeEventListener(
+        triggerNotifier.subscribeEventListenerWithFilter(this::onEventActivation, EventActivationData.class);
+        triggerNotifier.subscribeEventListenerWithFilter(this::onEventPrevention, EventPreventionData.class);
+        triggerNotifier.subscribeEventListenerWithFilter(this::onValueEvent, ValueEventActivationData.class);
+        triggerNotifier.subscribeEventListenerWithFilter(this::onServiceStartEvent, ServiceStartEventData.class);
+        triggerNotifier.subscribeEventListenerWithFilter(this::onServiceStopEvent, ServiceStopEventData.class);
+        triggerNotifier.subscribeEventListenerWithFilter(this::onServiceKillEvent, ServiceFailureEventData.class);
+        triggerNotifier.subscribeEventListenerWithFilter(this::onLoadEvent, LoadModificationEventData.class);
+        triggerNotifier.subscribeEventListenerWithFilter(this::onHookEvent, HookEventData.class);
+        triggerNotifier.subscribeEventListener(
             activationData -> System.out.println("Event activated: " + activationData));
     }
 
+    // TODO: Needs adjustments! Fix relative time, delay in F_end, simulation time limit, ...
     private Optional<TimeInstant> tryFindStartTime(TemporalOperatorInfo info) {
         var token = info.operator();
         var time = info.temporalValueExpression();
@@ -58,16 +59,16 @@ public class MTLActivationListener {
         if (token == OperatorToken.FINALLY) {
             if (time instanceof TemporalInterval interval) {
                 var random = new Random();
-                var delay = Math.min(
-                    random.nextDouble() * interval.getDuration(),
+                var delay = random.nextDouble() * interval.getDuration();
+                var startTime = Math.min((model.presentTime().getTimeAsDouble() + interval.getStart() + delay),
                     model.getExperimentMetaData().getDuration());
-                return Optional.of(new TimeInstant(model.presentTime().getTimeAsDouble() + delay));
+                return Optional.of(new TimeInstant(startTime));
             } else {
                 System.out.println("Unsupported temporal expression: " + time);
             }
         } else if (token == OperatorToken.GLOBALLY) {
             if (time instanceof TemporalInterval interval) {
-                return Optional.of(new TimeInstant(interval.getStart()));
+                return Optional.of(new TimeInstant(model.presentTime().getTimeAsDouble() + interval.getStart()));
             } else {
                 System.out.println("Unsupported temporal expression: " + time);
             }
@@ -78,16 +79,16 @@ public class MTLActivationListener {
         return Optional.empty();
     }
 
-
+    // TODO: Needs adjustments! Fix relative time, delay in F_end, simulation time limit, ...
     private Optional<TimeInstant> tryFindStopTime(TemporalOperatorInfo info) {
         var token = info.operator();
         var time = info.temporalValueExpression();
 
 
         if (time instanceof TimeInstance moment) {
-            return Optional.of(new TimeInstant(moment.getTime()));
+            return Optional.of(new TimeInstant(moment.getTime() + model.presentTime().getTimeAsDouble()));
         } else if (time instanceof TemporalInterval interval) {
-            return Optional.of(new TimeInstant(interval.getEnd()));
+            return Optional.of(new TimeInstant(interval.getEnd() + model.presentTime().getTimeAsDouble()));
         } else {
             System.out.println("Unsupported temporal expression: " + time);
         }
@@ -201,5 +202,25 @@ public class MTLActivationListener {
                 model.getExperimentModel().getAllSelfSchedulesEntities().add(executor);
             }
         }
+    }
+
+    private void onHookEvent(HookEventData data) {
+        var targetTime = tryFindStartTime(data.getTemporalContext());
+        var stopTime = tryFindStopTime(data.getTemporalContext());
+
+        if (targetTime.isEmpty() || stopTime.isEmpty()) {
+            System.out.println("Could not find target time for named event. " + data.getTemporalContext());
+            return;
+        }
+
+        var targetDouble = targetTime.get().getTimeAsDouble();
+        var stopDouble = stopTime.get().getTimeAsDouble();
+        var durationDouble = stopDouble - targetDouble;
+        var duration = new TimeSpan(durationDouble);
+
+        HookEvent startEvent = new HookEvent(model, data, true, false);
+        startEvent.schedule(targetTime.get());
+        HookEvent stopEvent = new HookEvent(model, data, false, false);
+        stopEvent.schedule(stopTime.get());
     }
 }

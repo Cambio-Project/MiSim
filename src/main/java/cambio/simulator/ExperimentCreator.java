@@ -118,7 +118,8 @@ public class ExperimentCreator {
 
             for (String line : lines) {
                 ASTNode parsed = MTLParser.parse(line);
-                BehaviorInterpretationResult result = Interpreter.INSTANCE.interpretAsBehavior(parsed);
+                BehaviorInterpretationResult result =
+                    Interpreter.INSTANCE.interpretAsBehavior(parsed);
                 new MTLActivationListener(result, model);
                 result.getTriggerManager()
                     .getEventActivationListeners()
