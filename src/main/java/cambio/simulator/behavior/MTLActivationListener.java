@@ -47,6 +47,32 @@ public class MTLActivationListener {
     }
 
     // TODO: Needs adjustments! Fix relative time, delay in F_end, simulation time limit, ...
+
+    private Optional<TimeInstant> tryFindStartTime(ITemporalValue time) {
+        if (time instanceof TimeInstance moment) {
+            return Optional.of(new TimeInstant(moment.getTime()));
+        } else if (time instanceof TemporalInterval interval) {
+            return Optional.of(new TimeInstant(model.presentTime().getTimeAsDouble() + interval.getStart()));
+        } else {
+            System.out.println("Unsupported temporal expression: " + time);
+        }
+        return Optional.empty();
+    }
+
+    // TODO: Needs adjustments! Fix relative time, delay in F_end, simulation time limit, ...
+    private Optional<TimeInstant> tryFindStopTime(ITemporalValue time) {
+        if (time instanceof TimeInstance moment) {
+            return Optional.of(new TimeInstant(moment.getTime() + model.presentTime().getTimeAsDouble()));
+        } else if (time instanceof TemporalInterval interval) {
+            return Optional.of(new TimeInstant(interval.getEnd() + model.presentTime().getTimeAsDouble()));
+        } else {
+            System.out.println("Unsupported temporal expression: " + time);
+        }
+        return Optional.of(new TimeInstant(Double.POSITIVE_INFINITY));
+    }
+
+
+        // TODO: Needs adjustments! Fix relative time, delay in F_end, simulation time limit, ...
     private Optional<TimeInstant> tryFindStartTime(TemporalOperatorInfo info) {
         var token = info.operator();
         var time = info.temporalValueExpression();
@@ -157,8 +183,8 @@ public class MTLActivationListener {
     }
 
     private void onLoadEvent(LoadModificationEventData data) {
-        var targetTime = tryFindStartTime(data.getTemporalContext());
-        var stopTime = tryFindStopTime(data.getTemporalContext());
+        var targetTime = tryFindStartTime(data.getDuration());
+        var stopTime = tryFindStopTime(data.getDuration());
         var targetName = data.getLoad_str();
         var targetOperations = findOperations(targetName);
 

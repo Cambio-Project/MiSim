@@ -1,1 +1,1 @@
-((fail[example-service]) -> (G[2,10]((load[100:example-service]))))
+((fail[example-service]) -> (F[2,2]((load[0,8][100:example-service]))))
