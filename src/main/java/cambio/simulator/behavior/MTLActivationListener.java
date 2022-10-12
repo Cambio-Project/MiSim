@@ -46,40 +46,45 @@ public class MTLActivationListener {
             activationData -> System.out.println("Event activated: " + activationData));
     }
 
-    // TODO: Needs adjustments! Fix relative time, delay in F_end, simulation time limit, ...
-
-    private Optional<TimeInstant> tryFindStartTime(ITemporalValue time) {
-        if (time instanceof TimeInstance moment) {
-            return Optional.of(new TimeInstant(moment.getTime()));
-        } else if (time instanceof TemporalInterval interval) {
-            return Optional.of(new TimeInstant(model.presentTime().getTimeAsDouble() + interval.getStart()));
-        } else {
-            System.out.println("Unsupported temporal expression: " + time);
-        }
-        return Optional.empty();
+    private TimeInstant sum(TimeInstant time1, TimeInstant time2) {
+        return new TimeInstant(
+            Math.min((time1.getTimeAsDouble() + time2.getTimeAsDouble() - model.presentTime().getTimeAsDouble()),
+                model.getExperimentMetaData().getDuration()));
     }
 
     // TODO: Needs adjustments! Fix relative time, delay in F_end, simulation time limit, ...
-    private Optional<TimeInstant> tryFindStopTime(ITemporalValue time) {
+    private TimeInstant tryFindStartTime(ITemporalValue time) {
         if (time instanceof TimeInstance moment) {
-            return Optional.of(new TimeInstant(moment.getTime() + model.presentTime().getTimeAsDouble()));
+            return new TimeInstant(model.presentTime().getTimeAsDouble() + moment.getTime());
         } else if (time instanceof TemporalInterval interval) {
-            return Optional.of(new TimeInstant(interval.getEnd() + model.presentTime().getTimeAsDouble()));
+            return new TimeInstant(model.presentTime().getTimeAsDouble() + interval.getStart());
         } else {
             System.out.println("Unsupported temporal expression: " + time);
         }
-        return Optional.of(new TimeInstant(Double.POSITIVE_INFINITY));
+        return new TimeInstant(model.presentTime().getTimeAsDouble());
+    }
+
+    // TODO: Needs adjustments! Fix relative time, delay in F_end, simulation time limit, ...
+    private TimeInstant tryFindStopTime(ITemporalValue time) {
+        if (time instanceof TimeInstance moment) {
+            return new TimeInstant(moment.getTime() + model.presentTime().getTimeAsDouble());
+        } else if (time instanceof TemporalInterval interval) {
+            return new TimeInstant(interval.getEnd() + model.presentTime().getTimeAsDouble());
+        } else {
+            System.out.println("Unsupported temporal expression: " + time);
+        }
+        return new TimeInstant(Double.POSITIVE_INFINITY);
     }
 
 
-        // TODO: Needs adjustments! Fix relative time, delay in F_end, simulation time limit, ...
-    private Optional<TimeInstant> tryFindStartTime(TemporalOperatorInfo info) {
+    // TODO: Needs adjustments! Fix relative time, delay in F_end, simulation time limit, ...
+    private TimeInstant tryFindStartTime(TemporalOperatorInfo info) {
         var token = info.operator();
         var time = info.temporalValueExpression();
 
 
         if (time instanceof TimeInstance moment) {
-            return Optional.of(new TimeInstant(moment.getTime()));
+            return new TimeInstant(model.presentTime().getTimeAsDouble() + moment.getTime());
         }
 
         if (token == OperatorToken.FINALLY) {
@@ -88,38 +93,38 @@ public class MTLActivationListener {
                 var delay = random.nextDouble() * interval.getDuration();
                 var startTime = Math.min((model.presentTime().getTimeAsDouble() + interval.getStart() + delay),
                     model.getExperimentMetaData().getDuration());
-                return Optional.of(new TimeInstant(startTime));
+                return new TimeInstant(startTime);
             } else {
                 System.out.println("Unsupported temporal expression: " + time);
             }
         } else if (token == OperatorToken.GLOBALLY) {
             if (time instanceof TemporalInterval interval) {
-                return Optional.of(new TimeInstant(model.presentTime().getTimeAsDouble() + interval.getStart()));
+                return new TimeInstant(model.presentTime().getTimeAsDouble() + interval.getStart());
             } else {
                 System.out.println("Unsupported temporal expression: " + time);
             }
         } else {
             System.out.println("Unsupported temporal operator: " + token);
         }
-
-        return Optional.empty();
+        // return current time
+        return new TimeInstant(model.presentTime().getTimeAsDouble());
     }
 
     // TODO: Needs adjustments! Fix relative time, delay in F_end, simulation time limit, ...
-    private Optional<TimeInstant> tryFindStopTime(TemporalOperatorInfo info) {
+    private TimeInstant tryFindStopTime(TemporalOperatorInfo info) {
         var token = info.operator();
         var time = info.temporalValueExpression();
 
 
         if (time instanceof TimeInstance moment) {
-            return Optional.of(new TimeInstant(moment.getTime() + model.presentTime().getTimeAsDouble()));
+            return new TimeInstant(moment.getTime() + model.presentTime().getTimeAsDouble());
         } else if (time instanceof TemporalInterval interval) {
-            return Optional.of(new TimeInstant(interval.getEnd() + model.presentTime().getTimeAsDouble()));
+            return new TimeInstant(interval.getEnd() + model.presentTime().getTimeAsDouble());
         } else {
             System.out.println("Unsupported temporal expression: " + time);
         }
 
-        return Optional.of(new TimeInstant(Double.POSITIVE_INFINITY));
+        return new TimeInstant(Double.POSITIVE_INFINITY);
     }
 
     private void onEventActivation(EventActivationData data) {
@@ -146,29 +151,20 @@ public class MTLActivationListener {
     private void onServiceStopEvent(ServiceStopEventData data) {
         var targetTime = tryFindStartTime(data.getTemporalContext());
 
-        if (targetTime.isEmpty()) {
-            System.out.println("Could not find target time for service failure event. " + data.getTemporalContext());
-            return;
-        }
-
         var service = NameResolver.resolveMicroserviceName(model, data.getServiceName());
         int instanceCount = data.getCount();
-        MicroserviceScaleEvent event = new MicroserviceScaleEvent(model, "Forced Shutdown", true, service, instanceCount);
-        event.schedule(targetTime.get());
+        MicroserviceScaleEvent event =
+            new MicroserviceScaleEvent(model, "Forced Shutdown", true, service, instanceCount);
+        event.schedule(targetTime);
     }
 
     private void onServiceKillEvent(ServiceFailureEventData data) {
         var targetTime = tryFindStartTime(data.getTemporalContext());
 
-        if (targetTime.isEmpty()) {
-            System.out.println("Could not find target time for service failure event. " + data.getTemporalContext());
-            return;
-        }
-
         var target = NameResolver.resolveMicroserviceName(model, data.getServiceName());
         int instanceCount = data.getCount();
         var killer = new ChaosMonkeyEvent(model, "MTLChaosmonkey", true, target, instanceCount);
-        killer.schedule(targetTime.get());
+        killer.schedule(targetTime);
     }
 
     private ArrayList<Operation> findOperations(String targetName) {
@@ -184,24 +180,27 @@ public class MTLActivationListener {
     }
 
     private void onLoadEvent(LoadModificationEventData data) {
-        var targetTime = tryFindStartTime(data.getDuration());
-        var stopTime = tryFindStopTime(data.getDuration());
+        var targetTime = sum(tryFindStartTime(data.getTemporalContext()), tryFindStartTime(data.getDuration()));
+        var stopTime = sum(tryFindStopTime(data.getTemporalContext()), tryFindStopTime(data.getDuration()));
         var targetName = data.getLoad_str();
         var targetOperations = findOperations(targetName);
 
-        if (targetTime.isEmpty() || stopTime.isEmpty()) {
-            System.out.println("Could not find target time for service failure event. " + data.getTemporalContext());
-            return;
-        }
-
-        var targetDouble = targetTime.get().getTimeAsDouble();
-        var stopDouble = stopTime.get().getTimeAsDouble();
+        var targetDouble = targetTime.getTimeAsDouble();
+        var stopDouble = stopTime.getTimeAsDouble();
         var durationDouble = stopDouble - targetDouble;
         var duration = new TimeSpan(durationDouble);
 
         if (data.isFactor()) {
+            String functionType = data.getFunctionType();
+            ScaleFunction scaleFunction;
+            if (functionType.endsWith("-inverse")) {
+                scaleFunction = ScaleFunction.revert(ScaleFunction.detect(functionType.replace("-inverse", "")));
+            } else {
+                scaleFunction = ScaleFunction.detect(functionType);
+            }
+
             ScaleFactor scaleFactor = new ScaleFactor(data.getModificationValue(), targetDouble, durationDouble,
-                ScaleFunction.detect(data.getFunctionType()));
+                scaleFunction);
 
             model.getExperimentModel()
                 .getAllSelfSchedulesEntities()
@@ -211,7 +210,7 @@ public class MTLActivationListener {
                 .filter(exec -> targetOperations.contains(exec.getLoadGeneratorDescription().getTargetOperation()))
                 .map(exec ->
                     new ScaleLoadEvent(model, "Load Scaling", true, exec, scaleFactor, duration))
-                .forEach(event -> event.schedule(targetTime.get()));
+                .forEach(event -> event.schedule(targetTime));
         } else {
             var targetLoad = data.getModificationValue() / targetOperations.size();
 
@@ -219,8 +218,8 @@ public class MTLActivationListener {
                 var generatorDescription = new IntervalLoadGeneratorDescription();
                 Util.injectField("name", generatorDescription, "TemporaryGenerator");
                 Util.injectField("targetOperation", generatorDescription, operation);
-                Util.injectField("initialArrivalTime", generatorDescription, targetTime.get().getTimeAsDouble());
-                Util.injectField("stopTime", generatorDescription, stopTime.get().getTimeAsDouble());
+                Util.injectField("initialArrivalTime", generatorDescription, targetTime.getTimeAsDouble());
+                Util.injectField("stopTime", generatorDescription, stopTime.getTimeAsDouble());
                 Util.injectField("load", generatorDescription, targetLoad);
                 generatorDescription.initializeArrivalRateModel();
 
@@ -235,19 +234,9 @@ public class MTLActivationListener {
         var targetTime = tryFindStartTime(data.getTemporalContext());
         var stopTime = tryFindStopTime(data.getTemporalContext());
 
-        if (targetTime.isEmpty() || stopTime.isEmpty()) {
-            System.out.println("Could not find target time for named event. " + data.getTemporalContext());
-            return;
-        }
-
-        var targetDouble = targetTime.get().getTimeAsDouble();
-        var stopDouble = stopTime.get().getTimeAsDouble();
-        var durationDouble = stopDouble - targetDouble;
-        var duration = new TimeSpan(durationDouble);
-
         HookEvent startEvent = new HookEvent(model, data, true, false);
-        startEvent.schedule(targetTime.get());
+        startEvent.schedule(targetTime);
         HookEvent stopEvent = new HookEvent(model, data, false, false);
-        stopEvent.schedule(stopTime.get());
+        stopEvent.schedule(stopTime);
     }
 }
