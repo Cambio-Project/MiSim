@@ -152,7 +152,8 @@ public class MTLActivationListener {
         }
 
         var service = NameResolver.resolveMicroserviceName(model, data.getServiceName());
-        MicroserviceScaleEvent event = new MicroserviceScaleEvent(model, "Forced Shutdown", true, service, 0);
+        int instanceCount = data.getCount();
+        MicroserviceScaleEvent event = new MicroserviceScaleEvent(model, "Forced Shutdown", true, service, instanceCount);
         event.schedule(targetTime.get());
     }
 
@@ -165,8 +166,8 @@ public class MTLActivationListener {
         }
 
         var target = NameResolver.resolveMicroserviceName(model, data.getServiceName());
-        var killer = new ChaosMonkeyEvent(model, "MTLChaosmonkey", true);
-        Util.injectField("microservice", killer, target);
+        int instanceCount = data.getCount();
+        var killer = new ChaosMonkeyEvent(model, "MTLChaosmonkey", true, target, instanceCount);
         killer.schedule(targetTime.get());
     }
 
