@@ -1,0 +1,40 @@
+{
+  "simulation_metadata": {
+    "experiment_name": "Example-Basic-Test",
+    "model_name": "Scenario Basic",
+    "duration": 200
+  },
+  "request_generators": [
+    {
+      "type": "interval",
+      "config": {
+        "interval": 0.01,
+        "microservice": "gateway",
+        "operation": "INTERNAL_DEP"
+      }
+    },
+    {
+      "type": "interval",
+      "config": {
+        "interval": 0.02,
+        "microservice": "gateway",
+        "operation": "DB_WRITE"
+      }
+    },
+    {
+      "type": "interval",
+      "config": {
+        "interval": 0.005,
+        "microservice": "gateway",
+        "operation": "DB_READ"
+      }
+    },
+    {
+      "type": "interval",
+      "config": {
+        "interval": 0.01,
+        "operation": "gateway.UNAFFECTED_SERVICE"
+      }
+    }
+  ]
+}

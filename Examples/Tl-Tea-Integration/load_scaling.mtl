@@ -1,0 +1,4 @@
+◇[20,20] ((kill[example-service,1]) & (event[injection-of-failure]))
+☐((event[injection-of-failure]) → (◇[2,2] (load[0,20][x5:exponential:gateway.INTERNAL_DEP])))
+☐((event[injection-of-failure]) → (◇[22,22] (load[0,10][x5:constant:gateway.INTERNAL_DEP])))
+☐((event[injection-of-failure]) → (◇[32,32] (load[0,5][x5:linear-inverse:gateway.INTERNAL_DEP])))

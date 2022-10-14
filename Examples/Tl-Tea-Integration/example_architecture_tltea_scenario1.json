@@ -1,0 +1,135 @@
+{
+  "microservices": [
+    {
+      "name": "gateway",
+      "instances": 1,
+      "capacity": 600,
+      "loadbalancer_strategy": "even",
+      "operations": [
+        {
+          "name": "EXTERNAL_DEP",
+          "demand": 1,
+          "dependencies": [
+            {
+              "service": "example-service",
+              "operation": "call_external_service"
+            }
+          ]
+        },
+        {
+          "name": "INTERNAL_DEP",
+          "demand": 1,
+          "dependencies": [
+            {
+              "service": "example-service",
+              "operation": "call_example-service2"
+            }
+          ]
+        },
+        {
+          "name": "UNAFFECTED_SERVICE",
+          "demand": 1,
+          "dependencies": [
+            {
+              "service": "example-service2",
+              "operation": "example-service2.get"
+            }
+          ]
+        },
+        {
+          "name": "gateway.DB_WRITE",
+          "demand": 1,
+          "dependencies": [
+            {
+              "service": "example-service",
+              "operation": "example-service.DB_WRITE"
+            }
+          ]
+        },
+        {
+          "name": "gateway.DB_READ",
+          "demand": 1,
+          "dependencies": [
+            {
+              "service": "example-service",
+              "operation": "example-service.DB_READ"
+            }
+          ]
+        },
+        {
+          "name": "gateway.PING",
+          "demand": 1,
+          "dependencies": []
+        }
+      ],
+      "patterns": [
+        {
+          "type": "retry",
+          "config": {
+            "maxTries": 5,
+            "baseBackoff": 0.2,
+            "maxBackoff": 2,
+            "base": 2,
+            "jittering": false
+          }
+        }
+      ]
+    },
+    {
+      "name": "example-service",
+      "instances": 2,
+      "patterns": [],
+      "capacity": 300,
+      "operations": [
+        {
+          "name": "example-service.DB_WRITE",
+          "demand": 2,
+          "dependencies": []
+        },
+        {
+          "name": "example-service.DB_READ",
+          "demand": 1,
+          "dependencies": []
+        },
+        {
+          "name": "call_example-service2",
+          "demand": 1,
+          "dependencies": [
+            {
+              "service": "example-service2",
+              "operation": "example-service2.get"
+            }
+          ]
+        },
+        {
+          "name": "call_external_service",
+          "demand": 1,
+          "dependencies": []
+        }
+      ],
+      "s_patterns": [
+        {
+          "type": "autoscale"
+        }
+      ]
+    },
+    {
+      "name": "example-service2",
+      "instances": 2,
+      "patterns": [],
+      "capacity": 300,
+      "operations": [
+        {
+          "name": "example-service2.get",
+          "demand": 1,
+          "dependencies": []
+        }
+      ],
+      "s_patterns": [
+        {
+          "type": "autoscale"
+        }
+      ]
+    }
+  ]
+}
