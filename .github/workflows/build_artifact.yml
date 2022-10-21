@@ -23,10 +23,6 @@ jobs:
     - name: Build with Maven
       run: mvn -B package --file pom.xml "-DskipTests=true" "-Dmaven.javadoc.skip=true" "-Dcheckstyle.skipExec=true"
 
-    - name: Publish Test Report
-      if: ${{ always() }}
-      uses: scacap/action-surefire-report@v1
-
     - name: Copy Data
       run: mkdir staging && cp target/*.jar staging
       
@@ -37,8 +33,9 @@ jobs:
         name: miSim
         path: ./staging/
               
-  run_tests:  
+  run_tests:
     runs-on: ubuntu-latest
+    needs: build_artifact
     steps:    
     - uses: actions/checkout@v2
     - name: Set up Java 16
@@ -50,9 +47,14 @@ jobs:
     
     - name: Run JUnit Tests
       run: mvn -B test --file pom.xml "-Dcheckstyle.skipExec=true"
+
+    - name: Publish Test Report
+      if: ${{ always() }}
+      uses: scacap/action-surefire-report@v1
   
-  run_hello_world_Linux:    
+  run_hello_world_Linux:
     runs-on: ubuntu-latest
+    needs: run_tests
     steps:    
     - uses: actions/checkout@v2
     
@@ -67,6 +69,7 @@ jobs:
       
   run_hello_world_Windows:    
     runs-on: windows-latest
+    needs: run_tests
     steps:    
     - uses: actions/checkout@v2
     - name: Set up Java 16
