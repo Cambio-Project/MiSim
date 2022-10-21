@@ -33,6 +33,18 @@
         <system-lambda.version>1.2.1</system-lambda.version>
     </properties>
 
+    <scm>
+        <developerConnection>scm:git:https://github.com/Cambio-Project/${project.artifactId}</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub Packages</name>
+            <url>https://maven.pkg.github.com/Cambio-Project/${project.artifactId}</url>
+        </repository>
+    </distributionManagement>
+
     <!--Project local maven repository, containing external jars-->
     <repositories>
         <repository>
