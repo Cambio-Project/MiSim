@@ -79,7 +79,8 @@ public class ConfigurableNamedTypeAdapter<T> extends TypeAdapter<T> {
             try {
                 //doing some Gson magic to almost force the creation of an object.
                 @SuppressWarnings("unchecked")
-                ConstructorConstructor constructorConstructor = new ConstructorConstructor(Collections.EMPTY_MAP, true);
+                ConstructorConstructor constructorConstructor = new ConstructorConstructor(Collections.EMPTY_MAP,
+                    true, Collections.EMPTY_LIST);
                 ObjectConstructor<? extends T> constructor = constructorConstructor.get(TypeToken.get(type));
                 newObject = constructor.construct();
             } catch (Exception e) {

@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import cambio.simulator.Main;
-import org.codehaus.plexus.util.FileUtils;
+import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 
