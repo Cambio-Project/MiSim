@@ -22,7 +22,11 @@ jobs:
 
     - name: Build with Maven
       run: mvn -B package --file pom.xml "-DskipTests=true" "-Dmaven.javadoc.skip=true" "-Dcheckstyle.skipExec=true"
-          
+
+    - name: Publish Test Report
+      if: ${{ always() }}
+      uses: scacap/action-surefire-report@v1
+
     - name: Copy Data
       run: mkdir staging && cp target/*.jar staging
       
