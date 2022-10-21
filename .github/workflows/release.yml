@@ -2,8 +2,7 @@ name: Release Http Load Generator
 
 on:
   push:
-    branches:
-      - master
+    branches: [ master ]
 
 jobs:
   release:
@@ -12,6 +11,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+
       - name: Set up Java 16
         uses: actions/setup-java@v2
         with:
