@@ -31,13 +31,15 @@ jobs:
           echo "Retreived Maven Version: $MAVEN_VERSION"
           echo "MAVEN_VERSION=$MAVEN_VERSION" >> $GITHUB_ENV
       - name: Release Maven Artifact
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git checkout -B "MiSim-${{env.MAVEN_VERSION}}"
           mvn -B release:prepare
           git clean -f
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
       - name: Create Pull Request
+        id: open-pr
         uses: repo-sync/pull-request@v2
         with:
           source_branch: "MiSim-${{env.MAVEN_VERSION}}"
@@ -48,10 +50,10 @@ jobs:
           pr_label: "automated" 
           github_token: ${{ secrets.PUBLISHER_TOKEN }}
           
-      - id: automerge
-        name: automerge
-        uses: "pascalgn/automerge-action@v0.15.5"
+      - name: automerge        
         env:
           MERGE_LABELS: "automated"
+          PULL_REQUEST: "${{steps.open-pr.outputs.pr_number}}"
           MERGE_COMMIT_MESSAGE: "Update to ${{env.MAVEN_VERSION}} and prepare next SNAPSHOT"
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+        uses: "pascalgn/automerge-action@v0.15.5"
