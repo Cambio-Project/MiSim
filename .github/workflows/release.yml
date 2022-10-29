@@ -40,5 +40,10 @@ jobs:
       - name: Create Pull Request
         uses: repo-sync/pull-request@v2
         with:
+          source_branch: "MiSim-${{env.MAVEN_VERSION}}"
+          pr_title: "Prepare Release ${{env.MAVEN_VERSION}}"
+          pr_body: ":crown: *An automated PR*"              
+          pr_assignee: "LitschiW"
+          pr_allow_empty: false
           github_token: ${{ secrets.GITHUB_TOKEN }}
           
