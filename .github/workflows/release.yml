@@ -6,6 +6,7 @@ on:
 
 jobs:
   Prepare-and-Release:
+    name: Prepare and Release
     runs-on: ubuntu-latest
 
     steps:
@@ -54,6 +55,8 @@ jobs:
         env:
           MERGE_LABELS: "automated"
           PULL_REQUEST: "${{steps.open-pr.outputs.pr_number}}"
-          MERGE_COMMIT_MESSAGE: "Update to ${{env.MAVEN_VERSION}} and prepare next SNAPSHOT"
+          MERGE_COMMIT_MESSAGE: "Update to ${{env.MAVEN_VERSION}} and prepare next SNAPSHOT"          
+          MERGE_RETRY_SLEEP: "60000"
+          MERGE_DELETE_BRANCH: true
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
         uses: "pascalgn/automerge-action@v0.15.5"
