@@ -42,8 +42,9 @@ jobs:
         with:
           source_branch: "MiSim-${{env.MAVEN_VERSION}}"
           pr_title: "Prepare Release ${{env.MAVEN_VERSION}}"
-          pr_body: ":crown: *An automated PR*"              
+          pr_body: "This pull request updates the MiSim pom for version ${{env.MAVEN_VERSION}} and prepares the next Snapshot."              
           pr_assignee: "LitschiW"
           pr_allow_empty: false
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          pr_label: "automated" 
+          github_token: ${{ secrets.PUBLISHER_TOKEN }}
           
