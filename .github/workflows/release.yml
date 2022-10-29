@@ -47,7 +47,7 @@ jobs:
         with:
           source_branch: "MiSim-${{env.MAVEN_VERSION}}"
           pr_title: "Prepare Release ${{env.MAVEN_VERSION}}"
-          pr_body: "This pull request updates the MiSim pom for version ${{env.MAVEN_VERSION}} and prepares the next Snapshot."              
+          pr_body: "This pull request updates the MiSim pom for version ${{env.MAVEN_VERSION}} and prepares the next Snapshot."
           pr_assignee: "LitschiW"
           pr_allow_empty: false
           pr_label: "automated" 
@@ -56,16 +56,16 @@ jobs:
       - name: Automerge Pull Request
         id: automgerge
         env:
-          MERGE_LABELS: "automated"
-          PULL_REQUEST: "${{steps.open-pr.outputs.pr_number}}"
-          MERGE_COMMIT_MESSAGE: "Update to ${{env.MAVEN_VERSION}} and prepare next SNAPSHOT"          
-          MERGE_RETRY_SLEEP: "60000"
+          MERGE_LABELS: 'automated'
+          PULL_REQUEST: ${{steps.open-pr.outputs.pr_number}}
+          MERGE_COMMIT_MESSAGE: 'Update to ${{env.MAVEN_VERSION}} and prepare next SNAPSHOT'
+          MERGE_RETRY_SLEEP: '60000'
           MERGE_DELETE_BRANCH: true
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
         uses: "pascalgn/automerge-action@v0.15.5"
         
       - name: Check Merge Result
-        if: steps.automerge.outputs.mergeResult != "merged"
+        if: steps.automerge.outputs.mergeResult != 'merged'
         run: | 
           echo "Merge of Pull Request ${{steps.open-pr.outputs.pr_number}} failed."
           echo "See ${{steps.open-pr.outputs.pr_url}} for further info."
