@@ -33,7 +33,7 @@ jobs:
           echo "Retreived Maven Version: $MAVEN_VERSION"
           echo "MAVEN_VERSION=$MAVEN_VERSION" >> $GITHUB_ENV
           
-      - name: Release Maven Artifact
+      - name: Prepare & Release Maven Artifact
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -41,36 +41,33 @@ jobs:
           mvn -B release:prepare release:perform
           git clean -f
           
-      - name: Create Pull Request
+      - name: Create Pull Request to Master
         id: open-pr
         uses: repo-sync/pull-request@v2
         with:
           source_branch: "MiSim-${{env.MAVEN_VERSION}}"
           pr_title: "Prepare Release ${{env.MAVEN_VERSION}}"
           pr_body: "This pull request updates the MiSim pom for version ${{env.MAVEN_VERSION}} and prepares the next Snapshot."
-          pr_assignee: "LitschiW"
+#           pr_assignee: "LitschiW"
           pr_allow_empty: false
-          pr_label: "automated" 
+          pr_label: "automerge" 
           github_token: ${{ secrets.PUBLISHER_TOKEN }}
           
       - name: Automerge Pull Request
         id: automgerge
         env:
-          MERGE_LABELS: 'automated'
           PULL_REQUEST: ${{steps.open-pr.outputs.pr_number}}
           MERGE_COMMIT_MESSAGE: 'Update to ${{env.MAVEN_VERSION}} and prepare next SNAPSHOT'
-          MERGE_RETRY_SLEEP: '60000'
           MERGE_DELETE_BRANCH: true
+          MERGE_RETRIES: 5
+          MERGE_RETRY_SLEEP: '60000'
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
         uses: "pascalgn/automerge-action@v0.15.5"
         
       - name: Check Merge Result
-        if: steps.automerge.outputs.mergeResult != 'merged'
+        if: ${{steps.automerge.outputs.mergeResult}} != 'merged'
         run: | 
           echo "Merge of Pull Request ${{steps.open-pr.outputs.pr_number}} failed."
+          echo "Expected state 'merged', but found '${{steps.automerge.outputs.mergeResult}}'."
           echo "See ${{steps.open-pr.outputs.pr_url}} for further info."
           exit 1
-          
-      - name: Release ${{env.MAVEN_VERSION}}
-        run: | 
-           mvn -B release:perform
