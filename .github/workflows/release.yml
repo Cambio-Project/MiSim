@@ -5,7 +5,7 @@ on:
     branches: [ master ]
 
 jobs:
-  release:
+  Prepare-and-Release:
     runs-on: ubuntu-latest
 
     steps:
@@ -48,3 +48,10 @@ jobs:
           pr_label: "automated" 
           github_token: ${{ secrets.PUBLISHER_TOKEN }}
           
+      - id: automerge
+        name: automerge
+        uses: "pascalgn/automerge-action@v0.15.5"
+        env:
+          MERGE_LABELS: "automated"
+          MERGE_COMMIT_MESSAGE: "Update to ${{env.MAVEN_VERSION}} and prepare next SNAPSHOT"
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
