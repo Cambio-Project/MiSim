@@ -26,17 +26,19 @@ jobs:
           git config --global committer.name "GitHub Release Workflow"
           git config --global author.email "${GITHUB_ACTOR}@users.noreply.github.com"
           git config --global author.name "${GITHUB_ACTOR}"
+          
       - name: Get Maven version
         run: |
           export MAVEN_VERSION=$( mvn help:evaluate -Dexpression=project.version -q -DforceStdout | sed "s/-SNAPSHOT$//" )
           echo "Retreived Maven Version: $MAVEN_VERSION"
           echo "MAVEN_VERSION=$MAVEN_VERSION" >> $GITHUB_ENV
+          
       - name: Release Maven Artifact
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git checkout -B "MiSim-${{env.MAVEN_VERSION}}"
-          mvn -B release:prepare
+          mvn -B release:prepare release:perform
           git clean -f
           
       - name: Create Pull Request
@@ -51,7 +53,8 @@ jobs:
           pr_label: "automated" 
           github_token: ${{ secrets.PUBLISHER_TOKEN }}
           
-      - name: automerge        
+      - name: Automerge Pull Request
+        id: automgerge
         env:
           MERGE_LABELS: "automated"
           PULL_REQUEST: "${{steps.open-pr.outputs.pr_number}}"
@@ -60,3 +63,14 @@ jobs:
           MERGE_DELETE_BRANCH: true
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
         uses: "pascalgn/automerge-action@v0.15.5"
+        
+      - name: Check Merge Result
+        if: steps.automerge.outputs.mergeResult != "merged"
+        run: | 
+          echo "Merge of Pull Request ${{steps.open-pr.outputs.pr_number}} failed."
+          echo "See ${{steps.open-pr.outputs.pr_url}} for further info."
+          exit 1
+          
+      - name: Release ${{env.MAVEN_VERSION}}
+        run: | 
+           mvn -B release:perform
