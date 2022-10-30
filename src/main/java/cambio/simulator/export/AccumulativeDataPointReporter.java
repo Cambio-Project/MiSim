@@ -1,21 +1,29 @@
 package cambio.simulator.export;
 
-import java.util.*;
+import java.util.HashMap;
 
+import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 
 /**
- * MultiDataPointReporter that sums up all entries for a TimeInstance.
+ * Accumulates numeric data points. Accumulation is done by adding up all given data per TimeInstant.
+ * <p>
+ * Since this Reporter does not know when accumulation
+ *
+ * <b>The data will be converted to double.</b>
  *
  * @author Lion Wagner
  */
 public class AccumulativeDataPointReporter extends MultiDataPointReporter {
 
-    public AccumulativeDataPointReporter() {
+    private final HashMap<String, HashMap<TimeInstant, Double>> lastValues = new HashMap<>();
+
+    public AccumulativeDataPointReporter(Model model) {
+        this("", model);
     }
 
-    public AccumulativeDataPointReporter(String datasetsPrefix) {
-        super(datasetsPrefix);
+    public AccumulativeDataPointReporter(String datasetsPrefix, Model model) {
+        super(datasetsPrefix, model);
     }
 
     /**
@@ -24,31 +32,53 @@ public class AccumulativeDataPointReporter extends MultiDataPointReporter {
     public void addDatapoint(String dataSetName, TimeInstant when, Number data) {
         checkArgumentsAreNotNull(dataSetName, when, data);
 
-        Map<Double, Number> dataSet =
-            (HashMap<Double, Number>) dataSets.computeIfAbsent(datasetsPrefix + dataSetName,
-                s -> new HashMap<Double, Number>());
-        dataSet.merge(when.getTimeAsDouble(), data, (number, number2) -> number.doubleValue() + number2.doubleValue());
+        if (lastValues.containsKey(dataSetName)) {
+            HashMap<TimeInstant, Double> lastValuesForDataSet = lastValues.get(dataSetName);
+            if (lastValuesForDataSet.containsKey(when)) {
+                lastValuesForDataSet.put(when, lastValuesForDataSet.get(when) + data.doubleValue());
+            } else {
+                lastValuesForDataSet.put(when, data.doubleValue());
+            }
+        } else {
+            lastValues.put(dataSetName, new HashMap<>());
+            lastValues.get(dataSetName).put(when, data.doubleValue());
+        }
     }
 
     /**
-     * {@inheritDoc}
+     * Writes all accumulated datapoints to disk.
      */
-    public <T> void addDatapoint(String dataSetName, TimeInstant when, List<T> data) {
-        checkArgumentsAreNotNull(dataSetName, when, data);
-
-        Map<Double, List<T>> dataSet =
-            (HashMap<Double, List<T>>) dataSets.computeIfAbsent(datasetsPrefix + dataSetName,
-                s -> new HashMap<Double, List<T>>());
-        dataSet.merge(when.getTimeAsDouble(), data, (list1, list2) -> {
-            list1.addAll(list2);
-            return list1;
-        });
+    public void flush() {
+        lastValues.keySet().forEach(this::flush);
     }
 
+    /**
+     * Writes the given dataset to disk.
+     */
+    public void flush(String datasetName) {
+        if (lastValues.containsKey(datasetName)) {
+            HashMap<TimeInstant, Double> lastValuesForDataSet = lastValues.get(datasetName);
+            lastValuesForDataSet.keySet().stream().sorted()
+                .forEach(timeInstant -> this.flush(datasetName, timeInstant));
+        }
+    }
 
-    private <T> void checkArgumentsAreNotNull(String dataSetName, TimeInstant when, T data) {
-        Objects.requireNonNull(dataSetName);
-        Objects.requireNonNull(when);
-        Objects.requireNonNull(data);
+    /**
+     * Writes the given TimeInstant (timestamp) of a specific dataset to disk.
+     */
+    public void flush(String datasetName, TimeInstant when) {
+        if (lastValues.containsKey(datasetName)) {
+            HashMap<TimeInstant, Double> lastValuesForDataSet = lastValues.get(datasetName);
+            if (lastValuesForDataSet.containsKey(when)) {
+                super.addDatapoint(datasetName, when, lastValuesForDataSet.get(when));
+            }
+            lastValuesForDataSet.remove(when);
+        }
+    }
+
+    @Override
+    public void finalizeReport() {
+        flush();
+        super.finalizeReport();
     }
 }

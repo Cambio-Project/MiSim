@@ -10,6 +10,7 @@ import cambio.simulator.models.MiSimModel;
  * legacy class for reporting. May be removed later.
  *
  * @deprecated replaced by {@link ReportCollector} and {@link MultiDataPointReporter} framework.
+ * Kept for now, because of th
  */
 public class ExportReport {
     private final MiSimModel model;
