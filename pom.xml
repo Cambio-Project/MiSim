@@ -4,7 +4,7 @@
 
     <groupId>cambio.simulator</groupId>
     <artifactId>misim</artifactId>
-    <version>3.2.3-SNAPSHOT</version>
+    <version>3.2.3</version>
     <packaging>jar</packaging>
 
     <name>MiSim Simulator</name>
@@ -33,7 +33,7 @@
 
     <scm>
         <developerConnection>scm:git:https://github.com/Cambio-Project/resilience-simulator</developerConnection>
-        <tag>HEAD</tag>
+        <tag>v3.2.3</tag>
     </scm>
     <distributionManagement>
         <repository>
