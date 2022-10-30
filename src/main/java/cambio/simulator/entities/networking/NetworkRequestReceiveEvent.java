@@ -38,7 +38,7 @@ public class NetworkRequestReceiveEvent extends NetworkRequestEvent {
             updateListener.onRequestArrivalAtTarget(travelingRequest, presentTime());
         } catch (IllegalStateException e) {
             NetworkRequestEvent event = new NetworkRequestCanceledEvent(getModel(),
-                String.format("CANCEL Event for %s", travelingRequest.getQuotedName()), traceIsOn(), travelingRequest,
+                "CANCEL Event for " + travelingRequest.getQuotedName(), traceIsOn(), travelingRequest,
                 RequestFailedReason.HANDLING_INSTANCE_DIED);
             event.schedule(presentTime());
         }

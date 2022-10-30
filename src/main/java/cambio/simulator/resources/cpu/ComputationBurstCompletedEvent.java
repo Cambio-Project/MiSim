@@ -50,7 +50,7 @@ public class ComputationBurstCompletedEvent extends NamedExternalEvent {
             //notify the request that its computation finished
             Request request = endingProcess.getRequest();
             ComputationCompletedEvent completionEvent = new ComputationCompletedEvent(getModel(),
-                String.format("ComputationEnd %s", request.getQuotedPlainName()),
+                "ComputationEnd " + request.getQuotedPlainName(),
                 getModel().traceIsOn());
             completionEvent.schedule(request, presentTime());
         }

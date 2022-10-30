@@ -164,14 +164,13 @@ public class Microservice extends NamedEntity {
                 changedInstance =
                     instancesSet.stream().min(Comparator.comparingDouble(MicroserviceInstance::getUsage)).get();
                 changeEvent = new InstanceShutdownStartEvent(getModel(),
-                    String.format("Instance %s Shutdown Start", changedInstance.getQuotedName()), traceIsOn());
+                    "Instance " + changedInstance.getQuotedName() + " Shutdown Start", traceIsOn());
                 instancesSet.remove(changedInstance);
             }
             changeEvent.schedule(changedInstance, presentTime());
         }
 
         reporter.addDatapoint("InstanceCount", presentTime(), instancesSet.size());
-
     }
 
 
