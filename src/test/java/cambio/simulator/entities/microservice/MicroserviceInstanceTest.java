@@ -3,19 +3,23 @@ package cambio.simulator.entities.microservice;
 import java.lang.reflect.Field;
 import java.util.*;
 
-import cambio.simulator.test.RandomTieredModel;
-import cambio.simulator.test.TestUtils;
+import cambio.simulator.events.SimulationEndEvent;
+import cambio.simulator.models.MiSimModel;
+import cambio.simulator.test.*;
 import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.*;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.javatuples.Pair;
+import org.junit.jupiter.api.*;
 
-class MicroserviceInstanceTest {
+
+@Disabled
+class MicroserviceInstanceTest  extends TestBase {
 
     @Test
     void allInstancesInStateShutdownCorrectly() {
-        RandomTieredModel model = new RandomTieredModel("MSTestModel", 3, 3);
-        Experiment exp = TestUtils.getExampleExperiment(model, 300);
+        Pair<MiSimModel, TestExperiment> mockResult = getConnectedMockModel();
+        MiSimModel model = mockResult.getValue0();
+        Experiment exp = mockResult.getValue1();
 
 
         final List<MicroserviceInstance> instanceList = new LinkedList<>();
@@ -23,8 +27,8 @@ class MicroserviceInstanceTest {
 
         ExternalEvent instanceCollection = new ExternalEvent(model, "InstanceCollection", false) {
             @Override
-            public void eventRoutine() throws SuspendExecution {
-                model.getAllMicroservices().forEach(microservice -> {
+            public void eventRoutine(){
+                model.getArchitectureModel().getMicroservices().forEach(microservice -> {
                     try {
                         Field f = Microservice.class.getDeclaredField("instancesSet");
                         f.setAccessible(true);
@@ -39,11 +43,14 @@ class MicroserviceInstanceTest {
 
         ExternalEvent shutdown = new ExternalEvent(model, "ShutdownEvent", false) {
             @Override
-            public void eventRoutine() throws SuspendExecution {
-                model.getAllMicroservices().forEach(microservice -> microservice.scaleToInstancesCount(0));
+            public void eventRoutine() {
+                model.getArchitectureModel().getMicroservices().forEach(microservice -> microservice.scaleToInstancesCount(0));
             }
         };
-        shutdown.schedule(new TimeInstant(200));
+        shutdown.schedule(new TimeInstant(10));
+
+        SimulationEndEvent endEvent = new SimulationEndEvent(model, "EndEvent", false);
+        endEvent.schedule(new TimeInstant(11));
 
         exp.start();
         exp.finish();

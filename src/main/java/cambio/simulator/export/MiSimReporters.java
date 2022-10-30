@@ -18,7 +18,6 @@ public final class MiSimReporters {
     public static final String csvSeperator = ";";
 
     public static void initializeStaticReporters(MiSimModel model) {
-
         RETRY_MANAGER_REPORTER = new MultiDataPointReporter("RM_", model);
         NETWORK_LATENCY_REPORTER = new MultiDataPointReporter("NL_", model);
         USER_REQUEST_REPORTER = new MultiDataPointReporter("R", model);

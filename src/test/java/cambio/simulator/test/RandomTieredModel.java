@@ -22,6 +22,7 @@ import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.entities.microservice.Operation;
 import cambio.simulator.entities.networking.DependencyDescription;
 import cambio.simulator.entities.networking.SimpleDependencyDescription;
+import cambio.simulator.models.MiSimModel;
 import desmoj.core.simulator.Model;
 import org.junit.jupiter.api.Assertions;
 

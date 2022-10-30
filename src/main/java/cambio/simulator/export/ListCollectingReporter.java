@@ -27,9 +27,8 @@ public class ListCollectingReporter extends MultiDataPointReporter {
         if (!writerThreads.containsKey(dataSetName)) {
             try {
                 Files.createDirectories(reportBasePath);
-                WriterThread writerThread = new LineBreakingWriterThread(reportBasePath.resolve(datasetsPrefix +
-                    dataSetName + ".csv"));
-                writerThread.run();
+                AsyncReportWriter<?> writerThread = new AsyncListReportWriter(
+                    reportBasePath.resolve(datasetsPrefix + dataSetName + ".csv"));
                 writerThreads.put(dataSetName, writerThread);
             } catch (Exception e) {
                 e.printStackTrace();

@@ -17,7 +17,7 @@ public class MultiDataPointReporter extends MiSimReporter {
 
     protected final String datasetsPrefix;
     protected final Path reportBasePath;
-    protected final HashMap<String, WriterThread> writerThreads = new HashMap<>();
+    protected final HashMap<String, AsyncReportWriter<?>> writerThreads = new HashMap<>();
 
     public MultiDataPointReporter(@NotNull Model model) {
         this("", model);
@@ -45,23 +45,23 @@ public class MultiDataPointReporter extends MiSimReporter {
         if (!writerThreads.containsKey(dataSetName)) {
             try {
                 Files.createDirectories(reportBasePath);
-                WriterThread writerThread = new WriterThread(reportBasePath.resolve(datasetsPrefix + dataSetName
-                    + ".csv"));
-                writerThread.run();
+                AsyncReportWriter<?> writerThread =
+                    new AsyncSimpleReportWriter(reportBasePath.resolve(datasetsPrefix + dataSetName
+                        + ".csv"));
                 writerThreads.put(dataSetName, writerThread);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
 
-        WriterThread writerThread = writerThreads.get(dataSetName);
+        AsyncReportWriter<?> writerThread = writerThreads.get(dataSetName);
         writerThread.addDataPoint(when.getTimeAsDouble(), data);
     }
 
 
     @Override
     public void finalizeReport() {
-        writerThreads.values().forEach(WriterThread::finalizeWriteout);
+        writerThreads.values().forEach(AsyncReportWriter::finalizeWriteout);
         super.deregister();
     }
 

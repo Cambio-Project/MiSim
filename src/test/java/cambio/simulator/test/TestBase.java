@@ -13,7 +13,10 @@ import java.util.stream.Collectors;
 
 import cambio.simulator.Main;
 import cambio.simulator.export.MiSimReporters;
+import cambio.simulator.models.MiSimModel;
 import org.apache.commons.io.FileUtils;
+import org.javatuples.Pair;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 
@@ -24,12 +27,38 @@ public class TestBase {
 
     private List<File> tempDirs = new ArrayList<>();
 
+
     @AfterEach
     void tearDown() throws IOException {
         MiSimReporters.finalizeReports(); //closes open file handles
         for (File file : tempDirs) {
             FileUtils.deleteDirectory(file);
         }
+    }
+
+    public MiSimModel getMockModel() {
+        File architecture = FileLoaderUtil.loadFromTestResources("test_architecture.json");
+        File scenario = FileLoaderUtil.loadFromTestResources("test_empty_experiment.json");
+        return getMockModel(architecture, scenario);
+    }
+
+    public MiSimModel getMockModel(File architecture, File scenario) {
+        MiSimModel mockModel = new MiSimModel(architecture, scenario);
+        mockModel.getExperimentMetaData().setReportLocation(createTempOutputDir().toPath());
+        return mockModel;
+    }
+
+    public Pair<MiSimModel, TestExperiment> getConnectedMockModel() {
+        File architecture = FileLoaderUtil.loadFromTestResources("test_architecture.json");
+        File scenario = FileLoaderUtil.loadFromTestResources("test_empty_experiment.json");
+        return getConnectedMockModel(architecture, scenario);
+    }
+
+    public Pair<MiSimModel, TestExperiment> getConnectedMockModel(File architecture, File scenario) {
+        MiSimModel mockModel = getMockModel(architecture, scenario);
+        TestExperiment testExperiment = new TestExperiment();
+        mockModel.connectToExperiment(testExperiment);
+        return new Pair<>(mockModel, testExperiment);
     }
 
     protected void runSimulationCheckExit(int expectedExitCode, File arch, File exp, String... additionalArgs) {
@@ -94,4 +123,5 @@ public class TestBase {
 
         TestUtils.compareFileContentsOfDirectories(rawOutput1, rawOutput2);
     }
+
 }
