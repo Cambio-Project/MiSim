@@ -29,7 +29,7 @@ public class SortedMapEventList extends EventList {
      * {@inheritDoc}.
      */
     @Override
-    EventNote firstNote() {
+    protected EventNote firstNote() {
         if (queue.isEmpty()) {
             return null;
         }

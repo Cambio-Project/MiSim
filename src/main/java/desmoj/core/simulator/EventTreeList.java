@@ -57,7 +57,7 @@ public class EventTreeList extends EventList {
      * @return EventNote : the event-note to be processed next in the order of time. Returns <code>null</code> if the
      *     event-list is empty.
      */
-    EventNote firstNote() {
+    protected EventNote firstNote() {
 
 		if (isEmpty()) {
 			return null; // nothing there, nothing returned
