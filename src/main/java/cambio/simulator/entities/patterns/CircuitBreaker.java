@@ -49,7 +49,7 @@ public final class CircuitBreaker extends InstanceOwnedPattern implements IReque
 
     public CircuitBreaker(Model model, String name, boolean showInTrace) {
         super(model, name, showInTrace);
-        reporter = new MultiDataPointReporter(String.format("CB[%s]_", name));
+        reporter = new MultiDataPointReporter(String.format("CB[%s]_", name), model);
     }
 
     @Override

@@ -97,7 +97,7 @@ public class CPU extends NamedExternalEvent {
         this.threadPoolSize = threadPoolSize;
         activeProcesses = new HashSet<>(threadPoolSize);
 
-        reporter = new MultiDataPointReporter(String.format("C[%s]_", name));
+        reporter = new MultiDataPointReporter(String.format("C[%s]_", name), model);
         binnedUtilizationTracker = new BinnedCPUUtilizationTracker(this);
 
         reporter.addDatapoint("ActiveProcesses", presentTime(), 0);

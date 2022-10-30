@@ -1,6 +1,6 @@
 package cambio.simulator.entities.generator;
 
-import static cambio.simulator.export.ReportCollector.GENERATOR_REPORTER;
+import static cambio.simulator.export.MiSimReporters.GENERATOR_REPORTER;
 
 import cambio.simulator.entities.NamedSimProcess;
 import cambio.simulator.entities.microservice.NoInstanceAvailableException;
@@ -61,7 +61,7 @@ public final class LoadGeneratorDescriptionExecutor extends RequestSender implem
         String reportName = String
             .format("G[%s]_[%s(%s)]_", this.getClass().getSimpleName(), targetOperation.getOwnerMS().getPlainName(),
                 targetOperation.getPlainName());
-        accReporter = new AccumulativeDataPointReporter(reportName);
+        accReporter = new AccumulativeDataPointReporter(reportName, model);
 
 
         addUpdateListener(this);

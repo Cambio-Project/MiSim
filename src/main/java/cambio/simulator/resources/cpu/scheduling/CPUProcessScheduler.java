@@ -12,13 +12,8 @@ import org.javatuples.Pair;
  */
 public abstract class CPUProcessScheduler {
 
-    /**
-     * Predefined reporter.
-     */
-    protected MultiDataPointReporter reporter;
 
     public CPUProcessScheduler(String name) {
-        reporter = new MultiDataPointReporter(name);
     }
 
     /**
