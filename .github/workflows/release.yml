@@ -59,7 +59,7 @@ jobs:
           PULL_REQUEST: ${{steps.open-pr.outputs.pr_number}}
           MERGE_COMMIT_MESSAGE: 'Update to ${{env.MAVEN_VERSION}} and prepare next SNAPSHOT'
           MERGE_DELETE_BRANCH: true
-          MERGE_RETRIES: 5
+          MERGE_RETRIES: 10
           MERGE_RETRY_SLEEP: '60000'
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
         uses: "pascalgn/automerge-action@v0.15.5"
