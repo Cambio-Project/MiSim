@@ -14,8 +14,7 @@ import java.util.stream.Collectors;
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.entities.networking.NetworkRequestSendEvent;
 import cambio.simulator.entities.patterns.ServiceOwnedPattern;
-import cambio.simulator.export.CSVData;
-import cambio.simulator.export.ReportCollector;
+import cambio.simulator.export.*;
 import desmoj.core.simulator.*;
 import org.apache.commons.text.similarity.LevenshteinDistance;
 import org.junit.jupiter.api.Assertions;
@@ -172,7 +171,7 @@ public class TestUtils {
     //    }
 
     public static void resetModel(RandomTieredModel model) {
-        ReportCollector.getInstance().reset(); //resetting static data point collection framework
+        MiSimReporters.finalizeReports(); //resetting static data point collection framework
         NetworkRequestSendEvent.resetCounterSendEvents();
         model.reset();
 

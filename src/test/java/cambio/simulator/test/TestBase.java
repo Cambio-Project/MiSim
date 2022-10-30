@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import cambio.simulator.Main;
+import cambio.simulator.export.MiSimReporters;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -25,6 +26,7 @@ public class TestBase {
 
     @AfterEach
     void tearDown() throws IOException {
+        MiSimReporters.finalizeReports(); //closes open file handles
         for (File file : tempDirs) {
             FileUtils.deleteDirectory(file);
         }
