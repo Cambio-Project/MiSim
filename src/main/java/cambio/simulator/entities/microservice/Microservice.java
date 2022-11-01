@@ -231,12 +231,6 @@ public class Microservice extends NamedEntity {
             .orElse(null);
     }
 
-    /**
-     * Uses the loadbalancer of this microservice to find the next suitable target instance.
-     *
-     * @return a {@code MicroserviceInstance} that should receive the next request
-     * @throws NoInstanceAvailableException if no instance is available
-     */
     public MicroserviceInstance getNextAvailableInstance() throws NoInstanceAvailableException {
         MicroserviceInstance nextInstance = loadBalancer.getNextInstance(instancesSet);
         List<String> data = new ArrayList<>();
@@ -259,7 +253,7 @@ public class Microservice extends NamedEntity {
         if (operationTrg == null) {
             if (operationSrc == null) {
                 //delay all operations
-                for (Operation operation : operations) {
+                    for (Operation operation : operations) {
                     operation.applyExtraDelay(dist);
                 }
                 return;

@@ -39,16 +39,6 @@ public final class CLI {
         return CLI.parseCommandLineToDataObject(CLI.parseArgumentsToCommandLine(dataclass, args), dataclass);
     }
 
-    /**
-     * Parses the given arguments into a {@link CommandLine} object using the optionsProviderClass. Specifically it
-     * scans the optionsProviderClass for {@link CLIOption}s and creates a {@link Options} based on this.
-     *
-     * @param optionsProviderClass class that provides with options
-     * @param args                 program arguments
-     * @return a new {@link CommandLine} object with the parsed arguments
-     * @throws ParseException if the command line arguments cannot be parsed properly to the given options
-     * @see CLIOption
-     */
     public static @NotNull CommandLine parseArgumentsToCommandLine(Class<?> optionsProviderClass, final String[] args)
         throws ParseException {
         Options options = new Options();
