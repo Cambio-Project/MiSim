@@ -7,9 +7,8 @@ on:
 
 jobs:
   run_checkstyle:
-
+    name: Run Checkstyle
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v3
 
@@ -23,9 +22,17 @@ jobs:
       - name: Run Checkstyle
         run: mvn checkstyle:check
 
-      - name: report
+      - name: Create Checkstyle Report Annotations
+        uses: jwgmeligmeyling/checkstyle-github-action@master
+        # if: (success() || failure()) && (github.event.pull_request == '' || github.event.pull_request.head.repo.fork == false)
+        with:
+          name: Checkstyle Report
+          path: ./target/checkstyle-result.xml
+
+      - name: Upload Report
         if: ${{ always() }}
         uses: actions/upload-artifact@v3
         with:
           name: checkstyle-result
           path: ./target/checkstyle-result.xml
+
