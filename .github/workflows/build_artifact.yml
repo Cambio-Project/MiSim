@@ -34,6 +34,8 @@ jobs:
   run_tests:
     runs-on: ubuntu-latest
     needs: build_artifact
+    permissions: # needed for test report publishing
+      checks: write
     steps:
       - uses: actions/checkout@v3
       - name: Set up Java 16
