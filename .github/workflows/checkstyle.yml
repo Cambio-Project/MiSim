@@ -3,7 +3,7 @@ name: Run Checkstyle
 on:
   push:
   pull_request:
-    branches: [ master ] # trigger for automatic PRs from workflow bot
+    branches: [ master, develop ]
 
 jobs:
   run_checkstyle:
