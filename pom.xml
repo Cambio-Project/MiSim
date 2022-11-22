@@ -238,6 +238,15 @@
                     </transformers>
                     <minimizeJar>true</minimizeJar>
                     <createDependencyReducedPom>false</createDependencyReducedPom>
+                    <filters>
+                        <filter>
+                            <artifact>desmoj:desmoj</artifact>
+                            <excludeDefaults>false</excludeDefaults>
+                            <includes>
+                                <include>desmoj/core/report/**</include>
+                            </includes>
+                        </filter>
+                    </filters>
                 </configuration>
                 <executions>
                     <execution>
