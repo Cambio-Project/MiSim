@@ -1,0 +1,18 @@
+{
+  "name": "QRS Demonstration",
+  "description": "Shuts down 2 instances of Service1 at 45 STU.",
+  "report_location": "QRS_Report/",
+  "duration": 130,
+  "seed": 42,
+  "artifact": "Service1",
+  "stimulus": "LOAD Examples/PaperExample/QRSExample/QRS_Limbo.csv AND KILL @45",
+  "source": "USER",
+  "environment": "IDLE",
+  "response": "Artifact should be available again",
+  "response_measures": {
+    "normal-response-time": "1s",
+    "normal-response-cases": "99%",
+    "recovery-time": "20s"
+  },
+  "component": "API_Endpoint"
+}
