@@ -1,18 +1,13 @@
 package cambio.simulator.entities.networking;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.entities.microservice.Operation;
 import cambio.simulator.misc.NameResolver;
 import cambio.simulator.misc.Util;
 import cambio.simulator.models.ArchitectureModel;
+import cambio.simulator.parsing.ParsingException;
 import cambio.simulator.parsing.adapter.architecture.ArchitectureModelAdapter;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -232,16 +227,20 @@ public class SimpleDependencyDescription extends AbstractDependencyDescription {
 
         Operation targetOperation = NameResolver.resolveOperationName(model, fullyQualifiedName);
 
-        // injecting field via reflection to keep "final" modifier
-        try {
-            Field f = this.getClass().getDeclaredField("targetOperation");
-            f.setAccessible(true);
-            f.set(this, targetOperation);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            e.printStackTrace();
+        if (targetOperation == null) {
+            throw new ParsingException(
+                String.format("Could not find target operation '%s' when parsing dependencies of '%s'.",
+                    fullyQualifiedName, this.parentOperation.getFullyQualifiedPlainName()));
         }
+
+        // injecting field via reflection to keep "final" modifier
+        Util.injectField("targetOperation", this, targetOperation);
 
         hasResolvedNames = true;
     }
 
+    @Override
+    public String toString() {
+        return parentOperation.getFullyQualifiedPlainName() + " -> " + targetOperation.getFullyQualifiedPlainName();
+    }
 }
