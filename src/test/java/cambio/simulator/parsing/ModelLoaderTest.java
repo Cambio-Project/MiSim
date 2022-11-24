@@ -48,7 +48,8 @@ class ModelLoaderTest {
         assertEquals("Contains examples for the new Experiment format", data.getDescription());
         assertEquals(42, data.getSeed());
         assertEquals(180, data.getDuration());
-        assertEquals(new File("/Report_42/").getAbsolutePath(), data.getReportBaseDirectory().toAbsolutePath().toString());
+        assertEquals(new File("./Report_42/").getAbsolutePath(),
+            data.getReportBaseDirectory().toAbsolutePath().toString());
         assertEquals("continuous", data.getReportType());
     }
 
