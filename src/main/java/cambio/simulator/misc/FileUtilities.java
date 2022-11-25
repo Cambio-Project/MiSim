@@ -81,17 +81,22 @@ public final class FileUtilities {
             fullPath = new File(new URI(path));
         } catch (URISyntaxException e) {
             e.printStackTrace();
+            throw new IOException("Could not resolve '" + path + "' as URI.", e);
         }
+
+        System.out.println("[Debug] Copying from " + Paths.get(fullPath.getAbsolutePath(), folderName).normalize());
+        System.out.println("[Debug] Copying to   " + destFolder.toPath().toAbsolutePath().normalize());
 
         try {
             copyFromJar(folderName, destFolder, option, fullPath);
         } catch (IOException e) {
-            // ZipInputStream throws a message ending in '(Access is denied)' if it tries to read
-            // a file stream from a non-zip/jar file
-            if (e.getMessage().endsWith("(Access is denied)")) {
+            System.out.println("[Debug] Could not find jar file '" + fullPath + "'. Trying to load from classpath.");
+            try {
                 copyFromDirectory(folderName, destFolder, option, fullPath);
-            } else {
-                throw e;
+                System.out.println("[Debug] Successfully loaded from classpath.");
+            } catch (Exception e2) {
+                throw new IOException(
+                    "Could not copy from jar or classpath. Tried to copy from '" + fullPath + "'.", e2);
             }
         }
     }
@@ -99,9 +104,9 @@ public final class FileUtilities {
     private static void copyFromJar(String folderName, File destFolder, CopyOption option, File fullPath)
         throws IOException {
 
-        byte[] buffer = new byte[1024];
+        byte[] buffer = new byte[8096];
 
-        ZipInputStream zis = new ZipInputStream(new BufferedInputStream(new FileInputStream(fullPath)));
+        ZipInputStream zis = new ZipInputStream(new BufferedInputStream(Files.newInputStream(fullPath.toPath())));
 
         ZipEntry entry;
         while ((entry = zis.getNextEntry()) != null) {
