@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 /**
  * @author Lion Wagner
  */
-public class Reproducibility extends TestBase {
+public class ReproducibilityTests extends TestBase {
 
 
     @Test

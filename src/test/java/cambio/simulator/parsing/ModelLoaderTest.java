@@ -7,6 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.io.*;
 
+import cambio.simulator.export.ReportCollector;
+import cambio.simulator.misc.RNGStorage;
 import cambio.simulator.models.ExperimentMetaData;
 import cambio.simulator.models.MiSimModel;
 import cambio.simulator.test.FileLoaderUtil;
@@ -74,7 +76,7 @@ class ModelLoaderTest {
         MiSimModel model = new MiSimModel(test_architecture, test_experiment);
         Experiment expDummy = new Experiment("TestExperiment");
         model.connectToExperiment(expDummy);
-        expDummy.stop(new TimeInstant(0.000001));//lets the experiment start itself for a very short amount of time
+        expDummy.stop(new TimeInstant(0.001));//lets the experiment start itself for a very short amount of time
         expDummy.setShowProgressBar(false); //enforces headless mode
 
         expDummy.start();
@@ -82,6 +84,9 @@ class ModelLoaderTest {
 
         assertEquals(5, model.getExperimentModel().getAllSelfSchedulesEntities().size());
         assertFalse(expDummy.hasError());
+
+        RNGStorage.reset();
+        ReportCollector.getInstance().reset();
     }
 
     @Test
@@ -92,15 +97,17 @@ class ModelLoaderTest {
         MiSimModel model = new MiSimModel(test_architecture, test_experiment);
         Experiment expDummy = new Experiment("TestExperiment");
         model.connectToExperiment(expDummy);
-        expDummy.stop(new TimeInstant(0.000001));//lets the experiment start itself for a very short amount of time
+        expDummy.stop(new TimeInstant(0.001));//lets the experiment start itself for a very short amount of time
         expDummy.setShowProgressBar(false);
 
         expDummy.start();
         expDummy.finish();
 
-
         assertEquals(7, model.getExperimentModel().getAllSelfSchedulesEntities().size());
         assertFalse(expDummy.hasError());
+
+        RNGStorage.reset();
+        ReportCollector.getInstance().reset();
     }
 
     @Test

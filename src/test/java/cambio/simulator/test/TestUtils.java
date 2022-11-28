@@ -18,6 +18,7 @@ import cambio.simulator.export.CSVData;
 import cambio.simulator.export.ReportCollector;
 import desmoj.core.simulator.*;
 import org.apache.commons.text.similarity.LevenshteinDistance;
+import org.javatuples.Pair;
 import org.junit.jupiter.api.Assertions;
 import org.mockito.Mockito;
 
@@ -34,6 +35,8 @@ public class TestUtils {
     private static final double ALLOWED_FILE_DIFFERENCE_FACTOR = 0.01;
 
     public static void compareFileContentsOfDirectories(Path dir1, Path dir2) throws IOException {
+        System.out.println("\nComparing: \n" + dir1.toAbsolutePath() + " and\n" + dir2.toAbsolutePath());
+
         Map<Path, byte[]> hashes = new ConcurrentHashMap<>();
 
         List<String> errors = Collections.synchronizedList(new ArrayList<>());
@@ -132,65 +135,6 @@ public class TestUtils {
         }
     }
 
-    public static Experiment getExampleExperiment(final Model currentModel, final double duration) {
-
-        //RandomTestModel currentModel= new RandomTestModel(null, "TestModel" + nextNonNegative(), max_service_count_per_tier, tier_count);
-        currentModel.traceOff();
-        currentModel.debugOff();
-        TestExperiment currentExperiment = new TestExperiment();
-        currentModel.connectToExperiment(currentExperiment);
-
-
-        currentExperiment.stop(new TimeInstant(duration, TimeUnit.SECONDS));
-        currentExperiment.setShowProgressBar(false);
-        currentExperiment.traceOff(new TimeInstant(0));
-        currentExperiment.debugOff(new TimeInstant(0));
-        currentExperiment.setSilent(true);
-
-        return currentExperiment;
-    }
-
-    //    public static InstanceOwnedPatternConfiguration getRetryPatternMock(Model model) {
-    //        InstanceOwnedPatternConfiguration data = mock(InstanceOwnedPatternConfiguration.class);
-    //        Mockito.when(data.getPatternInstance(any(MicroserviceInstance.class)))
-    //            .thenAnswer(invocationOnMock -> new Retry(model, "Retry", true));
-    //        return data;
-    //    }
-    //
-    //    public static InstanceOwnedPatternConfiguration getCircuitBreaker(Model model) {
-    //        InstanceOwnedPatternConfiguration data = mock(InstanceOwnedPatternConfiguration.class);
-    //        Mockito.when(data.getPatternInstance(any(MicroserviceInstance.class)))
-    //            .thenAnswer(invocationOnMock -> new CircuitBreaker(model, "CircuitBreaker", true));
-    //        return data;
-    //    }
-    //
-    //    public static ServiceOwnedPattern getAutoscaler(Model model) {
-    //        InstanceOwnedPatternConfiguration data = mock(InstanceOwnedPatternConfiguration.class);
-    //        Mockito.when(data.getPatternInstance(any(Microservice.class)))
-    //            .thenAnswer(invocationOnMock -> new BasicAutoscalingStrategyProxy(model, "AutoScaler", true));
-    //        return data;
-    //    }
-
-    public static void resetModel(RandomTieredModel model) {
-        ReportCollector.getInstance().reset(); //resetting static data point collection framework
-        NetworkRequestSendEvent.resetCounterSendEvents();
-        model.reset();
-
-        //reset mocks to prevent Mockito from leaking
-        try {
-            Field f = Microservice.class.getDeclaredField("patternsData");
-            f.setAccessible(true);
-            for (Microservice microservice : model.getAllMicroservices()) {
-                ServiceOwnedPattern[] mocks = (ServiceOwnedPattern[]) f.get(microservice);
-                Mockito.reset(mocks);
-
-            }
-        } catch (NoSuchFieldException | IllegalAccessException exception) {
-            exception.printStackTrace();
-        }
-        System.gc();
-    }
-
     public static int nextNonNegative() {
         return nextNonNegative(Integer.MAX_VALUE);
     }
@@ -216,6 +160,32 @@ public class TestUtils {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public static List<Pair<String, String>> compareTwoFiles(File f1, File f2) throws IOException {
+        List<String> content1 = Files.readAllLines(f1.toPath(), StandardCharsets.UTF_8);
+        List<String> content2 = Files.readAllLines(f2.toPath(), StandardCharsets.UTF_8);
+        List<Pair<String, String>> output = Collections.synchronizedList(new ArrayList<>());
+
+        List<String> longerList = content1.size() > content2.size() ? content1 : content2;
+        List<String> shorterList = content1.size() > content2.size() ? content2 : content1;
+
+        List<Pair<String,String>> combined = new ArrayList<>();
+        for (int i = 0; i < longerList.size(); i++) {
+            String s1 = longerList.get(i);
+            String s2 = i < shorterList.size() ? shorterList.get(i) : "";
+            combined.add(new Pair<>(s1, s2));
+        }
+
+        combined.stream().forEach(pair -> {
+            String s1 = pair.getValue0();
+            String s2 = pair.getValue1();
+            if (!s1.equals(s2)) {
+                output.add(new Pair<>(s1, s2));
+            }
+        });
+
+        return output;
     }
 
 
