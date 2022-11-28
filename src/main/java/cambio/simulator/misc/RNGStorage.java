@@ -33,7 +33,7 @@ public final class RNGStorage {
      *                            returns.
      */
     @Contract("_, !null -> !null")
-    public static <T> T get(@NotNull final Object key, @NotNull final Supplier<T> supplier) {
+    public static synchronized <T> T get(@NotNull final Object key, @NotNull final Supplier<T> supplier) {
         return (T) instances.computeIfAbsent(key, s -> supplier.get());
     }
 

@@ -23,7 +23,7 @@ hs_err_pid*
 
 #Report folders
 *[Rr]eport*/
-!src/main/java/resources/**/Report/*
+!**/resources/**
 
 # target folder
 [Tt]arget/
