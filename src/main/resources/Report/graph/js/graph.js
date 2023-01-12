@@ -1,2 +1,6 @@
 var graphMinimalistic = "";
-var graph = {...};
+var graph = {
+  nodes: [],
+  links: [],
+  analysis: {},
+};

@@ -33,10 +33,6 @@ class MainTest extends TestBase {
         // - 7 python files
         File[] resultFiles = output.listFiles()[0].listFiles();
         assertNotNull(resultFiles);
-        //print result files
-        System.out.println("Files in output folder:");
-        Arrays.stream(resultFiles).forEach(System.out::println);
-        
         checkFileWithNameExists(resultFiles, "graph");
         checkFileWithNameExists(resultFiles, "raw");
         checkFileWithNameExists(resultFiles, "requirements.txt");
