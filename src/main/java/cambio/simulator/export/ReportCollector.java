@@ -77,8 +77,8 @@ public class ReportCollector extends ReportManager {
         this.register(NETWORK_LATENCY_REPORTER);
         this.register(GENERATOR_REPORTER);
         this.register(RETRY_MANAGER_REPORTER);
-
-        System.out.println("[DEBUG] ReportCollector reset");
+        
+        //System.out.println("[DEBUG] ReportCollector reset");
     }
 
     /**

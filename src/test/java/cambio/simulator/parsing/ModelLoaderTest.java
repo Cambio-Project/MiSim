@@ -76,7 +76,7 @@ class ModelLoaderTest {
         MiSimModel model = new MiSimModel(test_architecture, test_experiment);
         Experiment expDummy = new Experiment("TestExperiment");
         model.connectToExperiment(expDummy);
-        expDummy.stop(new TimeInstant(0.001));//lets the experiment start itself for a very short amount of time
+        expDummy.stop(new TimeInstant(1));//lets the experiment start itself for a very short amount of time
         expDummy.setShowProgressBar(false); //enforces headless mode
 
         expDummy.start();
@@ -97,7 +97,7 @@ class ModelLoaderTest {
         MiSimModel model = new MiSimModel(test_architecture, test_experiment);
         Experiment expDummy = new Experiment("TestExperiment");
         model.connectToExperiment(expDummy);
-        expDummy.stop(new TimeInstant(0.001));//lets the experiment start itself for a very short amount of time
+        expDummy.stop(new TimeInstant(1));//lets the experiment start itself for a very short amount of time
         expDummy.setShowProgressBar(false);
 
         expDummy.start();
