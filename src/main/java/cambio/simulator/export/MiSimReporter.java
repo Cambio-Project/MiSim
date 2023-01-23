@@ -22,7 +22,7 @@ public abstract class MiSimReporter {
 
     public abstract void finalizeReport();
 
-    protected final <T> void checkArgumentsAreNotNull(String dataSetName, TimeInstant when, T data) {
+    protected final void checkArgumentsAreNotNull(String dataSetName, TimeInstant when, Object data) {
         Objects.requireNonNull(dataSetName);
         Objects.requireNonNull(when);
         Objects.requireNonNull(data);

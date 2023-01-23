@@ -1,11 +1,7 @@
 package cambio.simulator.export;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.util.*;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 /**
@@ -21,7 +17,11 @@ public class AsyncListReportWriter extends AsyncReportWriter<Object> {
     protected boolean hasStarted = false;
 
     public AsyncListReportWriter(Path datasetPath) throws IOException {
-        super(datasetPath);
+        this(datasetPath, "Value");
+    }
+
+    public AsyncListReportWriter(Path datasetPath, String header) throws IOException {
+        super(datasetPath, new String[] {header});
     }
 
     @Override
@@ -30,6 +30,7 @@ public class AsyncListReportWriter extends AsyncReportWriter<Object> {
             if (hasStarted) {
                 closeLine();
             }
+
             startNewLine(time);
             buffer.add(data);
             hasStarted = true;

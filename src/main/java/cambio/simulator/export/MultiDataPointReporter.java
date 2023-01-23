@@ -2,7 +2,8 @@ package cambio.simulator.export;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Objects;
 
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
@@ -18,6 +19,8 @@ public class MultiDataPointReporter extends MiSimReporter {
     protected final String datasetsPrefix;
     protected final Path reportBasePath;
     protected final HashMap<String, AsyncReportWriter<?>> writerThreads = new HashMap<>();
+
+    protected final HashMap<String, String> customHeaders = new HashMap<>();
 
     public MultiDataPointReporter(@NotNull Model model) {
         this("", model);
@@ -46,8 +49,9 @@ public class MultiDataPointReporter extends MiSimReporter {
             try {
                 Files.createDirectories(reportBasePath);
                 AsyncReportWriter<?> writerThread =
-                    new AsyncSimpleReportWriter(reportBasePath.resolve(datasetsPrefix + dataSetName
-                        + ".csv"));
+                    new AsyncSimpleReportWriter(
+                        reportBasePath.resolve(datasetsPrefix + dataSetName + ".csv"),
+                        customHeaders.getOrDefault(dataSetName, "Value"));
                 writerThreads.put(dataSetName, writerThread);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -71,5 +75,12 @@ public class MultiDataPointReporter extends MiSimReporter {
             + (datasetsPrefix.equals("") ? "" : "{"
             + "datasetsPrefix='" + datasetsPrefix + '\''
             + '}');
+    }
+
+    public void registerDefaultHeader(String dataSetName, String header) {
+        if (customHeaders.putIfAbsent(dataSetName, header) == null) {
+            throw new IllegalArgumentException(
+                "Header for dataset " + dataSetName + " already registered as " + customHeaders.get(dataSetName));
+        }
     }
 }

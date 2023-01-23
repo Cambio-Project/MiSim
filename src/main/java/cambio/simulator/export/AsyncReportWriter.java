@@ -1,6 +1,7 @@
 package cambio.simulator.export;
 
-import java.io.*;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.*;
@@ -8,9 +9,10 @@ import java.util.concurrent.*;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 
-import org.javatuples.Pair;
-
 /**
+ * A base class that provides functionalities to asynchronously write data to a file.
+ *
+ * @param <T> Type of the data stored in the buffer and transferred to the writer thread and formatter
  * @author Lion Wagner
  */
 public abstract class AsyncReportWriter<T> {
@@ -28,16 +30,28 @@ public abstract class AsyncReportWriter<T> {
     private final Function<T, String> formatter;
     private ScheduledFuture<?> scheduledFuture;
 
-    public AsyncReportWriter(final Path datasetPath) throws IOException {
+    public AsyncReportWriter(final Path datasetPath, final String[] headers) throws IOException {
         this.datasetPath = Objects.requireNonNull(datasetPath).toString().endsWith(".csv")
             ? datasetPath : datasetPath.resolveSibling(datasetPath.getFileName() + ".csv");
         this.fileOutputStream = new FileOutputStream(this.datasetPath.toFile());
         this.formatter = createFormatter();
 
-        fileOutputStream.write(
-            ("Simulation Time" + MiSimReporters.csvSeperator + "Value\n").getBytes(StandardCharsets.UTF_8));
+
+        fileOutputStream.write(createHeader(headers).getBytes(StandardCharsets.UTF_8));
         fileOutputStream.flush();
         scheduledFuture = threadPool.scheduleAtFixedRate(this::writeout, 0, 100, TimeUnit.MILLISECONDS);
+    }
+
+    private String createHeader(String[] headers) {
+        StringBuilder builder = new StringBuilder("SimulationTime");
+        for (String header : headers) {
+            builder.append(MiSimReporters.csvSeperator)
+                .append(header)
+                .append(MiSimReporters.csvSeperator);
+        }
+        builder.deleteCharAt(builder.length() - 1);
+        builder.append("\n");
+        return builder.toString();
     }
 
     public abstract void addDataPoint(double time, Object data);

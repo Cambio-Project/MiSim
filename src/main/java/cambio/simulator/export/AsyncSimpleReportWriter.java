@@ -1,10 +1,7 @@
 package cambio.simulator.export;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.util.*;
-import java.util.concurrent.*;
 import java.util.function.Function;
 
 import org.javatuples.Pair;
@@ -14,8 +11,8 @@ import org.javatuples.Pair;
  */
 public class AsyncSimpleReportWriter extends AsyncReportWriter<Pair<Double, Object>> {
 
-    public AsyncSimpleReportWriter(Path datasetPath) throws IOException {
-        super(datasetPath);
+    public AsyncSimpleReportWriter(Path datasetPath, String header) throws IOException {
+        super(datasetPath, new String[] {header});
     }
 
     @Override

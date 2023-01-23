@@ -19,7 +19,7 @@ class AsyncSimpleReportWriterTest extends TestBase {
     @BeforeEach
     void setUp() throws IOException {
         tmpOut = createTempOutputDir().toPath();
-        writer = new AsyncSimpleReportWriter(tmpOut.resolve("test.csv"));
+        writer = new AsyncSimpleReportWriter(tmpOut.resolve("test.csv"), "Value");
     }
 
     @AfterEach
@@ -34,14 +34,14 @@ class AsyncSimpleReportWriterTest extends TestBase {
 
     @Test
     void fixesFileExtension() throws IOException {
-        writer = new AsyncSimpleReportWriter(tmpOut.resolve("test"));
+        writer = new AsyncSimpleReportWriter(tmpOut.resolve("test"), "Value");
         Assertions.assertTrue(writer.datasetPath.toString().endsWith(".csv"));
     }
 
     @Test
     void throwsExceptionOnInvalidPath() {
         assertThrows(IOException.class,
-            () -> new AsyncSimpleReportWriter(tmpOut.resolve(Paths.get("test", "test.csv"))));
+            () -> new AsyncSimpleReportWriter(tmpOut.resolve(Paths.get("test", "test.csv")), "Value"));
     }
 
     @Test
@@ -50,8 +50,8 @@ class AsyncSimpleReportWriterTest extends TestBase {
         File out = tmpOut.resolve("test.csv").toFile();
         assertTrue(out.exists());
         assertTrue(out.length() > 0);
-        assertEquals(Files.readAllLines(out.toPath()).get(0).trim(),
-            "Simulation Time" + MiSimReporters.csvSeperator + "Value");
+        assertEquals("SimulationTime" + MiSimReporters.csvSeperator + "Value",
+            Files.readAllLines(out.toPath()).get(0).trim());
     }
 
     @RepeatedTest(10)
