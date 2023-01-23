@@ -95,7 +95,7 @@ public class RandomizingEventTreeList extends EventTreeList {
      *
      * @param note EventNote : the event-note to be removed
      */
-    void remove(EventNote note) {
+    public void remove(EventNote note) {
         int i = this.eTreeList.indexOf(note);
         if (i >= 0) {
             EventNote prev = this.prevNote(note);
@@ -110,7 +110,7 @@ public class RandomizingEventTreeList extends EventTreeList {
     /**
      * Removes the first event-note (if any).
      */
-    EventNote removeFirst() {
+    public EventNote removeFirst() {
         if (!this.isEmpty()) {
             EventNote note = super.removeFirst();
 			if (this.isEmpty()) {
@@ -130,7 +130,7 @@ public class RandomizingEventTreeList extends EventTreeList {
      * @param newNote EventNote : the event-note to be inserted
      */
     //TODO:
-    void insert(EventNote newNote) {
+    public void insert(EventNote newNote) {
         if (isEmpty()) {
             super.insert(newNote);
             newNote.setConnected(false);

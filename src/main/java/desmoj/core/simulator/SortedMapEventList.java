@@ -41,7 +41,7 @@ public class SortedMapEventList extends EventList {
      * {@inheritDoc}.
      */
     @Override
-    void insert(EventNote newNote) {
+    public void insert(EventNote newNote) {
         addNoteToEntities(newNote);
 
         EventNoteWrapper old = queue.get(newNote);
@@ -188,7 +188,7 @@ public class SortedMapEventList extends EventList {
      * {@inheritDoc}.
      */
     @Override
-    boolean isEmpty() {
+    public boolean isEmpty() {
         return this.queue.isEmpty();
     }
 
@@ -208,7 +208,7 @@ public class SortedMapEventList extends EventList {
      * {@inheritDoc}.
      */
     @Override
-    EventNote nextNote(EventNote origin) {
+    public EventNote nextNote(EventNote origin) {
         EventNoteWrapper reference = queue.get(origin);
         if (reference == null) {
             //there is not even a note with the same key as origin
@@ -264,7 +264,7 @@ public class SortedMapEventList extends EventList {
      * {@inheritDoc}.
      */
     @Override
-    void remove(EventNote note) {
+    public void remove(EventNote note) {
         EventNoteWrapper wrapper = queue.get(note);
         if (wrapper == null) {
             //there is not even a note with the same key as origin
@@ -292,7 +292,7 @@ public class SortedMapEventList extends EventList {
      * {@inheritDoc}.
      */
     @Override
-    EventNote removeFirst() {
+    public EventNote removeFirst() {
         if (queue.isEmpty()) {
             //no entries => nothing to remove
             return null;
@@ -338,6 +338,11 @@ public class SortedMapEventList extends EventList {
      */
     public boolean isRandomizingConcurrentEvents() {
         return false;
+    }
+
+    @Override
+    public int size() {
+        return queue.size();
     }
 
     /**

@@ -37,7 +37,7 @@ public abstract class EventList {
      *
      * @param newNote EventNote : The event-note to be sorted into the event-list
      */
-    abstract void insert(EventNote newNote);
+    public abstract void insert(EventNote newNote);
 
     /**
      * Inserts the new event-note straight after the other specified EventNote. This other EventNote must already be
@@ -77,7 +77,7 @@ public abstract class EventList {
      * @return boolean : Is <code>true</code> if there are no EventNote contained in the event-list, <code>false</code>
      *     otherwise.
      */
-    abstract boolean isEmpty();
+    public abstract boolean isEmpty();
 
     /**
      * Returns the last EventNote in the event-list.
@@ -95,7 +95,7 @@ public abstract class EventList {
      * @return EventNote : The event-note following the given EventNote or
      *     <ocde>null</code> if the given EventNote was last or not found
      */
-    abstract EventNote nextNote(EventNote origin);
+    public abstract EventNote nextNote(EventNote origin);
 
     /**
      * Returns the previous EventNote in the event-list relative to the given EventNote. If the given EventNote is not
@@ -113,14 +113,14 @@ public abstract class EventList {
      *
      * @param note EventNote . The event-note to be removed from the event-list
      */
-    abstract void remove(EventNote note);
+    public abstract void remove(EventNote note);
 
     /**
      * Removes the first event-note from the event-list.
      *
      * @return The removed note, or null if the list was empty.
      */
-    abstract EventNote removeFirst();
+    public abstract EventNote removeFirst();
 
     /**
      * Returns if the event-list processes concurrent Events in random order or not.
@@ -130,4 +130,6 @@ public abstract class EventList {
      * @author Ruth Meyer
      */
     abstract boolean isRandomizingConcurrentEvents();
+
+    public abstract int size();
 }

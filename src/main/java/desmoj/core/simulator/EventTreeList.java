@@ -42,7 +42,7 @@ public class EventTreeList extends EventList {
     /**
      * Constructs an empty event-list.
      */
-    EventTreeList() {
+    public EventTreeList() {
 
         // create event-list
         eTreeList = new TreeList();
@@ -74,7 +74,7 @@ public class EventTreeList extends EventList {
      *
      * @param newNote EventNote : the new note to be inserted in the event-list keeping the temporal order
      */
-    void insert(EventNote newNote) {
+    public void insert(EventNote newNote) {
 
         // code for adding EventNote to all possible entities
 
@@ -356,7 +356,7 @@ public class EventTreeList extends EventList {
      *
      * @return boolean : True if there are no Event notes contained in the event-list, false otherwise.
      */
-    boolean isEmpty() {
+    public boolean isEmpty() {
 
         return eTreeList.isEmpty();
         // simply pass the call through to the tree list.
@@ -388,7 +388,7 @@ public class EventTreeList extends EventList {
      * @return EventNote : The event-note following the given EventNote or
      *     <ocde>null</code> if the given EventNote was last or not found
      */
-    EventNote nextNote(EventNote origin) {
+    public EventNote nextNote(EventNote origin) {
 
         if (eTreeList.contains(origin)) {
 			if (origin == eTreeList.get(eTreeList.size() - 1)) {
@@ -430,7 +430,7 @@ public class EventTreeList extends EventList {
      *
      * @param note EventNote : The event-note to be removed from the event-list
      */
-    void remove(EventNote note) {
+    public void remove(EventNote note) {
 
         int pos = eTreeList.indexOf(note);
 
@@ -465,7 +465,7 @@ public class EventTreeList extends EventList {
     /**
      * Removes the first event-note from the event-list. Does nothing if the event-list is already empty.
      */
-    EventNote removeFirst() {
+    public EventNote removeFirst() {
 
         if (!eTreeList.isEmpty()) {
             EventNote note = (EventNote) eTreeList.remove(0);
@@ -522,6 +522,11 @@ public class EventTreeList extends EventList {
      */
     public boolean isRandomizingConcurrentEvents() {
         return false;
+    }
+
+    @Override
+    public int size() {
+        return eTreeList.size();
     }
 
 }

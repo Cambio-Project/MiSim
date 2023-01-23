@@ -12,6 +12,8 @@ public class MiSimEventList extends EventList {
     PriorityQueue<EventNote> currentBin = new PriorityQueue<>();
     TreeMap<Long, Collection<EventNote>> binList = new TreeMap<>();
 
+    private int size;
+
 
     @Override
     protected EventNote firstNote() {
@@ -29,7 +31,7 @@ public class MiSimEventList extends EventList {
     }
 
     @Override
-    void insert(EventNote newNote) {
+    public void insert(EventNote newNote) {
         addNoteToEntities(newNote);
         long bin = getBin(newNote);
         if (bin < currentBinTime) {
@@ -38,10 +40,11 @@ public class MiSimEventList extends EventList {
             currentBin.add(newNote);
         } else {
             if (!binList.containsKey(bin)) {
-                binList.put(bin, new ArrayList<>());
+                binList.put(bin, new HashSet<>());
             }
             binList.get(bin).add(newNote);
         }
+        size++;
     }
 
     @Override
@@ -60,7 +63,7 @@ public class MiSimEventList extends EventList {
     }
 
     @Override
-    boolean isEmpty() {
+    public boolean isEmpty() {
         return currentBin.isEmpty() && binList.isEmpty();
     }
 
@@ -70,7 +73,7 @@ public class MiSimEventList extends EventList {
     }
 
     @Override
-    EventNote nextNote(EventNote origin) {
+    public EventNote nextNote(EventNote origin) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -80,7 +83,7 @@ public class MiSimEventList extends EventList {
     }
 
     @Override
-    void remove(EventNote note) {
+    public void remove(EventNote note) {
         long bin = getBin(note);
         if (bin == currentBinTime) {
             currentBin.remove(note);
@@ -88,13 +91,15 @@ public class MiSimEventList extends EventList {
             binList.get(bin).remove(note);
         }
         removeNoteFromEntities(note);
+        size--;
     }
 
     @Override
-    EventNote removeFirst() {
+    public EventNote removeFirst() {
         EventNote note = firstNote();
         currentBin.poll(); // removes first
         removeNoteFromEntities(note);
+        size--;
         return note;
     }
 
@@ -153,5 +158,10 @@ public class MiSimEventList extends EventList {
         if (note.getEvent() != null) { // if an event exists
             note.getEvent().removeEventNote(note);      // remove EventNote
         }
+    }
+
+    @Override
+    public int size() {
+        return size;
     }
 }
