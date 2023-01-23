@@ -3,7 +3,7 @@ package cambio.simulator.export;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.*;
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import cambio.simulator.events.SimulationEndEvent;
@@ -11,7 +11,8 @@ import cambio.simulator.models.MiSimModel;
 import cambio.simulator.test.*;
 import desmoj.core.simulator.TimeInstant;
 import org.javatuples.Pair;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.RepeatedTest;
 
 class AsyncReportWriterTest extends TestBase {
 
@@ -66,13 +67,8 @@ class AsyncReportWriterTest extends TestBase {
 
                 if (!line.isEmpty()) {
                     String[] split = line.split(sep);
-                    if (split.length < 2) {
+                    if (split.length < 2 || Arrays.stream(split).anyMatch(String::isEmpty)) {
                         matches = false;
-                    }
-                    for (String s : split) {
-                        if (s.isEmpty()) {
-                            matches = false;
-                        }
                     }
                 }
 

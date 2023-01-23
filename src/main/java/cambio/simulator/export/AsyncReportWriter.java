@@ -72,12 +72,13 @@ public abstract class AsyncReportWriter<T> {
     private void writeout() {
         try {
             lock.lock();
-            while (!buffer.isEmpty()) {
+            while (!buffer.isEmpty() && fileOutputStream.getChannel().isOpen()) {
                 try {
-                    String data = formatter.apply(buffer.remove(0));
-                    fileOutputStream.write(data.getBytes(StandardCharsets.UTF_8));
-                } catch (Exception e) {
-                    e.printStackTrace();
+                    T data = buffer.remove(0);
+                    String formattedData = formatter.apply(data);
+                    fileOutputStream.write(formattedData.getBytes(StandardCharsets.UTF_8));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
                 }
             }
         } finally {
@@ -86,6 +87,12 @@ public abstract class AsyncReportWriter<T> {
     }
 
 
+    /**
+     * This method is called before the final flush to disk and offers the possibility to add some finalizing
+     * information to the buffer.
+     *
+     * The default implementation does nothing.
+     */
     protected void finalizingTODOs() {
     }
 

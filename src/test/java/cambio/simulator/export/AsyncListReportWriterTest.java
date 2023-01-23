@@ -1,6 +1,7 @@
 package cambio.simulator.export;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -69,12 +70,12 @@ class AsyncListReportWriterTest extends AsyncSimpleReportWriterTest {
         File out = tmpOut.resolve("test.csv").toFile();
 
         for (String line : Files.readAllLines(out.toPath())) {
-            if (line.startsWith("Simulation Time")) {
+            if (line.startsWith("SimulationTime")) {
                 continue;
             }
-            //line should have the form of "time; [value (;value)*]"
-            Pattern p = Pattern.compile("\\d+(\\.\\d+)?; \\[.*\\]");
-            assertTrue(p.matcher(line).matches());
+            //line should have the form of "time; [value(;value)*]"
+            Pattern p = Pattern.compile("\\d+(\\.\\d+)?;\\[[\\d;]*]");
+            assertTrue(p.matcher(line).matches(), "Line '" + line + "' does not match pattern" + p.pattern());
         }
     }
 }

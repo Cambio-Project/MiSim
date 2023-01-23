@@ -2,10 +2,7 @@ package cambio.simulator.export;
 
 import desmoj.core.simulator.TimeInstant;
 import org.javatuples.Pair;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 @Disabled
 class MultiDataPointReporterTest {

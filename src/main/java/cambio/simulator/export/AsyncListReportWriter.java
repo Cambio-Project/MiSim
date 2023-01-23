@@ -35,7 +35,7 @@ public class AsyncListReportWriter extends AsyncReportWriter<Object> {
             buffer.add(data);
             hasStarted = true;
         } else {
-            buffer.add(MiSimReporters.csvSeperator + " " + data);
+            buffer.add(MiSimReporters.csvSeperator + data);
         }
     }
 
@@ -51,7 +51,7 @@ public class AsyncListReportWriter extends AsyncReportWriter<Object> {
 
     private void startNewLine(double time) {
         currentTime = time;
-        buffer.add(time + MiSimReporters.csvSeperator + " [");
+        buffer.add(time + MiSimReporters.csvSeperator + "[");
     }
 
     private void closeLine() {

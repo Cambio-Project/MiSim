@@ -1,6 +1,8 @@
 package cambio.simulator.export;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,8 +28,7 @@ class AsyncSimpleReportWriterTest extends TestBase {
     void tearDown() {
         try {
             writer.finalizeWriteout();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

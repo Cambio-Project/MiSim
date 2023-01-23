@@ -1,10 +1,7 @@
 package cambio.simulator.export;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import desmoj.core.simulator.TimeInstant;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
 
 
 class ReportCollectorTest {
