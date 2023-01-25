@@ -17,7 +17,7 @@ public class AsyncListReportWriter extends AsyncReportWriter<Object> {
     protected boolean hasStarted = false;
 
     public AsyncListReportWriter(Path datasetPath) throws IOException {
-        this(datasetPath, "Value");
+        this(datasetPath, MiSimReporters.DEFAULT_VALUE_COLUMN_NAME);
     }
 
     public AsyncListReportWriter(Path datasetPath, String header) throws IOException {

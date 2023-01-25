@@ -43,13 +43,12 @@ public abstract class AsyncReportWriter<T> {
     }
 
     private String createHeader(String[] headers) {
-        StringBuilder builder = new StringBuilder("SimulationTime");
+        StringBuilder builder = new StringBuilder(MiSimReporters.DEFAULT_TIME_COLUMN_NAME);
         for (String header : headers) {
-            builder.append(MiSimReporters.csvSeperator)
-                .append(header)
-                .append(MiSimReporters.csvSeperator);
+            builder
+                .append(MiSimReporters.csvSeperator)
+                .append(header);
         }
-        builder.deleteCharAt(builder.length() - 1);
         builder.append("\n");
         return builder.toString();
     }

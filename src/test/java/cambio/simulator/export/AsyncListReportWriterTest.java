@@ -12,12 +12,11 @@ import java.util.regex.Pattern;
 
 import org.junit.jupiter.api.*;
 
-class AsyncListReportWriterTest extends AsyncSimpleReportWriterTest {
-
+class AsyncListReportWriterTest extends AsyncReportWriterTest<AsyncListReportWriter> {
 
     @BeforeEach
     void setUp() throws IOException {
-        tmpOut = createTempOutputDir().toPath();
+        super.setUp();
         writer = new AsyncListReportWriter(tmpOut.resolve("test.csv"));
     }
 

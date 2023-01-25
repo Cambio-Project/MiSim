@@ -9,6 +9,9 @@ import cambio.simulator.models.MiSimModel;
  * @author Lion Wagner
  */
 public final class MiSimReporters {
+
+    public static final String DEFAULT_TIME_COLUMN_NAME = "SimulationTime";
+    public static final String DEFAULT_VALUE_COLUMN_NAME = "Value";
     private static final Collection<MiSimReporter> reporters = new ArrayList<>();
     public static MultiDataPointReporter RETRY_MANAGER_REPORTER;
     public static MultiDataPointReporter NETWORK_LATENCY_REPORTER;

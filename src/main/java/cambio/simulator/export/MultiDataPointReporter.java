@@ -2,8 +2,7 @@ package cambio.simulator.export;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Objects;
+import java.util.*;
 
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
@@ -20,7 +19,7 @@ public class MultiDataPointReporter extends MiSimReporter {
     protected final Path reportBasePath;
     protected final HashMap<String, AsyncReportWriter<?>> writerThreads = new HashMap<>();
 
-    protected final HashMap<String, String> customHeaders = new HashMap<>();
+    protected final HashMap<String, String[]> customHeaders = new HashMap<>();
 
     public MultiDataPointReporter(@NotNull Model model) {
         this("", model);
@@ -42,16 +41,17 @@ public class MultiDataPointReporter extends MiSimReporter {
      * @param data        data that should be logged
      * @param <T>         type of the data that should be logged.
      */
-    public <T> void addDatapoint(final String dataSetName, final TimeInstant when, final T data) {
+    public <T> void addDatapoint(final String dataSetName, final TimeInstant when, final T... data) {
         checkArgumentsAreNotNull(dataSetName, when, data);
 
         if (!writerThreads.containsKey(dataSetName)) {
             try {
                 Files.createDirectories(reportBasePath);
                 AsyncReportWriter<?> writerThread =
-                    new AsyncSimpleReportWriter(
+                    new AsyncMultiColumnReportWriter(
                         reportBasePath.resolve(datasetsPrefix + dataSetName + ".csv"),
-                        customHeaders.getOrDefault(dataSetName, "Value"));
+                        customHeaders.getOrDefault(dataSetName,
+                            new String[] {MiSimReporters.DEFAULT_VALUE_COLUMN_NAME}));
                 writerThreads.put(dataSetName, writerThread);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -67,6 +67,7 @@ public class MultiDataPointReporter extends MiSimReporter {
     public void finalizeReport() {
         writerThreads.values().forEach(AsyncReportWriter::finalizeWriteout);
         super.deregister();
+        customHeaders.clear();
     }
 
     @Override
@@ -77,10 +78,11 @@ public class MultiDataPointReporter extends MiSimReporter {
             + '}');
     }
 
-    public void registerDefaultHeader(String dataSetName, String header) {
-        if (customHeaders.putIfAbsent(dataSetName, header) == null) {
+    public void registerDefaultHeader(String dataSetName, String... headers) {
+        if (customHeaders.putIfAbsent(dataSetName, headers) == null) {
             throw new IllegalArgumentException(
-                "Header for dataset " + dataSetName + " already registered as " + customHeaders.get(dataSetName));
+                "Header for dataset " + dataSetName + " already registered as "
+                    + Arrays.toString(customHeaders.get(dataSetName)));
         }
     }
 }

@@ -21,13 +21,14 @@ public class ListCollectingReporter extends MultiDataPointReporter {
     }
 
     @Override
-    public <T> void addDatapoint(String dataSetName, TimeInstant when, T data) {
+    @SafeVarargs
+    public final <T> void addDatapoint(String dataSetName, TimeInstant when, T... data) {
         if (!writerThreads.containsKey(dataSetName)) {
             try {
                 Files.createDirectories(reportBasePath);
                 AsyncReportWriter<?> writerThread = new AsyncListReportWriter(
                     reportBasePath.resolve(datasetsPrefix + dataSetName + ".csv"),
-                    customHeaders.getOrDefault(dataSetName, "Value"));
+                    customHeaders.getOrDefault(dataSetName, new String[] {MiSimReporters.DEFAULT_VALUE_COLUMN_NAME})[0]);
                 writerThreads.put(dataSetName, writerThread);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -39,12 +40,5 @@ public class ListCollectingReporter extends MultiDataPointReporter {
 
     public <T> void addDatapoint(String dataSetName, TimeInstant when, Collection<T> data) {
         data.forEach(d -> this.addDatapoint(dataSetName, when, d));
-    }
-
-    public void registerDefaultHeader(String dataSetName, String header) {
-        if (customHeaders.putIfAbsent(dataSetName, header) == null) {
-            throw new IllegalArgumentException(
-                "Header for dataset " + dataSetName + " already registered as " + customHeaders.get(dataSetName));
-        }
     }
 }

@@ -1,9 +1,14 @@
 package cambio.simulator.export;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import cambio.simulator.events.SimulationEndEvent;
@@ -11,10 +16,49 @@ import cambio.simulator.models.MiSimModel;
 import cambio.simulator.test.*;
 import desmoj.core.simulator.TimeInstant;
 import org.javatuples.Pair;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.RepeatedTest;
+import org.junit.jupiter.api.*;
 
-class AsyncReportWriterTest extends TestBase {
+abstract class AsyncReportWriterTest<T extends AsyncReportWriter<?>> extends TestBase {
+
+
+    Random rng = new Random(42);
+    Path tmpOut;
+    T writer;
+
+    @BeforeEach
+    void setUp() throws IOException {
+        tmpOut = createTempOutputDir().toPath();
+    }
+
+    @AfterEach
+    void tearDown() {
+        writer.finalizeWriteout();
+    }
+
+    @Test
+    void writesDefaultHeader() throws IOException {
+        writer.finalizeWriteout();
+        File out = tmpOut.resolve("test.csv").toFile();
+        assertTrue(out.exists());
+        assertTrue(out.length() > 0);
+        assertEquals(MiSimReporters.DEFAULT_TIME_COLUMN_NAME
+                + MiSimReporters.csvSeperator
+                + MiSimReporters.DEFAULT_VALUE_COLUMN_NAME,
+            Files.readAllLines(out.toPath()).get(0).trim());
+    }
+
+    @RepeatedTest(10)
+    void writesCorrectNumberOfLines() throws IOException {
+        int numLines = rng.nextInt(101);
+        for (int i = 0; i < numLines; i++) {
+            writer.addDataPoint(i, i);
+        }
+        writer.finalizeWriteout();
+        File out = tmpOut.resolve("test.csv").toFile();
+        assertTrue(out.exists());
+        assertTrue(out.length() > 0);
+        assertEquals(Files.readAllLines(out.toPath()).size(), numLines + 1);
+    }
 
 
     /**
