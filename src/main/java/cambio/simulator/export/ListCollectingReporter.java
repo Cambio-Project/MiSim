@@ -9,15 +9,15 @@ import desmoj.core.simulator.TimeInstant;
 /**
  * @author Lion Wagner
  */
-public class ListCollectingReporter extends MultiDataPointReporter {
+public class ListCollectingReporter extends MiSimReporter<AsyncListReportWriter> {
 
 
     public ListCollectingReporter(Model model) {
-        super(model);
+        this("", model);
     }
 
     public ListCollectingReporter(String datasetsPrefix, Model model) {
-        super(datasetsPrefix, model);
+        super(model, datasetsPrefix);
     }
 
     @Override
@@ -26,15 +26,20 @@ public class ListCollectingReporter extends MultiDataPointReporter {
         if (!writerThreads.containsKey(dataSetName)) {
             try {
                 Files.createDirectories(reportBasePath);
-                AsyncReportWriter<?> writerThread = new AsyncListReportWriter(
+                AsyncListReportWriter writerThread = new AsyncListReportWriter(
                     reportBasePath.resolve(datasetsPrefix + dataSetName + ".csv"),
-                    customHeaders.getOrDefault(dataSetName, new String[] {MiSimReporters.DEFAULT_VALUE_COLUMN_NAME})[0]);
+                    customHeaders.getOrDefault(dataSetName,
+                        new String[] {MiSimReporters.DEFAULT_VALUE_COLUMN_NAME})[0]);
                 writerThreads.put(dataSetName, writerThread);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-        super.addDatapoint(dataSetName, when, data);
+
+        AsyncListReportWriter writer = writerThreads.get(dataSetName);
+        for (T d : data) {
+            writer.addDataPoint(when.getTimeAsDouble(), d);
+        }
     }
 
 

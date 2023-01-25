@@ -6,7 +6,7 @@ import java.util.function.Function;
 
 /**
  * @author Lion Wagner
- * @see AsyncSimpleReportWriter for more information
+ * @see AsyncReportWriter for more information
  */
 public class AsyncListReportWriter extends AsyncReportWriter<Object> {
     //we use Object as generic type to move the "toString" conversion

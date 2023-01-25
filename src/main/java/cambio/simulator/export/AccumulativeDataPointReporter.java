@@ -70,9 +70,8 @@ public class AccumulativeDataPointReporter extends MultiDataPointReporter {
         if (lastValues.containsKey(datasetName)) {
             HashMap<TimeInstant, Double> lastValuesForDataSet = lastValues.get(datasetName);
             if (lastValuesForDataSet.containsKey(when)) {
-                super.addDatapoint(datasetName, when, lastValuesForDataSet.get(when));
+                super.addDatapoint(datasetName, when, lastValuesForDataSet.remove(when));
             }
-            lastValuesForDataSet.remove(when);
         }
     }
 
