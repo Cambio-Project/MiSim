@@ -1,6 +1,7 @@
 package cambio.simulator.export;
 
-import java.nio.file.Files;
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Collection;
 
 import desmoj.core.simulator.Model;
@@ -23,27 +24,23 @@ public class ListCollectingReporter extends MiSimReporter<AsyncListReportWriter>
     @Override
     @SafeVarargs
     public final <T> void addDatapoint(String dataSetName, TimeInstant when, T... data) {
-        if (!writerThreads.containsKey(dataSetName)) {
-            try {
-                Files.createDirectories(reportBasePath);
-                AsyncListReportWriter writerThread = new AsyncListReportWriter(
-                    reportBasePath.resolve(datasetsPrefix + dataSetName + ".csv"),
-                    customHeaders.getOrDefault(dataSetName,
-                        new String[] {MiSimReporters.DEFAULT_VALUE_COLUMN_NAME})[0]);
-                writerThreads.put(dataSetName, writerThread);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        AsyncListReportWriter writer = writerThreads.get(dataSetName);
+        AsyncListReportWriter writer = getWriter(dataSetName);
         for (T d : data) {
             writer.addDataPoint(when.getTimeAsDouble(), d);
         }
     }
 
-
     public <T> void addDatapoint(String dataSetName, TimeInstant when, Collection<T> data) {
         data.forEach(d -> this.addDatapoint(dataSetName, when, d));
+    }
+
+    @Override
+    protected AsyncListReportWriter createWriter(Path datasetPath, String[] headers) throws IOException {
+        return new AsyncListReportWriter(datasetPath, headers[0]);
+    }
+
+    @Override
+    public void registerDefaultHeader(String dataSetName, String... headers) {
+        super.registerDefaultHeader(dataSetName, headers[0]);
     }
 }

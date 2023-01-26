@@ -12,7 +12,6 @@ import desmoj.core.simulator.TimeInstant;
 import org.javatuples.Pair;
 import org.junit.jupiter.api.*;
 
-@Disabled
 class MultiDataPointReporterTest extends MiSimReporterTest<MultiDataPointReporter> {
 
     @BeforeEach
@@ -49,5 +48,16 @@ class MultiDataPointReporterTest extends MiSimReporterTest<MultiDataPointReporte
             assertEquals(String.valueOf((double) (i - 1)), split[0], "Line " + i + " has wrong time");
             assertEquals(entries.get(i - 1), Integer.parseInt(split[1]), "Line " + i + " has wrong value");
         }
+    }
+
+    @Test
+    void registersHeaders() throws IOException {
+        super.registersDefaultHeader();
+
+        List<String> lines = Files.readAllLines(outputFile.toPath());
+        String[] split = lines.get(0).split(MiSimReporters.csvSeperator);
+        assertEquals("test1", split[1]);
+        assertEquals("test2", split[2]);
+        assertEquals("test3", split[3]);
     }
 }

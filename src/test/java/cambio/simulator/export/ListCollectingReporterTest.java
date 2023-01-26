@@ -49,4 +49,15 @@ class ListCollectingReporterTest extends MiSimReporterTest<ListCollectingReporte
             }
         }
     }
+
+    @Test
+    void writesSingleHeader() throws IOException {
+        super.registersDefaultHeader();
+
+        List<String> lines = Files.readAllLines(outputFile.toPath());
+        String[] split = lines.get(0).split(MiSimReporters.csvSeperator);
+        assertEquals("test1", split[1]);
+
+        assertEquals(split.length, 2); //no other headers
+    }
 }

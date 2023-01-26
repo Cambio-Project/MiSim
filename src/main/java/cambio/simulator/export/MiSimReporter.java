@@ -1,5 +1,7 @@
 package cambio.simulator.export;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
@@ -17,8 +19,8 @@ public abstract class MiSimReporter<R extends AsyncReportWriter<?>> {
 
     protected final String datasetsPrefix;
     protected final Path reportBasePath;
-    protected final HashMap<String, R> writerThreads = new HashMap<>();
-    protected final HashMap<String, String[]> customHeaders = new HashMap<>();
+    private final HashMap<String, R> writers = new HashMap<>();
+    private final HashMap<String, String[]> customHeaders = new HashMap<>();
 
     public MiSimReporter(Model model, @NotNull String datasetsPrefix) {
         Objects.requireNonNull(model);
@@ -52,7 +54,7 @@ public abstract class MiSimReporter<R extends AsyncReportWriter<?>> {
 
 
     public void finalizeReport() {
-        writerThreads.values().forEach(AsyncReportWriter::finalizeWriteout);
+        writers.values().forEach(AsyncReportWriter::finalizeWriteout);
         deregister();
         customHeaders.clear();
     }
@@ -66,10 +68,29 @@ public abstract class MiSimReporter<R extends AsyncReportWriter<?>> {
     }
 
     public void registerDefaultHeader(String dataSetName, String... headers) {
-        if (customHeaders.putIfAbsent(dataSetName, headers) == null) {
+        Objects.requireNonNull(dataSetName);
+        Objects.requireNonNull(headers);
+
+        if (customHeaders.putIfAbsent(dataSetName, headers) != null) {
             throw new IllegalArgumentException(
                 "Header for dataset " + dataSetName + " already registered as "
                     + Arrays.toString(customHeaders.get(dataSetName)));
         }
+    }
+
+    protected abstract R createWriter(Path datasetPath, String[] headers) throws IOException;
+
+    protected final R getWriter(final String datasetID) {
+        return writers.computeIfAbsent(datasetID, (s) -> {
+            Path outputFilePath = null;
+            try {
+                Files.createDirectories(reportBasePath);
+                outputFilePath = reportBasePath.resolve(datasetsPrefix + datasetID + ".csv");
+                return createWriter(outputFilePath,
+                    customHeaders.getOrDefault(datasetID, new String[] {MiSimReporters.DEFAULT_VALUE_COLUMN_NAME}));
+            } catch (IOException e) {
+                throw new RuntimeException(String.format("Could not open file '%s'.", outputFilePath), e);
+            }
+        });
     }
 }

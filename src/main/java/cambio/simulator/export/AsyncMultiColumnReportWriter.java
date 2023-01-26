@@ -8,6 +8,8 @@ import java.util.function.Function;
 import org.javatuples.Pair;
 
 /**
+ * Writes a list of values to multiple columns, seperated by {@link MiSimReporters#csvSeperator}.
+ *
  * @author Lion Wagner
  */
 public class AsyncMultiColumnReportWriter extends AsyncReportWriter<Pair<Double, Iterable<?>>> {

@@ -5,6 +5,9 @@ import java.nio.file.Path;
 import java.util.function.Function;
 
 /**
+ * A {@link AsyncReportWriter} that writes a list of values to a single column.
+ * The list is formatted as a JSON array, but trimmed of the brackets.
+ *
  * @author Lion Wagner
  * @see AsyncReportWriter for more information
  */

@@ -1,6 +1,8 @@
 package cambio.simulator.export;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
@@ -44,5 +46,34 @@ class AccumulativeDataPointReporterTest extends MiSimReporterTest<AccumulativeDa
             assertEquals(String.valueOf((double) (i - 1)), split[0], "Line " + i + " has wrong time");
             assertEquals(sums.get(i - 1), Double.parseDouble(split[1]), 0.00000001, "Line " + i + " has wrong sum");
         }
+    }
+
+    @Test
+    void writesASingleHeader() throws IOException {
+        reporter.registerDefaultHeader("test", "test1", "test2", "test3");
+        reporter.addDatapoint("test", new TimeInstant(0), 1);
+        reporter.finalizeReport();
+
+        List<String> lines = Files.readAllLines(outputFile.toPath());
+        String[] split = lines.get(0).split(MiSimReporters.csvSeperator);
+        assertEquals("test1", split[1]);
+
+        assertEquals(split.length, 2); //no other headers
+    }
+
+    @Test
+    void throwsOperationUnsupportedExceptionOnNonNumber() {
+        assertThrows(UnsupportedOperationException.class, () -> reporter.addDatapoint("test", new TimeInstant(0),
+            "test1", "test2", "test3"));
+        assertThrows(UnsupportedOperationException.class, () -> reporter.addDatapoint("test", new TimeInstant(0),
+            "test1", "test2", 3));
+    }
+
+    @Test
+    void acceptsNumbersOnDefaultAddDatapoint(){
+        assertDoesNotThrow(() -> reporter.addDatapoint("test", new TimeInstant(0), 2, 3, 5));
+        assertDoesNotThrow(() -> reporter.addDatapoint("test", new TimeInstant(0), 2, 3.0, 5));
+        assertDoesNotThrow(() -> reporter.addDatapoint("test", new TimeInstant(0), 2.0, 3.0, 5.0));
+        assertDoesNotThrow(() -> reporter.addDatapoint("test", new TimeInstant(0), 2.0f, 3.0f, 5.0));
     }
 }
