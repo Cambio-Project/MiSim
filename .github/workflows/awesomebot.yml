@@ -8,6 +8,17 @@ jobs:
     steps:
      - name: Checkout Sources
        uses: actions/checkout@v3.3.0
+     
+     - name: Set up Java 16
+       uses: actions/setup-java@v2
+       with:
+          java-version: '16'
+          distribution: 'adopt'
+          cache: 'maven'
+
+     - name: Build JavaDoc
+       run: mvn -B javadoc:javadoc "-Dnotimestamp=true" "-Dcheckstyle.skipExec=true" 
+ 
      - name: Setup Ruby
        uses: ruby/setup-ruby@v1
        with:
@@ -15,5 +26,7 @@ jobs:
         ruby-version: 2.7        
      - name: Install awesome bot
        run:  gem install awesome_bot
+              
      - name: Run Awesome_Bot
-       run: awesome_bot README.md --allow-dupe --allow-redirect 
+       run: awesome_bot *.md ./target/site/apidocs/*.* --allow-dupe --allow-redirect 
+     
