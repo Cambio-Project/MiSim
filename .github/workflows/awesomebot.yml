@@ -8,6 +8,9 @@ jobs:
     steps:
      - name: Setup Ruby
        uses: ruby/setup-ruby@v1
+       with:
+        bundler-cache: true
+        ruby-version: 2.7        
      - name: Install awesome bot
        run:  gem install awesome_bot
      - name: Run Awesome_Bot
