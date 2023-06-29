@@ -34,26 +34,26 @@ import desmoj.core.simulator.*;
  */
 public class MicroserviceInstance extends RequestSender implements IRequestUpdateListener {
 
-    private final Microservice owner;
-    private final CPU cpu;
-    private final int instanceID;
+    protected final Microservice owner;
+    protected final CPU cpu;
+    protected final int instanceID;
     //Queue with only unique entries
-    private final Set<Request> currentRequestsToHandle = new HashSet<>();
+    protected final Set<Request> currentRequestsToHandle = new HashSet<>();
     //Queue with only unique entries
-    private final Set<ServiceDependencyInstance> currentlyOpenDependencies = new HashSet<>();
+    protected final Set<ServiceDependencyInstance> currentlyOpenDependencies = new HashSet<>();
     //Contains all current outgoing answers
-    private final Set<RequestAnswer> currentAnswers = new HashSet<>();
+    protected final Set<RequestAnswer> currentAnswers = new HashSet<>();
     //contains all current outgoing dependency requests
-    private final Set<InternalRequest> currentInternalSends = new HashSet<>();
-    private final MultiDataPointReporter reporter;
+    protected final Set<InternalRequest> currentInternalSends = new HashSet<>();
+    protected final MultiDataPointReporter reporter;
     //lists for debugging information
-    private final List<ServiceDependencyInstance> closedDependencies = new LinkedList<>();
-    private final List<ServiceDependencyInstance> abortedDependencies = new LinkedList<>();
-    private InstanceState state;
-    private Set<InstanceOwnedPattern> patterns = new HashSet<>();
+    protected final List<ServiceDependencyInstance> closedDependencies = new LinkedList<>();
+    protected final List<ServiceDependencyInstance> abortedDependencies = new LinkedList<>();
+    protected InstanceState state;
+    protected Set<InstanceOwnedPattern> patterns = new HashSet<>();
 
-    private long notComputed = 0;
-    private long waiting = 0;
+    protected long notComputed = 0;
+    protected long waiting = 0;
 
 
     /**
@@ -161,7 +161,7 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
             || currentRequestsToHandle.contains(request.getParent()));
     }
 
-    private void handleRequestAnswer(RequestAnswer answer) {
+    protected void handleRequestAnswer(RequestAnswer answer) {
         Request answeredRequest = answer.unpack();
 
         if (!(answeredRequest instanceof InternalRequest)) {
@@ -187,7 +187,7 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
         }
     }
 
-    private void handleIncomingRequest(Request request) {
+    protected void handleIncomingRequest(Request request) {
 
         if (currentRequestsToHandle.add(request)) { //register request and stamp as received if not already known
             request.setHandler(this);
