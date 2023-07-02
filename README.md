@@ -1,17 +1,17 @@
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.6783250.svg)](https://doi.org/10.5281/zenodo.6783250)
-[![Build Artifact](https://github.com/Cambio-Project/resilience-simulator/actions/workflows/build_artifact.yml/badge.svg)](https://github.com/Cambio-Project/resilience-simulator/actions/workflows/build_artifact.yml)
-[![Documentation](https://img.shields.io/badge/Documentation-online-32CA55?style=flat&logo=github&logoColor=959DA5&labelColor=2F353C)](https://Cambio-Project.github.io/resilience-simulator/)
+[![Build and Test](https://github.com/Cambio-Project/MiSim/actions/workflows/build_artifact.yml/badge.svg)](https://github.com/Cambio-Project/MiSim/actions/workflows/build_artifact.yml)
+[![Documentation](https://img.shields.io/badge/Documentation-online-32CA55?style=flat&logo=github&logoColor=959DA5&labelColor=2F353C)](https://Cambio-Project.github.io/MiSim/)<br>
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.6783250.svg)](https://doi.org/10.5281/zenodo.6783250) <br>
 
 # MiSim - Microservice Resilience Simulator
 
-MiSim allows the simulation of microservice architectures in regard to resilience and is based on the [DesmoJ](http://desmoj.sourceforge.net) framework for discrete event modelling and simulation. 
+MiSim allows the simulation of microservice architectures regarding resilience and is based on the [DesmoJ](http://desmoj.sourceforge.net) framework for discrete event modelling and simulation. 
 
-See the [Wiki](https://github.com/Cambio-Project/resilience-simulator/wiki) for further reference and usage information.
+See the [Wiki](https://github.com/Cambio-Project/MiSim/wiki) for further reference and usage information.
 
 
 ## Artifact Download
 
-Download the [newest stable release](https://github.com/Cambio-Project/resilience-simulator/releases) or a [nightly build](https://github.com/Cambio-Project/resilience-simulator/actions/workflows/build_artifact.yml) (see artifacts of newest workflow run).
+Download the [newest stable release](https://github.com/Cambio-Project/MiSim/releases) or a [nightly build](https://github.com/Cambio-Project/MiSim/actions/workflows/build_artifact.yml) (see artifacts of newest workflow run).
 
 ## Build from source
 
