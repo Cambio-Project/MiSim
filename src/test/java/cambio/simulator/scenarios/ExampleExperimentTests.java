@@ -2,16 +2,14 @@ package cambio.simulator.scenarios;
 
 import java.io.File;
 
-import cambio.simulator.Main;
 import cambio.simulator.test.FileLoaderUtil;
 import cambio.simulator.test.TestBase;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /**
  * @author Lion Wagner
  */
-public class ExampleExperiments extends TestBase {
+public class ExampleExperimentTests extends TestBase {
 
     @Test
     void Example_ChaosMonkey() {

@@ -4,7 +4,6 @@ import java.io.File;
 
 import cambio.simulator.test.FileLoaderUtil;
 import cambio.simulator.test.TestBase;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -15,7 +14,7 @@ import org.junit.jupiter.api.Test;
  * @author Lion Wagner
  * @see <a href="https://www.performance-symposium.org/2021/">SSP2021</a>
  */
-public class SSP2021 extends TestBase {
+public class SSP2021Tests extends TestBase {
 
     @Test
     void ExecuteDemonstration_Scenario() {

@@ -4,7 +4,7 @@
     "name": "New Experiment",
     "description": "Contains examples for the new Experiment format",
     "report_type": "continuous",
-    "report_location": "/Report_42/",
+    "report_location": "./Report_42/",
     "duration": 180,
     "seed": 42
   },

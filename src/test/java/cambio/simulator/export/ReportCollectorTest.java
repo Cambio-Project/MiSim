@@ -8,15 +8,21 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import desmoj.core.simulator.TimeInstant;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 class ReportCollectorTest {
 
-    @BeforeEach
-    void setUp() {
+    @AfterEach
+    void tearDown() {
+        //remove test reporters
         ReportCollector.getInstance().elements().forEach(reporter ->
             ReportCollector.getInstance().deRegister(reporter));
+    }
+
+    @AfterAll
+    static void tearDownAll() {
+        //reset ReportCollector to original state
+        ReportCollector.getInstance().reset();
     }
 
     @Test

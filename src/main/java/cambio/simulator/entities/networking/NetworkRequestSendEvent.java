@@ -20,7 +20,7 @@ import desmoj.core.simulator.TimeSpan;
 public class NetworkRequestSendEvent extends NetworkRequestEvent {
 
     private static final AtomicLong counterSendEvents = new AtomicLong(0); //TODO: remove
-    private final transient  NumericalDist<Double> rng;
+    private final transient NumericalDist<Double> rng;
     private final Microservice targetService;
     private final MicroserviceInstance targetInstance;
     private transient NetworkRequestReceiveEvent receiverEvent;
@@ -139,8 +139,8 @@ public class NetworkRequestSendEvent extends NetworkRequestEvent {
     }
 
     /**
-     * Cancels the send event. Also cancels the relative {@link NetworkRequestReceiveEvent} and {@link
-     * NetworkRequestTimeoutEvent} events. Triggers a {@link NetworkRequestCanceledEvent}.
+     * Cancels the send event. Also cancels the relative {@link NetworkRequestReceiveEvent} and
+     * {@link NetworkRequestTimeoutEvent} events. Triggers a {@link NetworkRequestCanceledEvent}.
      */
     public void cancel() {
         super.cancel();

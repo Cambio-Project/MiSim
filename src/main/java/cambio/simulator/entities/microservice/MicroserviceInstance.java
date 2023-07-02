@@ -82,9 +82,8 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
     }
 
     /**
-     * Activates the patterns that are owned by this instance.
-     * This will call registers {@link IRequestUpdateListener}s on this instance and
-     * call the {@link InstanceOwnedPattern#start()} method on each pattern instance.
+     * Activates the patterns that are owned by this instance. This will call registers {@link IRequestUpdateListener}s
+     * on this instance and call the {@link InstanceOwnedPattern#start()} method on each pattern instance.
      */
     public void activatePatterns(InstanceOwnedPatternConfiguration[] patterns) {
         this.patterns =
@@ -318,11 +317,18 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
         //clears all currently running calculations
         cpu.clear();
 
+        //sorting ensures reproducibility for a small cost in performance (however its not expected that services die
+        //extremely often. So spending a bit more time here is fine.
+
         //cancel all send answers and send current internal requests
-        Stream.concat(currentAnswers.stream(), currentInternalSends.stream()).forEach(Request::cancelSending);
+        Stream.concat(currentAnswers.stream(), currentInternalSends.stream())
+            .sorted(Comparator.comparing(Request::getIdentNumber))
+            .forEach(Request::cancelSending);
 
         //notify sender of currently handled requests, that the requests failed (TCP/behavior)
-        currentRequestsToHandle.forEach(Request::cancelExecutionAtHandler);
+        currentRequestsToHandle.stream()
+            .sorted(Comparator.comparing(Request::getIdentNumber))
+            .forEach(Request::cancelExecutionAtHandler);
     }
 
     public final Microservice getOwner() {

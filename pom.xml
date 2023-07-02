@@ -224,6 +224,11 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.10.1</version>
+                <configuration> <!-- Prevent NoSuchFileException during verify when having a dummy package-info.java -->
+                    <compilerArgs>
+                        <arg>-Xpkginfo:always</arg>
+                    </compilerArgs>
+                </configuration>
             </plugin>
 
             <plugin>
@@ -238,6 +243,15 @@
                     </transformers>
                     <minimizeJar>true</minimizeJar>
                     <createDependencyReducedPom>false</createDependencyReducedPom>
+                    <filters>
+                        <filter>
+                            <artifact>desmoj:desmoj</artifact>
+                            <excludeDefaults>false</excludeDefaults>
+                            <includes>
+                                <include>desmoj/core/report/**</include>
+                            </includes>
+                        </filter>
+                    </filters>
                 </configuration>
                 <executions>
                     <execution>
