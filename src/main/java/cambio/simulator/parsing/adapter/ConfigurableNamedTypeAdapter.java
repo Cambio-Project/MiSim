@@ -72,8 +72,8 @@ public class ConfigurableNamedTypeAdapter<T> extends TypeAdapter<T> {
         if (token == JsonToken.STRING) {
             String jsonTypeName = in.nextString();
             Class<? extends T> type = JsonTypeNameResolver.resolveFromJsonTypeName(jsonTypeName, superClassType);
-            System.out.printf("[Warning] Potential unsafe parsing of value %s. Make sure %s defines default values.%n",
-                jsonTypeName, type.getName());
+            System.out.printf("[Warning] Potential unsafe parsing of value '%s'. "
+                    + "Make sure %s defines default values.%n", jsonTypeName, type.getName());
 
             T newObject = null;
             try {

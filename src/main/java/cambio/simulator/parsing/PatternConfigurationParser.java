@@ -103,7 +103,7 @@ public class PatternConfigurationParser {
                 strategyObject.onInitializedCompleted(model);
 
             } else {
-                System.out.printf("[Warning] No strategy information was given for a %s configuration. If no default"
+                System.out.printf("[Warning] No strategy information was given for a '%s' configuration. If no default"
                         + " strategy is specified this run will most likely fail.%n",
                     concreteTargetClass.getName());
             }

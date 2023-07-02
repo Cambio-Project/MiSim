@@ -2,30 +2,29 @@ name: Run Checkstyle
 
 on:
   push:
-  pull_request_target:
-    branches: [ master ] # trigger for automatic PRs from workflow bot
+  pull_request:
+    branches: [ master, develop ]
 
 jobs:
   run_checkstyle:
-
+    name: Run Checkstyle
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v3
 
-      - name: Set up Java 16
+      - name: Set up Java
         uses: actions/setup-java@v3
         with:
-          java-version: '16'
+          java-version: '11'
           distribution: 'adopt'
           cache: 'maven'
 
       - name: Run Checkstyle
         run: mvn checkstyle:check
 
-      - name: report
-        if: ${{ always() }}
-        uses: actions/upload-artifact@v3
+      - name: Create Checkstyle Report Annotations
+        uses: jwgmeligmeyling/checkstyle-github-action@master
+        if: (success() || failure()) && (github.event.pull_request == '' || github.event.pull_request.head.repo.fork == false)
         with:
-          name: checkstyle-result
+          name: Checkstyle Report
           path: ./target/checkstyle-result.xml
