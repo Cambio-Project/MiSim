@@ -8,7 +8,7 @@
     <packaging>jar</packaging>
 
     <name>MiSim Simulator</name>
-    <url>https://github.com/Cambio-Project/resilience-simulator</url>
+    <url>https://github.com/Cambio-Project/MiSim</url>
 
     <properties>
         <maven.compiler.target>1.8</maven.compiler.target>
@@ -32,14 +32,14 @@
     </properties>
 
     <scm>
-        <developerConnection>scm:git:https://github.com/Cambio-Project/resilience-simulator</developerConnection>
+        <developerConnection>scm:git:https://github.com/Cambio-Project/MiSim</developerConnection>
         <tag>HEAD</tag>
     </scm>
     <distributionManagement>
         <repository>
             <id>github</id>
             <name>GitHub Packages</name>
-            <url>https://maven.pkg.github.com/Cambio-Project/resilience-simulator</url>
+            <url>https://maven.pkg.github.com/Cambio-Project/MiSim</url>
         </repository>
     </distributionManagement>
 
