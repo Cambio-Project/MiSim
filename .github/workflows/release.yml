@@ -37,7 +37,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          mvn -B release:prepare release:perform
+          mvn -B release:prepare release:perform -DpushChanges=false
           git clean -f
           
       - name: Push to master
