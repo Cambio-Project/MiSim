@@ -37,7 +37,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-#          git checkout -B "MiSim-${{env.MAVEN_VERSION}}"
           mvn -B release:prepare release:perform
           git clean -f
           
