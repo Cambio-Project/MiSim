@@ -15,18 +15,17 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up Java 16
+      - name: Set up Java
         uses: actions/setup-java@v3
         with:
-          java-version: '16'
-          distribution: 'adopt'
+          java-version: '20'
+          distribution: 'temurin'
           cache: 'maven'
 
-      - name: Build JavaDoc
+      - name: Build JavaDoc with Maven
         run: |
           mvn -B javadoc:javadoc "-Dnotimestamp=true" "-Dcheckstyle.skipExec=true"
           mvn -B javadoc:jar  "-Dcheckstyle.skipExec=true"
-
 
       - name: Upload JavaDoc as HTML
         uses: actions/upload-artifact@v3
@@ -71,14 +70,14 @@ jobs:
           git pull
           cp -rpv ~/docs/. .
 
-      - name: Check Diff
+      - name: Check for changes
         run: |
           if git diff --quiet; then
             echo "CHANGES_EXIST=false" >> $GITHUB_ENV
           else
             echo "CHANGES_EXIST=true" >> $GITHUB_ENV
           fi
-      - name: Print Diff result
+      - name: Print Changes check result
         run: |
           echo "Changes exist:"
           echo $CHANGES_EXIST
@@ -90,7 +89,7 @@ jobs:
 
       - name: Push Changes
         if: env.changes_exist == 'true'
-        uses: ad-m/github-push-action@master
+        uses: ad-m/github-push-action@v0.6.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: gh-pages

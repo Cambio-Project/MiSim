@@ -6,6 +6,14 @@ on:
   pull_request:
     branches: [ master, develop ]
 
+concurrency:
+  group: build-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  java_version: 8
+  java_distribution: 'temurin'
+
 jobs:
   build_artifact:
     name: Build Artifact
@@ -15,11 +23,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Set up Java 16
+      - name: Set up Java ${{ env.java_version }}
         uses: actions/setup-java@v3
         with:
-          java-version: '16'
-          distribution: 'adopt'
+          java-version: ${{ env.java_version }}
+          distribution: ${{ env.java_distribution }}
           cache: 'maven'
 
       - name: Build with Maven
@@ -38,15 +46,24 @@ jobs:
     needs: build_artifact
     steps:
       - uses: actions/checkout@v3
-      - name: Set up Java 16
+      - name: Set up Java ${{ env.java_version }}
         uses: actions/setup-java@v3
         with:
-          java-version: '16'
-          distribution: 'adopt'
+          java-version: ${{ env.java_version }}
+          distribution: ${{ env.java_distribution }}
           cache: 'maven'
 
-      - name: Execute Tests
+      - name: Run JUnit Tests
         run: mvn -B test --file pom.xml "-Dcheckstyle.skipExec=true"
+
+      - name: Upload Failed Test Results
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: Failed Test Results
+          path: |
+            ./target/surefire-reports
+            ./failed_test_results
 
       - name: Publish Test Report
         uses: dorny/test-reporter@v1
@@ -62,11 +79,11 @@ jobs:
     needs: run_tests
     steps:
       - uses: actions/checkout@v3
-      - name: Set up Java 16
+      - name: Set up Java ${{ env.java_version }}
         uses: actions/setup-java@v3
         with:
-          java-version: '16'
-          distribution: 'adopt'
+          java-version: ${{ env.java_version }}
+          distribution: ${{ env.java_distribution }}
           cache: 'maven'
       - name: Run Hello World
         run: ./hello_world.sh
@@ -77,12 +94,11 @@ jobs:
     needs: run_tests
     steps:
       - uses: actions/checkout@v3
-      - name: Set up Java 16
+      - name: Set up Java ${{ env.java_version }}
         uses: actions/setup-java@v3
         with:
-          java-version: '16'
-          distribution: 'adopt'
+          java-version: ${{ env.java_version }}
+          distribution: ${{ env.java_distribution }}
           cache: 'maven'
       - name: Run Hello World
         run: ./hello_world.bat
-

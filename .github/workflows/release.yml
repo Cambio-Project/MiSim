@@ -13,10 +13,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Set up Java 16
+      - name: Set up Java 8
         uses: actions/setup-java@v3
         with:
-          java-version: '16'
+          java-version: '8'
           distribution: 'adopt'
           cache: 'maven'
 
@@ -48,7 +48,6 @@ jobs:
           source_branch: "MiSim-${{env.MAVEN_VERSION}}"
           pr_title: "Prepare Release ${{env.MAVEN_VERSION}}"
           pr_body: "This pull request updates the MiSim pom for version ${{env.MAVEN_VERSION}} and prepares the next Snapshot.<br>It will be merged automatically."
-#           pr_assignee: "LitschiW"
           pr_allow_empty: false
           pr_label: "automerge" 
           github_token: ${{ secrets.PUBLISHER_TOKEN }}
@@ -62,7 +61,7 @@ jobs:
           MERGE_RETRIES: 10
           MERGE_RETRY_SLEEP: '60000'
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-        uses: "pascalgn/automerge-action@v0.15.5"
+        uses: "pascalgn/automerge-action@v0.15.6"
         
       - name: Check Merge Result
         if: ${{ steps.automerge.outputs.mergeResult != 'merged' }}
