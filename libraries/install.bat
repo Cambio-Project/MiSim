@@ -1,1 +1,0 @@
-mvn org.apache.maven.plugins:maven-install-plugin:2.3.1:install-file -Dfile=.\desmoj-2.5.1e-bin.jar -Dversion=2.5.1e -DgeneratePom=true -DgroupId=desmoj -DartifactId=desmoj -Dpackaging=jar "-DlocalRepositoryPath=F:\GitHub\Uni\Orcas\resilience-simulator\libraries"
