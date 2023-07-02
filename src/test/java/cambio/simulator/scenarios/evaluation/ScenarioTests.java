@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
  * @author Lion Wagner
  */
 @Disabled //these tests run quite long, so they are disabled by default
-public class Scenarios extends TestBase {
+public class ScenarioTests extends TestBase {
 
     @Test
     @Deprecated

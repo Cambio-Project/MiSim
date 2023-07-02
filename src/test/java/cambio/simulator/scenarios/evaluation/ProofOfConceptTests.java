@@ -12,9 +12,8 @@ import org.junit.jupiter.api.Test;
  *
  * @author Lion Wagner
  */
-//@Execution(ExecutionMode.CONCURRENT), not working yet
 @Disabled
-public class ProofOfConcept extends TestBase {
+public class ProofOfConceptTests extends TestBase {
 
 
     @Test
