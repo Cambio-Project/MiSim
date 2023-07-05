@@ -21,8 +21,6 @@ import desmoj.core.simulator.*;
 @JsonTypeName("retry")
 public class Retry extends StrategicInstanceOwnedPattern<IRetryStrategy> implements IRequestUpdateListener {
 
-    private static final List<Double> all = new LinkedList<>();
-
     private final Map<ServiceDependencyInstance, Integer> requestIndex = new HashMap<>();
 
     @Expose
@@ -56,7 +54,6 @@ public class Retry extends StrategicInstanceOwnedPattern<IRetryStrategy> impleme
             double delay = strategy.getNextDelay(tries);
 
             RETRY_MANAGER_REPORTER.addDatapoint("RetryTimings", presentTime(), delay);
-            all.add(delay);
 
             MicroserviceInstance handler = request.getHandler();
 
@@ -84,6 +81,7 @@ public class Retry extends StrategicInstanceOwnedPattern<IRetryStrategy> impleme
             request.getUpdateListeners().forEach(iRequestUpdateListener -> iRequestUpdateListener
                 .onRequestFailed(request, when, RequestFailedReason.MAX_RETRIES_REACHED));
             sendTraceNote("Max Retries Reached for Dependency " + dep);
+            requestIndex.remove(dep);
             return true;
         }
         return false;
