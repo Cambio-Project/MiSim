@@ -1,0 +1,2 @@
+-P ubuntu-latest=quay.io/jamezp/act-maven
+--artifact-server-path /tmp/artifacts

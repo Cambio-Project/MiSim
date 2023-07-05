@@ -10,7 +10,7 @@
     {
       "type": "limbo",
       "config": {
-        "model": "src/test/resources/SSPExample/SSP_Limbo.csv",
+        "model": "src/test/resources/SSPExample/ssp_limbo.csv",
         "target_operation": "gateway.API_Endpoint"
         }
     }

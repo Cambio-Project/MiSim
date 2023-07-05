@@ -4,7 +4,6 @@ import java.io.File;
 
 import cambio.simulator.test.FileLoaderUtil;
 import cambio.simulator.test.TestBase;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -12,7 +11,7 @@ import org.junit.jupiter.api.Test;
  *
  * @author Lion Wagner
  */
-public class PaperOutputDemonstration extends TestBase {
+public class PaperOutputDemonstrationTests extends TestBase {
 
     @Test
     void MinimalScenario() {

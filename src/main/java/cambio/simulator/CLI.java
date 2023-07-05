@@ -111,7 +111,7 @@ public final class CLI {
                 "Configure your simulation with the following options.",
                 options,
                 "Please report any issues at "
-                    + "https://github.com/Cambio-Project/resilience-simulator",
+                    + "https://github.com/Cambio-Project/MiSim",
                 true);
             throw e;
         }

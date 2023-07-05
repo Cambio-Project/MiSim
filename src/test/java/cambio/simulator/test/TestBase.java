@@ -7,10 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import cambio.simulator.Main;
 import cambio.simulator.export.MiSimReporters;
@@ -26,8 +24,9 @@ import org.junit.jupiter.api.Assertions;
  */
 public class TestBase {
 
-    private List<File> tempDirs = new ArrayList<>();
+    public static final File FAILED_TESTS_OUTPUT_DIR = new File("failed_test_results");
 
+    public List<File> tempDirs = new ArrayList<>();
 
     @AfterEach
     void tearDown() throws IOException {
@@ -98,31 +97,4 @@ public class TestBase {
         }
         return dir;
     }
-
-
-    protected void testReproducibility(File scenario, File architecture) throws IOException {
-        testReproducibility(scenario, architecture, false);
-    }
-
-    protected void testReproducibility(File scenario, File architecture, boolean keepOutput) throws IOException {
-        File output1 = runSimulationCheckExitTempOutput(0, architecture, scenario, "-t");
-        File output2 = runSimulationCheckExitTempOutput(0, architecture, scenario, "-t");
-
-        if (keepOutput) {
-            tempDirs.remove(output1);
-            tempDirs.remove(output2);
-        }
-
-        Path rawOutput1 = Files.walk(output1.toPath(), 2)
-            .filter(path -> path.endsWith("raw"))
-            .collect(Collectors.toList())
-            .get(0);
-        Path rawOutput2 = Files.walk(output2.toPath(), 2)
-            .filter(path -> path.endsWith("raw"))
-            .collect(Collectors.toList())
-            .get(0);
-
-        TestUtils.compareFileContentsOfDirectories(rawOutput1, rawOutput2);
-    }
-
 }

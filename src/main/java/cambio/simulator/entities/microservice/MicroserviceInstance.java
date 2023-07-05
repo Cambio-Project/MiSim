@@ -34,26 +34,26 @@ import desmoj.core.simulator.*;
  */
 public class MicroserviceInstance extends RequestSender implements IRequestUpdateListener {
 
-    private final Microservice owner;
-    private final CPU cpu;
-    private final int instanceID;
+    protected final Microservice owner;
+    protected final CPU cpu;
+    protected final int instanceID;
     //Queue with only unique entries
-    private final Set<Request> currentRequestsToHandle = new HashSet<>();
+    protected final Set<Request> currentRequestsToHandle = new HashSet<>();
     //Queue with only unique entries
-    private final Set<ServiceDependencyInstance> currentlyOpenDependencies = new HashSet<>();
+    protected final Set<ServiceDependencyInstance> currentlyOpenDependencies = new HashSet<>();
     //Contains all current outgoing answers
-    private final Set<RequestAnswer> currentAnswers = new HashSet<>();
+    protected final Set<RequestAnswer> currentAnswers = new HashSet<>();
     //contains all current outgoing dependency requests
-    private final Set<InternalRequest> currentInternalSends = new HashSet<>();
-    private final MultiDataPointReporter reporter;
+    protected final Set<InternalRequest> currentInternalSends = new HashSet<>();
+    protected final MultiDataPointReporter reporter;
     //lists for debugging information
-    private final List<ServiceDependencyInstance> closedDependencies = new LinkedList<>();
-    private final List<ServiceDependencyInstance> abortedDependencies = new LinkedList<>();
-    private InstanceState state;
-    private Set<InstanceOwnedPattern> patterns = new HashSet<>();
+    protected final List<ServiceDependencyInstance> closedDependencies = new LinkedList<>();
+    protected final List<ServiceDependencyInstance> abortedDependencies = new LinkedList<>();
+    protected InstanceState state;
+    protected Set<InstanceOwnedPattern> patterns = new HashSet<>();
 
-    private long notComputed = 0;
-    private long waiting = 0;
+    protected long notComputed = 0;
+    protected long waiting = 0;
 
 
     /**
@@ -82,9 +82,8 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
     }
 
     /**
-     * Activates the patterns that are owned by this instance.
-     * This will call registers {@link IRequestUpdateListener}s on this instance and
-     * call the {@link InstanceOwnedPattern#start()} method on each pattern instance.
+     * Activates the patterns that are owned by this instance. This will call registers {@link IRequestUpdateListener}s
+     * on this instance and call the {@link InstanceOwnedPattern#start()} method on each pattern instance.
      */
     public void activatePatterns(InstanceOwnedPatternConfiguration[] patterns) {
         this.patterns =
@@ -161,7 +160,7 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
             || currentRequestsToHandle.contains(request.getParent()));
     }
 
-    private void handleRequestAnswer(RequestAnswer answer) {
+    protected void handleRequestAnswer(RequestAnswer answer) {
         Request answeredRequest = answer.unpack();
 
         if (!(answeredRequest instanceof InternalRequest)) {
@@ -187,7 +186,7 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
         }
     }
 
-    private void handleIncomingRequest(Request request) {
+    protected void handleIncomingRequest(Request request) {
 
         if (currentRequestsToHandle.add(request)) { //register request and stamp as received if not already known
             request.setHandler(this);
@@ -320,13 +319,18 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
         //clears all currently running calculations
         cpu.clear();
 
+        //sorting ensures reproducibility for a small cost in performance (however its not expected that services die
+        //extremely often. So spending a bit more time here is fine.
+
         //cancel all send answers and send current internal requests
-        Stream.concat(currentAnswers.stream(), currentInternalSends.stream()).forEach(Request::cancelSending);
+        Stream.concat(currentAnswers.stream(), currentInternalSends.stream())
+            .sorted(Comparator.comparing(Request::getIdentNumber))
+            .forEach(Request::cancelSending);
 
         //notify sender of currently handled requests, that the requests failed (TCP/behavior)
-        currentRequestsToHandle.forEach(Request::cancelExecutionAtHandler);
-
-        //cancel reporter to clear resources
+        currentRequestsToHandle.stream()
+            .sorted(Comparator.comparing(Request::getIdentNumber))
+            .forEach(Request::cancelExecutionAtHandler);
         reporter.finalizeReport();
     }
 

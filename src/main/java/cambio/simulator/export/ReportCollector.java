@@ -30,6 +30,24 @@ public class ReportCollector extends ReportManager {
 
 
     /**
+     * Resets the collector and all registered reporters.
+     */
+    public void reset() {
+        this.elements().forEach(reporter -> {
+            if (reporter instanceof MultiDataPointReporter) {
+                ((MultiDataPointReporter) reporter).reset();
+            }
+            this.deRegister(reporter);
+        });
+        this.register(USER_REQUEST_REPORTER);
+        this.register(NETWORK_LATENCY_REPORTER);
+        this.register(GENERATOR_REPORTER);
+        this.register(RETRY_MANAGER_REPORTER);
+        
+        //System.out.println("[DEBUG] ReportCollector reset");
+    }
+
+    /**
      * Writes the collected data to the report directory. Also updates the metadata file with the new execution
      * timings.
      *

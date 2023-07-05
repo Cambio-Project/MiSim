@@ -23,7 +23,7 @@ hs_err_pid*
 
 #Report folders
 *[Rr]eport*/
-!src/main/java/resources/**/Report/*
+!**/resources/**
 
 # target folder
 [Tt]arget/
@@ -113,3 +113,6 @@ fabric.properties
 # java profiler files
 *.hprof
 *.jfr
+
+# output folder of failed reproducibility tests
+failed_test_results

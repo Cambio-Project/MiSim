@@ -7,6 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.io.*;
 
+import cambio.simulator.export.ReportCollector;
+import cambio.simulator.misc.RNGStorage;
 import cambio.simulator.models.ExperimentMetaData;
 import cambio.simulator.models.MiSimModel;
 import cambio.simulator.test.*;
@@ -48,7 +50,7 @@ class ModelLoaderTest extends TestBase {
         assertEquals("Contains examples for the new Experiment format", data.getDescription());
         assertEquals(42, data.getSeed());
         assertEquals(180, data.getDuration());
-        assertEquals(new File("/Report_42/").getAbsolutePath(),
+        assertEquals(new File("./Report_42/").getAbsolutePath(),
             data.getReportBaseDirectory().toAbsolutePath().toString());
         assertEquals("continuous", data.getReportType());
     }
@@ -71,9 +73,10 @@ class ModelLoaderTest extends TestBase {
         File test_architecture = FileLoaderUtil.loadFromTestResources("test_architecture.json");
         File test_experiment = FileLoaderUtil.loadFromTestResources("test_experiment.json");
 
-        Pair<MiSimModel, TestExperiment> mockOutput = getConnectedMockModel(test_architecture, test_experiment);
-        TestExperiment expDummy = mockOutput.getValue1();
-        expDummy.stop(new TimeInstant(0.000001));//lets the experiment start itself for a very short amount of time
+        MiSimModel model = new MiSimModel(test_architecture, test_experiment);
+        Experiment expDummy = new Experiment("TestExperiment");
+        model.connectToExperiment(expDummy);
+        expDummy.stop(new TimeInstant(1));//lets the experiment start itself for a very short amount of time
         expDummy.setShowProgressBar(false); //enforces headless mode
 
         expDummy.start();
@@ -81,6 +84,9 @@ class ModelLoaderTest extends TestBase {
 
         assertEquals(5, mockOutput.getValue0().getExperimentModel().getAllSelfSchedulesEntities().size());
         assertFalse(expDummy.hasError());
+
+        RNGStorage.reset();
+        ReportCollector.getInstance().reset();
     }
 
     @Test
@@ -88,17 +94,20 @@ class ModelLoaderTest extends TestBase {
         File test_architecture = FileLoaderUtil.loadFromTestResources("test_architecture.json");
         File test_experiment = FileLoaderUtil.loadFromTestResources("test_scenario.json");
 
-        Pair<MiSimModel, TestExperiment> mockOutput = getConnectedMockModel(test_architecture, test_experiment);
-        TestExperiment expDummy = mockOutput.getValue1();
-        expDummy.stop(new TimeInstant(0.000001));//lets the experiment start itself for a very short amount of time
+        MiSimModel model = new MiSimModel(test_architecture, test_experiment);
+        Experiment expDummy = new Experiment("TestExperiment");
+        model.connectToExperiment(expDummy);
+        expDummy.stop(new TimeInstant(1));//lets the experiment start itself for a very short amount of time
         expDummy.setShowProgressBar(false);
 
         expDummy.start();
         expDummy.finish();
 
-
-        assertEquals(7, mockOutput.getValue0().getExperimentModel().getAllSelfSchedulesEntities().size());
+        assertEquals(7, model.getExperimentModel().getAllSelfSchedulesEntities().size());
         assertFalse(expDummy.hasError());
+
+        RNGStorage.reset();
+        ReportCollector.getInstance().reset();
     }
 
     @Test
