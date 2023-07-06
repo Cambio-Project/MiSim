@@ -1,3 +1,4 @@
+cambio.simulator
 cambio.simulator.entities
 cambio.simulator.entities.generator
 cambio.simulator.entities.microservice
@@ -9,6 +10,9 @@ cambio.simulator.misc
 cambio.simulator.models
 cambio.simulator.parsing
 cambio.simulator.parsing.adapter
+cambio.simulator.parsing.adapter.architecture
+cambio.simulator.parsing.adapter.experiment
+cambio.simulator.parsing.adapter.scenario
 cambio.simulator.resources
 cambio.simulator.resources.cpu
 cambio.simulator.resources.cpu.scheduling
