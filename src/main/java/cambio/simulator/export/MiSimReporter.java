@@ -30,8 +30,8 @@ import org.jetbrains.annotations.NotNull;
  *     {@link MiSimReporters#DEFAULT_VALUE_COLUMN_NAME} which should be seperated by
  *     {@link MiSimReporters#csvSeperator}.
  *     The default headers for a specific dataset can be overwritten by calling
- *     {@link MiSimReporter#registerDefaultHeader(String, String...)}. This can be done only once and has to be done before
- *     the first write to the dataset occurs.
+ *     {@link MiSimReporter#registerDefaultHeader(String, String...)}.
+ *     This can be done only once and has to be done before the first write to the dataset occurs.
  * </p>
  *
  * @author Lion Wagner
