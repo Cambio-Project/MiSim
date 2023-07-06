@@ -6,6 +6,7 @@ on:
 
 jobs:
   Prepare-and-Release:
+    if: "!contains(github.event.head_commit.message, '[maven-release-plugin]')"
     name: Prepare and Release
     runs-on: ubuntu-latest
 
@@ -43,9 +44,7 @@ jobs:
       - name: Push to master
         uses: CasperWA/push-protected@v2
         with:
-          github_token: ${{ secrets.PUBLISHER_TOKEN }}
+          token: ${{ secrets.PUBLISHER_TOKEN }}
           branch: master
           tags: true
           force: true
-          debug: true
-
