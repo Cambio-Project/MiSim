@@ -28,7 +28,7 @@ public final class Main {
      * <p>
      * Exit code meanings are as follows:
      *
-     * <table>
+     * <table summary="Exit codes.">
      *     <tr>
      *         <th>Exit Code</th>
      *         <th>Description</th>

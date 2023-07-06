@@ -17,10 +17,41 @@ import java.util.function.Function;
  */
 public abstract class AsyncReportWriter<T> {
 
+    /**
+     * Periode in ms with wich the buffer is flushed to the file. It is only read once when the writer is created. One
+     * can try and play around with this parameter when you encounter either CPU or IO performance issues.
+     */
+    private static int FLUSH_PERIOD_MS = 100;
+
+    /**
+     * Number of threads used to write to the file. By default it uses all but one available processor. One can try and
+     * play around with this parameter when you encounter either CPU or IO performance issues.
+     */
+    private static int THREAD_POOL_SIZE = Math.max(1, Runtime.getRuntime().availableProcessors() - 1);
+
+
+    public static int getFlushPeriodMs() {
+        return FLUSH_PERIOD_MS;
+    }
+
+    public static void setFlushPeriodMs(int flushPeriodMs) {
+        FLUSH_PERIOD_MS = flushPeriodMs;
+    }
+
+    public static int getThreadPoolSize() {
+        return THREAD_POOL_SIZE;
+    }
+
+    public static void setThreadPoolSize(int threadPoolSize) {
+        THREAD_POOL_SIZE = threadPoolSize;
+    }
+
     protected final List<T> buffer = Collections.synchronizedList(new ArrayList<>());
 
-    private static final ScheduledExecutorService threadPool =
-        Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors());
+    /**
+     * Thread pool used by the AsyncReportWriters to write to the output file.
+     */
+    private static final ScheduledExecutorService threadPool = Executors.newScheduledThreadPool(THREAD_POOL_SIZE);
 
     private final FileOutputStream fileOutputStream;
 
@@ -28,18 +59,29 @@ public abstract class AsyncReportWriter<T> {
 
     private final ReentrantLock lock = new ReentrantLock();
     private final Function<T, String> formatter;
+
+    /**
+     * Future that describes the task of regularly writing the buffer to the file.
+     */
     private ScheduledFuture<?> scheduledFuture;
 
+    /**
+     * Creates a new AsyncReportWriter and opens a new output stream to the given file (dataset path).
+     *
+     * @param datasetPath path to the file to be written to. If the path does not end with .csv, it will be appended.
+     * @param headers     headers to be written to the file
+     * @throws IOException if the file output stream cannot be opened
+     */
     public AsyncReportWriter(final Path datasetPath, final String[] headers) throws IOException {
         this.datasetPath = Objects.requireNonNull(datasetPath).toString().endsWith(".csv")
             ? datasetPath : datasetPath.resolveSibling(datasetPath.getFileName() + ".csv");
         this.fileOutputStream = new FileOutputStream(this.datasetPath.toFile());
-        this.formatter = createFormatter();
+        this.formatter = createFormatter(); //grab the formatter implementation for the inheriting class
 
 
         fileOutputStream.write(createHeader(headers).getBytes(StandardCharsets.UTF_8));
         fileOutputStream.flush();
-        scheduledFuture = threadPool.scheduleAtFixedRate(this::writeout, 0, 100, TimeUnit.MILLISECONDS);
+        scheduledFuture = threadPool.scheduleAtFixedRate(this::writeout, 0, FLUSH_PERIOD_MS, TimeUnit.MILLISECONDS);
     }
 
     private String createHeader(String[] headers) {
@@ -55,10 +97,21 @@ public abstract class AsyncReportWriter<T> {
 
     public abstract void addDataPoint(double time, Object data);
 
+    /**
+     * Finalizes the writeout.
+     * <ol>
+     *    <li>Cancels the continuous writeout and flushes the buffer to file</li>
+     *    <li>Calls {@link AsyncReportWriter#finalizingTodos()} to collect closing outputs</li>
+     *    <li>Writes the collected data to the output stream</li>
+     *    <li>Finally, flushing and closing the output stream</li>
+     * </ol>
+     *
+     * @throws RuntimeException if an error occurs while flushing or closing the output stream
+     */
     public final void finalizeWriteout() {
         try {
             scheduledFuture.cancel(false); //cancel periodic scheduling
-            finalizingTODOs();
+            finalizingTodos();
             writeout();
             fileOutputStream.flush(); //flush the output stream to the file
             fileOutputStream.close();
@@ -90,9 +143,10 @@ public abstract class AsyncReportWriter<T> {
      * This method is called before the final flush to disk and offers the possibility to add some finalizing
      * information to the buffer.
      *
+     * <p>
      * The default implementation does nothing.
      */
-    protected void finalizingTODOs() {
+    protected void finalizingTodos() {
     }
 
     public abstract Function<T, String> createFormatter();

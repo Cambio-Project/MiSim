@@ -6,6 +6,7 @@ import java.nio.file.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Objects;
 
 import cambio.simulator.ExperimentStartupConfig;
 import cambio.simulator.misc.FileUtilities;
@@ -32,22 +33,6 @@ public final class ExportUtils {
      */
     public static Path prepareReportDirectory(@Nullable ExperimentStartupConfig config, @NotNull MiSimModel model) {
         return prepareReportDirectory(config, model.getExperimentMetaData());
-    }
-
-    public static Path generateReportPath(@Nullable ExperimentStartupConfig config,
-                                          @NotNull ExperimentMetaData metadata) {
-        final Path reportLocationBaseDirectory;
-        if (config != null && config.getReportLocation() != null) {
-            reportLocationBaseDirectory = Paths.get(config.getReportLocation());
-        } else {
-            reportLocationBaseDirectory = metadata.getReportBaseDirectory();
-        }
-
-        final DateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss.SSSZ");
-        final String dateString = format.format(new Date());
-        String subDirectoryPath =
-            config != null && config.isOverwriteReportPath() ? "" : metadata.getExperimentName() + "_" + dateString;
-        return Paths.get(reportLocationBaseDirectory.toString(), subDirectoryPath);
     }
 
     /**
@@ -106,8 +91,30 @@ public final class ExportUtils {
     }
 
     /**
-     * Serializes the given {@link ExperimentMetaData} as "metadata.json" into the report folder given in {@link
-     * ExperimentMetaData#getReportLocation}.
+     * Generates the path to the report directory of the current experiment. Takes into consideration whether the report
+     * path should be overwritten or not.
+     */
+    public static Path generateReportPath(@Nullable ExperimentStartupConfig config,
+                                          @NotNull ExperimentMetaData metadata) {
+        Objects.requireNonNull(metadata);
+
+        final Path reportLocationBaseDirectory;
+        if (config != null && config.getReportLocation() != null) {
+            reportLocationBaseDirectory = Paths.get(config.getReportLocation());
+        } else {
+            reportLocationBaseDirectory = metadata.getReportBaseDirectory();
+        }
+
+        final DateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss.SSSZ");
+        final String dateString = format.format(new Date());
+        String subDirectoryPath =
+            config != null && config.isOverwriteReportPath() ? "" : metadata.getExperimentName() + "_" + dateString;
+        return Paths.get(reportLocationBaseDirectory.toString(), subDirectoryPath);
+    }
+
+    /**
+     * Serializes the given {@link ExperimentMetaData} as "metadata.json" into the report folder given in
+     * {@link ExperimentMetaData#getReportLocation}.
      *
      * @throws IOException if an I/O error occurs writing to or creating or writing the file
      */

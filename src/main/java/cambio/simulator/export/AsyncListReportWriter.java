@@ -43,7 +43,7 @@ public class AsyncListReportWriter extends AsyncReportWriter<Object> {
     }
 
     @Override
-    protected void finalizingTODOs() {
+    protected void finalizingTodos() {
         closeLine();
     }
 

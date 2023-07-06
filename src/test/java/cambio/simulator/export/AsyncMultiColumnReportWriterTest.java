@@ -48,10 +48,12 @@ class AsyncMultiColumnReportWriterTest extends AsyncReportWriterTest<AsyncMultiC
         writer.addDataPoint(10.22, new char[] {'1', '0', '0'});
         writer.addDataPoint(11.22, new byte[] {1, 127, 42});
         writer.addDataPoint(12.22, new short[] {1, 2, 3});
+        writer.addDataPoint(13.22, new boolean[] {true, false, true});
         writer.finalizeWriteout();
 
         checkFormat(datasetName);
     }
+
 
     private void checkFormat(String datasetName) throws IOException {
         File out = tmpOut.resolve(datasetName).toFile();
@@ -60,8 +62,8 @@ class AsyncMultiColumnReportWriterTest extends AsyncReportWriterTest<AsyncMultiC
             if (line.startsWith(MiSimReporters.DEFAULT_TIME_COLUMN_NAME)) {
                 continue;
             }
-            //line should have the form of "time(;number)*"
-            Pattern p = Pattern.compile("\\d+(\\.\\d+)?(;\\d+(\\.\\d+)?)*");
+            //line should have the form of "time(;<number>|true|false)*"
+            Pattern p = Pattern.compile("\\d+(\\.\\d+)?(;(\\d+(\\.\\d+)?|true|false))*");
             assertTrue(p.matcher(line).matches(), "Line '" + line + "' does not match pattern" + p.pattern());
         }
     }

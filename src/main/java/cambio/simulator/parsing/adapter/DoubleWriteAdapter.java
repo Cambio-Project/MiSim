@@ -7,6 +7,10 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
 /**
+ * {@link TypeAdapter} to write/read doubles in json.
+ * An infinite double will be written as -1.
+ * So usage of this adapter is preferred for non-negative doubles.
+ *
  * @author Lion Wagner
  */
 public class DoubleWriteAdapter extends TypeAdapter<Double> {

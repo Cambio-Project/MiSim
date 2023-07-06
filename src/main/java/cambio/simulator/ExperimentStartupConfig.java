@@ -48,7 +48,7 @@ public class ExperimentStartupConfig {
     @CLIOption(
         opt = "O",
         longOpt = "overwrite_out",
-        description = "Report Location Directory. Is cleared of data before the experiment ",
+        description = "Report Location Directory. It Is cleared before the experiment.",
         hasArg = true,
         optionGroup = "output")
     private final String reportOverwriteLocation;
@@ -83,8 +83,8 @@ public class ExperimentStartupConfig {
      * @param archDescLoc             mandatory path to an architecture description
      * @param expDescLoc              path to an experiment description
      * @param scenario                path to a scenario description
-     * @param reportLocation          directory path ot
-     * @param reportOverwriteLocation
+     * @param reportLocation          directory path where the report should be saved
+     * @param reportOverwriteLocation directory path where the report should be overwritten
      * @param showProgressBar         when this option is set to true, a progressbar window is shown during the
      *                                simulation (setting this option disables headless mode and requires a display
      *                                output)

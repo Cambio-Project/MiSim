@@ -8,7 +8,12 @@ import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 
 /**
+ * A {@link MiSimReporter} that collects uses an {@link AsyncListReportWriter} to collect data points.
+ * Allows for Reporting a list of values for a single time point. The given values are converted to strings on
+ * write.
+ *
  * @author Lion Wagner
+ * @see AsyncListReportWriter
  */
 public class ListCollectingReporter extends MiSimReporter<AsyncListReportWriter> {
 
