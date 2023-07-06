@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
+import cambio.simulator.models.ExperimentMetaData;
 import cambio.simulator.models.MiSimModel;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
@@ -28,7 +29,8 @@ public abstract class MiSimReporter<R extends AsyncReportWriter<?>> {
         MiSimReporters.registerReporter(this);
 
         this.datasetsPrefix = datasetsPrefix;
-        this.reportBasePath = this.model.getExperimentMetaData().getReportLocation().resolve("raw");
+        ExperimentMetaData experimentMetaData = this.model.getExperimentMetaData();
+        this.reportBasePath = experimentMetaData.getReportLocation().resolve("raw");
     }
 
 

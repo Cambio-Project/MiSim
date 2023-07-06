@@ -18,7 +18,6 @@ import cambio.simulator.export.*;
 import desmoj.core.simulator.*;
 import org.apache.commons.io.FileUtils;
 import cambio.simulator.export.CSVData;
-import cambio.simulator.export.ReportCollector;
 import org.apache.commons.text.similarity.LevenshteinDistance;
 import org.javatuples.Pair;
 import org.junit.jupiter.api.Assertions;
@@ -94,7 +93,7 @@ public class TestUtils {
                 try {
                     String content1 = String.join("\n", Files.readAllLines(f1.toPath(), StandardCharsets.UTF_8));
                     String content2 = String.join("\n", Files.readAllLines(f2.toPath(), StandardCharsets.UTF_8));
-                    int threshold = Math.min(1, (int) (Math.max(content1.length(), content2.length()) *
+                    int threshold = Math.max(1, (int) (Math.min(content1.length(), content2.length()) *
                         ALLOWED_FILE_DIFFERENCE_FACTOR));
                     int distance = new LevenshteinDistance(threshold).apply(content1, content2);
 
@@ -167,65 +166,6 @@ public class TestUtils {
             return;
         }
         Assertions.fail(fail_msg);
-    }
-
-    public static Experiment getExampleExperiment(final Model currentModel, final double duration) {
-
-        //RandomTestModel currentModel= new RandomTestModel(null, "TestModel" + nextNonNegative(), max_service_count_per_tier, tier_count);
-        currentModel.traceOff();
-        currentModel.debugOff();
-        TestExperiment currentExperiment = new TestExperiment();
-        currentModel.connectToExperiment(currentExperiment);
-
-
-        currentExperiment.stop(new TimeInstant(duration, TimeUnit.SECONDS));
-        currentExperiment.setShowProgressBar(false);
-        currentExperiment.traceOff(new TimeInstant(0));
-        currentExperiment.debugOff(new TimeInstant(0));
-        currentExperiment.setSilent(true);
-
-        return currentExperiment;
-    }
-
-    //    public static InstanceOwnedPatternConfiguration getRetryPatternMock(Model model) {
-    //        InstanceOwnedPatternConfiguration data = mock(InstanceOwnedPatternConfiguration.class);
-    //        Mockito.when(data.getPatternInstance(any(MicroserviceInstance.class)))
-    //            .thenAnswer(invocationOnMock -> new Retry(model, "Retry", true));
-    //        return data;
-    //    }
-    //
-    //    public static InstanceOwnedPatternConfiguration getCircuitBreaker(Model model) {
-    //        InstanceOwnedPatternConfiguration data = mock(InstanceOwnedPatternConfiguration.class);
-    //        Mockito.when(data.getPatternInstance(any(MicroserviceInstance.class)))
-    //            .thenAnswer(invocationOnMock -> new CircuitBreaker(model, "CircuitBreaker", true));
-    //        return data;
-    //    }
-    //
-    //    public static ServiceOwnedPattern getAutoscaler(Model model) {
-    //        InstanceOwnedPatternConfiguration data = mock(InstanceOwnedPatternConfiguration.class);
-    //        Mockito.when(data.getPatternInstance(any(Microservice.class)))
-    //            .thenAnswer(invocationOnMock -> new BasicAutoscalingStrategyProxy(model, "AutoScaler", true));
-    //        return data;
-    //    }
-
-    public static void resetModel(RandomTieredModel model) {
-        MiSimReporters.finalizeReports(); //resetting static data point collection framework
-        NetworkRequestSendEvent.resetCounterSendEvents();
-        model.reset();
-
-        //reset mocks to prevent Mockito from leaking
-        try {
-            Field f = Microservice.class.getDeclaredField("patternsData");
-            f.setAccessible(true);
-            for (Microservice microservice : model.getAllMicroservices()) {
-                ServiceOwnedPattern[] mocks = (ServiceOwnedPattern[]) f.get(microservice);
-                Mockito.reset(mocks);
-
-            }
-        } catch (NoSuchFieldException | IllegalAccessException exception) {
-            exception.printStackTrace();
-        }
-        System.gc();
     }
 
     public static int nextNonNegative() {

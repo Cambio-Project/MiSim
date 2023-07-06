@@ -5,7 +5,6 @@ import static cambio.simulator.export.MiSimReporters.NETWORK_LATENCY_REPORTER;
 import java.util.concurrent.atomic.AtomicLong;
 
 import cambio.simulator.entities.microservice.*;
-import cambio.simulator.export.ReportCollector;
 import cambio.simulator.misc.RNGStorage;
 import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.dist.ContDistNormal;

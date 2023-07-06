@@ -31,7 +31,7 @@ class MainTest extends TestBase {
         // - 4 html files
         // - 3 json file
         // - 7 python files
-        File[] resultFiles = output.listFiles()[0].listFiles();
+        File[] resultFiles = output.listFiles();
         assertNotNull(resultFiles);
         checkFileWithNameExists(resultFiles, "graph");
         checkFileWithNameExists(resultFiles, "raw");

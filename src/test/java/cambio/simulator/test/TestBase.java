@@ -2,22 +2,21 @@ package cambio.simulator.test;
 
 import static com.github.stefanbirkner.systemlambda.SystemLambda.catchSystemExit;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
 import cambio.simulator.Main;
 import cambio.simulator.export.MiSimReporters;
+import cambio.simulator.misc.RNGStorage;
 import cambio.simulator.models.MiSimModel;
 import org.apache.commons.io.FileUtils;
 import org.javatuples.Pair;
-import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.*;
 
 /**
  * @author Lion Wagner
@@ -28,12 +27,18 @@ public class TestBase {
 
     public List<File> tempDirs = new ArrayList<>();
 
+    @BeforeEach
+    void setUp() throws IOException {
+        RNGStorage.reset();
+    }
+
     @AfterEach
     void tearDown() throws IOException {
         MiSimReporters.finalizeReports(); //closes open file handles
         for (File file : tempDirs) {
             FileUtils.deleteDirectory(file);
         }
+        RNGStorage.reset();
     }
 
     public MiSimModel getMockModel() {
@@ -44,7 +49,7 @@ public class TestBase {
 
     public MiSimModel getMockModel(File architecture, File scenario) {
         MiSimModel mockModel = new MiSimModel(architecture, scenario);
-        mockModel.getExperimentMetaData().setReportLocation(createTempOutputDir().toPath());
+        mockModel.getExperimentMetaData().setReportLocation(createSelfDeletingTempOutputDir().toPath());
         return mockModel;
     }
 
@@ -78,7 +83,7 @@ public class TestBase {
 
     protected File runSimulationCheckExitTempOutput(int expectedExitCode, File arch, File exp,
                                                     String... additionalArgs) {
-        File dir = createTempOutputDir();
+        File dir = createSelfDeletingTempOutputDir();
         String[] allArgs = new String[additionalArgs.length + 2];
         allArgs[0] = "-O";
         allArgs[1] = dir.getAbsolutePath();
@@ -87,14 +92,18 @@ public class TestBase {
         return dir;
     }
 
-    protected File createTempOutputDir() {
-        File dir = null;
+    protected File createSelfDeletingTempOutputDir() {
+        File dir = createTempOutputDir().toFile();
+        tempDirs.add(dir);
+        return dir;
+    }
+
+    public static Path createTempOutputDir() {
         try {
-            dir = Files.createTempDirectory("misim-test-").toFile();
-            tempDirs.add(dir);
+            return Files.createTempDirectory("misim-test-");
         } catch (IOException e) {
             Assertions.fail("Could not create temporary output directory.");
+            throw new RuntimeException(e); //please compiler
         }
-        return dir;
     }
 }

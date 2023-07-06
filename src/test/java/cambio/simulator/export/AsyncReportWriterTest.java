@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.ParameterizedType;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -15,6 +17,7 @@ import cambio.simulator.events.SimulationEndEvent;
 import cambio.simulator.models.MiSimModel;
 import cambio.simulator.test.*;
 import desmoj.core.simulator.TimeInstant;
+import org.apache.commons.io.FileUtils;
 import org.javatuples.Pair;
 import org.junit.jupiter.api.*;
 
@@ -23,16 +26,27 @@ abstract class AsyncReportWriterTest<T extends AsyncReportWriter<?>> extends Tes
 
     Random rng = new Random(42);
     Path tmpOut;
-    T writer;
+
+    private T writer;
+    Class<T> writerClass;
+
+    AsyncReportWriterTest() {
+        //noinspection unchecked
+        writerClass = (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+    }
+
 
     @BeforeEach
-    void setUp() throws IOException {
-        tmpOut = createTempOutputDir().toPath();
+    void setUp() throws IOException, NoSuchMethodException, InvocationTargetException, InstantiationException,
+        IllegalAccessException {
+        tmpOut = createSelfDeletingTempOutputDir().toPath();
+        writer = writerClass.getConstructor(Path.class).newInstance(tmpOut.resolve("test.csv"));
     }
 
     @AfterEach
-    void tearDown() {
+    void tearDown() throws IOException {
         writer.finalizeWriteout();
+        FileUtils.deleteDirectory(tmpOut.toFile());
     }
 
     @Test
@@ -81,7 +95,6 @@ abstract class AsyncReportWriterTest<T extends AsyncReportWriter<?>> extends Tes
         experiment.start();
         experiment.finish();
 
-        ReportCollector.getInstance().printReport(model);
 
         File dataLocation = model.getExperimentMetaData().getReportLocation().resolve("raw").toFile();
         Assertions.assertTrue(dataLocation.exists());

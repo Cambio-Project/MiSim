@@ -9,22 +9,18 @@ import java.nio.file.Files;
 import java.util.*;
 import java.util.regex.Pattern;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class AsyncMultiColumnReportWriterTest extends AsyncReportWriterTest<AsyncMultiColumnReportWriter> {
 
-    @BeforeEach
-    void setUp() throws IOException {
-        super.setUp();
-        writer = new AsyncMultiColumnReportWriter(tmpOut.resolve("test.csv"));
-    }
-
     @Test
     public void writesHeaders() throws IOException {
-        writer = new AsyncMultiColumnReportWriter(tmpOut.resolve("test.csv"), "a", "b", "c");
+        String datasetName = "writesHeaders.csv";
+        AsyncReportWriter<?> writer =
+            new AsyncMultiColumnReportWriter(tmpOut.resolve(datasetName), "a", "b", "c");
         writer.finalizeWriteout();
-        File out = tmpOut.resolve("test.csv").toFile();
+
+        File out = tmpOut.resolve(datasetName).toFile();
         assertTrue(out.exists());
         assertTrue(out.length() > 0);
         assertEquals(MiSimReporters.DEFAULT_TIME_COLUMN_NAME
@@ -37,6 +33,9 @@ class AsyncMultiColumnReportWriterTest extends AsyncReportWriterTest<AsyncMultiC
 
     @Test
     public void createsCorrectFormat() throws IOException {
+        String datasetName = "createsCorrectFormat.csv";
+        AsyncMultiColumnReportWriter writer =
+            new AsyncMultiColumnReportWriter(tmpOut.resolve(datasetName));
         writer.addDataPoint(0, 42);
         writer.addDataPoint(1, new int[] {1, 1, 1});
         writer.addDataPoint(2.3, new double[] {2, 2, 2});
@@ -51,12 +50,11 @@ class AsyncMultiColumnReportWriterTest extends AsyncReportWriterTest<AsyncMultiC
         writer.addDataPoint(12.22, new short[] {1, 2, 3});
         writer.finalizeWriteout();
 
-
-        checkFormat();
+        checkFormat(datasetName);
     }
 
-    private void checkFormat() throws IOException {
-        File out = tmpOut.resolve("test.csv").toFile();
+    private void checkFormat(String datasetName) throws IOException {
+        File out = tmpOut.resolve(datasetName).toFile();
 
         for (String line : Files.readAllLines(out.toPath())) {
             if (line.startsWith(MiSimReporters.DEFAULT_TIME_COLUMN_NAME)) {
@@ -70,6 +68,9 @@ class AsyncMultiColumnReportWriterTest extends AsyncReportWriterTest<AsyncMultiC
 
     @Test
     public void createsStringEntriesCorrectly() throws IOException {
+        String datasetName = "createsStringEntriesCorrectly.csv";
+        AsyncReportWriter<?> writer =
+            new AsyncMultiColumnReportWriter(tmpOut.resolve(datasetName));
         writer.addDataPoint(1.0, new String[] {"a", "b", "c"});
         writer.addDataPoint(2, "HelloWorld");
         writer.addDataPoint(3, new Object[] {"abc", "def", "ghi"});
@@ -84,7 +85,7 @@ class AsyncMultiColumnReportWriterTest extends AsyncReportWriterTest<AsyncMultiC
                 + "3.0" + MiSimReporters.csvSeperator + "abc" + MiSimReporters.csvSeperator + "def" +
                 MiSimReporters.csvSeperator + "ghi" + System.lineSeparator();
 
-        File out = tmpOut.resolve("test.csv").toFile();
+        File out = tmpOut.resolve(datasetName).toFile();
         List<String> lines = Files.readAllLines(out.toPath());
         for (int i = 0; i < lines.size(); i++) {
             assertEquals(expected.split(System.lineSeparator())[i], lines.get(i));

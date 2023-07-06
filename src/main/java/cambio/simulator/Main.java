@@ -2,7 +2,6 @@ package cambio.simulator;
 
 import java.util.Arrays;
 
-import cambio.simulator.export.ReportCollector;
 import cambio.simulator.misc.RNGStorage;
 import cambio.simulator.models.MiSimModel;
 import cambio.simulator.parsing.ParsingException;
@@ -143,8 +142,6 @@ public final class Main {
         ExperimentStartupConfig startupConfig = parseArgsToConfig(args);
 
         Experiment experiment = runExperiment(startupConfig);
-
-        ReportCollector.getInstance().printReport((MiSimModel) experiment.getModel());
 
         return experiment;
 

@@ -14,20 +14,16 @@ import org.junit.jupiter.api.*;
 
 class AsyncListReportWriterTest extends AsyncReportWriterTest<AsyncListReportWriter> {
 
-    @BeforeEach
-    void setUp() throws IOException {
-        super.setUp();
-        writer = new AsyncListReportWriter(tmpOut.resolve("test.csv"));
-    }
-
     @Test
     void hasCorrectFormatWithSingleEntry() throws IOException {
         writesCorrectNumberOfLines();
-        checkFormat();
+        checkFormat("test.csv");
     }
 
     @RepeatedTest(10)
     void hasCorrectFormatWithMultipleEntries() throws IOException {
+        String datasetName = "hasCorrectFormatWithMultipleEntries.csv";
+        AsyncReportWriter<?> writer = new AsyncListReportWriter(tmpOut.resolve(datasetName));
 
         int numLines = rng.nextInt(101);
         List<Integer> entryLengths = new ArrayList<>();
@@ -43,7 +39,7 @@ class AsyncListReportWriterTest extends AsyncReportWriterTest<AsyncListReportWri
 
         writer.finalizeWriteout();
 
-        File out = tmpOut.resolve("test.csv").toFile();
+        File out = tmpOut.resolve(datasetName).toFile();
 
         List<String> lines = Files.readAllLines(out.toPath());
 
@@ -51,7 +47,7 @@ class AsyncListReportWriterTest extends AsyncReportWriterTest<AsyncListReportWri
         assertTrue(out.length() > 0);
         assertEquals(lines.size(), numLines + 1);
 
-        checkFormat();
+        checkFormat(datasetName);
 
 
         for (int i = 1; i < lines.size(); i++) {
@@ -65,8 +61,8 @@ class AsyncListReportWriterTest extends AsyncReportWriterTest<AsyncListReportWri
     }
 
 
-    private void checkFormat() throws IOException {
-        File out = tmpOut.resolve("test.csv").toFile();
+    private void checkFormat(String datasetName) throws IOException {
+        File out = tmpOut.resolve(datasetName).toFile();
 
         for (String line : Files.readAllLines(out.toPath())) {
             if (line.startsWith("SimulationTime")) {

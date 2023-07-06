@@ -3,6 +3,7 @@ package cambio.simulator;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
 
 import cambio.simulator.export.ExportUtils;
 import cambio.simulator.misc.FileUtilities;
@@ -62,6 +63,7 @@ public class ExperimentCreator {
     @NotNull
     protected Experiment setupExperiment(ExperimentStartupConfig config, MiSimModel model) {
         ExperimentMetaData metaData = model.getExperimentMetaData();
+        metaData.setStartDate(LocalDateTime.now());
         Path reportLocation = ExportUtils.prepareReportDirectory(config, model);
         Experiment exp = new Experiment(metaData.getExperimentName(), reportLocation.toString());
         model.connectToExperiment(exp);

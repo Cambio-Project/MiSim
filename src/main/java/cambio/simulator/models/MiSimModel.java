@@ -58,7 +58,6 @@ public class MiSimModel extends Model {
     public void init() {
         this.architectureModel = ModelLoader.loadArchitectureModel(this);
         this.experimentModel = ModelLoader.loadExperimentModel(this);
-        this.experimentMetaData.setStartDate(LocalDateTime.now());
         MiSimReporters.initializeStaticReporters(this);
     }
 

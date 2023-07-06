@@ -12,7 +12,7 @@ public final class MiSimReporters {
 
     public static final String DEFAULT_TIME_COLUMN_NAME = "SimulationTime";
     public static final String DEFAULT_VALUE_COLUMN_NAME = "Value";
-    private static final Collection<MiSimReporter> reporters = new ArrayList<>();
+    private static final Collection<MiSimReporter<?>> reporters = new ArrayList<>();
     public static MultiDataPointReporter RETRY_MANAGER_REPORTER;
     public static MultiDataPointReporter NETWORK_LATENCY_REPORTER;
     public static MultiDataPointReporter USER_REQUEST_REPORTER;
@@ -27,7 +27,7 @@ public final class MiSimReporters {
         GENERATOR_REPORTER = new AccumulativeDataPointReporter("GEN_ALL_", model);
     }
 
-    public static void registerReporter(MiSimReporter reporter) {
+    public static void registerReporter(MiSimReporter<?> reporter) {
         reporters.add(reporter);
     }
 
@@ -37,7 +37,11 @@ public final class MiSimReporters {
         }
     }
 
-    public static boolean deregister(MiSimReporter multiDataPointReporter) {
-        return reporters.remove(multiDataPointReporter);
+    public static boolean deregister(MiSimReporter<?> reporter) {
+        return reporters.remove(reporter);
+    }
+
+    public static Collection<MiSimReporter<?>> getReporters() {
+        return new ArrayList<>(reporters);
     }
 }
