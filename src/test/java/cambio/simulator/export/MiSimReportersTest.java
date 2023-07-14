@@ -54,15 +54,23 @@ class MiSimReportersTest {
 
     @Test
     void initializes_static_reporters_correctly() {
+        MiSimReporters.finalizeReports();//clears exising reporters
+        assertEquals(0, MiSimReporters.getReporters().size());
+
         MiSimReporters.initializeStaticReporters(model);
         assertEquals(4, MiSimReporters.getReporters().size());
     }
 
     @Test
     void can_finalize_twice() {
-        new TestReporter("1");
+        TestReporter reporter = new TestReporter("1");
         MiSimReporters.getReporters().forEach(MiSimReporter::finalizeReport);
+        //the reporter is now deregistered so we  have to register it again
+        MiSimReporters.registerReporter(reporter);
+
+        assertEquals(1, MiSimReporters.getReporters().size());
         MiSimReporters.getReporters().forEach(MiSimReporter::finalizeReport);
+        assertEquals(0, MiSimReporters.getReporters().size());
     }
 
     @Test
