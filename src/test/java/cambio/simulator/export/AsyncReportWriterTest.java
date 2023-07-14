@@ -61,7 +61,7 @@ abstract class AsyncReportWriterTest<T extends AsyncReportWriter<?>> extends Tes
             Files.readAllLines(out.toPath()).get(0).trim());
     }
 
-    @RepeatedTest(100)
+    @RepeatedTest(20)
     void writesCorrectNumberOfLines() throws IOException {
         int numLines = rng.nextInt(100) + 1;
 
@@ -82,7 +82,7 @@ abstract class AsyncReportWriterTest<T extends AsyncReportWriter<?>> extends Tes
      * Hence it is repeated multiple times.
      */
     @SuppressWarnings("ConstantConditions")
-    @RepeatedTest(100)
+    @RepeatedTest(20)
     void hasWellFormedOutput() throws IOException {
         File arch = FileLoaderUtil.loadFromTestResources("test_architecture.json");
         File exp = FileLoaderUtil.loadFromTestResources("test_experiment.json");

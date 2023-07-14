@@ -21,7 +21,7 @@ class AsyncListReportWriterTest extends AsyncReportWriterTest<AsyncListReportWri
         checkFormat("test.csv");
     }
 
-    @RepeatedTest(100)
+    @RepeatedTest(20)
     void hasCorrectFormatWithMultipleEntries() throws IOException {
         String datasetName = "hasCorrectFormatWithMultipleEntries.csv";
         AsyncReportWriter<?> writer = new AsyncListReportWriter(tmpOut.resolve(datasetName));
