@@ -33,7 +33,6 @@ class AsyncListReportWriterTest extends AsyncReportWriterTest<AsyncListReportWri
             entryLengths.add(numEntries);
 
             for (int j = 0; j < numEntries; j++) {
-                System.out.println("Adding entry " + j + " of line " + i);
                 writer.addDataPoint(i, j);
             }
         }

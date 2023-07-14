@@ -21,6 +21,7 @@ import org.apache.commons.io.FileUtils;
 import org.javatuples.Pair;
 import org.junit.jupiter.api.*;
 
+@Timeout(value = 10)
 abstract class AsyncReportWriterTest<T extends AsyncReportWriter<?>> extends TestBase {
 
     Random rng = new Random();
