@@ -35,5 +35,7 @@ public class SimulationEndEvent extends NamedExternalEvent {
     public void eventRoutine() throws SuspendExecution {
         model.getArchitectureModel().getMicroservices().forEach(Microservice::finalizeStatistics);
         MiSimReporters.finalizeReports();
+
+        model.getExperimentMetaData().markEndOfExecution(System.nanoTime());
     }
 }

@@ -3,6 +3,8 @@ package cambio.simulator;
 import java.util.Arrays;
 
 import cambio.simulator.misc.RNGStorage;
+import cambio.simulator.misc.Util;
+import cambio.simulator.models.ExperimentMetaData;
 import cambio.simulator.models.MiSimModel;
 import cambio.simulator.parsing.ParsingException;
 import com.google.gson.JsonParseException;
@@ -78,6 +80,7 @@ public final class Main {
                 System.exit(16);
             } else {
                 System.out.println("[INFO] Simulation finished successfully.");
+                writeCommandLineReport((MiSimModel) experiment.getModel());
                 System.exit(0);
             }
         } catch (ParsingException | JsonParseException e) {
@@ -180,5 +183,19 @@ public final class Main {
         RNGStorage.reset();
 
         return experiment;
+    }
+
+    private static void writeCommandLineReport(MiSimModel model) {
+        ExperimentMetaData metaData = model.getExperimentMetaData();
+        System.out.println("\n*** MiSim Report ***");
+        System.out.println("Simulation of Architecture: "
+            + metaData.getArchitectureDescriptionLocation().getAbsolutePath());
+        System.out.println("Executed Experiment:        "
+            + metaData.getExperimentDescriptionLocation().getAbsolutePath());
+        System.out.println("Report Location:            "
+            + metaData.getReportLocation().toAbsolutePath());
+        System.out.println("Setup took:                 " + Util.timeFormat(metaData.getSetupExecutionDuration()));
+        System.out.println("Experiment took:            " + Util.timeFormat(metaData.getExperimentExecutionDuration()));
+        System.out.println("Execution took:             " + Util.timeFormat(metaData.getExecutionDuration()));
     }
 }
