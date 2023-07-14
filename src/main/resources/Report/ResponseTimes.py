@@ -14,8 +14,8 @@ for file in glob.glob(os.path.join(".", "raw", "*_ResponseTimes.csv")):
     data = pd.read_csv(file, sep=";",
                        usecols=[0, 1], dtype=np.float32)
 
-    # bin data over Simulation Time with 1s bins
-    data["simulation_time_rounded_down"] = data["Simulation Time"].apply(
+    # bin data over SimulationTime with 1s bins
+    data["simulation_time_rounded_down"] = data["SimulationTime"].apply(
         lambda x: np.int64(x))
 
     # group by bins and calculates means and std over bins
@@ -27,8 +27,8 @@ for file in glob.glob(os.path.join(".", "raw", "*_ResponseTimes.csv")):
     mean["error"] = std_mean["Value"]
     mean["mean_of_bin"] = mean["Value"]
 
-    # drop columns "Value" and "Simulation Time" for readability
-    mean = mean.drop(columns=["Value", "Simulation Time"])
+    # drop columns "Value" and "SimulationTime" for readability
+    mean = mean.drop(columns=["Value", "SimulationTime"])
 
     # output processed data to an additional csv file
     output_file = file.replace(".csv", "_processed.csv")

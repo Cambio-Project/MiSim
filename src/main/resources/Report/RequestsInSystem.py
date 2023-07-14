@@ -19,9 +19,9 @@ for file in glob.glob("./raw/*_InSystem.csv"):
         dataNotComputed["Value"])
 
     joined = dataInSystem.merge(
-        dataNotComputed, how="outer", on="Simulation Time", suffixes=("_InSystem", "_NotComputed"))
+        dataNotComputed, how="outer", on="SimulationTime", suffixes=("_InSystem", "_NotComputed"))
     joined = joined.merge(
-        dataWaitingForDep, how="outer", on="Simulation Time")
+        dataWaitingForDep, how="outer", on="SimulationTime")
     joined.rename(
         columns={"Value": "Value_WaitingForDependencies"}, inplace=True)
 
@@ -29,11 +29,11 @@ for file in glob.glob("./raw/*_InSystem.csv"):
 
 
 def write_dataset(ax: Axes, dataset: DataFrame):
-    ax.fill_between(dataset["Simulation Time"], 0,
+    ax.fill_between(dataset["SimulationTime"], 0,
                     dataset["Value_NotComputed"],
                     label="Not Computed",
                     facecolor="yellow")
-    ax.fill_between(dataset["Simulation Time"], 0,
+    ax.fill_between(dataset["SimulationTime"], 0,
                     dataset["Value_WaitingForDependencies"],
                     label="Waiting f. Dep.",
                     facecolor="pink")
