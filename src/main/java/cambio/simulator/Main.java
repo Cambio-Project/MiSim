@@ -91,6 +91,7 @@ public final class Main {
             //In tests, System.exit throws an exception with a private type from the
             //"com.github.stefanbirkner.systemlambda" package. This exception is supposed to be
             //thrown up to top level to be detected by a test and therefore is not handled here.
+            //TODO: this should (and will have to be with later java versions) be removed
             if (e.getClass().getPackage().getName().equals("com.github.stefanbirkner.systemlambda")) {
                 throw e;
             }

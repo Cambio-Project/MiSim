@@ -65,11 +65,10 @@ public class ExperimentCreator {
         ExperimentMetaData metaData = model.getExperimentMetaData();
         metaData.setStartDate(LocalDateTime.now());
         Path reportLocation = ExportUtils.prepareReportDirectory(config, model);
-        Experiment exp = config.traceEnabled() ?
-            new Experiment(metaData.getExperimentName(), reportLocation.toString()) :
-            new Experiment(metaData.getExperimentName(), reportLocation.toString(),
-                "desmoj.core.report.NullOutput", "desmoj.core.report.NullOutput", "desmoj.core.report.NullOutput",
-                "desmoj.core.report.NullOutput");
+        Experiment exp = config.traceEnabled()
+            ? new Experiment(metaData.getExperimentName(), reportLocation.toString())
+            : new Experiment(metaData.getExperimentName(), reportLocation.toString(), "desmoj.core.report.NullOutput",
+            "desmoj.core.report.NullOutput", "desmoj.core.report.NullOutput", "desmoj.core.report.NullOutput");
         model.connectToExperiment(exp);
 
         exp.setSeedGenerator(metaData.getSeed());
