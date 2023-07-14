@@ -45,7 +45,7 @@ abstract class AsyncReportWriterTest<T extends AsyncReportWriter<?>> extends Tes
     @AfterEach
     protected void tearDown() throws IOException {
         writer.finalizeWriteout();
-        FileUtils.deleteDirectory(tmpOut.toFile());
+        FileUtils.forceDelete(tmpOut.toFile());
         super.tearDown();
     }
 
@@ -61,12 +61,14 @@ abstract class AsyncReportWriterTest<T extends AsyncReportWriter<?>> extends Tes
             Files.readAllLines(out.toPath()).get(0).trim());
     }
 
-    @RepeatedTest(10)
+    @RepeatedTest(100)
     void writesCorrectNumberOfLines() throws IOException {
-        int numLines = rng.nextInt(101);
+        int numLines = rng.nextInt(100) + 1;
+
         for (int i = 0; i < numLines; i++) {
             writer.addDataPoint(i, i);
         }
+
         writer.finalizeWriteout();
         File out = tmpOut.resolve("test.csv").toFile();
         assertTrue(out.exists());
@@ -80,17 +82,17 @@ abstract class AsyncReportWriterTest<T extends AsyncReportWriter<?>> extends Tes
      * Hence it is repeated multiple times.
      */
     @SuppressWarnings("ConstantConditions")
-    @RepeatedTest(10)
-    void hasWellFormedOutput() {
+    @RepeatedTest(100)
+    void hasWellFormedOutput() throws IOException {
         File arch = FileLoaderUtil.loadFromTestResources("test_architecture.json");
         File exp = FileLoaderUtil.loadFromTestResources("test_experiment.json");
         Pair<MiSimModel, TestExperiment> mocks = getConnectedMockModel(arch, exp);
         MiSimModel model = mocks.getValue0();
         TestExperiment experiment = mocks.getValue1();
 
-        experiment.stop(new TimeInstant(5));
+        experiment.stop(new TimeInstant(1));
 
-        new SimulationEndEvent(model, "SimulationEnd", true).schedule(new TimeInstant(5));
+        new SimulationEndEvent(model, "SimulationEnd", true).schedule(new TimeInstant(1));
 
         experiment.start();
         experiment.finish();
