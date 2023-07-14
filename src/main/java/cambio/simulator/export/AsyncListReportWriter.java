@@ -5,11 +5,29 @@ import java.nio.file.Path;
 import java.util.function.Function;
 
 /**
- * A {@link AsyncReportWriter} that writes a list of values to a single column.
- * The list is formatted as a JSON array, but trimmed of the brackets.
+ * A {@link AsyncReportWriter} that writes a list of values to a single column. The list is formatted as a JSON array.
+ * The list/row is closed and a new one started when a new time is given.
+ *
+ * <p>
+ * Example:
+ * <table>
+ *     <caption>AsyncListReportWriter Example</caption>
+ *     <tr>
+ *         <th>SimulationTime</th>
+ *         <th>Value</th>
+ *     </tr>
+ *     <tr>
+ *         <td>0.0</td>
+ *         <td>[1,2,3]</td>
+ *     </tr>
+ *     <tr>
+ *         <td>0.1</td>
+ *         <td>[4,5,6]</td>
+ *     </tr>
+ * </table>
  *
  * @author Lion Wagner
- * @see AsyncReportWriter for more information
+ * @see AsyncReportWriter
  */
 public class AsyncListReportWriter extends AsyncReportWriter<Object> {
     //we use Object as generic type to move the "toString" conversion
