@@ -27,13 +27,9 @@ public class TestBase {
 
     public List<File> tempDirs = new ArrayList<>();
 
-    @BeforeEach
-    void setUp() throws IOException {
-        RNGStorage.reset();
-    }
 
     @AfterEach
-    void tearDown() throws IOException {
+    protected void tearDown() throws IOException {
         MiSimReporters.finalizeReports(); //closes open file handles
         for (File file : tempDirs) {
             FileUtils.deleteDirectory(file);

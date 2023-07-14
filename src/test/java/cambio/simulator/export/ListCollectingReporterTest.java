@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 class ListCollectingReporterTest extends MiSimReporterTest<ListCollectingReporter> {
 
     @BeforeEach
-    void setUp() {
+    protected void setUp() {
         reporter = new ListCollectingReporter(getMockModel());
         super.setUp();
     }

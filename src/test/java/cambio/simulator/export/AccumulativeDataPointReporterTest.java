@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
 class AccumulativeDataPointReporterTest extends MiSimReporterTest<AccumulativeDataPointReporter> {
 
     @BeforeEach
-    void setUp() {
+    protected void setUp() {
         reporter = new AccumulativeDataPointReporter(getMockModel());
         super.setUp();
     }
@@ -70,7 +70,7 @@ class AccumulativeDataPointReporterTest extends MiSimReporterTest<AccumulativeDa
     }
 
     @Test
-    void acceptsNumbersOnDefaultAddDatapoint(){
+    void acceptsNumbersOnDefaultAddDatapoint() {
         assertDoesNotThrow(() -> reporter.addDatapoint("test", new TimeInstant(0), 2, 3, 5));
         assertDoesNotThrow(() -> reporter.addDatapoint("test", new TimeInstant(0), 2, 3.0, 5));
         assertDoesNotThrow(() -> reporter.addDatapoint("test", new TimeInstant(0), 2.0, 3.0, 5.0));

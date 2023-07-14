@@ -10,12 +10,13 @@ import java.util.List;
 
 import desmoj.core.simulator.TimeInstant;
 import org.javatuples.Pair;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class MultiDataPointReporterTest extends MiSimReporterTest<MultiDataPointReporter> {
 
     @BeforeEach
-    void setUp() {
+    protected void setUp() {
         reporter = new MultiDataPointReporter(getMockModel());
         super.setUp();
     }

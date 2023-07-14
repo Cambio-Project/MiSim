@@ -10,7 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.RepeatedTest;
+import org.junit.jupiter.api.Test;
 
 class AsyncListReportWriterTest extends AsyncReportWriterTest<AsyncListReportWriter> {
 

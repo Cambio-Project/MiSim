@@ -23,12 +23,10 @@ import org.junit.jupiter.api.*;
 
 abstract class AsyncReportWriterTest<T extends AsyncReportWriter<?>> extends TestBase {
 
-
-    Random rng = new Random(42);
+    Random rng = new Random();
     Path tmpOut;
-
-    private T writer;
     Class<T> writerClass;
+    private T writer;
 
     AsyncReportWriterTest() {
         //noinspection unchecked
@@ -37,16 +35,17 @@ abstract class AsyncReportWriterTest<T extends AsyncReportWriter<?>> extends Tes
 
 
     @BeforeEach
-    void setUp() throws IOException, NoSuchMethodException, InvocationTargetException, InstantiationException,
-        IllegalAccessException {
+    void setUp() throws IOException, NoSuchMethodException, InstantiationException, IllegalAccessException,
+        InvocationTargetException {
         tmpOut = createSelfDeletingTempOutputDir().toPath();
         writer = writerClass.getConstructor(Path.class).newInstance(tmpOut.resolve("test.csv"));
     }
 
     @AfterEach
-    void tearDown() throws IOException {
+    protected void tearDown() throws IOException {
         writer.finalizeWriteout();
         FileUtils.deleteDirectory(tmpOut.toFile());
+        super.tearDown();
     }
 
     @Test
