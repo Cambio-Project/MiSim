@@ -30,7 +30,7 @@ public class ReproducibilityTests extends TestBase {
     void ChaosMonkeyReproducibility() throws IOException {
         File exp = FileLoaderUtil.loadFromExampleResources("PaperExample", "paper_experiment.json");
         File arch = FileLoaderUtil.loadFromExampleResources("PaperExample", "paper_architecture.json");
-        testReproducibility(exp, arch, true);
+        testReproducibility(exp, arch);
     }
 
 
