@@ -43,7 +43,7 @@ class ListCollectingReporterTest extends MiSimReporterTest<ListCollectingReporte
         for (int i = 1; i < lines.size(); i++) {
             String[] split = lines.get(i).split(MiSimReporters.csvSeperator, 2);
             assertEquals(String.valueOf((double) (i - 1)), split[0], "Line " + i + " has wrong time");
-            String[] values = split[1].substring(1, split[1].length() - 1).split(MiSimReporters.csvSeperator);
+            String[] values = split[1].substring(1, split[1].length() - 1).split(MiSimReporters.csvListSeparator);
             for (int j = 0; j < values.length; j++) {
                 assertEquals(entries.get(i - 1).get(j), Integer.parseInt(values[j]), "Line " + i + " has wrong value");
             }

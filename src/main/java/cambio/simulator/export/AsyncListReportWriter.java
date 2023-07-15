@@ -5,7 +5,8 @@ import java.nio.file.Path;
 import java.util.function.Function;
 
 /**
- * A {@link AsyncReportWriter} that writes a list of values to a single column. The list is formatted as a JSON array.
+ * A {@link AsyncReportWriter} that writes a list of values to a single column. The list is formatted as
+ * [entry1,entry2].
  * The list/row is closed and a new one started when a new time is given.
  *
  * <p>
@@ -56,7 +57,7 @@ public class AsyncListReportWriter extends AsyncReportWriter<Object> {
             buffer.add(data);
             hasStarted = true;
         } else {
-            buffer.add(MiSimReporters.csvSeperator + data);
+            buffer.add(MiSimReporters.csvListSeparator + data);
         }
     }
 

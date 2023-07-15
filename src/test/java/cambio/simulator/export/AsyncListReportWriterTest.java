@@ -52,7 +52,8 @@ class AsyncListReportWriterTest extends AsyncReportWriterTest<AsyncListReportWri
 
         for (int i = 1; i < lines.size(); i++) {
             int expectedEntries = entryLengths.get(i - 1);
-            int actualEntryCount = lines.get(i).split(MiSimReporters.csvSeperator, 2)[1].split(";").length;
+            int actualEntryCount = lines.get(i).split(MiSimReporters.csvSeperator, 2)[1]
+                .split(MiSimReporters.csvListSeparator).length;
             assertEquals(expectedEntries, actualEntryCount,
                 "Line " + i + " has wrong number of entries. Expected: " + expectedEntries + " Actual: " +
                     actualEntryCount);
@@ -69,7 +70,8 @@ class AsyncListReportWriterTest extends AsyncReportWriterTest<AsyncListReportWri
                 continue;
             }
             //line should have the form of "time; [value(;value)*]"
-            Pattern p = Pattern.compile("\\d+(\\.\\d+)?;\\[[\\d;]*]");
+            Pattern p = Pattern.compile("\\d+(\\.\\d+)?" + MiSimReporters.csvSeperator +
+                "\\[[\\d" + MiSimReporters.csvListSeparator + "]*]");
             assertTrue(p.matcher(line).matches(), "Line '" + line + "' does not match pattern" + p.pattern());
         }
     }

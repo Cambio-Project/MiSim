@@ -35,6 +35,7 @@ public final class MiSimReporters {
 
     public static final String csvSeperator = ";";
 
+    public static final String csvListSeparator = ",";
 
     /**
      * Initializes the static reporters that are shared between entities.
