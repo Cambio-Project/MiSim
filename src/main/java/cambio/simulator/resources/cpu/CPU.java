@@ -184,10 +184,10 @@ public class CPU extends NamedExternalEvent {
         Objects.requireNonNull(process);
 
         if (process.getDemandRemainder() > 0) { //if process is not finished reschedule it
-            if (traceIsOn()) {
-                sendTraceNote(String.format("Burst for process of %s completed, but has %d demand remaining",
-                    process.getRequest().getName(), process.getDemandRemainder()));
-            }
+
+            sendTraceNote(String.format("Burst for process of %s completed, but has %d demand remaining",
+                process.getRequest().getName(), process.getDemandRemainder()));
+
             scheduler.enterProcess(process);
         }
 

@@ -2,7 +2,8 @@ package cambio.simulator.entities.patterns;
 
 import static cambio.simulator.export.MiSimReporters.RETRY_MANAGER_REPORTER;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 import cambio.simulator.entities.microservice.MicroserviceInstance;
 import cambio.simulator.entities.networking.*;
@@ -74,9 +75,9 @@ public class Retry extends StrategicInstanceOwnedPattern<IRetryStrategy> impleme
             //for now we just send the request to the load balancer, which can decide which instance to use
             owner.sendRequest("Collecting dependency " + dep.getQuotedPlainName(), newRequest,
                 dep.getTargetService(), new TimeSpan(delay));
-            if (traceIsOn()) {
-                sendTraceNote("Try " + (tries + 1) + ", send Request: " + newRequest.getQuotedPlainName());
-            }
+
+            sendTraceNote("Try " + (tries + 1) + ", send Request: " + newRequest.getQuotedPlainName());
+
         } else {
             request.getUpdateListeners().forEach(iRequestUpdateListener -> iRequestUpdateListener
                 .onRequestFailed(request, when, RequestFailedReason.MAX_RETRIES_REACHED));

@@ -203,10 +203,9 @@ public abstract class Request extends NamedEntity {
             dep.setCompleted();
             uncompletedCount -= 1;
 
-            if (this.traceIsOn()) {
-                this.sendTraceNote("Completed Dependency \"" + dep + "\".");
-                this.sendTraceNote("Remaining Dependencies: " + (uncompletedCount - 1) + ".");
-            }
+            this.sendTraceNote("Completed Dependency \"" + dep + "\".");
+            this.sendTraceNote("Remaining Dependencies: " + (uncompletedCount - 1) + ".");
+
         }
 
         if (uncompletedCount == 0) {
@@ -215,9 +214,9 @@ public abstract class Request extends NamedEntity {
             if (dependenciesCompleted && computationCompleted) {
                 onCompletion();
             }
-            if (this.traceIsOn()) {
-                this.sendTraceNote(String.format("Dependencies of Request \"%s\" are completed.", this.getName()));
-            }
+
+            this.sendTraceNote(String.format("Dependencies of Request \"%s\" are completed.", this.getName()));
+
             return true;
         }
         return false;
@@ -227,9 +226,8 @@ public abstract class Request extends NamedEntity {
      * Gets the {@link ServiceDependencyInstance} that should be completed by the given request.
      *
      * @param request child request of this request.
-     * @return the {@link ServiceDependencyInstance} that is related to the given request,
-     *     {@code null} otherwise. Returns {@code null} specifically, if the request was a child
-     *     request, that has been canceled or replaced.
+     * @return the {@link ServiceDependencyInstance} that is related to the given request, {@code null} otherwise.
+     *     Returns {@code null} specifically, if the request was a child request, that has been canceled or replaced.
      */
     public ServiceDependencyInstance getRelatedDependency(Request request) {
         for (ServiceDependencyInstance serviceDependencyInstance : dependencies) {
