@@ -2,6 +2,7 @@
   "simulation_metadata": {
     "experiment_name": "Example-ChaosMonkey-Test",
     "model_name": "Scenario ChaosMonkey",
+    "seed": "12345",
     "duration": 200
   },
   "request_generators": [

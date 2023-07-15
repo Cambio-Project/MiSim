@@ -1,5 +1,7 @@
 package cambio.simulator.test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
@@ -9,8 +11,13 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import cambio.simulator.entities.microservice.Microservice;
+import cambio.simulator.entities.networking.NetworkRequestSendEvent;
+import cambio.simulator.entities.patterns.ServiceOwnedPattern;
+import cambio.simulator.export.*;
+import desmoj.core.simulator.*;
+import org.apache.commons.io.FileUtils;
 import cambio.simulator.export.CSVData;
-import cambio.simulator.export.ReportCollector;
 import org.apache.commons.text.similarity.LevenshteinDistance;
 import org.javatuples.Pair;
 import org.junit.jupiter.api.Assertions;
@@ -27,7 +34,12 @@ public class TestUtils {
      */
     private static final double ALLOWED_FILE_DIFFERENCE_FACTOR = 0.01;
 
-    public static void compareFileContentsOfDirectories(Path dir1, Path dir2) throws IOException {
+
+    public static void compareFileContentsOfDirectories(Path dir1, Path dir2) {
+        compareFileContentsOfDirectories(dir1, dir2, false);
+    }
+
+    public static void compareFileContentsOfDirectories(Path dir1, Path dir2, boolean fail_fast) {
         System.out.println("\nComparing: \n" + dir1.toAbsolutePath() + " and\n" + dir2.toAbsolutePath());
 
         Map<Path, byte[]> hashes = new ConcurrentHashMap<>();
@@ -35,8 +47,14 @@ public class TestUtils {
         List<String> errors = Collections.synchronizedList(new ArrayList<>());
         List<String> warnings = Collections.synchronizedList(new ArrayList<>());
 
-        List<Path> files1 = Files.walk(dir1).filter(Files::isRegularFile).collect(Collectors.toList());
-        List<Path> files2 = Files.walk(dir2).filter(Files::isRegularFile).collect(Collectors.toList());
+        List<Path> files1 = null;
+        List<Path> files2 = null;
+        try {
+            files1 = Files.walk(dir1).filter(Files::isRegularFile).collect(Collectors.toList());
+            files2 = Files.walk(dir2).filter(Files::isRegularFile).collect(Collectors.toList());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         if (files1.size() != files2.size()) {
             errors.add("Different number of files in directories. " + files1.size() + " vs " + files2.size());
@@ -68,7 +86,6 @@ public class TestUtils {
 
                 Assertions.assertArrayEquals(hashes.get(path.getFileName()), digest);
             } catch (AssertionError e) {
-
                 //read all lines of paths and compute levenshtein distance
                 String fileName = path.getFileName().toString();
                 File f1 = Paths.get(dir1.toString(), fileName).toFile();
@@ -76,7 +93,7 @@ public class TestUtils {
                 try {
                     String content1 = String.join("\n", Files.readAllLines(f1.toPath(), StandardCharsets.UTF_8));
                     String content2 = String.join("\n", Files.readAllLines(f2.toPath(), StandardCharsets.UTF_8));
-                    int threshold = Math.min(1, (int) (Math.max(content1.length(), content2.length()) *
+                    int threshold = Math.max(1, (int) (Math.min(content1.length(), content2.length()) *
                         ALLOWED_FILE_DIFFERENCE_FACTOR));
                     int distance = new LevenshteinDistance(threshold).apply(content1, content2);
 
@@ -98,6 +115,12 @@ public class TestUtils {
                     }
                 }
                 hashes.put(path.getFileName(), new byte[0]);
+
+                if (fail_fast) {
+                    Assertions.fail(String.format("Files %s differs", path.getFileName().toString()));
+                    ;
+                }
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -119,6 +142,30 @@ public class TestUtils {
             errors.forEach(System.out::println);
             Assertions.fail(String.format("%d/%d files differ. See above for details.", failed, total));
         }
+    }
+
+    public static void testFileEquality(Path basePath1, Path basePath2, String filename) {
+        try {
+            assertEquals(
+                FileUtils.readFileToString(basePath1.resolve(filename).toFile(), "UTF-8"),
+                FileUtils.readFileToString(basePath2.resolve(filename).toFile(), "UTF-8"));
+        } catch (IOException e) {
+            Assertions.fail("Could not read file", e);
+        }
+    }
+
+    public static void invertAssertions(Runnable r) {
+        invertAssertions(r, "Expected AssertionError");
+    }
+
+    public static void invertAssertions(Runnable r, String fail_msg) {
+        try {
+            r.run();
+        } catch (AssertionError e) {
+            // expected
+            return;
+        }
+        Assertions.fail(fail_msg);
     }
 
     public static int nextNonNegative() {

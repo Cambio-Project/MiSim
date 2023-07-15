@@ -25,7 +25,7 @@ class ReactiveAutoscalingPolicy implements IAutoscalingPolicy {
     @Override
     public void apply(Microservice owner) {
         if (reporter == null) {
-            reporter = new MultiDataPointReporter(String.format("AS[%s]_", owner.getPlainName()));
+            reporter = new MultiDataPointReporter(String.format("AS[%s]_", owner.getPlainName()), owner.getModel());
         }
 
 

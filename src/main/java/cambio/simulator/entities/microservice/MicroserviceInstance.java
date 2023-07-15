@@ -74,7 +74,7 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
             new FIFOScheduler("Scheduler"), this);
 
         String[] names = name.split("_");
-        reporter = new MultiDataPointReporter(String.format("I[%s]_", name));
+        reporter = new MultiDataPointReporter(String.format("I[%s]_", name), model);
 
         changeState(InstanceState.CREATED);
 
@@ -224,9 +224,11 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
                 currentlyOpenDependencies.add(dependency);
 
                 Request internalRequest = new InternalRequest(getModel(), this.traceIsOn(), dependency, this);
-                sendRequest(String.format("Collecting dependency %s", dependency.getQuotedName()), internalRequest,
+                sendRequest("Collecting dependency " + dependency.getQuotedPlainName(), internalRequest,
                     dependency.getTargetService());
-                sendTraceNote(String.format("Try 1, send Request: %s ", internalRequest.getQuotedPlainName()));
+
+                sendTraceNote("Try 1, send Request: " + internalRequest.getQuotedPlainName() + " ");
+
             }
         }
     }
@@ -329,6 +331,7 @@ public class MicroserviceInstance extends RequestSender implements IRequestUpdat
         currentRequestsToHandle.stream()
             .sorted(Comparator.comparing(Request::getIdentNumber))
             .forEach(Request::cancelExecutionAtHandler);
+        reporter.finalizeReport();
     }
 
     public final Microservice getOwner() {

@@ -1,8 +1,9 @@
 package cambio.simulator.entities.networking;
 
+import static cambio.simulator.export.MiSimReporters.USER_REQUEST_REPORTER;
+
 import cambio.simulator.entities.generator.LoadGeneratorDescriptionExecutor;
 import cambio.simulator.entities.microservice.Operation;
-import cambio.simulator.export.ReportCollector;
 import desmoj.core.simulator.Model;
 
 /**
@@ -24,9 +25,9 @@ public class UserRequest extends Request {
     @Override
     protected void onReceive() {
         super.onReceive();
-        ReportCollector.USER_REQUEST_REPORTER
+        USER_REQUEST_REPORTER
             .addDatapoint(String.format("[%s]_ResponseTimes", operation.getName()), presentTime(), getResponseTime());
-        ReportCollector.USER_REQUEST_REPORTER
+        USER_REQUEST_REPORTER
             .addDatapoint("[All]ResponseTimes", presentTime(), getResponseTime());
     }
 }

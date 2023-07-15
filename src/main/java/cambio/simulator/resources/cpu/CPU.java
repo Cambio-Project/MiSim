@@ -26,7 +26,8 @@ import org.javatuples.Pair;
  */
 public class CPU extends NamedExternalEvent {
 
-    private static final int DEFAULT_THREADPOOLSIZE = 4;
+    private static final int DEFAULT_THREADPOOL_SIZE = 4;
+    private static final String QUEUE_STATE_DATASET_NAME = "QueueState";
 
     private final MultiDataPointReporter reporter;
 
@@ -39,14 +40,14 @@ public class CPU extends NamedExternalEvent {
     private final Set<CPUProcess> activeProcesses;
 
     /**
-     * Constructs a new CPU with a default Round-Robin scheduler and a default thread pool size of {@code
-     * CPUImpl.DEFAULT_THREADPOOLSIZE}.
+     * Constructs a new CPU with a default Round-Robin scheduler and a default thread pool size of
+     * {@code CPUImpl.DEFAULT_THREADPOOLSIZE}.
      *
      * @see CPU#CPU
      * @see RoundRobinScheduler
      */
     public CPU(Model model, String name, boolean showInTrace, int capacity, MicroserviceInstance owner) {
-        this(model, name, showInTrace, capacity, DEFAULT_THREADPOOLSIZE, owner);
+        this(model, name, showInTrace, capacity, DEFAULT_THREADPOOL_SIZE, owner);
     }
 
     /**
@@ -70,7 +71,7 @@ public class CPU extends NamedExternalEvent {
      */
     public CPU(Model model, String name, boolean showInTrace, int capacity, CPUProcessScheduler scheduler,
                MicroserviceInstance owner) {
-        this(model, name, showInTrace, owner, capacity, scheduler, DEFAULT_THREADPOOLSIZE);
+        this(model, name, showInTrace, owner, capacity, scheduler, DEFAULT_THREADPOOL_SIZE);
     }
 
     /**
@@ -80,8 +81,8 @@ public class CPU extends NamedExternalEvent {
      * @param name           CPU name
      * @param showInTrace    whether the computation events should be shown in the trace
      * @param owner          instance that owns this cpu
-     * @param capacity       total capacity of the cpu resource. Each thread will be assigned a capacity of {@code
-     *                       Math.floor(capacity/threadPoolSize)}.
+     * @param capacity       total capacity of the cpu resource. Each thread will be assigned a capacity of
+     *                       {@code Math.floor(capacity/threadPoolSize)}.
      * @param scheduler      implementation of a scheduling strategy that should be used by the CPU
      * @param threadPoolSize thread count of the CPU
      * @see CPUProcessScheduler
@@ -97,11 +98,11 @@ public class CPU extends NamedExternalEvent {
         this.threadPoolSize = threadPoolSize;
         activeProcesses = new HashSet<>(threadPoolSize);
 
-        reporter = new MultiDataPointReporter(String.format("C[%s]_", name));
+        reporter = new MultiDataPointReporter(String.format("C[%s]_", name), model);
         binnedUtilizationTracker = new BinnedCPUUtilizationTracker(this);
 
-        reporter.addDatapoint("ActiveProcesses", presentTime(), 0);
-        reporter.addDatapoint("TotalProcesses", presentTime(), 0);
+        reporter.registerDefaultHeader(QUEUE_STATE_DATASET_NAME, "TotalProcesses", "ActiveProcesses");
+        reporter.addDatapoint(QUEUE_STATE_DATASET_NAME, presentTime(), 0, 0);
         reportUtilization();
     }
 
@@ -120,7 +121,7 @@ public class CPU extends NamedExternalEvent {
         if (hasProcessAndThreadReady()) {
             forceScheduleNow();
         }
-        reporter.addDatapoint("TotalProcesses", presentTime(), getProcessesCount());
+        reportQueueState();
     }
 
     /**
@@ -149,8 +150,7 @@ public class CPU extends NamedExternalEvent {
             TimeSpan processBurstDuration = new TimeSpan(nextTotalDemand / capacityPerThread);
 
             ComputationBurstCompletedEvent endEvent = new ComputationBurstCompletedEvent(getModel(),
-                String.format("Computation burst finished of %s",
-                    nextProcess.getRequest().getQuotedPlainName()),
+                "Computation burst finished of " + nextProcess.getRequest().getQuotedPlainName(),
                 debugIsOn(),
                 nextProcess,
                 this,
@@ -163,8 +163,7 @@ public class CPU extends NamedExternalEvent {
         binnedUtilizationTracker.updateUtilization(getCurrentUsage(), presentTime());
 
 
-        reporter.addDatapoint("ActiveProcesses", presentTime(), activeProcesses.size());
-        reporter.addDatapoint("TotalProcesses", presentTime(), getProcessesCount());
+        reportQueueState();
         reportUtilization();
     }
 
@@ -185,8 +184,10 @@ public class CPU extends NamedExternalEvent {
         Objects.requireNonNull(process);
 
         if (process.getDemandRemainder() > 0) { //if process is not finished reschedule it
+
             sendTraceNote(String.format("Burst for process of %s completed, but has %d demand remaining",
                 process.getRequest().getName(), process.getDemandRemainder()));
+
             scheduler.enterProcess(process);
         }
 
@@ -197,8 +198,7 @@ public class CPU extends NamedExternalEvent {
 
         binnedUtilizationTracker.updateUtilization(getCurrentUsage(), presentTime());
 
-        reporter.addDatapoint("ActiveProcesses", presentTime(), activeProcesses.size());
-        reporter.addDatapoint("TotalProcesses", presentTime(), getProcessesCount());
+        reportQueueState();
         reportUtilization();
     }
 
@@ -228,9 +228,12 @@ public class CPU extends NamedExternalEvent {
         activeProcesses.forEach(CPUProcess::cancel);
         scheduler.clear();
 
-        reporter.addDatapoint("ActiveProcesses", presentTime(), activeProcesses.size());
-        reporter.addDatapoint("TotalProcesses", presentTime(), getProcessesCount());
+        reportQueueState();
         reportUtilization();
+    }
+
+    private void reportQueueState() {
+        reporter.addDatapoint(QUEUE_STATE_DATASET_NAME, presentTime(), getProcessesCount(), activeProcesses.size());
     }
 
 

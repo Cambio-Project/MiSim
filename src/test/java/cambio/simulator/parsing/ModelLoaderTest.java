@@ -1,24 +1,22 @@
 package cambio.simulator.parsing;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.io.*;
+import java.nio.file.Path;
 
-import cambio.simulator.export.ReportCollector;
+import cambio.simulator.export.ExportUtils;
 import cambio.simulator.misc.RNGStorage;
 import cambio.simulator.models.ExperimentMetaData;
 import cambio.simulator.models.MiSimModel;
 import cambio.simulator.test.FileLoaderUtil;
+import cambio.simulator.test.TestBase;
 import desmoj.core.simulator.Experiment;
 import desmoj.core.simulator.TimeInstant;
-import org.junit.jupiter.api.Assertions;
+import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
 
-class ModelLoaderTest {
-
+class ModelLoaderTest extends TestBase {
 
     @Test
     void loads_MetaDataFromScenario() {
@@ -64,17 +62,23 @@ class ModelLoaderTest {
     @Test
     void failsOnNonExistingExperimentMetaData_Test() {
         assertThrows(ParsingException.class,
-                () -> ModelLoader.loadExperimentMetaData(new File("/noneExistingFile.nonefile"), null));
+            () -> ModelLoader.loadExperimentMetaData(new File("/noneExistingFile.nonefile"), null));
     }
 
 
     @Test
-    void parsesTestModels() {
+    void parsesTestModelsWithExperiment() throws IOException {
         File test_architecture = FileLoaderUtil.loadFromTestResources("test_architecture.json");
         File test_experiment = FileLoaderUtil.loadFromTestResources("test_experiment.json");
 
         MiSimModel model = new MiSimModel(test_architecture, test_experiment);
         Experiment expDummy = new Experiment("TestExperiment");
+
+        Path reportLocation = TestBase.createTempOutputDir();
+        ExperimentMetaData metaData = model.getExperimentMetaData();
+        metaData.setReportLocation(reportLocation);
+        ExportUtils.prepareReportDirectory(null, model.getExperimentMetaData());
+
         model.connectToExperiment(expDummy);
         expDummy.stop(new TimeInstant(1));//lets the experiment start itself for a very short amount of time
         expDummy.setShowProgressBar(false); //enforces headless mode
@@ -86,16 +90,23 @@ class ModelLoaderTest {
         assertFalse(expDummy.hasError());
 
         RNGStorage.reset();
-        ReportCollector.getInstance().reset();
+        FileUtils.forceDelete(reportLocation.toFile());
     }
 
     @Test
-    void parsesTestModelsWithScenario() {
+    void parsesTestModelsWithScenario() throws IOException {
         File test_architecture = FileLoaderUtil.loadFromTestResources("test_architecture.json");
         File test_experiment = FileLoaderUtil.loadFromTestResources("test_scenario.json");
 
+
         MiSimModel model = new MiSimModel(test_architecture, test_experiment);
         Experiment expDummy = new Experiment("TestExperiment");
+
+        Path reportLocation = TestBase.createTempOutputDir();
+        ExperimentMetaData metaData = model.getExperimentMetaData();
+        metaData.setReportLocation(reportLocation);
+        ExportUtils.prepareReportDirectory(null, model.getExperimentMetaData());
+
         model.connectToExperiment(expDummy);
         expDummy.stop(new TimeInstant(1));//lets the experiment start itself for a very short amount of time
         expDummy.setShowProgressBar(false);
@@ -107,22 +118,20 @@ class ModelLoaderTest {
         assertFalse(expDummy.hasError());
 
         RNGStorage.reset();
-        ReportCollector.getInstance().reset();
+        FileUtils.forceDelete(reportLocation.toFile());
     }
 
     @Test
     void throwsWarningWhenSimulationDurationIsMissing() throws UnsupportedEncodingException {
         PrintStream originalOut = System.out;
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        PrintStream newOut = new PrintStream(out,false,"UTF-8");
+        PrintStream newOut = new PrintStream(out, false, "UTF-8");
 
         System.setOut(newOut);
 
         File test_architecture = FileLoaderUtil.loadFromTestResources("test_architecture.json");
         File test_experiment = FileLoaderUtil.loadFromTestResources("test_scenario_infinite.json");
-        MiSimModel model = new MiSimModel(test_architecture, test_experiment);
-        Experiment expDummy = new Experiment("TestExperiment");
-        model.connectToExperiment(expDummy);
+        getConnectedMockModel(test_architecture, test_experiment);
 
         newOut.flush();
         System.setOut(originalOut);

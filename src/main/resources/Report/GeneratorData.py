@@ -21,13 +21,13 @@ for file in glob.glob(os.path.join(".", "raw", "G*_Load.csv")):
         file.replace("_Load.csv", "_FailedRequests.csv"), sep=";", usecols=[0, 1])
 
     sucessrate = pd.DataFrame()
-    sucessrate["Simulation Time"] = dataSuccessful["Simulation Time"]
+    sucessrate["SimulationTime"] = dataSuccessful["SimulationTime"]
     sucessrate["Value"] = dataSuccessful["Value"].div(
         dataSuccessful["Value"] + dataFailed["Value"])
 
     joined = dataLoad.merge(dataSuccessful,
-                            how="outer", on="Simulation Time", suffixes=("_Load", "_Successful"))
-    joined = joined.merge(dataFailed, how="outer", on="Simulation Time")
+                            how="outer", on="SimulationTime", suffixes=("_Load", "_Successful"))
+    joined = joined.merge(dataFailed, how="outer", on="SimulationTime")
     joined.rename(columns={"Value_Load": "Load",
                            "Value_Successful": "Successful", "Value": "Failed"}, inplace=True)
 
@@ -41,22 +41,22 @@ for file in glob.glob(os.path.join(".", "raw", "G*_Load.csv")):
 
 
 def write_dataset(ax: Axes, ax2: Axes, dataset: DataFrame):
-    ax.plot(dataset["Simulation Time"],
+    ax.plot(dataset["SimulationTime"],
             dataset["Load"],
             color="yellow",
             label="Load")
-    ax.scatter(x=dataset["Simulation Time"],
+    ax.scatter(x=dataset["SimulationTime"],
                y=dataset["Successful"],
                color="green",
                label="Successful")
-    ax.scatter(x=dataset["Simulation Time"],
+    ax.scatter(x=dataset["SimulationTime"],
                y=dataset["Failed"],
                color="blue",
                label="Failed")
 
     mask = np.logical_and(np.isfinite(dataset["Successrate"]), np.logical_not(np.isnan(dataset["Successrate"])))
-    succ_data = dataset[mask].sort_values(by=["Simulation Time"]).reset_index(drop=True)
-    ax2.plot(succ_data["Simulation Time"],
+    succ_data = dataset[mask].sort_values(by=["SimulationTime"]).reset_index(drop=True)
+    ax2.plot(succ_data["SimulationTime"],
              succ_data["Successrate"],
              color="black",
              linewidth=2,

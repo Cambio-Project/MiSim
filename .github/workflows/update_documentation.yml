@@ -8,6 +8,7 @@ on:
 
 jobs:
   build_documentation:
+    if: "!contains(github.event.head_commit.message, '[maven-release-plugin]')"
     name: Build Documentation
     runs-on: ubuntu-latest
     steps:
@@ -42,7 +43,7 @@ jobs:
 
   push_documentation_to_gh-pages:
     name: Push Documentation to gh-pages
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && !contains(github.event.head_commit.message, '[maven-release-plugin]')
     needs: build_documentation
     runs-on: ubuntu-latest
 

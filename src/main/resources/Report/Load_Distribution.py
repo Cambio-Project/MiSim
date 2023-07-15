@@ -18,7 +18,7 @@ for file in glob.glob(os.path.join(".", "raw", "S*_Load_Distribution.csv")):
 
     for dat in alldata:
         # remove [ ] from dat and split content on ,
-        arr = dat[1:-1].split(", ")
+        arr = dat[1:-1].split(",")
 
         for key in arr:
             key = key[key.rindex("_") + 1:]

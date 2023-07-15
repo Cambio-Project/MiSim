@@ -48,3 +48,14 @@ jobs:
           branch: master
           tags: true
           force: true
+      
+      - name: Merge into develop
+        run: 
+          git checkout develop
+          git merge master
+
+      - name: Push to develop
+        uses: CasperWA/push-protected@v2
+        with:
+          token: ${{ secrets.PUBLISHER_TOKEN }}
+          branch: develop

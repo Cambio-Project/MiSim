@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 import cambio.simulator.entities.NamedEntity;
 import cambio.simulator.entities.networking.InternalRequest;
 import cambio.simulator.entities.patterns.*;
-import cambio.simulator.export.AccumulativeDataPointReporter;
+import cambio.simulator.export.ListCollectingReporter;
 import cambio.simulator.export.MultiDataPointReporter;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -42,7 +42,7 @@ public class Microservice extends NamedEntity {
     protected final transient Set<MicroserviceInstance> instancesSet =
         new TreeSet<>(Comparator.comparingInt(MicroserviceInstance::getInstanceID));
     protected final transient MultiDataPointReporter reporter;
-    private final transient AccumulativeDataPointReporter accReporter;
+    protected final transient ListCollectingReporter accReporter;
 
     @Expose
     @SerializedName(value = "loadbalancer_strategy", alternate = {"load_balancer", "loadbalancer"})
@@ -82,8 +82,8 @@ public class Microservice extends NamedEntity {
         super(model, name, showInTrace);
         //default load balancer
         loadBalancer = new LoadBalancer(model, "Loadbalancer", traceIsOn(), null);
-        reporter = new MultiDataPointReporter(String.format("S[%s]_", name));
-        accReporter = new AccumulativeDataPointReporter(String.format("S[%s]_", name));
+        reporter = new MultiDataPointReporter(String.format("S[%s]_", name), model);
+        accReporter = new ListCollectingReporter(String.format("S[%s]_", name), model);
     }
 
     /**
@@ -165,14 +165,13 @@ public class Microservice extends NamedEntity {
                 changedInstance =
                     instancesSet.stream().min(Comparator.comparingDouble(MicroserviceInstance::getUsage)).get();
                 changeEvent = new InstanceShutdownStartEvent(getModel(),
-                    String.format("Instance %s Shutdown Start", changedInstance.getQuotedName()), traceIsOn());
+                    "Instance " + changedInstance.getQuotedName() + " Shutdown Start", traceIsOn());
                 instancesSet.remove(changedInstance);
             }
             changeEvent.schedule(changedInstance, presentTime());
         }
 
         reporter.addDatapoint("InstanceCount", presentTime(), instancesSet.size());
-
     }
 
 
@@ -239,9 +238,7 @@ public class Microservice extends NamedEntity {
      */
     public MicroserviceInstance getNextAvailableInstance() throws NoInstanceAvailableException {
         MicroserviceInstance nextInstance = loadBalancer.getNextInstance(instancesSet);
-        List<String> data = new ArrayList<>();
-        data.add(nextInstance.getPlainName());
-        accReporter.addDatapoint("Load_Distribution", presentTime(), data);
+        accReporter.addDatapoint("Load_Distribution", presentTime(), nextInstance.getPlainName());
         return nextInstance;
     }
 
@@ -250,10 +247,10 @@ public class Microservice extends NamedEntity {
      * Applies the given delay distribution to the given operations.
      *
      * @param dist         {@link NumericalDist} of the delay.
-     * @param operationSrc {@link Operation} of this {@link Microservice} that should be affected, can be set to {@code
-     *                     null} to affect all {@link Operation}s
-     * @param operationTrg target {@link Operation} of the operationSrc that should be affected, can be set to {@code
-     *                     null} to affect all outgoing {@link InternalRequest}s
+     * @param operationSrc {@link Operation} of this {@link Microservice} that should be affected, can be set to
+     *                     {@code null} to affect all {@link Operation}s
+     * @param operationTrg target {@link Operation} of the operationSrc that should be affected, can be set to
+     *                     {@code null} to affect all outgoing {@link InternalRequest}s
      */
     public void applyDelay(NumericalDist<Double> dist, Operation operationSrc, Operation operationTrg) {
         if (operationTrg == null) {

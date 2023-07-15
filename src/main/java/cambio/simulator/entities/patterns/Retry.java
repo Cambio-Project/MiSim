@@ -1,8 +1,9 @@
 package cambio.simulator.entities.patterns;
 
-import static cambio.simulator.export.ReportCollector.RETRY_MANAGER_REPORTER;
+import static cambio.simulator.export.MiSimReporters.RETRY_MANAGER_REPORTER;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 import cambio.simulator.entities.microservice.MicroserviceInstance;
 import cambio.simulator.entities.networking.*;
@@ -20,8 +21,6 @@ import desmoj.core.simulator.*;
  */
 @JsonTypeName("retry")
 public class Retry extends StrategicInstanceOwnedPattern<IRetryStrategy> implements IRequestUpdateListener {
-
-    private static final List<Double> all = new LinkedList<>();
 
     private final Map<ServiceDependencyInstance, Integer> requestIndex = new HashMap<>();
 
@@ -56,7 +55,6 @@ public class Retry extends StrategicInstanceOwnedPattern<IRetryStrategy> impleme
             double delay = strategy.getNextDelay(tries);
 
             RETRY_MANAGER_REPORTER.addDatapoint("RetryTimings", presentTime(), delay);
-            all.add(delay);
 
             MicroserviceInstance handler = request.getHandler();
 
@@ -75,13 +73,16 @@ public class Retry extends StrategicInstanceOwnedPattern<IRetryStrategy> impleme
             //                newRequest, handler, new TimeSpan(delay));
             //            }
             //for now we just send the request to the load balancer, which can decide which instance to use
-            owner.sendRequest(String.format("Collecting dependency %s", dep.getQuotedPlainName()), newRequest,
+            owner.sendRequest("Collecting dependency " + dep.getQuotedPlainName(), newRequest,
                 dep.getTargetService(), new TimeSpan(delay));
-            sendTraceNote(String.format("Try %d, send Request: %s", tries + 1, newRequest.getQuotedPlainName()));
+
+            sendTraceNote("Try " + (tries + 1) + ", send Request: " + newRequest.getQuotedPlainName());
+
         } else {
             request.getUpdateListeners().forEach(iRequestUpdateListener -> iRequestUpdateListener
                 .onRequestFailed(request, when, RequestFailedReason.MAX_RETRIES_REACHED));
-            sendTraceNote(String.format("Max Retries Reached for Dependency %s", dep));
+            sendTraceNote("Max Retries Reached for Dependency " + dep);
+            requestIndex.remove(dep);
             return true;
         }
         return false;
@@ -116,7 +117,7 @@ public class Retry extends StrategicInstanceOwnedPattern<IRetryStrategy> impleme
     public void shutdown() {
         requestIndex.clear();
         traceOn();
-        sendTraceNote(String.format("Clearing Retry %s", this.getQuotedName()));
+        sendTraceNote("Clearing Retry " + this.getQuotedName());
         traceOff();
     }
 }

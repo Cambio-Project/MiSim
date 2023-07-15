@@ -7,6 +7,7 @@ import java.io.File;
 
 import cambio.simulator.models.MiSimModel;
 import cambio.simulator.parsing.ParsingException;
+import cambio.simulator.test.TestBase;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import desmoj.core.dist.ContDistNormal;
@@ -18,11 +19,7 @@ class NormalDistributionAdapterTest {
     private static final MiSimModel model;
 
     static {
-        File test_experiment = new File("src/test/resources/test_experiment.json");
-        File test_architecture = new File("src/test/resources/test_architecture.json");
-        model = new MiSimModel(test_architecture, test_experiment);
-        Experiment expDummy = new Experiment("TestExp");
-        model.connectToExperiment(expDummy);
+        model = new TestBase().getConnectedMockModel().getValue0();
     }
 
     @Test

@@ -41,6 +41,7 @@ jobs:
           path: ./target/*.jar
 
   run_tests:
+    if: "!contains(github.event.head_commit.message, '[maven-release-plugin]')"
     name: Run Tests & Report
     runs-on: ubuntu-latest
     needs: build_artifact
@@ -74,6 +75,7 @@ jobs:
           path: 'target/surefire-reports/*.xml'
   
   run_hello_world_Linux:
+    if: "!contains(github.event.head_commit.message, '[maven-release-plugin]')"
     name: Run Hello World (Linux)
     runs-on: ubuntu-latest
     needs: run_tests
@@ -89,6 +91,7 @@ jobs:
         run: ./hello_world.sh
 
   run_hello_world_Windows:
+    if: "!contains(github.event.head_commit.message, '[maven-release-plugin]')"
     name: Run Hello World (Windows)
     runs-on: windows-latest
     needs: run_tests

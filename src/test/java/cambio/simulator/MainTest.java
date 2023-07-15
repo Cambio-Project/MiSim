@@ -31,7 +31,7 @@ class MainTest extends TestBase {
         // - 4 html files
         // - 3 json file
         // - 7 python files
-        File[] resultFiles = output.listFiles()[0].listFiles();
+        File[] resultFiles = output.listFiles();
         assertNotNull(resultFiles);
         checkFileWithNameExists(resultFiles, "graph");
         checkFileWithNameExists(resultFiles, "raw");
@@ -50,4 +50,16 @@ class MainTest extends TestBase {
         assertEquals(expected, Arrays.stream(resultFiles).filter(f -> f.getName().endsWith(suffix)).count());
     }
 
+    @Test
+    void doesNotProduceTracesFilesWhenDeactivated(){
+        File test_architecture = loadFromTestResources("SSPExample","ssp_architecture.json");
+        File test_experiment = loadFromTestResources("SSPExample", "ssp_experiment.json");
+
+        File output = this.runSimulationCheckExitTempOutput(0, test_architecture, test_experiment,
+            "-t");
+
+        assertTrue(output.exists());
+        assertTrue(output.isDirectory());
+        checkFileTypeCount(0, output.listFiles(),".html");
+    }
 }

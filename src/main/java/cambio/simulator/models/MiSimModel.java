@@ -1,11 +1,11 @@
 package cambio.simulator.models;
 
 import java.io.File;
-import java.time.LocalDateTime;
 
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.events.ISelfScheduled;
 import cambio.simulator.events.SimulationEndEvent;
+import cambio.simulator.export.MiSimReporters;
 import cambio.simulator.parsing.ModelLoader;
 import desmoj.core.simulator.*;
 
@@ -57,7 +57,7 @@ public class MiSimModel extends Model {
     public void init() {
         this.architectureModel = ModelLoader.loadArchitectureModel(this);
         this.experimentModel = ModelLoader.loadExperimentModel(this);
-        this.experimentMetaData.setStartDate(LocalDateTime.now());
+        MiSimReporters.initializeStaticReporters(this);
     }
 
     @Override
