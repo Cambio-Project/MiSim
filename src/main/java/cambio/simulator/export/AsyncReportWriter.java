@@ -63,7 +63,7 @@ public abstract class AsyncReportWriter<T> {
     /**
      * Future that describes the task of regularly writing the buffer to the file.
      */
-    private ScheduledFuture<?> scheduledFuture;
+    private final ScheduledFuture<?> scheduledFuture;
 
     /**
      * Creates a new AsyncReportWriter and opens a new output stream to the given file (dataset path).

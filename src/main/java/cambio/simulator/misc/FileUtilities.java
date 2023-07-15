@@ -96,7 +96,7 @@ public final class FileUtilities {
                 // System.out.println("[Debug] Successfully loaded from classpath.");
             } catch (Exception e2) {
                 throw new IOException(
-                        "Could not copy from jar or classpath. Tried to copy from '" + fullPath + "'.", e2);
+                    "Could not copy from jar or classpath. Tried to copy from '" + fullPath + "'.", e2);
             }
         }
     }

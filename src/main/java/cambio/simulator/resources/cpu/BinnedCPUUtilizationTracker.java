@@ -30,8 +30,8 @@ public final class BinnedCPUUtilizationTracker extends NamedSimProcess implement
     /**
      * Creates a new CPU Utilization Tracker that reports the utilization of the owning CPU periodically. The probe
      * interval can be configured by changing the static field {@link BinnedCPUUtilizationTracker#probeInterval} and
-     * defaults to 0.1 units. The backwards bin can be configured by changing the static field {@link
-     * BinnedCPUUtilizationTracker#BIN_SIZE} and defaults to 0.5 units.
+     * defaults to 0.1 units. The backwards bin can be configured by changing the static field
+     * {@link BinnedCPUUtilizationTracker#BIN_SIZE} and defaults to 0.5 units.
      *
      * @param owner CPU that supplies this tracker with utilization information
      * @see #probeInterval

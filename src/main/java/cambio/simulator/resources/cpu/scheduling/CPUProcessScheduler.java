@@ -1,7 +1,6 @@
 package cambio.simulator.resources.cpu.scheduling;
 
 
-import cambio.simulator.export.MultiDataPointReporter;
 import cambio.simulator.resources.cpu.CPUProcess;
 import org.javatuples.Pair;
 

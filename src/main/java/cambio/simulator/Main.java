@@ -24,8 +24,8 @@ public final class Main {
      *
      * <p>
      * This method will <b>always</b> call {@link System#exit(int)}! Be aware of that if you call it from other code. If
-     * you want to avoid this behavior, consider calling {@link #runExperiment(String[])} or {@link
-     * #runExperiment(ExperimentStartupConfig)} instead.
+     * you want to avoid this behavior, consider calling {@link #runExperiment(String[])} or
+     * {@link #runExperiment(ExperimentStartupConfig)} instead.
      *
      * <p>
      * Exit code meanings are as follows:
@@ -113,8 +113,8 @@ public final class Main {
      *
      * <p>
      * This method will <b>always</b> call {@link System#exit(int)}! Be aware of that if you call it from other code. If
-     * you want to avoid this behavior, consider calling {@link #runExperiment(String[])} or {@link
-     * #runExperiment(ExperimentStartupConfig)} instead.
+     * you want to avoid this behavior, consider calling {@link #runExperiment(String[])} or
+     * {@link #runExperiment(ExperimentStartupConfig)} instead.
      *
      * <p>
      * For exit code meanings, see {@link #main(String[])}.

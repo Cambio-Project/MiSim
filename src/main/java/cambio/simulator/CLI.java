@@ -11,8 +11,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Static class that holds the command line options of the simulator and is able to parse these into a {@link
- * CommandLine} object for retrieval.
+ * Static class that holds the command line options of the simulator and is able to parse these into a
+ * {@link CommandLine} object for retrieval.
  *
  * @author Lion Wagner
  */

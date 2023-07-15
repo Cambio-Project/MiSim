@@ -7,7 +7,8 @@ import java.util.stream.Collectors;
 import cambio.simulator.entities.NamedEntity;
 import cambio.simulator.entities.networking.InternalRequest;
 import cambio.simulator.entities.patterns.*;
-import cambio.simulator.export.*;
+import cambio.simulator.export.ListCollectingReporter;
+import cambio.simulator.export.MultiDataPointReporter;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import desmoj.core.dist.NumericalDist;
@@ -246,10 +247,10 @@ public class Microservice extends NamedEntity {
      * Applies the given delay distribution to the given operations.
      *
      * @param dist         {@link NumericalDist} of the delay.
-     * @param operationSrc {@link Operation} of this {@link Microservice} that should be affected, can be set to {@code
-     *                     null} to affect all {@link Operation}s
-     * @param operationTrg target {@link Operation} of the operationSrc that should be affected, can be set to {@code
-     *                     null} to affect all outgoing {@link InternalRequest}s
+     * @param operationSrc {@link Operation} of this {@link Microservice} that should be affected, can be set to
+     *                     {@code null} to affect all {@link Operation}s
+     * @param operationTrg target {@link Operation} of the operationSrc that should be affected, can be set to
+     *                     {@code null} to affect all outgoing {@link InternalRequest}s
      */
     public void applyDelay(NumericalDist<Double> dist, Operation operationSrc, Operation operationTrg) {
         if (operationTrg == null) {

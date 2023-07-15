@@ -1,7 +1,6 @@
 package cambio.simulator.models;
 
 import java.io.File;
-import java.time.LocalDateTime;
 
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.events.ISelfScheduled;

@@ -22,8 +22,8 @@ public class SimulationEndEvent extends NamedExternalEvent {
      * Creates a new {@link SimulationEndEvent} that finishes off the simulation.
      *
      * <p>
-     * This Event automatically is assigned {@link Priority#HIGH} so it executes before the {@link
-     * desmoj.core.simulator.ExternalEventStop} that stops the simulation.
+     * This Event automatically is assigned {@link Priority#HIGH} so it executes before the
+     * {@link desmoj.core.simulator.ExternalEventStop} that stops the simulation.
      */
     public SimulationEndEvent(MiSimModel model, String name, boolean showInTrace) {
         super(model, name, showInTrace);
