@@ -18,5 +18,3 @@ Download the [newest stable release](https://github.com/Cambio-Project/MiSim/rel
 Clone via git and run 
 `mvn -B package --file pom.xml "-DskipTests=true" "-Dmaven.javadoc.skip=true" "-Dcheckstyle.skipExec=true"`. 
 You should see a `misim.jar` file in the resulting `target/` directory.
-
-https://rztuzivobnöo/aw8tldsfgbai

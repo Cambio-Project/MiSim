@@ -38,9 +38,4 @@ jobs:
         awesome_bot_exit_code="$?"
         echo "awesome_bot_exit_code=$awesome_bot_exit_code" >> $GITHUB_OUTPUT
         exit "$awesome_bot_exit_code"
-     
-     - name: Report on Failure
-       if: ${{ failure() }}
-       run: |
-          echo "awesome_bot failed"
-          exit 1
+        
