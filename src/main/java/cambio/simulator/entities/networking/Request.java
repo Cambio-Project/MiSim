@@ -203,8 +203,9 @@ public abstract class Request extends NamedEntity {
             dep.setCompleted();
             uncompletedCount -= 1;
 
-            this.sendTraceNote(String.format("Completed Dependency \"%s\".", dep));
-            this.sendTraceNote(String.format("Remaining Dependencies: %d.", uncompletedCount - 1));
+            this.sendTraceNote("Completed Dependency \"" + dep + "\".");
+            this.sendTraceNote("Remaining Dependencies: " + (uncompletedCount - 1) + ".");
+
         }
 
         if (uncompletedCount == 0) {
@@ -213,7 +214,9 @@ public abstract class Request extends NamedEntity {
             if (dependenciesCompleted && computationCompleted) {
                 onCompletion();
             }
+
             this.sendTraceNote(String.format("Dependencies of Request \"%s\" are completed.", this.getName()));
+
             return true;
         }
         return false;
@@ -223,9 +226,8 @@ public abstract class Request extends NamedEntity {
      * Gets the {@link ServiceDependencyInstance} that should be completed by the given request.
      *
      * @param request child request of this request.
-     * @return the {@link ServiceDependencyInstance} that is related to the given request,
-     *     {@code null} otherwise. Returns {@code null} specifically, if the request was a child
-     *     request, that has been canceled or replaced.
+     * @return the {@link ServiceDependencyInstance} that is related to the given request, {@code null} otherwise.
+     *     Returns {@code null} specifically, if the request was a child request, that has been canceled or replaced.
      */
     public ServiceDependencyInstance getRelatedDependency(Request request) {
         for (ServiceDependencyInstance serviceDependencyInstance : dependencies) {
@@ -265,24 +267,33 @@ public abstract class Request extends NamedEntity {
         return dependenciesCompleted;
     }
 
+
     /*
-     * Interface for subclasses to monitor their state, while keeping core functions hidden. these
-     * are essentially Events in a programmatic sense (like in C#, not like in DES)
+     * Interface for subclasses to monitor their state, while keeping core functions hidden.
+     * these are essentially Events in a programmatic sense (like in C#, not like in DES)
      */
     protected void onDependenciesComplete() {
-        sendDebugNote(String.format("Dependencies Completed: %s", getQuotedName()));
+        if (debugIsOn()) {
+            sendDebugNote(String.format("Dependencies Completed: %s", getQuotedName()));
+        }
     }
 
     protected void onComputationComplete() {
-        sendDebugNote(String.format("Computation Completed: %s", getQuotedName()));
+        if (debugIsOn()) {
+            sendDebugNote(String.format("Computation Completed: %s", getQuotedName()));
+        }
     }
 
     protected void onCompletion() {
-        sendDebugNote(String.format("Completed %s!", getQuotedName()));
+        if (debugIsOn()) {
+            sendDebugNote(String.format("Completed %s!", getQuotedName()));
+        }
     }
 
     protected void onReceive() {
-        sendDebugNote(String.format("Arrived at Parent %s!", getQuotedName()));
+        if (debugIsOn()) {
+            sendDebugNote(String.format("Arrived at Parent %s!", getQuotedName()));
+        }
     }
 
     public MicroserviceInstance getHandler() {

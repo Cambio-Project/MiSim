@@ -1,7 +1,6 @@
 package cambio.simulator.resources.cpu.scheduling;
 
 
-import cambio.simulator.export.MultiDataPointReporter;
 import cambio.simulator.resources.cpu.CPUProcess;
 import org.javatuples.Pair;
 
@@ -12,13 +11,8 @@ import org.javatuples.Pair;
  */
 public abstract class CPUProcessScheduler {
 
-    /**
-     * Predefined reporter.
-     */
-    protected MultiDataPointReporter reporter;
 
     public CPUProcessScheduler(String name) {
-        reporter = new MultiDataPointReporter(name);
     }
 
     /**

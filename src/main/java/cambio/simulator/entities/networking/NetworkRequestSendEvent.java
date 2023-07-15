@@ -1,9 +1,10 @@
 package cambio.simulator.entities.networking;
 
+import static cambio.simulator.export.MiSimReporters.NETWORK_LATENCY_REPORTER;
+
 import java.util.concurrent.atomic.AtomicLong;
 
 import cambio.simulator.entities.microservice.*;
-import cambio.simulator.export.ReportCollector;
 import cambio.simulator.misc.RNGStorage;
 import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.dist.ContDistNormal;
@@ -80,7 +81,7 @@ public class NetworkRequestSendEvent extends NetworkRequestEvent {
 
         nextDelay = customizeLatency(nextDelay);
 
-        ReportCollector.NETWORK_LATENCY_REPORTER.addDatapoint("latency", presentTime(), nextDelay);
+        NETWORK_LATENCY_REPORTER.addDatapoint("latency", presentTime(), nextDelay);
 
         //Apply custom latency and/or add delay of latency injection
         updateListener.onRequestSend(travelingRequest, presentTime());

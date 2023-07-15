@@ -71,7 +71,8 @@ public class ReproducibilityTests extends TestBase {
         testReproducibility(scenario, architecture, keepOutput, true);
     }
 
-    void testReproducibility(File scenario, File architecture, boolean keepOutput, boolean createTrace) throws IOException {
+    void testReproducibility(File scenario, File architecture, boolean keepOutput, boolean createTrace)
+        throws IOException {
         File output1 = runSimulationCheckExitTempOutput(0, architecture, scenario, createTrace ? "" : "-t");
         File output2 = runSimulationCheckExitTempOutput(0, architecture, scenario, createTrace ? "" : "-t");
 
@@ -97,8 +98,7 @@ public class ReproducibilityTests extends TestBase {
 
         try {
             TestUtils.compareFileContentsOfDirectories(rawOutput1, rawOutput2);
-        }
-        catch (AssertionFailedError | junit.framework.AssertionFailedError e) {
+        } catch (AssertionFailedError | junit.framework.AssertionFailedError e) {
             Path trace1;
             Path trace2;
 
@@ -113,19 +113,19 @@ public class ReproducibilityTests extends TestBase {
                     .get(0);
             }
 
-            List<Pair<String,String>> comparison = TestUtils.compareTwoFiles(trace1.toFile(), trace2.toFile());
+            List<Pair<String, String>> comparison = TestUtils.compareTwoFiles(trace1.toFile(), trace2.toFile());
 
             System.out.println("\nTrace comparison, first 10 line difference:");
             // get(0) and (1) always contains the timestamp and different metadata
-            for (int i = 2; i < Math.min(12, comparison.size()) ; i++) {
+            for (int i = 2; i < Math.min(12, comparison.size()); i++) {
                 System.out.println(comparison.get(i).getValue0());
                 System.out.println(comparison.get(i).getValue1());
                 System.out.println();
             }
 
             //create a directory to copy failed test results into
-            FileUtils.copyDirectory(output1, FAILED_TESTS_OUTPUT_DIR);
-            FileUtils.copyDirectory(output2, FAILED_TESTS_OUTPUT_DIR);
+            FileUtils.copyDirectory(output1, FAILED_TESTS_OUTPUT_DIR.toPath().resolve(output1.getName()).toFile());
+            FileUtils.copyDirectory(output2, FAILED_TESTS_OUTPUT_DIR.toPath().resolve(output2.getName()).toFile());
 
             Assertions.fail("Simulation output is not reproducible.", e);
         }

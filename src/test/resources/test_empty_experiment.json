@@ -1,0 +1,11 @@
+{
+  "simulation_metadata": {
+    "version": 3.1,
+    "name": "Empty Test Experiment",
+    "description": "Does not contain any events",
+    "report_type": "continuous",
+    "report_location": "/Report/",
+    "duration": 0,
+    "seed": 42
+  }
+}

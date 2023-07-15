@@ -30,8 +30,8 @@ public final class BinnedCPUUtilizationTracker extends NamedSimProcess implement
     /**
      * Creates a new CPU Utilization Tracker that reports the utilization of the owning CPU periodically. The probe
      * interval can be configured by changing the static field {@link BinnedCPUUtilizationTracker#probeInterval} and
-     * defaults to 0.1 units. The backwards bin can be configured by changing the static field {@link
-     * BinnedCPUUtilizationTracker#BIN_SIZE} and defaults to 0.5 units.
+     * defaults to 0.1 units. The backwards bin can be configured by changing the static field
+     * {@link BinnedCPUUtilizationTracker#BIN_SIZE} and defaults to 0.5 units.
      *
      * @param owner CPU that supplies this tracker with utilization information
      * @see #probeInterval
@@ -40,7 +40,7 @@ public final class BinnedCPUUtilizationTracker extends NamedSimProcess implement
     BinnedCPUUtilizationTracker(CPU owner) {
         super(owner.getModel(), String.format("Utilization Tracker of %s", owner.getName()), true, true);
         setSchedulingPriority(Priority.Very_LOW);
-        reporter = new MultiDataPointReporter(String.format("C[%s]_", owner.getPlainName()));
+        reporter = new MultiDataPointReporter(String.format("C[%s]_", owner.getPlainName()), owner.getModel());
 
         utilizationHistory.add(new HistoryEntry(0.0, 0L, Long.MAX_VALUE));
 

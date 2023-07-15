@@ -3,6 +3,7 @@ package cambio.simulator;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
 
 import cambio.simulator.export.ExportUtils;
 import cambio.simulator.misc.FileUtilities;
@@ -13,8 +14,8 @@ import desmoj.core.simulator.TimeInstant;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Class that contains code for creating a new {@link desmoj.core.simulator.Experiment} based on a {@link
- * ExperimentStartupConfig}.
+ * Class that contains code for creating a new {@link desmoj.core.simulator.Experiment} based on a
+ * {@link ExperimentStartupConfig}.
  *
  * @author Lion Wagner
  */
@@ -62,8 +63,12 @@ public class ExperimentCreator {
     @NotNull
     protected Experiment setupExperiment(ExperimentStartupConfig config, MiSimModel model) {
         ExperimentMetaData metaData = model.getExperimentMetaData();
+        metaData.setStartDate(LocalDateTime.now());
         Path reportLocation = ExportUtils.prepareReportDirectory(config, model);
-        Experiment exp = new Experiment(metaData.getExperimentName(), reportLocation.toString());
+        Experiment exp = config.traceEnabled()
+            ? new Experiment(metaData.getExperimentName(), reportLocation.toString())
+            : new Experiment(metaData.getExperimentName(), reportLocation.toString(), "desmoj.core.report.NullOutput",
+            "desmoj.core.report.NullOutput", "desmoj.core.report.NullOutput", "desmoj.core.report.NullOutput");
         model.connectToExperiment(exp);
 
         exp.setSeedGenerator(metaData.getSeed());

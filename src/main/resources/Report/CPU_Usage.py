@@ -9,44 +9,41 @@ import util
 
 datasets = []
 
-for file in glob.glob("./raw/C*_Usage.csv"):
+for file in glob.glob("./raw/C*_Utilization.csv"):
     dataUsage = pd.read_csv(file, sep=";", usecols=[0, 1])
     dataActive = pd.read_csv(file.replace(
-        "_Usage", "_ActiveProcesses"), sep=";", usecols=[0, 1])
-    dataTotal = pd.read_csv(file.replace(
-        "_Usage", "_TotalProcesses"), sep=";", usecols=[0, 1])
+        "_Utilization", "_QueueState"), sep=";", usecols=[0, 1, 2])
 
     joined = dataUsage.merge(
-        dataActive, on="Simulation Time", suffixes=("_Usage", "_Active"))
-    joined = joined.merge(dataTotal, on="Simulation Time")
-    joined = joined.rename(columns={"Value": "Value_Total"})
+        dataActive, on="SimulationTime")
+    joined = joined.rename(columns={"Value": "Utilization"})
 
     name = file[file.index("[") + 1:file.index("]")]
     datasets.append((name, joined))
 
 
 def write_data(ax: Axes, ax2: Axes, dataset: DataFrame):
-    mask = np.isfinite((dataset["Value_Total"]))
+    mask = np.isfinite((dataset["Utilization"]))
 
-    ax.fill_between(dataset["Simulation Time"][mask],
-                    dataset["Value_Total"][mask],
+    ax.fill_between(dataset["SimulationTime"][mask],
+                    dataset["TotalProcesses"][mask],
                     facecolor="red",
                     linestyle="-",
                     label="Total Processes")
 
-    ax.fill_between(dataset["Simulation Time"],
-                    dataset["Value_Active"],
+    ax.fill_between(dataset["SimulationTime"],
+                    dataset["ActiveProcesses"],
                     facecolor="green",
                     label="ActiveProcesses")
     ax.legend()
 
-    ax2.step(dataset["Simulation Time"],
-             dataset["Value_Usage"],
+    ax2.step(dataset["SimulationTime"],
+             dataset["Utilization"],
              where="post",
              label="Usage (%)",
              linewidth=0.25)
-    ax2.scatter(x=dataset["Simulation Time"],
-                y=dataset["Value_Usage"],
+    ax2.scatter(x=dataset["SimulationTime"],
+                y=dataset["Utilization"],
                 c="black",
                 marker="2")
     ax2.set_ylim(-0.01, 1.01)

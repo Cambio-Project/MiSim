@@ -2,8 +2,9 @@ package cambio.simulator;
 
 import java.util.Arrays;
 
-import cambio.simulator.export.ReportCollector;
 import cambio.simulator.misc.RNGStorage;
+import cambio.simulator.misc.Util;
+import cambio.simulator.models.ExperimentMetaData;
 import cambio.simulator.models.MiSimModel;
 import cambio.simulator.parsing.ParsingException;
 import com.google.gson.JsonParseException;
@@ -23,13 +24,14 @@ public final class Main {
      *
      * <p>
      * This method will <b>always</b> call {@link System#exit(int)}! Be aware of that if you call it from other code. If
-     * you want to avoid this behavior, consider calling {@link #runExperiment(String[])} or {@link
-     * #runExperiment(ExperimentStartupConfig)} instead.
+     * you want to avoid this behavior, consider calling {@link #runExperiment(String[])} or
+     * {@link #runExperiment(ExperimentStartupConfig)} instead.
      *
      * <p>
      * Exit code meanings are as follows:
      *
      * <table>
+     *     <caption>Exit codes.</caption>
      *     <tr>
      *         <th>Exit Code</th>
      *         <th>Description</th>
@@ -78,6 +80,7 @@ public final class Main {
                 System.exit(16);
             } else {
                 System.out.println("[INFO] Simulation finished successfully.");
+                writeCommandLineReport((MiSimModel) experiment.getModel());
                 System.exit(0);
             }
         } catch (ParsingException | JsonParseException e) {
@@ -91,6 +94,7 @@ public final class Main {
             //In tests, System.exit throws an exception with a private type from the
             //"com.github.stefanbirkner.systemlambda" package. This exception is supposed to be
             //thrown up to top level to be detected by a test and therefore is not handled here.
+            //TODO: this should (and will have to be with later java versions) be removed
             if (e.getClass().getPackage().getName().equals("com.github.stefanbirkner.systemlambda")) {
                 throw e;
             }
@@ -109,14 +113,13 @@ public final class Main {
      *
      * <p>
      * This method will <b>always</b> call {@link System#exit(int)}! Be aware of that if you call it from other code. If
-     * you want to avoid this behavior, consider calling {@link #runExperiment(String[])} or {@link
-     * #runExperiment(ExperimentStartupConfig)} instead.
+     * you want to avoid this behavior, consider calling {@link #runExperiment(String[])} or
+     * {@link #runExperiment(ExperimentStartupConfig)} instead.
      *
      * <p>
      * For exit code meanings, see {@link #main(String[])}.
      *
-     * @param args program options, see {@link ExperimentStartupConfig#ExperimentStartupConfig(String, String, String,
-     *             String, boolean, boolean, boolean)}
+     * @param args program options, see {@link ExperimentStartupConfig}
      * @see #main(String[])
      * @see #runExperiment(String)
      * @see #runExperiment(ExperimentStartupConfig)
@@ -144,8 +147,6 @@ public final class Main {
         ExperimentStartupConfig startupConfig = parseArgsToConfig(args);
 
         Experiment experiment = runExperiment(startupConfig);
-
-        ReportCollector.getInstance().printReport((MiSimModel) experiment.getModel());
 
         return experiment;
 
@@ -182,5 +183,19 @@ public final class Main {
         RNGStorage.reset();
 
         return experiment;
+    }
+
+    private static void writeCommandLineReport(MiSimModel model) {
+        ExperimentMetaData metaData = model.getExperimentMetaData();
+        System.out.println("\n*** MiSim Report ***");
+        System.out.println("Simulation of Architecture: "
+            + metaData.getArchitectureDescriptionLocation().getAbsolutePath());
+        System.out.println("Executed Experiment:        "
+            + metaData.getExperimentDescriptionLocation().getAbsolutePath());
+        System.out.println("Report Location:            "
+            + metaData.getReportLocation().toAbsolutePath());
+        System.out.println("Setup took:                 " + Util.timeFormat(metaData.getSetupExecutionDuration()));
+        System.out.println("Experiment took:            " + Util.timeFormat(metaData.getExperimentExecutionDuration()));
+        System.out.println("Execution took:             " + Util.timeFormat(metaData.getExecutionDuration()));
     }
 }

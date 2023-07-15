@@ -6,6 +6,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.Random;
 
+import cambio.simulator.models.MiSimModel;
+import cambio.simulator.test.TestBase;
 import org.junit.Before;
 
 import cambio.simulator.entities.microservice.Microservice;
@@ -19,7 +21,7 @@ import desmoj.core.simulator.Model;
  *
  * @author Sebastian Frank
  */
-public abstract class AbstractDependencyDescriptionTest {
+public abstract class AbstractDependencyDescriptionTest extends TestBase {
     protected Random random;
     protected Model model;
     protected Operation startOperation;
@@ -30,9 +32,7 @@ public abstract class AbstractDependencyDescriptionTest {
         this.random = mock(Random.class);
 
         // Setup mocked model
-        this.model = mock(Model.class);
-        Experiment experiment = new Experiment("Test");
-        when(model.getExperiment()).thenReturn(experiment);
+        this.model = getConnectedMockModel().getValue0();
 
         // setup mocked start operation
         final Microservice parentMicroservice = new Microservice(model, "test", false);

@@ -94,10 +94,9 @@ public class Operation extends NamedEntity {
     /**
      * Add additional delay to all dependencies.
      *
-     * @param dist {@link NumericalDist} of the delay.
+     * @param dist {@link NumericalDist} of the delay. May be null to remove all delays.
      */
     private void applyExtraDelayToAllDependencies(NumericalDist<Double> dist) {
-        assert dist != null;
         for (DependencyDescription dependencyDescription : dependencies) {
             dependencyDescription.applyExtraDelay(dist);
         }
