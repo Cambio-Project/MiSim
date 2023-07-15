@@ -35,7 +35,9 @@ jobs:
        run: |
         set +e
         awesome_bot *.md ./target/site/apidocs/*.* --allow-dupe --allow-redirect 
-        echo "awesome_bot_exit_code=$?" >> $GITHUB_OUTPUT
+        awesome_bot_exit_code="$?"
+        echo "awesome_bot_exit_code=$awesome_bot_exit_code" >> $GITHUB_OUTPUT
+        exit "$awesome_bot_exit_code"
      
      - name: Report on Failure
        if: ${{ failure() }}
