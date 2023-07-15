@@ -5,7 +5,7 @@
 
     <groupId>cambio.simulator</groupId>
     <artifactId>misim</artifactId>
-    <version>3.2.7-SNAPSHOT</version>
+    <version>3.3.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>MiSim Simulator</name>
