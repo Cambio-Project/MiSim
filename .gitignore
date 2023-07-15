@@ -116,3 +116,6 @@ fabric.properties
 
 # output folder of failed reproducibility tests
 failed_test_results
+
+#awesome-bot results
+ab-results-*.json

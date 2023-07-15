@@ -11,12 +11,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
      - name: Checkout Sources
-       uses: actions/checkout@v3.3.0
+       uses: actions/checkout@v3
      
-     - name: Set up Java 16
+     - name: Set up Java
        uses: actions/setup-java@v2
        with:
-          java-version: '16'
+          java-version: '20'
           distribution: 'adopt'
           cache: 'maven'
 
@@ -27,10 +27,18 @@ jobs:
        uses: ruby/setup-ruby@v1
        with:
         bundler-cache: true
-        ruby-version: 2.7        
+        ruby-version: 3.1
      - name: Install awesome bot
        run:  gem install awesome_bot
               
      - name: Run Awesome_Bot
-       run: awesome_bot *.md ./target/site/apidocs/*.* --allow-dupe --allow-redirect 
+       run: |
+        set +e
+        awesome_bot *.md ./target/site/apidocs/*.* --allow-dupe --allow-redirect 
+        echo "awesome_bot_exit_code=$?" >> $GITHUB_OUTPUT
      
+     - name: Report on Failure
+       if: ${{ failure() }}
+       run: |
+          echo "awesome_bot failed"
+          exit 1
