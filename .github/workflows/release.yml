@@ -61,3 +61,4 @@ jobs:
         with:
           token: ${{ secrets.PUBLISHER_TOKEN }}
           branch: develop
+          acceptable_conclusions: "success,skipped"
