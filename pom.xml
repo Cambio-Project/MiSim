@@ -4,7 +4,7 @@
 
     <groupId>cambio.simulator</groupId>
     <artifactId>misim</artifactId>
-    <version>3.3.4-SNAPSHOT</version>
+    <version>3.4.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>MiSim Simulator</name>
@@ -28,7 +28,6 @@
 
         <junit.version>5.9.1</junit.version>
         <mockito.version>4.8.0</mockito.version>
-        <system-lambda.version>1.2.1</system-lambda.version>
     </properties>
 
     <scm>
@@ -137,12 +136,6 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-inline</artifactId>
             <version>${mockito.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.github.stefanbirkner</groupId>
-            <artifactId>system-lambda</artifactId>
-            <version>${system-lambda.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency> <!-- this may needs to be moved to default scope if needed elsewhere than the tests -->

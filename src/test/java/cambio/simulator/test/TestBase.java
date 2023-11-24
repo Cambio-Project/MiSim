@@ -1,6 +1,5 @@
 package cambio.simulator.test;
 
-import static com.github.stefanbirkner.systemlambda.SystemLambda.catchSystemExit;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
@@ -64,13 +63,13 @@ public class TestBase {
 
     protected void runSimulationCheckExit(int expectedExitCode, File arch, File exp, String... additionalArgs) {
         try {
-            int code = catchSystemExit(() -> {
-                String[] fileLocations = new String[] {"-a", arch.getAbsolutePath(), "-e", exp.getAbsolutePath(), "-d"};
-                String[] allArgs = new String[additionalArgs.length + fileLocations.length];
-                System.arraycopy(fileLocations, 0, allArgs, 0, fileLocations.length);
-                System.arraycopy(additionalArgs, 0, allArgs, fileLocations.length, additionalArgs.length);
-                Main.main(allArgs);
-            });
+            String[] fileLocations = new String[]{"-a", arch.getAbsolutePath(), "-e", exp.getAbsolutePath(), "-d"};
+            String[] allArgs = new String[additionalArgs.length + fileLocations.length];
+            System.arraycopy(fileLocations, 0, allArgs, 0, fileLocations.length);
+            System.arraycopy(additionalArgs, 0, allArgs, fileLocations.length, additionalArgs.length);
+            int code = Main.runExperiment(allArgs);
+
+            System.out.println("Test exited with code: " + code);
             assertEquals(expectedExitCode, code);
         } catch (Exception e) {
             Assertions.fail("Simulation failed.", e);
