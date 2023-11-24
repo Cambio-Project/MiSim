@@ -20,6 +20,17 @@ import org.jetbrains.annotations.NotNull;
 public final class Main {
 
     /**
+     * Exit codes for the program. See {@link #main(String[])} for meanings.
+     */
+    public static final class ExitCodes {
+        public static final int SUCCESSFUL_RUN = 0;
+        public static final int EXCEPTION_DURING_ARGUMENT_PARSING = 1;
+        public static final int EXCEPTION_DURING_PARSING = 2;
+        public static final int EXCEPTION_DURING_SIMULATION = 16;
+        public static final int EXCEPTION_UNKNOWN = 512;
+    }
+
+    /**
      * Main entry point of the program. Pass "-h" to see arguments.
      *
      * <p>
@@ -64,47 +75,9 @@ public final class Main {
      * @see #runExperiment(ExperimentStartupConfig)
      */
     public static void main(final String[] args) {
+        int returnCode = runExperiment(args);
 
-        ExperimentStartupConfig startupConfig = parseArgsToConfig(args);
-
-        try {
-
-            //---------------------------------------Experiment execution-----------------------------------------------
-
-            Experiment experiment = runExperiment(args);
-
-            //-------------------------------------------Error handling-------------------------------------------------
-
-            if (experiment.hasError()) {
-                System.out.println("[INFO] Simulation failed.");
-                System.exit(16);
-            } else {
-                System.out.println("[INFO] Simulation finished successfully.");
-                writeCommandLineReport((MiSimModel) experiment.getModel());
-                System.exit(0);
-            }
-        } catch (ParsingException | JsonParseException e) {
-            if (startupConfig.debugOutputOn()) {
-                e.printStackTrace();
-            } else {
-                System.out.println("[ERROR] " + e.getMessage());
-            }
-            System.exit(2);
-        } catch (Exception e) {
-            //In tests, System.exit throws an exception with a private type from the
-            //"com.github.stefanbirkner.systemlambda" package. This exception is supposed to be
-            //thrown up to top level to be detected by a test and therefore is not handled here.
-            //TODO: this should (and will have to be with later java versions) be removed
-            if (e.getClass().getPackage().getName().equals("com.github.stefanbirkner.systemlambda")) {
-                throw e;
-            }
-
-            if (startupConfig.debugOutputOn()) {
-                e.printStackTrace();
-            }
-
-            System.exit(512);
-        }
+        System.exit(returnCode);
     }
 
     /**
@@ -129,40 +102,44 @@ public final class Main {
     }
 
 
-    private static @NotNull ExperimentStartupConfig parseArgsToConfig(String[] args) {
+    private static @NotNull ExperimentStartupConfig parseArgsToConfig(String[] args) throws ParseException {
         // trim whitespaces from arguments to please apache cli
         String[] argsTrimmed = Arrays.stream(args).map(String::trim).toArray(String[]::new);
-        try {
-            return CLI.parseArguments(ExperimentStartupConfig.class, argsTrimmed);
-        } catch (ParseException e) {
-            System.err.println("[ERROR] " + e.getMessage());
-            System.exit(1);
-        }
-        return null;
-    }
-
-
-    private static @NotNull Experiment runExperiment(String[] args) {
-
-        ExperimentStartupConfig startupConfig = parseArgsToConfig(args);
-
-        Experiment experiment = runExperiment(startupConfig);
-
-        return experiment;
-
+        return CLI.parseArguments(ExperimentStartupConfig.class, argsTrimmed);
     }
 
     /**
      * Starts an experiment, and uses the given string as cli arguments (splits on spaces). Use spaces only to separate
      * arguments and not inside a value.
      *
-     * @param cliString the cli argument string
+     * @param cliString the cli argument string to parse. See {@link ExperimentStartupConfig} or --help for details.
+     * @return the exit code of the experiment, see {@link #main(String[])} for meanings.
      * @see #main(String[])
      * @see #mainVarargs(String...)
      * @see #runExperiment(ExperimentStartupConfig)
      */
-    public static @NotNull Experiment runExperiment(final String cliString) {
+    public static int runExperiment(final String cliString) {
         return runExperiment(cliString.replaceAll("\\s*", " ").split(" "));
+    }
+
+
+    /**
+     * Starts an experiment, and uses the given string as cli arguments. See {@link ExperimentStartupConfig} or --help
+     * for details.
+     *
+     * @param args the cli arguments to parse. See {@link ExperimentStartupConfig} for options.
+     * @return the exit code of the experiment, see {@link #main(String[])} for meanings.
+     */
+    public static int runExperiment(String[] args) {
+        ExperimentStartupConfig startupConfig;
+
+        try {
+            startupConfig = parseArgsToConfig(args);
+        } catch (ParseException e) {
+            System.err.println("[ERROR] " + e.getMessage());
+            return ExitCodes.EXCEPTION_DURING_ARGUMENT_PARSING;
+        }
+        return runExperiment(startupConfig);
     }
 
 
@@ -170,30 +147,50 @@ public final class Main {
      * Starts an experiment with the given {@link ExperimentStartupConfig}.
      *
      * @param startupConfig the experiment startup configuration
+     * @return the exit code of the experiment, see {@link #main(String[])} for meanings.
      * @see #runExperiment(String)
      * @see #main(String[])
      * @see #mainVarargs(String...)
      */
-    public static @NotNull Experiment runExperiment(final ExperimentStartupConfig startupConfig) {
-        Experiment experiment = new ExperimentCreator().createSimulationExperiment(startupConfig);
-        System.out.printf("[INFO] Starting simulation at approximately %s%n", java.time.LocalDateTime.now());
-        experiment.start();
-        experiment.finish();
+    public static int runExperiment(final ExperimentStartupConfig startupConfig) {
+        boolean isDebugOutputOn = startupConfig.debugOutputOn();
+        try {
 
-        RNGStorage.reset();
+            Experiment experiment = new ExperimentCreator().createSimulationExperiment(startupConfig);
+            System.out.printf("[INFO] Starting simulation at approximately %s%n", java.time.LocalDateTime.now());
+            experiment.start();
+            experiment.finish();
 
-        return experiment;
+            RNGStorage.reset(); //TODO: this should happen first
+
+
+            if (experiment.hasError()) {
+                System.out.println("[INFO] Simulation failed.");
+                return ExitCodes.EXCEPTION_DURING_SIMULATION;
+            }
+
+            System.out.println("[INFO] Simulation finished successfully.");
+            writeCommandLineReport((MiSimModel) experiment.getModel());
+            return ExitCodes.SUCCESSFUL_RUN;
+
+        } catch (ParsingException | JsonParseException e) {
+            Util.printExceptionMessage(e, isDebugOutputOn);
+            return ExitCodes.EXCEPTION_DURING_PARSING;
+        } catch (Exception e) {
+            Util.printExceptionMessage(e, isDebugOutputOn);
+            return ExitCodes.EXCEPTION_UNKNOWN;
+        }
     }
 
     private static void writeCommandLineReport(MiSimModel model) {
         ExperimentMetaData metaData = model.getExperimentMetaData();
         System.out.println("\n*** MiSim Report ***");
         System.out.println("Simulation of Architecture: "
-            + metaData.getArchitectureDescriptionLocation().getAbsolutePath());
+                           + metaData.getArchitectureDescriptionLocation().getAbsolutePath());
         System.out.println("Executed Experiment:        "
-            + metaData.getExperimentDescriptionLocation().getAbsolutePath());
+                           + metaData.getExperimentDescriptionLocation().getAbsolutePath());
         System.out.println("Report Location:            "
-            + metaData.getReportLocation().toAbsolutePath());
+                           + metaData.getReportLocation().toAbsolutePath());
         System.out.println("Setup took:                 " + Util.timeFormat(metaData.getSetupExecutionDuration()));
         System.out.println("Experiment took:            " + Util.timeFormat(metaData.getExperimentExecutionDuration()));
         System.out.println("Execution took:             " + Util.timeFormat(metaData.getExecutionDuration()));

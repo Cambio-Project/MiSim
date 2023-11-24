@@ -138,8 +138,8 @@ public final class Util {
             if (field == null) {
                 assert object.getClass() != null;
                 throw new NoSuchFieldException(
-                    String.format("Could not find find field %s on type %s or its super-classes.", fieldName,
-                        object.getClass().getName()));
+                        String.format("Could not find find field %s on type %s or its super-classes.", fieldName,
+                                      object.getClass().getName()));
             }
 
             field.setAccessible(true);
@@ -164,5 +164,22 @@ public final class Util {
             currentClass = currentClass.getSuperclass();
         }
         return list.toArray(new Field[0]);
+    }
+
+    /**
+     * Prints the message of an exception to the console. If debug output is enabled, the stacktrace is also printed.
+     *
+     * @param e               the exception
+     * @param isDebugOutputOn whether the stacktrace should be printed
+     */
+    public static void printExceptionMessage(Exception e, boolean isDebugOutputOn) {
+        System.out.println("[ERROR] " + e.getMessage());
+        if (isDebugOutputOn) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void printExceptionMessage(Exception e) {
+        printExceptionMessage(e, false);
     }
 }
