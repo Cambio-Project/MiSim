@@ -48,6 +48,7 @@ jobs:
           branch: master
           tags: true
           force: true
+          acceptable_conclusions: "success,skipped"
       
       - name: Merge into develop
         run: |
