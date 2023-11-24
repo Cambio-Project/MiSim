@@ -1,0 +1,41 @@
+name: Check Links
+on: 
+  push:
+  pull_request:
+  schedule:
+    - cron: 0 13 * * 1,5
+
+jobs: 
+  check_links: 
+    name: Check Links
+    runs-on: ubuntu-latest
+    steps:
+     - name: Checkout Sources
+       uses: actions/checkout@v3
+     
+     - name: Set up Java
+       uses: actions/setup-java@v3
+       with:
+          java-version: '20'
+          distribution: 'temurin'
+          cache: 'maven'
+
+     - name: Build JavaDoc
+       run: mvn -B javadoc:javadoc "-Dnotimestamp=true" "-Dcheckstyle.skipExec=true" 
+ 
+     - name: Setup Ruby
+       uses: ruby/setup-ruby@v1
+       with:
+        bundler-cache: true
+        ruby-version: 3.1
+     - name: Install awesome bot
+       run:  gem install awesome_bot
+              
+     - name: Run Awesome_Bot
+       run: |
+        set +e
+        awesome_bot *.md ./target/site/apidocs/*.* --allow-dupe --allow-redirect 
+        awesome_bot_exit_code="$?"
+        echo "awesome_bot_exit_code=$awesome_bot_exit_code" >> $GITHUB_OUTPUT
+        exit "$awesome_bot_exit_code"
+        
