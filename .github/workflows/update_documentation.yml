@@ -8,7 +8,7 @@ on:
 
 jobs:
   build_documentation:
-    if: !contains(github.event.head_commit.message, '[maven-release-plugin]')
+    if: "!contains(github.event.head_commit.message, '[maven-release-plugin]')"
     name: Build Documentation
     runs-on: ubuntu-latest
     steps:
