@@ -3,7 +3,6 @@ name: Run Checkstyle
 on:
   push:
   pull_request:
-    branches: [ master, develop ]
 
 jobs:
   run_checkstyle:

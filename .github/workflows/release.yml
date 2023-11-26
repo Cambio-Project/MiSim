@@ -1,8 +1,7 @@
 name: Release MiSim
 
 on:
-  push:
-    branches: [ master ]
+  workflow_dispatch:
 
 jobs:
   Prepare-and-Release:
