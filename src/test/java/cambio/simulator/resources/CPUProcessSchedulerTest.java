@@ -26,15 +26,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
-class CPUProcessSchedulerTest<T extends CPUProcessScheduler> {
+abstract class CPUProcessSchedulerTest<T extends CPUProcessScheduler> {
 
     private CPUProcessScheduler scheduler;
 
     @BeforeEach
     void setUp()
         throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
-
-        Assumptions.assumeTrue(this.getClass() != CPUProcessSchedulerTest.class); //skips tests in this superclass
 
         TestExperiment testExperiment = new TestExperiment();
         TestModel mod = new TestModel(null, "TestModel", false, false, () -> {

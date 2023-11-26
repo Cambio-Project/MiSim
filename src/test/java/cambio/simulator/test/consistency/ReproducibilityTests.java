@@ -98,7 +98,7 @@ public class ReproducibilityTests extends TestBase {
 
         try {
             TestUtils.compareFileContentsOfDirectories(rawOutput1, rawOutput2);
-        } catch (AssertionFailedError | junit.framework.AssertionFailedError e) {
+        } catch (AssertionFailedError e) {
             Path trace1;
             Path trace2;
 

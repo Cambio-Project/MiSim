@@ -8,12 +8,12 @@ import java.util.Random;
 
 import cambio.simulator.models.MiSimModel;
 import cambio.simulator.test.TestBase;
-import org.junit.Before;
 
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.entities.microservice.Operation;
 import desmoj.core.simulator.Experiment;
 import desmoj.core.simulator.Model;
+import org.junit.jupiter.api.BeforeEach;
 
 /**
  * A base class that provides basic mocks for setting up unit tests on
@@ -27,7 +27,7 @@ public abstract class AbstractDependencyDescriptionTest extends TestBase {
     protected Operation startOperation;
     protected Request request;
 
-    @Before
+    @BeforeEach
     public void setup() {
         this.random = mock(Random.class);
 

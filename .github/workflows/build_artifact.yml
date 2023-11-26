@@ -10,7 +10,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  java_version: 8
+  java_version: '21'
   java_distribution: 'temurin'
 
 jobs:
