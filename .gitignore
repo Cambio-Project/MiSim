@@ -75,6 +75,7 @@ ABCDE Experiment_*.html
 .idea/modules
 *.iml
 *.ipr
+*.versionsBackup
 
 # CMake
 cmake-build-*/
