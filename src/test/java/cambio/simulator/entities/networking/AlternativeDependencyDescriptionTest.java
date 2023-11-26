@@ -1,7 +1,7 @@
 package cambio.simulator.entities.networking;
 
-import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -10,11 +10,11 @@ import static org.mockito.Mockito.when;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.Test;
 
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.entities.microservice.Operation;
 import desmoj.core.dist.ContDistConstant;
+import org.junit.jupiter.api.Test;
 
 /**
  * Runs unit tests for {@link AlternativeDependencyDescription}.

@@ -1,7 +1,7 @@
 package cambio.simulator.entities.networking;
 
-import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -10,7 +10,8 @@ import static org.mockito.Mockito.when;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.entities.microservice.Operation;
@@ -55,12 +56,14 @@ public class LoopDependencyDescriptionTest extends AbstractDependencyDescription
         assertEquals(0, result.size());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testZeroIterations() {
-        final LoopDependencyDescription dependency = new LoopDependencyDescription(model, 1, 1, 0);
-        setupLoopDependencyWithOneChild(dependency, 1);
-        when(random.nextDouble()).thenReturn(0.5);
-        dependency.generateDependenciesForExecutions(request, random);
+        Assertions.assertThrowsExactly(IllegalArgumentException.class, () -> {
+            final LoopDependencyDescription dependency = new LoopDependencyDescription(model, 1, 1, 0);
+            setupLoopDependencyWithOneChild(dependency, 1);
+            when(random.nextDouble()).thenReturn(0.5);
+            dependency.generateDependenciesForExecutions(request, random);
+        });
     }
 
     @Test

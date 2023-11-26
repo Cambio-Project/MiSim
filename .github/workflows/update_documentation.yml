@@ -8,7 +8,7 @@ on:
 
 jobs:
   build_documentation:
-    if: "!contains(github.event.head_commit.message, '[maven-release-plugin]')"
+    if: !contains(github.event.head_commit.message, '[maven-release-plugin]')
     name: Build Documentation
     runs-on: ubuntu-latest
     steps:
@@ -19,7 +19,7 @@ jobs:
       - name: Set up Java
         uses: actions/setup-java@v3
         with:
-          java-version: '20'
+          java-version: '21'
           distribution: 'temurin'
           cache: 'maven'
 

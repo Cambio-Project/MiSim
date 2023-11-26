@@ -16,7 +16,7 @@ jobs:
      - name: Set up Java
        uses: actions/setup-java@v3
        with:
-          java-version: '20'
+          java-version: '21'
           distribution: 'temurin'
           cache: 'maven'
 
@@ -38,4 +38,3 @@ jobs:
         awesome_bot_exit_code="$?"
         echo "awesome_bot_exit_code=$awesome_bot_exit_code" >> $GITHUB_OUTPUT
         exit "$awesome_bot_exit_code"
-        
