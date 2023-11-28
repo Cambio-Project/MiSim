@@ -26,7 +26,7 @@
         <desmoj.version>2.5.1e</desmoj.version>
         <annotations.version>23.0.0</annotations.version>
 
-        <junit.version>5.9.1</junit.version>
+        <junit.version>5.10.1</junit.version>
         <mockito.version>4.8.0</mockito.version>
         <system-lambda.version>1.2.1</system-lambda.version>
     </properties>
