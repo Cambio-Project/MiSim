@@ -9,14 +9,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 
-
 public class TempFileUtil {
 
     // Create a new temp file.
     private static Path createTempFile(Path tmpDir, byte[] content, String prefix) throws IOException {
-        String customFileSuffix = ".json";
-
-        Path tmpFile = Files.createTempFile(tmpDir, prefix, customFileSuffix);
+        Path tmpFile = Files.createTempFile(tmpDir, prefix, ".json");
         return Files.write(tmpFile, content);
     }
 
@@ -28,21 +25,18 @@ public class TempFileUtil {
                     " <architecture_> or <experiment_>.");
         }
         String fileName = StringUtils.cleanPath(file.getOriginalFilename());
-
         try {
             if(fileName.contains("..")
-                    || !fileName.startsWith("architecture_")
-                    || !fileName.startsWith("experiment_") ) {
-                throw new Exception("Filename contains invalid path sequence " + fileName);
+                    || !(fileName.startsWith("architecture_") || fileName.startsWith("experiment_"))) {
+                throw new Exception("Filename contains invalid path sequence: " + fileName);
             } else if (file.isEmpty()) {
                 throw new Exception(String.format("The uploaded file <%s> is empty.", fileName));
             }
+            String fileNameWithoutExtension = com.google.common.io.Files.getNameWithoutExtension(fileName) + "_";
             byte[] content = file.getBytes();
-            return createTempFile(path, content, fileName);
+            return createTempFile(path, content, fileNameWithoutExtension);
         } catch (MaxUploadSizeExceededException e) {
             throw new MaxUploadSizeExceededException(file.getSize());
-        } catch (Exception e) {
-            throw new Exception("Could not save File: " + fileName);
         }
     }
     public static Path[] saveFiles(MultipartFile[] files, Path temDir) {
@@ -60,7 +54,7 @@ public class TempFileUtil {
 
     // We create a temp directory in the default OS's /tmp folder.
     public static Path createDefaultTempDir() throws IOException {
-        return Files.createTempDirectory("misim");
+        return Files.createTempDirectory("misim-");
     }
 
 }
