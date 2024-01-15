@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.HashMap;
 
 public class TempFileUtil {
 
@@ -18,7 +19,7 @@ public class TempFileUtil {
     }
 
     // TODO: check whether the uploaded file is a json file: String contentType = file.getContentType();
-    // TODO: check the file name for the prefixes.
+    // TODO: check the file name for the prefixes (only allow one of each type of files.)
     private static Path saveFile(MultipartFile file, Path path) throws Exception {
         if(file.getOriginalFilename() == null) {
             throw new IllegalArgumentException("The uploaded file must have a name that includes the prefix" +
@@ -27,7 +28,8 @@ public class TempFileUtil {
         String fileName = StringUtils.cleanPath(file.getOriginalFilename());
         try {
             if(fileName.contains("..")
-                    || !(fileName.startsWith("architecture_") || fileName.startsWith("experiment_"))) {
+                    || !(fileName.startsWith("architecture_") || fileName.startsWith("experiment_")
+                            || fileName.startsWith("scenario_"))) {
                 throw new Exception("Filename contains invalid path sequence: " + fileName);
             } else if (file.isEmpty()) {
                 throw new Exception(String.format("The uploaded file <%s> is empty.", fileName));
@@ -39,12 +41,23 @@ public class TempFileUtil {
             throw new MaxUploadSizeExceededException(file.getSize());
         }
     }
-    public static Path[] saveFiles(MultipartFile[] files, Path temDir) {
-        Path[] filesPaths = new Path[files.length];
-        int i = 0;
+    public static HashMap<String, String> saveFiles(MultipartFile[] files, Path temDir) {
+        HashMap<String, String> filesPaths = new HashMap<>();
         Arrays.asList(files).forEach(file -> {
             try {
-                filesPaths[i] = saveFile(file, temDir);
+                Path tmpFile = saveFile(file, temDir);
+                String filePath = tmpFile.toString();
+                String fileName = tmpFile.getFileName().toString();
+                if (fileName.startsWith("architecture_")) {
+                    filesPaths.put("architecture", filePath);
+                } else if (fileName.startsWith("experiment_")) {
+                    filesPaths.put("experiment", filePath);
+                } else if (fileName.startsWith("scenario_")) {
+                    filesPaths.put("scenario", filePath);
+                }
+                else {
+                    filesPaths.put("data", filePath);
+                }
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -53,8 +66,8 @@ public class TempFileUtil {
     }
 
     // We create a temp directory in the default OS's /tmp folder.
-    public static Path createDefaultTempDir() throws IOException {
-        return Files.createTempDirectory("misim-");
+    public static Path createDefaultTempDir(String prefix) throws IOException {
+        return Files.createTempDirectory(prefix);
     }
 
 }

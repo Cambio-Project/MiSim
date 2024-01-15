@@ -1,27 +1,37 @@
 package restAPI.simulation_running;
 
+import cambio.simulator.ExperimentCreator;
 import cambio.simulator.ExperimentStartupConfig;
+import cambio.simulator.misc.RNGStorage;
 import desmoj.core.simulator.Experiment;
 
 import org.springframework.stereotype.Service;
-import restAPI.simulation_running.restufl_experiment_creation.RestfulExperimentCreator;
 
-import java.util.Arrays;
+import java.nio.file.Path;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class SimulationRunningService {
 
-// TODO delete the created output files after saving to DB.
-    public Experiment runExperiment(final ExperimentStartupConfig startupConfig) {
-        Experiment experiment = new RestfulExperimentCreator().createSimulationExperiment(startupConfig);
-        System.out.printf("[INFO] Starting simulation at approximately %s%n", java.time.LocalDateTime.now());
+    public void runExperiment(HashMap<String, String> inputFiles, Path outPutDir) {
+        String archDescPath = inputFiles.get("architecture");
+        String expDescPath = inputFiles.get("experiment");
+        String scenarioPath = inputFiles.get("scenario");
+
+        ExperimentCreator creator = new ExperimentCreator();
+        ExperimentStartupConfig config = new ExperimentStartupConfig(archDescPath, expDescPath,
+                scenarioPath, outPutDir.toString(), null, false,
+                false, true);
+
+        Experiment experiment = creator.createSimulationExperiment(config);
         experiment.start();
         experiment.finish();
 
-        //RNGStorage.reset();
-
-        return experiment;
+        // TODO check whether we need to reset the generator;
+        RNGStorage.reset();
     }
+
 
 
 }

@@ -14,6 +14,7 @@ import restAPI.util.TempFileUtil;
 
 import java.nio.file.Path;
 import java.io.IOException;
+import java.util.HashMap;
 
 
 @RestController
@@ -30,15 +31,19 @@ public class SimulationRunningController {
 
     //For uploading the Multipart files and saving them to the file system. And then we run the simulation on them.
     @PostMapping("/simulate/upload")
-    public ResponseEntity<String> handleMultipleFilesUpload(@RequestParam("files") MultipartFile[] files)
-            throws IOException {
+    public ResponseEntity<String> handleMultipleFilesUpload(@RequestParam("files") MultipartFile[] files) {
         try {
-            Path tmpFolder = TempFileUtil.createDefaultTempDir();
-            Path[] savedFiles = TempFileUtil.saveFiles(files, tmpFolder);
-            // TODO: handle running the simulation here.
+            Path tmpFolder = TempFileUtil.createDefaultTempDir("misim-");
+            Path outputFolder = TempFileUtil.createDefaultTempDir("misim-output-");
+            HashMap<String, String> savedFiles = TempFileUtil.saveFiles(files, tmpFolder);
+            simulationRunningService.runExperiment(savedFiles, outputFolder);
+            // TODO: Add DB connections
+
             // Do the clean-up
-            FileUtils.deleteDirectory(tmpFolder.toFile());
-            return new ResponseEntity<>("Files have been successfully uploaded.", HttpStatus.OK);
+            // TODO delete the created output files after saving to DB.
+            //FileUtils.deleteDirectory(tmpFolder.toFile());
+            return new ResponseEntity<>("Files have been successfully uploaded, and the simulation is running.",
+                    HttpStatus.OK);
         }
         catch (Exception e) {
             String errorMessage = e.getMessage();
