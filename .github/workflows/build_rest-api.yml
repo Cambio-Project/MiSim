@@ -1,0 +1,51 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ master, develop, rest-api, rest-api-workflow ]
+  pull_request:
+
+concurrency:
+  group: build-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  java_version_misim: 8
+  java_version_api: 21
+  java_distribution: 'temurin'
+
+jobs:
+  build_artifact:
+    name: Build API
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Java ${{ env.java_version_misim }}
+        uses: actions/setup-java@v3
+        with:
+          java-version: ${{ env.java_version_misim }}
+          distribution: ${{ env.java_distribution }}
+          cache: 'maven'
+
+      - name: Set up Java ${{ env.java_version_api }}
+        uses: actions/setup-java@v3
+        with:
+          java-version: ${{ env.java_version_api }}
+          distribution: ${{ env.java_distribution }}
+          cache: 'maven'
+
+      - name: Install MiSim with Maven
+        run: mvn -B install --file pom.xml "-DskipTests=true" "-Dmaven.javadoc.skip=true" "-Dcheckstyle.skipExec=true"
+
+      - name: Build API with Maven
+        run: mvn -B package --file ./restAPI/pom.xml "-DskipTests=true" "-Dmaven.javadoc.skip=true" "-Dcheckstyle.skipExec=true"
+
+      - name: Upload Artifacts
+        if: github.event_name == 'push'
+        uses: actions/upload-artifact@v3
+        with:
+          name: API Jars
+          path: ./target/*.jar
