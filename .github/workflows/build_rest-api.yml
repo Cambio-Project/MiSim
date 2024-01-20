@@ -48,4 +48,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: API Jars
-          path: ./target/*.jar
+          path: ./restAPI/target/*.jar
