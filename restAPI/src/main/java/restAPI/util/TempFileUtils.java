@@ -1,48 +1,53 @@
 package restAPI.util;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-public class TempFileUtil {
+public class TempFileUtils {
 
     // Create a new temp file.
-    private static Path createTempFile(Path tmpDir, byte[] content, String prefix) throws IOException {
-        Path tmpFile = Files.createTempFile(tmpDir, prefix, ".json");
-        return Files.write(tmpFile, content);
+    private static Path createTempFile(Path tmpDir, String originalName, byte[] content) throws IOException {
+        String filePath = tmpDir.toString() + FileSystems.getDefault().getSeparator() + originalName;
+        Path file = Files.createFile(Path.of(filePath));
+        return Files.write(file, content);
     }
 
-    // TODO: check whether the uploaded file is a json file: String contentType = file.getContentType();
-    // TODO: check the file name for the prefixes (only allow one of each type of files.)
     private static Path saveFile(MultipartFile file, Path path) throws Exception {
         if(file.getOriginalFilename() == null) {
             throw new IllegalArgumentException("The uploaded file must have a name that includes the prefix" +
-                    " <architecture_> or <experiment_>.");
+                    " <architecture_>, <experiment_>, or <scenario_>.");
         }
         String fileName = StringUtils.cleanPath(file.getOriginalFilename());
         try {
             if(fileName.contains("..")
                     || !(fileName.startsWith("architecture_") || fileName.startsWith("experiment_")
-                            || fileName.startsWith("scenario_"))) {
+                            || fileName.startsWith("scenario_") || fileName.startsWith("load_"))) {
                 throw new Exception("Filename contains invalid path sequence: " + fileName);
             } else if (file.isEmpty()) {
                 throw new Exception(String.format("The uploaded file <%s> is empty.", fileName));
             }
-            String fileNameWithoutExtension = com.google.common.io.Files.getNameWithoutExtension(fileName) + "_";
             byte[] content = file.getBytes();
-            return createTempFile(path, content, fileNameWithoutExtension);
+            return createTempFile(path, fileName, content);
         } catch (MaxUploadSizeExceededException e) {
             throw new MaxUploadSizeExceededException(file.getSize());
         }
     }
-    public static HashMap<String, String> saveFiles(MultipartFile[] files, Path temDir) {
-        HashMap<String, String> filesPaths = new HashMap<>();
+
+    public static Multimap<String, String> saveFiles(MultipartFile[] files, Path temDir) {
+        Multimap<String, String> filesPaths = ArrayListMultimap.create();
         Arrays.asList(files).forEach(file -> {
             try {
                 Path tmpFile = saveFile(file, temDir);
@@ -54,9 +59,8 @@ public class TempFileUtil {
                     filesPaths.put("experiment", filePath);
                 } else if (fileName.startsWith("scenario_")) {
                     filesPaths.put("scenario", filePath);
-                }
-                else {
-                    filesPaths.put("data", filePath);
+                } else if (fileName.startsWith("load_")){
+                    filesPaths.put("load", filePath);
                 }
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -68,6 +72,17 @@ public class TempFileUtil {
     // We create a temp directory in the default OS's /tmp folder.
     public static Path createDefaultTempDir(String prefix) throws IOException {
         return Files.createTempDirectory(prefix);
+    }
+
+    public static Set<String> getFilesInDir(Path dirPath) throws IOException {
+        String dir = dirPath.toString() + FileSystems.getDefault().getSeparator() + "raw";
+        try (Stream<Path> stream = Files.list(Paths.get(dir))) {
+            return stream
+                    .filter(file -> !Files.isDirectory(file))
+                    .map(Path::getFileName)
+                    .map(Path::toString)
+                    .collect(Collectors.toSet());
+        }
     }
 
 }
