@@ -13,7 +13,6 @@ import restAPI.util.TempFileUtils;
 
 
 import java.nio.file.Path;
-import java.util.Set;
 
 
 @RestController
@@ -36,8 +35,6 @@ public class SimulationRunningController {
             Path tmpFolder = TempFileUtils.createDefaultTempDir("misim-");
             Path outputFolder = TempFileUtils.createDefaultTempDir("misim-output-");
             Multimap<String, String> savedFiles = TempFileUtils.saveFiles(files, tmpFolder);
-            System.out.println(outputFolder);
-            System.out.println(tmpFolder);
             simulationRunningService.runExperiment(savedFiles, outputFolder);
             // TODO: Add DB connections
 
@@ -49,7 +46,6 @@ public class SimulationRunningController {
         }
         catch (Exception e) {
             String errorMessage = e.getMessage();
-            System.out.println(errorMessage);
             logger.error(errorMessage);
             return new ResponseEntity<>(errorMessage, HttpStatus.INTERNAL_SERVER_ERROR);
         }
