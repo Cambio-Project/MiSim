@@ -112,7 +112,6 @@ public class MTLActivationListener {
 
     // TODO: Needs adjustments! Fix relative time, delay in F_end, simulation time limit, ...
     private TimeInstant tryFindStopTime(TemporalOperatorInfo info) {
-        var token = info.operator();
         var time = info.temporalValueExpression();
 
 
