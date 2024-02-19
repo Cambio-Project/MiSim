@@ -8,9 +8,9 @@ import cambio.simulator.misc.Util;
  * Describes time-dependent scaling of load.
  */
 public class ScaleFactor {
-    private final double startTime;
-    private final double endTime;
-    private final double duration;
+    private final long startTime;
+    private final long endTime;
+    private final long duration;
     private double targetScaleFactor;
     private double startScaleFactor = 1.0;
 
@@ -24,7 +24,7 @@ public class ScaleFactor {
      * @param startTime   The time in the simulation at which the scaling should start.
      * @param duration    How long scaling should be applied. Must be >0.
      */
-    public ScaleFactor(final double scaleFactor, final double startTime, final double duration) {
+    public ScaleFactor(final double scaleFactor, final long startTime, final long duration) {
         Util.requireGreaterZero(scaleFactor);
         Util.requireGreaterZero(duration);
         Util.requireNonNegative(startTime);
@@ -44,8 +44,8 @@ public class ScaleFactor {
      * @param startTime        The time in the simulation at which the scaling should start.
      * @param duration         How long scaling should be applied. Must be >0.
      */
-    public ScaleFactor(final double startScaleFactor, final double scaleFactor, final double startTime,
-                       final double duration) {
+    public ScaleFactor(final double startScaleFactor, final double scaleFactor, final long startTime,
+                       final long duration) {
         this(scaleFactor, startTime, duration);
         Util.requireGreaterZero(startScaleFactor);
         this.startScaleFactor = startScaleFactor;
@@ -60,7 +60,7 @@ public class ScaleFactor {
      * @param duration      How long scaling should be applied. Must be >0.
      * @param scaleFunction describes the shape of the scaling behavior.
      */
-    public ScaleFactor(final double scaleFactor, final double startTime, final double duration,
+    public ScaleFactor(final double scaleFactor, final long startTime, final long duration,
                        final ScaleFunction scaleFunction) {
         this(scaleFactor, startTime, duration);
         Objects.requireNonNull(scaleFunction);
@@ -78,8 +78,8 @@ public class ScaleFactor {
      * @param duration         How long scaling should be applied. Must be >0.
      * @param scaleFunction    describes the shape of the scaling behavior.
      */
-    public ScaleFactor(final double startScaleFactor, final double scaleFactor, final double startTime,
-                       final double duration, final ScaleFunction scaleFunction) {
+    public ScaleFactor(final double startScaleFactor, final double scaleFactor, final long startTime,
+                       final long duration, final ScaleFunction scaleFunction) {
         this(startScaleFactor, scaleFactor, startTime, duration);
         Objects.requireNonNull(scaleFunction);
         this.scaleFunction = scaleFunction;
@@ -96,10 +96,10 @@ public class ScaleFactor {
     /**
      * Returns the scaling factor for a given point in time.
      *
-     * @param currentTime the point in time at which the factor is required.
+     * @param currentTime the point in time (in epsilon time units) at which the factor is required.
      * @return >= 0
      */
-    public double getValue(final double currentTime) {
+    public double getValue(final long currentTime) {
         if (currentTime > endTime || currentTime < startTime) {
             return 1;
         } else {

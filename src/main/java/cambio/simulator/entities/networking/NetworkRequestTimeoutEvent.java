@@ -38,7 +38,7 @@ public class NetworkRequestTimeoutEvent extends NetworkRequestEvent implements I
             new NetworkRequestCanceledEvent(getModel(), "RequestCancel", getModel().traceIsOn(), travelingRequest,
                 RequestFailedReason.TIMEOUT,
                 "Request " + travelingRequest.getName() + " was canceled due to a timeout.");
-        cancelEvent.schedule(new TimeSpan(0));
+        cancelEvent.schedule(new TimeSpan(0L));
     }
 
     @Override

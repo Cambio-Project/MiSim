@@ -9,17 +9,17 @@ import org.jetbrains.annotations.Contract;
  * Represents an iterable arrival rate model that provides.
  *
  * <p>
- * {@link ArrivalRateModel}s should provide double values that represent the next target time. Target times may not
+ * {@link ArrivalRateModel}s should provide long values that represent the next target time. Target times may not
  * advance if multiple requests should be sent at once. Also throws a {@link LoadGeneratorStopException} once no more
  * times are available.
  *
  * @author Lion Wagner
  */
-public abstract class ArrivalRateModel implements Iterator<Double> {
+public abstract class ArrivalRateModel implements Iterator<Long> {
 
-    protected Double lastTimeInstant = null;
+    protected Long lastTimeInstant = 0L;
 
-    protected abstract double getDuration();
+    protected abstract long getDuration();
 
     protected abstract void resetModelIteration();
 
@@ -31,15 +31,15 @@ public abstract class ArrivalRateModel implements Iterator<Double> {
     }
 
     /**
-     * Generates the next target time instance as double.
+     * Generates the next target time instance as long (in epsilon time units).
      *
-     * @return a double containing the next target arrival time of a request
+     * @return a long containing the next target arrival time of a request (in epsilon time units)
      * @throws LoadGeneratorStopException when no next arrival time can be determined.
      */
     @Contract("->!null")
-    public final Double getNextTimeInstant() throws LoadGeneratorStopException {
+    public final Long getNextTimeInstant() throws LoadGeneratorStopException {
         if (this.hasNext()) {
-            Double next = this.next();
+            Long next = this.next();
             if (next == null) {
                 throw new LoadGeneratorStopException("No more Arrival Rate definitions available.");
             }
@@ -58,7 +58,7 @@ public abstract class ArrivalRateModel implements Iterator<Double> {
      */
     @Contract(value = "_ -> fail", pure = true)
     @Override
-    public final void forEachRemaining(Consumer<? super Double> action) {
+    public final void forEachRemaining(Consumer<? super Long> action) {
         throw new UnsupportedOperationException("forEachRemaining");
     }
 

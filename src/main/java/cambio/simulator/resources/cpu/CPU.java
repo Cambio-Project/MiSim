@@ -242,7 +242,9 @@ public class CPU extends NamedExternalEvent {
         reporter.addDatapoint("RelativeUtilization", presentTime(), getCurrentRelativeWorkDemand());
     }
 
-    /** rounding factor to get rid of minuscule imprecision during the relative utilization calculation. */
+    /**
+     * rounding factor to get rid of minuscule imprecision during the relative utilization calculation.
+     */
     private static final double roundingFactor = Math.pow(10, 14);
 
     /**

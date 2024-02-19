@@ -6,6 +6,7 @@ import cambio.simulator.entities.NamedEntity;
 import cambio.simulator.entities.microservice.MicroserviceInstance;
 import cambio.simulator.entities.microservice.Operation;
 import cambio.simulator.misc.RNGStorage;
+import cambio.simulator.misc.TimeUtil;
 import cambio.simulator.models.MiSimModel;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
@@ -95,7 +96,9 @@ public abstract class Request extends NamedEntity {
      */
     private void setTimestampReceived(TimeInstant timestampReceived) {
         if (this.timestampReceived != null) {
-            throw new IllegalStateException("Receive Stamp is already set!");
+            if (!TimeInstant.isEqual(this.timestampReceived, timestampReceived)) {
+                throw new IllegalStateException("Receive Stamp is already set!");
+            }
         }
         this.timestampReceived = timestampReceived;
     }
@@ -109,7 +112,9 @@ public abstract class Request extends NamedEntity {
      */
     private void setTimestampSend(TimeInstant timestampSend) {
         if (this.timestampSend != null) {
-            throw new IllegalStateException("Send Stamp is already set!");
+            if (!TimeInstant.isEqual(this.timestampSend, timestampSend)) {
+                throw new IllegalStateException("Send Stamp is already set!");
+            }
         }
         this.timestampSend = timestampSend;
     }
@@ -177,7 +182,9 @@ public abstract class Request extends NamedEntity {
      */
     public final void stampReceivedAtHandler(TimeInstant stamp) {
         if (this.timestampReceivedAtHandler != null) {
-            throw new IllegalStateException("This Request was already received by its handler.");
+            if (!TimeInstant.isEqual(this.timestampReceivedAtHandler, stamp)) {
+                throw new IllegalStateException("This Request was already received by its handler.");
+            }
         }
         this.timestampReceivedAtHandler = stamp;
     }
@@ -250,17 +257,17 @@ public abstract class Request extends NamedEntity {
             throw new IllegalStateException("Can't retrieve response time: Request was not received yet.");
         }
 
-        double responsetime = timestampReceived.getTimeAsDouble() - timestampSend.getTimeAsDouble();
+        double responsetime = TimeUtil.subtract(timestampReceived, timestampSend).getTimeAsDouble();
         responsetime = Precision.round(responsetime, 15);
         return responsetime;
     }
 
     public final double getDependencyWaitTime() {
-        return timestampDependenciesCompleted.getTimeAsDouble() - timestampSend.getTimeAsDouble();
+        return TimeUtil.subtract(timestampDependenciesCompleted, timestampSend).getTimeAsDouble();
     }
 
     public final double getComputeTime() {
-        return timestampComputationCompleted.getTimeAsDouble() - timestampDependenciesCompleted.getTimeAsDouble();
+        return TimeUtil.subtract(timestampComputationCompleted, timestampDependenciesCompleted).getTimeAsDouble();
     }
 
     public final boolean areDependenciesCompleted() {

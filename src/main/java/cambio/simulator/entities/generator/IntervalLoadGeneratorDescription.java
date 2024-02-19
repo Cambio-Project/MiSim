@@ -1,10 +1,11 @@
 package cambio.simulator.entities.generator;
 
 import java.util.Objects;
-import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import cambio.simulator.parsing.JsonTypeName;
 import com.google.gson.annotations.SerializedName;
+import desmoj.core.simulator.TimeInstant;
 
 /**
  * Adds properties to a {@link LoadGeneratorDescription} for describing an interval-based load generator.
@@ -55,39 +56,40 @@ public final class IntervalLoadGeneratorDescription extends LoadGeneratorDescrip
 
     private final class IntervalArrivalRateModel extends ArrivalRateModel {
 
-        private double interArrivalTime;
+        private long interArrivalTime;
         private int actualLoad;
         private int currentTimeInstantLoadCounter;
 
-        private Optional<ScaleFactor> scaleFactor = Optional.empty();
+        private ScaleFactor scaleFactor = null;
 
         public IntervalArrivalRateModel() {
             if (loadDistribution.equals("even")) {
-                this.interArrivalTime = interval / load;
+                this.interArrivalTime = (new TimeInstant(interval / load, TimeUnit.SECONDS)).getTimeInEpsilon();
                 this.actualLoad = load == 0 ? 0 : 1;
             } else { //if (loadDistribution.equals("spike"))
-                this.interArrivalTime = interval;
+                this.interArrivalTime = (new TimeInstant(interval, TimeUnit.SECONDS)).getTimeInEpsilon();
                 this.actualLoad = (int) load;
             }
         }
 
         private boolean requiresUpdate() {
-            return scaleFactor.isPresent();
+            return scaleFactor != null;
         }
 
         // For even
-        private void updateInterArrivalTime(final double currentTime) {
-            this.interArrivalTime = interval / (load * scaleFactor.get().getValue(currentTime));
+        private void updateInterArrivalTime(final long currentTime) {
+            this.interArrivalTime = (new TimeInstant(interval / (load * scaleFactor.getValue(currentTime)),
+                TimeUnit.SECONDS)).getTimeInEpsilon();
         }
 
         // For spike
-        private void updateLoad(final double currentTime) {
-            this.actualLoad = (int) (load * scaleFactor.get().getValue(currentTime));
+        private void updateLoad(final long currentTime) {
+            this.actualLoad = (int) (load * scaleFactor.getValue(currentTime));
         }
 
         @Override
-        protected double getDuration() {
-            return Double.POSITIVE_INFINITY;
+        protected long getDuration() {
+            return Long.MAX_VALUE;
         }
 
         @Override
@@ -98,9 +100,9 @@ public final class IntervalLoadGeneratorDescription extends LoadGeneratorDescrip
         @Override
         public void scaleLoad(ScaleFactor scaleFactor) {
             Objects.requireNonNull(scaleFactor);
-            double currentTime = lastTimeInstant;
+            long currentTime = lastTimeInstant;
             currentTimeInstantLoadCounter = (int) (currentTimeInstantLoadCounter * scaleFactor.getValue(currentTime));
-            this.scaleFactor = Optional.of(scaleFactor);
+            this.scaleFactor = scaleFactor;
         }
 
         @Override
@@ -109,7 +111,7 @@ public final class IntervalLoadGeneratorDescription extends LoadGeneratorDescrip
         }
 
         @Override
-        public Double next() {
+        public Long next() {
             if (!hasNext()) {
                 return null;
             }
@@ -117,7 +119,7 @@ public final class IntervalLoadGeneratorDescription extends LoadGeneratorDescrip
                 handleUpdates();
                 currentTimeInstantLoadCounter = actualLoad - 1;
                 if (lastTimeInstant == null) {
-                    return 0.0;
+                    return 0L;
                 } else {
                     return lastTimeInstant + interArrivalTime;
                 }

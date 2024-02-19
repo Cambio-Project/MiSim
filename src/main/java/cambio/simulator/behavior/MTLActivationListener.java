@@ -15,6 +15,7 @@ import cambio.tltea.interpreter.nodes.consequence.activation.*;
 import cambio.tltea.parser.core.OperatorToken;
 import cambio.tltea.parser.core.temporal.*;
 import desmoj.core.simulator.TimeInstant;
+import desmoj.core.simulator.TimeOperations;
 import desmoj.core.simulator.TimeSpan;
 
 /**
@@ -46,34 +47,38 @@ public class MTLActivationListener {
             activationData -> System.out.println("Event activated: " + activationData));
     }
 
-    private TimeInstant sum(TimeInstant time1, TimeInstant time2) {
-        return new TimeInstant(
-            Math.min((time1.getTimeAsDouble() + time2.getTimeAsDouble() - model.presentTime().getTimeAsDouble()),
-                model.getExperimentMetaData().getDuration()));
+    private TimeInstant sum(TimeInstant time1, TimeSpan time2) {
+        var result = TimeOperations.add(time1, time2);
+        var maxTime = new TimeInstant(model.getExperimentMetaData().getDuration());
+        if(TimeInstant.isAfter(maxTime, result)){
+            return result;
+        }else{
+            return maxTime;
+        }
     }
 
     // TODO: Needs adjustments! Fix relative time, delay in F_end, simulation time limit, ...
-    private TimeInstant tryFindStartTime(ITemporalValue time) {
+    private TimeSpan tryFindStartTime(ITemporalValue time) {
         if (time instanceof TimeInstance moment) {
-            return new TimeInstant(model.presentTime().getTimeAsDouble() + moment.getTime());
+            return new TimeSpan(moment.getTime());
         } else if (time instanceof TemporalInterval interval) {
-            return new TimeInstant(model.presentTime().getTimeAsDouble() + interval.getStart().getTime());
+            return new TimeSpan(interval.getStart().getTime());
         } else {
             System.out.println("Unsupported temporal expression: " + time);
         }
-        return new TimeInstant(model.presentTime().getTimeAsDouble());
+        return new TimeSpan(0);
     }
 
     // TODO: Needs adjustments! Fix relative time, delay in F_end, simulation time limit, ...
-    private TimeInstant tryFindStopTime(ITemporalValue time) {
+    private TimeSpan tryFindStopTime(ITemporalValue time) {
         if (time instanceof TimeInstance moment) {
-            return new TimeInstant(moment.getTime() + model.presentTime().getTimeAsDouble());
+            return new TimeSpan(moment.getTime());
         } else if (time instanceof TemporalInterval interval) {
-            return new TimeInstant(interval.getEnd().getTime() + model.presentTime().getTimeAsDouble());
+            return new TimeSpan(interval.getEnd().getTime());
         } else {
             System.out.println("Unsupported temporal expression: " + time);
         }
-        return new TimeInstant(Double.POSITIVE_INFINITY);
+        return new TimeSpan(Double.POSITIVE_INFINITY);
     }
 
 
@@ -82,24 +87,30 @@ public class MTLActivationListener {
         var token = info.operator();
         var time = info.temporalValueExpression();
 
-
         if (time instanceof TimeInstance moment) {
-            return new TimeInstant(model.presentTime().getTimeAsDouble() + moment.getTime());
+            var timeToAdd = new TimeSpan(moment.getTime());
+            return TimeOperations.add(model.presentTime(), timeToAdd);
         }
 
         if (token == OperatorToken.FINALLY) {
             if (time instanceof TemporalInterval interval) {
                 var random = new Random();
-                var delay = random.nextDouble() * interval.getDuration();
-                var startTime = Math.min((model.presentTime().getTimeAsDouble() + interval.getStart().getTime() + delay),
-                    model.getExperimentMetaData().getDuration());
-                return new TimeInstant(startTime);
+                var delay = new TimeSpan(random.nextDouble() * interval.getDuration());
+                var timeToAdd = new TimeSpan(interval.getStart().getTime());
+                var computedTime = TimeOperations.add(model.presentTime(), timeToAdd);
+                computedTime = TimeOperations.add(computedTime, delay);
+                var maxTime = new TimeInstant(model.getExperimentMetaData().getDuration());
+                if(TimeInstant.isAfter(computedTime, maxTime)){
+                    computedTime = maxTime;
+                }
+                return computedTime;
             } else {
                 System.out.println("Unsupported temporal expression: " + time);
             }
         } else if (token == OperatorToken.GLOBALLY) {
             if (time instanceof TemporalInterval interval) {
-                return new TimeInstant(model.presentTime().getTimeAsDouble() + interval.getStart().getTime());
+                var timeToAdd = new TimeSpan(interval.getStart().getTime());
+                return TimeOperations.add(model.presentTime(), timeToAdd);
             } else {
                 System.out.println("Unsupported temporal expression: " + time);
             }
@@ -107,18 +118,19 @@ public class MTLActivationListener {
             System.out.println("Unsupported temporal operator: " + token);
         }
         // return current time
-        return new TimeInstant(model.presentTime().getTimeAsDouble());
+        return model.presentTime();
     }
 
     // TODO: Needs adjustments! Fix relative time, delay in F_end, simulation time limit, ...
     private TimeInstant tryFindStopTime(TemporalOperatorInfo info) {
         var time = info.temporalValueExpression();
 
-
         if (time instanceof TimeInstance moment) {
-            return new TimeInstant(moment.getTime() + model.presentTime().getTimeAsDouble());
+            var timeToAdd = new TimeSpan(moment.getTime());
+            return TimeOperations.add(model.presentTime(), timeToAdd);
         } else if (time instanceof TemporalInterval interval) {
-            return new TimeInstant(interval.getEnd().getTime() + model.presentTime().getTimeAsDouble());
+            var timeToAdd = new TimeSpan(interval.getEnd().getTime());
+            return TimeOperations.add(model.presentTime(), timeToAdd);
         } else {
             System.out.println("Unsupported temporal expression: " + time);
         }
@@ -184,10 +196,10 @@ public class MTLActivationListener {
         var targetName = data.getLoad_str();
         var targetOperations = findOperations(targetName);
 
-        var targetDouble = targetTime.getTimeAsDouble();
-        var stopDouble = stopTime.getTimeAsDouble();
-        var durationDouble = stopDouble - targetDouble;
-        var duration = new TimeSpan(durationDouble);
+        var targetEpsilon = targetTime.getTimeInEpsilon();
+        var stopEpsilon = stopTime.getTimeInEpsilon();
+        var durationEpsilon = stopEpsilon - targetEpsilon;
+        var duration = new TimeSpan(durationEpsilon, TimeOperations.getEpsilon());
 
         if (data.isFactor()) {
             String functionType = data.getFunctionType();
@@ -198,7 +210,7 @@ public class MTLActivationListener {
                 scaleFunction = ScaleFunction.detect(functionType);
             }
 
-            ScaleFactor scaleFactor = new ScaleFactor(data.getModificationValue(), targetDouble, durationDouble,
+            ScaleFactor scaleFactor = new ScaleFactor(data.getModificationValue(), targetEpsilon, durationEpsilon,
                 scaleFunction);
 
             model.getExperimentModel()
