@@ -1,5 +1,6 @@
 package restAPI.simulation_running;
 import com.google.common.collect.Multimap;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,20 +28,31 @@ public class SimulationRunningController {
         this.simulationRunningService = simulationRunningService;
     }
 
+
+    // TODO: Handle this call in a non-blocking manner, taking into account that this implementation is not
+    //  client friendly as it can time-out the request due to the long processing time.
     //For uploading the Multipart files and saving them to the file system. And then we run the simulation on them.
     @PostMapping("/simulate/upload")
     public ResponseEntity<String> handleMultipleFilesUpload(@RequestParam("files") MultipartFile[] files,
                                                             @RequestParam("simulation_id") String id) {
         try {
+            if (TempFileUtils.existsSimulationId(id)) {
+                return new ResponseEntity<>(String.format("Simulation ID <%s> already in use. " +
+                        "Please provide a unique new id.", id),
+                        HttpStatus.BAD_REQUEST);
+            }
             Path tmpFolder = TempFileUtils.createDefaultTempDir("misim-");
-            Path outputFolder = TempFileUtils.createDefaultTempDir("misim-output-");
+            Path outputFolder = TempFileUtils.createOutputDir(id);
             Multimap<String, String> savedFiles = TempFileUtils.saveFiles(files, tmpFolder);
             simulationRunningService.runExperiment(savedFiles, outputFolder);
-            // TODO: Add DB connections
 
+            if(!TempFileUtils.existsSimulationId(id)) {
+                return new ResponseEntity<>(String.format("An Error happened when running the simulation with the ID: " +
+                        "%s.", id),
+                        HttpStatus.INTERNAL_SERVER_ERROR);
+            }
             // Do the clean-up
-            //FileUtils.deleteDirectory(tmpFolder.toFile());
-            //FileUtils.deleteDirectory(outputFolder.toFile());
+            FileUtils.deleteDirectory(tmpFolder.toFile());
             return new ResponseEntity<>("Files have been successfully uploaded, and the simulation is running.",
                     HttpStatus.OK);
         }

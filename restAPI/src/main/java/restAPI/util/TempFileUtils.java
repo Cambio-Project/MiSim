@@ -18,17 +18,20 @@ import java.util.stream.Stream;
 
 public class TempFileUtils {
 
-    // Create a new temp file.
-    private static Path createTempFile(Path tmpDir, String originalName, byte[] content) throws IOException {
+    private static final String outputDir = "simulations-results";
+
+    // Create a new file and write the given content to it.
+    private static Path createFile(Path tmpDir, String originalName, byte[] content) throws IOException {
         String filePath = tmpDir.toString() + FileSystems.getDefault().getSeparator() + originalName;
         Path file = Files.createFile(Path.of(filePath));
         return Files.write(file, content);
     }
 
+
     private static Path saveFile(MultipartFile file, Path path) throws Exception {
         if(file.getOriginalFilename() == null) {
             throw new IllegalArgumentException("The uploaded file must have a name that includes the prefix" +
-                    " <architecture_>, <experiment_>, or <scenario_>.");
+                    " <architecture_>, <experiment_>, <scenario_>, or <load_> according to its type.");
         }
         String fileName = StringUtils.cleanPath(file.getOriginalFilename());
         try {
@@ -40,7 +43,7 @@ public class TempFileUtils {
                 throw new Exception(String.format("The uploaded file <%s> is empty.", fileName));
             }
             byte[] content = file.getBytes();
-            return createTempFile(path, fileName, content);
+            return createFile(path, fileName, content);
         } catch (MaxUploadSizeExceededException e) {
             throw new MaxUploadSizeExceededException(file.getSize());
         }
@@ -69,9 +72,18 @@ public class TempFileUtils {
         return filesPaths;
     }
 
-    // We create a temp directory in the default OS's /tmp folder.
+    // Create a temp directory in the default OS's /tmp folder.
     public static Path createDefaultTempDir(String prefix) throws IOException {
         return Files.createTempDirectory(prefix);
+    }
+
+    public static Path createOutputDir(String simulationId) throws IOException {
+        Path outPutDirPath = Path.of(outputDir);
+        if (!Files.exists(outPutDirPath)) {
+            Files.createDirectory(outPutDirPath);
+        }
+        String simulationOutputDirPath = outputDir + FileSystems.getDefault().getSeparator() + simulationId;
+        return Files.createDirectory(Path.of(simulationOutputDirPath));
     }
 
     public static Set<String> getFilesInDir(Path dirPath) throws IOException {
@@ -83,6 +95,11 @@ public class TempFileUtils {
                     .map(Path::toString)
                     .collect(Collectors.toSet());
         }
+    }
+
+    public static boolean existsSimulationId(String simulationId) {
+        String simulationOutputDirPath = outputDir + FileSystems.getDefault().getSeparator() + simulationId;
+        return Files.exists(Path.of(simulationOutputDirPath));
     }
 
 }

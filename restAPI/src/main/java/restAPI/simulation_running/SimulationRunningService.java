@@ -69,7 +69,6 @@ public class SimulationRunningService {
     }
 
 
-    // For experiments
     private void adjustWorkloadPaths(List<String> workloadsPath, String experimentFilePath)
             throws IOException {
         Path experimentFile = Path.of(FilenameUtils.separatorsToSystem(experimentFilePath));
@@ -82,6 +81,5 @@ public class SimulationRunningService {
         }
         Files.write(experimentFile, content.getBytes());
     }
-
 
 }

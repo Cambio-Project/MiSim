@@ -36,7 +36,7 @@ hs_err_pid*
 
 #Example Experiment results
 ABCDE Experiment_*.html
-  
+
 # JetBrains.gitignore
 # Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
 
@@ -116,6 +116,9 @@ fabric.properties
 
 # output folder of failed reproducibility tests
 failed_test_results
+
+# output folder of simulation results from a simulation request over the API
+simulations-results
 
 #awesome-bot results
 ab-results-*.json
