@@ -9,6 +9,7 @@ import cambio.simulator.entities.networking.*;
 import cambio.simulator.entities.patterns.IPatternLifeCycleHooks;
 import cambio.simulator.events.ISelfScheduled;
 import cambio.simulator.export.AccumulativeDataPointReporter;
+import cambio.simulator.export.BucketMultiDataPointReporter;
 import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
@@ -61,8 +62,7 @@ public final class LoadGeneratorDescriptionExecutor extends RequestSender implem
         String reportName = String
             .format("G[%s]_[%s(%s)]_", this.getClass().getSimpleName(), targetOperation.getOwnerMS().getPlainName(),
                 targetOperation.getPlainName());
-        accReporter = new AccumulativeDataPointReporter(reportName, model);
-
+        accReporter = new AccumulativeDataPointReporter(reportName, model, BucketMultiDataPointReporter.CEIL_FUNCTION);
 
         addUpdateListener(this);
     }
@@ -90,7 +90,7 @@ public final class LoadGeneratorDescriptionExecutor extends RequestSender implem
      */
     @Override
     public boolean onRequestFailed(Request request, TimeInstant when, RequestFailedReason reason) {
-        sendTraceNote("Arrival of Request " + request + " failed at " + when + ".");
+        sendTraceNote(String.format("Arrival of Request %s failed at %s.", request, when));
         TimeInstant currentTime = new TimeInstant(Math.ceil(presentTime().getTimeAsDouble()));
 
         accReporter.addDatapoint("FailedRequests", currentTime, 1);
@@ -109,7 +109,7 @@ public final class LoadGeneratorDescriptionExecutor extends RequestSender implem
      */
     @Override
     public boolean onRequestResultArrivedAtRequester(Request request, TimeInstant when) {
-        sendTraceNote("Successfully completed Request " + request + " at " + when + ".");
+        sendTraceNote(String.format("Successfully completed Request %s at %s.", request, when));
         TimeInstant currentTime = new TimeInstant(Math.ceil(presentTime().getTimeAsDouble()));
 
         accReporter.addDatapoint("SuccessfulRequests", currentTime, 1);

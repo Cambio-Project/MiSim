@@ -2,7 +2,6 @@ package cambio.simulator;
 
 import java.io.*;
 import java.nio.file.*;
-import java.util.List;
 import java.time.LocalDateTime;
 
 import cambio.simulator.behavior.EventBusConnector;
@@ -13,6 +12,7 @@ import cambio.simulator.models.ExperimentMetaData;
 import cambio.simulator.models.MiSimModel;
 import cambio.tltea.interpreter.BehaviorInterpretationResult;
 import cambio.tltea.interpreter.Interpreter;
+import cambio.tltea.interpreter.connector.Brokers;
 import desmoj.core.simulator.Experiment;
 import desmoj.core.simulator.TimeInstant;
 import org.jetbrains.annotations.NotNull;
@@ -97,12 +97,15 @@ public class ExperimentCreator {
             exp.debugOff(new TimeInstant(0, metaData.getTimeUnit()));
         }
 
-        parseMtlFormula(config.mtlLoc(), model, config.debugOutputOn());
+        if(config.mtlLoc() != null){
+            parseMtlFormula(config.mtlLoc(), model, config.debugOutputOn());
+        }
         return exp;
     }
 
     private static void parseMtlFormula(String mtlLoc, @NotNull MiSimModel model, boolean isDebugOn) {
-        for (BehaviorInterpretationResult result : Interpreter.INSTANCE.interpretAllAsBehavior(mtlLoc, isDebugOn)) {
+        for (BehaviorInterpretationResult result : Interpreter.INSTANCE.interpretAllAsBehavior(mtlLoc, new Brokers(),
+            isDebugOn)) {
             new MTLActivationListener(result, model);
             result.getTriggerManager()
                 .getEventActivationListeners()

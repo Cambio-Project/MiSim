@@ -32,6 +32,7 @@ public final class MiSimReporters {
     public static MultiDataPointReporter NETWORK_LATENCY_REPORTER;
     public static MultiDataPointReporter USER_REQUEST_REPORTER;
     public static AccumulativeDataPointReporter GENERATOR_REPORTER;
+    public static AverageDataPointReporter USER_REQUEST_AVG_REPORTER;
 
     public static final String csvSeperator = ";";
 
@@ -46,7 +47,10 @@ public final class MiSimReporters {
         RETRY_MANAGER_REPORTER = new MultiDataPointReporter("RM_", model);
         NETWORK_LATENCY_REPORTER = new MultiDataPointReporter("NL_", model);
         USER_REQUEST_REPORTER = new MultiDataPointReporter("R", model);
-        GENERATOR_REPORTER = new AccumulativeDataPointReporter("GEN_ALL_", model);
+        GENERATOR_REPORTER = new AccumulativeDataPointReporter(
+            "GEN_ALL_", model, BucketMultiDataPointReporter.CEIL_FUNCTION);
+        USER_REQUEST_AVG_REPORTER = new AverageDataPointReporter(
+            "R_AVG_", model, BucketMultiDataPointReporter.CEIL_FUNCTION);
     }
 
     /**

@@ -57,7 +57,7 @@ public class MTLActivationListener {
         if (time instanceof TimeInstance moment) {
             return new TimeInstant(model.presentTime().getTimeAsDouble() + moment.getTime());
         } else if (time instanceof TemporalInterval interval) {
-            return new TimeInstant(model.presentTime().getTimeAsDouble() + interval.getStart());
+            return new TimeInstant(model.presentTime().getTimeAsDouble() + interval.getStart().getTime());
         } else {
             System.out.println("Unsupported temporal expression: " + time);
         }
@@ -69,7 +69,7 @@ public class MTLActivationListener {
         if (time instanceof TimeInstance moment) {
             return new TimeInstant(moment.getTime() + model.presentTime().getTimeAsDouble());
         } else if (time instanceof TemporalInterval interval) {
-            return new TimeInstant(interval.getEnd() + model.presentTime().getTimeAsDouble());
+            return new TimeInstant(interval.getEnd().getTime() + model.presentTime().getTimeAsDouble());
         } else {
             System.out.println("Unsupported temporal expression: " + time);
         }
@@ -91,7 +91,7 @@ public class MTLActivationListener {
             if (time instanceof TemporalInterval interval) {
                 var random = new Random();
                 var delay = random.nextDouble() * interval.getDuration();
-                var startTime = Math.min((model.presentTime().getTimeAsDouble() + interval.getStart() + delay),
+                var startTime = Math.min((model.presentTime().getTimeAsDouble() + interval.getStart().getTime() + delay),
                     model.getExperimentMetaData().getDuration());
                 return new TimeInstant(startTime);
             } else {
@@ -99,7 +99,7 @@ public class MTLActivationListener {
             }
         } else if (token == OperatorToken.GLOBALLY) {
             if (time instanceof TemporalInterval interval) {
-                return new TimeInstant(model.presentTime().getTimeAsDouble() + interval.getStart());
+                return new TimeInstant(model.presentTime().getTimeAsDouble() + interval.getStart().getTime());
             } else {
                 System.out.println("Unsupported temporal expression: " + time);
             }
@@ -119,7 +119,7 @@ public class MTLActivationListener {
         if (time instanceof TimeInstance moment) {
             return new TimeInstant(moment.getTime() + model.presentTime().getTimeAsDouble());
         } else if (time instanceof TemporalInterval interval) {
-            return new TimeInstant(interval.getEnd() + model.presentTime().getTimeAsDouble());
+            return new TimeInstant(interval.getEnd().getTime() + model.presentTime().getTimeAsDouble());
         } else {
             System.out.println("Unsupported temporal expression: " + time);
         }
