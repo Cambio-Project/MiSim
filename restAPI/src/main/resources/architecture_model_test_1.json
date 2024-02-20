@@ -1,0 +1,145 @@
+{
+  "microservices": [
+    {
+      "name": "users",
+      "instances": 3,
+      "patterns": [],
+      "capacity": 1000,
+      "operations": [
+        {
+          "name": "authentication",
+          "demand": 1100,
+          "dependencies": []
+        },
+        {
+          "name": "users.GET",
+          "demand": 500,
+          "dependencies": []
+        },
+        {
+          "name": "users.POST",
+          "demand": 1250,
+          "dependencies": []
+        }
+      ]
+    },
+    {
+      "name": "frontend",
+      "instances": 2,
+      "patterns": [],
+      "capacity": 1000,
+      "operations": [
+        {
+          "name": "getUsers",
+          "demand": 10,
+          "circuitBreaker": {
+            "rollingWindow": 10,
+            "requestVolumeThreshold": 3,
+            "errorThresholdPercentage": 0.5,
+            "timeout": 2,
+            "sleepWindow": 5
+          },
+          "dependencies": [
+            {
+              "service": "users",
+              "operation": "authentication",
+              "probability": 1.0
+            },
+            {
+              "service": "users",
+              "operation": "users.GET",
+              "probability": 1.0
+            }
+          ]
+        },
+        {
+          "name": "getCatalog",
+          "demand": 10,
+          "circuitBreaker": {
+            "rollingWindow": 10,
+            "requestVolumeThreshold": 3,
+            "errorThresholdPercentage": 0.5,
+            "timeout": 2,
+            "sleepWindow": 5
+          },
+          "dependencies": [
+            {
+              "service": "users",
+              "operation": "authentication",
+              "probability": 1.0
+            },
+            {
+              "service": "books",
+              "operation": "books.GET",
+              "probability": 1.0
+            }
+          ]
+        },
+        {
+          "name": "createBook",
+          "demand": 10,
+          "circuitBreaker": {
+            "rollingWindow": 10,
+            "requestVolumeThreshold": 3,
+            "errorThresholdPercentage": 0.5,
+            "timeout": 2,
+            "sleepWindow": 5
+          },
+          "dependencies": [
+            {
+              "service": "users",
+              "operation": "authentication",
+              "probability": 1.0
+            },
+            {
+              "service": "books",
+              "operation": "books.POST",
+              "probability": 1.0
+            }
+          ]
+        },
+        {
+          "name": "createUser",
+          "demand": 10,
+          "circuitBreaker": {
+            "rollingWindow": 10,
+            "requestVolumeThreshold": 3,
+            "errorThresholdPercentage": 0.5,
+            "timeout": 4,
+            "sleepWindow": 5
+          },
+          "dependencies": [
+            {
+              "service": "users",
+              "operation": "authentication",
+              "probability": 1.0
+            },
+            {
+              "service": "users",
+              "operation": "users.POST",
+              "probability": 1.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "books",
+      "instances": 1,
+      "patterns": [],
+      "capacity": 1000,
+      "operations": [
+        {
+          "name": "books.GET",
+          "demand": 39,
+          "dependencies": []
+        },
+        {
+          "name": "books.POST",
+          "demand": 48,
+          "dependencies": []
+        }
+      ]
+    }
+  ]
+}
