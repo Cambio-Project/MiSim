@@ -1,5 +1,7 @@
 package cambio.simulator.export;
 
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.UnaryOperator;
@@ -27,6 +29,8 @@ public class AverageDataPointReporter extends BucketMultiDataPointReporter {
      * Counter for added datapoint values. Required to compute the average.
      */
     private final HashMap<String, HashMap<Double, Integer>> counts = new HashMap<>();
+
+    private final HashMap<String, HashMap<Double, Number>> avgValues = new HashMap<>();
 
     /**
      * Constructs a new data point reporter.
@@ -75,10 +79,8 @@ public class AverageDataPointReporter extends BucketMultiDataPointReporter {
         when = bucketingFunction.apply(when);
         update = true;
 
-        Map<Double, Number> dataSet =
-            (HashMap<Double, Number>) valueSum.computeIfAbsent(datasetsPrefix + dataSetName, s -> new HashMap<>());
-        Map<Double, Integer> countSet =
-            (HashMap<Double, Integer>) counts.computeIfAbsent(datasetsPrefix + dataSetName, s -> new HashMap<>());
+        Map<Double, Number> dataSet = valueSum.computeIfAbsent(datasetsPrefix + dataSetName, s -> new HashMap<>());
+        Map<Double, Integer> countSet = counts.computeIfAbsent(datasetsPrefix + dataSetName, s -> new HashMap<>());
         dataSet.merge(when.getTimeAsDouble(), data, (number, number2) -> number.doubleValue() + number2.doubleValue());
         countSet.merge(when.getTimeAsDouble(), 1, Integer::sum);
     }
@@ -91,11 +93,8 @@ public class AverageDataPointReporter extends BucketMultiDataPointReporter {
             for (Map.Entry<String, HashMap<Double, Number>> entry : valueSum.entrySet()) {
                 var dataSetName = entry.getKey();
                 var dataSet = entry.getValue();
-                AsyncMultiColumnReportWriter writerThread = getWriter(dataSetName);
                 var averagesForDataset = computeAverages(dataSetName, dataSet);
-                for (Map.Entry<Double, Number> averageEntry : averagesForDataset.entrySet()) {
-                    writerThread.addDataPoint(averageEntry.getKey(), averageEntry.getValue());
-                }
+                avgValues.put(dataSetName, averagesForDataset);
             }
         }
     }
@@ -120,9 +119,56 @@ public class AverageDataPointReporter extends BucketMultiDataPointReporter {
 
     @Override
     public void finalizeReport() {
-        // TODO: This is a working solution, but not closely conforming to the new Reporter
         setAverages();
+        flush();
         super.finalizeReport();
+    }
+
+
+    @SafeVarargs
+    private <T> void internalAddDatapoint(String dataSetName, double when, T... data) {
+        AsyncMultiColumnReportWriter writerThread = getWriter(dataSetName);
+        writerThread.addDataPoint(when, data);
+    }
+
+    /**
+     * Writes all accumulated data-points to disk.
+     */
+    public void flush() {
+        avgValues.keySet().forEach(this::flush);
+    }
+
+    /**
+     * Writes the given dataset to disk.
+     */
+    public void flush(String datasetName) {
+        if (avgValues.containsKey(datasetName)) {
+            HashMap<Double, Number> lastValuesForDataSet = avgValues.get(datasetName);
+            lastValuesForDataSet.keySet().stream().sorted()
+                .forEach(timeInstant -> this.flush(datasetName, timeInstant));
+        }
+    }
+
+    /**
+     * Writes the given TimeInstant (timestamp) of a specific dataset to disk.
+     */
+    public void flush(String datasetName, double when) {
+        if (avgValues.containsKey(datasetName)) {
+            HashMap<Double, Number> lastValuesForDataSet = avgValues.get(datasetName);
+            if (lastValuesForDataSet.containsKey(when)) {
+                internalAddDatapoint(datasetName, when, lastValuesForDataSet.remove(when));
+            }
+        }
+    }
+
+    @Override
+    public void registerDefaultHeader(String dataSetName, String... headers) {
+        super.registerDefaultHeader(dataSetName, headers[0]);
+    }
+
+    @Override
+    protected AsyncMultiColumnReportWriter createWriter(Path datasetPath, String[] headers) throws IOException {
+        return new AsyncMultiColumnReportWriter(datasetPath, headers[0]);
     }
 
 }
