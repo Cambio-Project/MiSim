@@ -23,15 +23,16 @@
 		</dependency>
 
 		<dependency>
+			<groupId>tech.tablesaw</groupId>
+			<artifactId>tablesaw-core</artifactId>
+			<version>0.43.1</version>
+		</dependency>
+
+
+		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 			<version>33.0.0-jre</version>
-		</dependency>
-
-		<dependency>
-			<groupId>io.prometheus</groupId>
-			<artifactId>simpleclient_pushgateway</artifactId>
-			<version>0.16.0</version>
 		</dependency>
 
 

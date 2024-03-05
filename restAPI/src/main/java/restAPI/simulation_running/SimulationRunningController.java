@@ -10,9 +10,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import restAPI.util.ReportDataPointsManipulator;
 import restAPI.util.TempFileUtils;
 
 
+import java.io.IOException;
 import java.nio.file.Path;
 
 
@@ -34,23 +36,24 @@ public class SimulationRunningController {
     //For uploading the Multipart files and saving them to the file system. And then we run the simulation on them.
     @PostMapping("/simulate/upload")
     public ResponseEntity<String> handleMultipleFilesUpload(@RequestParam("files") MultipartFile[] files,
-                                                            @RequestParam("simulation_id") String id) {
+                                                            @RequestParam("simulation_id") String id) throws IOException {
         try {
             if (TempFileUtils.existsSimulationId(id)) {
-                return new ResponseEntity<>(String.format("Simulation ID <%s> already in use. " +
+                return new ResponseEntity<>(String.format("Simulation ID <%s> is already in use. " +
                         "Please provide a unique new id.", id),
                         HttpStatus.BAD_REQUEST);
             }
             Path tmpFolder = TempFileUtils.createDefaultTempDir("misim-");
-            Path outputFolder = TempFileUtils.createOutputDir(id);
+            Path outputFolder = TempFileUtils.createOutputDir(TempFileUtils.RAW_OUTPUT_DIR, id);
             Multimap<String, String> savedFiles = TempFileUtils.saveFiles(files, tmpFolder);
             simulationRunningService.runExperiment(savedFiles, outputFolder);
-
             if(!TempFileUtils.existsSimulationId(id)) {
                 return new ResponseEntity<>(String.format("An Error happened when running the simulation with the ID: " +
                         "%s.", id),
                         HttpStatus.INTERNAL_SERVER_ERROR);
             }
+            String rawResultsDirPath = outputFolder.toString() + TempFileUtils.SEPARATOR + "raw";
+            ReportDataPointsManipulator.adjustSimulationResults(rawResultsDirPath, id);
             // Do the clean-up
             FileUtils.deleteDirectory(tmpFolder.toFile());
             return new ResponseEntity<>("Files have been successfully uploaded, and the simulation is running.",

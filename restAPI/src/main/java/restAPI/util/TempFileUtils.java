@@ -18,11 +18,13 @@ import java.util.stream.Stream;
 
 public class TempFileUtils {
 
-    private static final String outputDir = "simulations-results";
+    public static final String RAW_OUTPUT_DIR = "raw_simulations_results";
+    public static final String OUTPUT_DIR = "simulations_results";
+    public static final String SEPARATOR = FileSystems.getDefault().getSeparator();
 
     // Create a new file and write the given content to it.
     private static Path createFile(Path tmpDir, String originalName, byte[] content) throws IOException {
-        String filePath = tmpDir.toString() + FileSystems.getDefault().getSeparator() + originalName;
+        String filePath = tmpDir.toString() + SEPARATOR + originalName;
         Path file = Files.createFile(Path.of(filePath));
         return Files.write(file, content);
     }
@@ -77,17 +79,18 @@ public class TempFileUtils {
         return Files.createTempDirectory(prefix);
     }
 
-    public static Path createOutputDir(String simulationId) throws IOException {
-        Path outPutDirPath = Path.of(outputDir);
+    public static Path createOutputDir(String outputDirName, String simulationId) throws IOException {
+        Path outPutDirPath = Path.of(outputDirName);
         if (!Files.exists(outPutDirPath)) {
             Files.createDirectory(outPutDirPath);
         }
-        String simulationOutputDirPath = outputDir + FileSystems.getDefault().getSeparator() + simulationId;
+        String simulationOutputDirPath = outputDirName + SEPARATOR + simulationId;
         return Files.createDirectory(Path.of(simulationOutputDirPath));
     }
 
-    public static Set<String> getFilesInDir(Path dirPath) throws IOException {
-        String dir = dirPath.toString() + FileSystems.getDefault().getSeparator() + "raw";
+
+    public static Set<String> getFilesFromResultsDir(Path dirPath) throws IOException {
+        String dir = dirPath.toString();
         try (Stream<Path> stream = Files.list(Paths.get(dir))) {
             return stream
                     .filter(file -> !Files.isDirectory(file))
@@ -98,7 +101,7 @@ public class TempFileUtils {
     }
 
     public static boolean existsSimulationId(String simulationId) {
-        String simulationOutputDirPath = outputDir + FileSystems.getDefault().getSeparator() + simulationId;
+        String simulationOutputDirPath = RAW_OUTPUT_DIR + SEPARATOR + simulationId;
         return Files.exists(Path.of(simulationOutputDirPath));
     }
 
