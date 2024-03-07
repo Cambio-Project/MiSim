@@ -1,0 +1,78 @@
+{
+  "simulation_metadata": {
+    "experiment_name": "Example-ChaosMonkey-Test",
+    "model_name": "Scenario ChaosMonkey",
+    "seed": "12345",
+    "duration": 200
+  },
+  "request_generators": [
+    {
+      "type": "interval",
+      "config": {
+        "microservice": "gateway",
+        "operation": "INTERNAL_DEP"
+      }
+    },
+    {
+      "type": "interval",
+      "config": {
+        "microservice": "gateway",
+        "operation": "INTERNAL_DEP"
+      }
+    },
+    {
+      "type": "interval",
+      "config": {
+        "microservice": "gateway",
+        "operation": "DB_WRITE"
+      }
+    },
+    {
+      "type": "interval",
+      "config": {
+        "microservice": "gateway",
+        "operation": "DB_READ"
+      }
+    },
+    {
+      "type": "interval",
+      "config": {
+        "operation": "gateway.UNAFFECTED_SERVICE"
+      }
+    }
+  ],
+  "chaos_monkeys": [
+    {
+      "type": "monkey",
+      "config": {
+        "microservice": "example-service",
+        "instances": 1,
+        "time": 30
+      }
+    },
+    {
+      "type": "monkey",
+      "config": {
+        "microservice": "example-service",
+        "instances": 1,
+        "time": 60
+      }
+    },
+    {
+      "type": "monkey",
+      "config": {
+        "microservice": "example-service",
+        "instances": 2,
+        "time": 120
+      }
+    }
+  ],
+  "named_summoner": {
+    "type": "summoner",
+    "config": {
+      "microservice": "example-service",
+      "instances": 2,
+      "time": 150
+    }
+  }
+}
