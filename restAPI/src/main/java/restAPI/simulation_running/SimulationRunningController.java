@@ -46,6 +46,7 @@ public class SimulationRunningController {
             Path tmpFolder = TempFileUtils.createDefaultTempDir("misim-");
             Path outputFolder = TempFileUtils.createOutputDir(TempFileUtils.RAW_OUTPUT_DIR, id);
             Multimap<String, String> savedFiles = TempFileUtils.saveFiles(files, tmpFolder);
+            //Block1
             simulationRunningService.runExperiment(savedFiles, outputFolder);
             if(!TempFileUtils.existsSimulationId(id)) {
                 return new ResponseEntity<>(String.format("An Error happened when running the simulation with the ID: " +
@@ -53,6 +54,7 @@ public class SimulationRunningController {
                         HttpStatus.INTERNAL_SERVER_ERROR);
             }
             String rawResultsDirPath = outputFolder.toString() + TempFileUtils.SEPARATOR + "raw";
+            //Block2
             ReportDataPointsManipulator.adjustSimulationResults(rawResultsDirPath, id);
             // Do the clean-up
             FileUtils.deleteDirectory(tmpFolder.toFile());
