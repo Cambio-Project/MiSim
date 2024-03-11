@@ -79,8 +79,8 @@ public class AverageDataPointReporter extends BucketMultiDataPointReporter {
         when = bucketingFunction.apply(when);
         update = true;
 
-        Map<Double, Number> dataSet = valueSum.computeIfAbsent(datasetsPrefix + dataSetName, s -> new HashMap<>());
-        Map<Double, Integer> countSet = counts.computeIfAbsent(datasetsPrefix + dataSetName, s -> new HashMap<>());
+        Map<Double, Number> dataSet = valueSum.computeIfAbsent(dataSetName, s -> new HashMap<>());
+        Map<Double, Integer> countSet = counts.computeIfAbsent(dataSetName, s -> new HashMap<>());
         dataSet.merge(when.getTimeAsDouble(), data, (number, number2) -> number.doubleValue() + number2.doubleValue());
         countSet.merge(when.getTimeAsDouble(), 1, Integer::sum);
     }

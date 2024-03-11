@@ -27,8 +27,10 @@ public class UserRequest extends Request {
     protected void onReceive() {
         super.onReceive();
         USER_REQUEST_AVG_REPORTER.addDatapoint(
-            String.format("[%s]_ResponseTimes_avg", operation.getName()), presentTime(),
+            String.format("[%s]_ResponseTimes", operation.getName()), presentTime(),
             getResponseTime());
+        USER_REQUEST_AVG_REPORTER
+            .addDatapoint("[All]ResponseTimes", presentTime(), getResponseTime());
         USER_REQUEST_REPORTER
             .addDatapoint(String.format("[%s]_ResponseTimes", operation.getName()), presentTime(), getResponseTime());
         USER_REQUEST_REPORTER

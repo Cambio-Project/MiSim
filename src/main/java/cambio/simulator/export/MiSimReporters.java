@@ -50,7 +50,7 @@ public final class MiSimReporters {
         GENERATOR_REPORTER = new AccumulativeDataPointReporter(
             "GEN_ALL_", model, BucketMultiDataPointReporter.CEIL_FUNCTION);
         USER_REQUEST_AVG_REPORTER = new AverageDataPointReporter(
-            "R_AVG_", model, BucketMultiDataPointReporter.CEIL_FUNCTION);
+            "R_AVG", model, BucketMultiDataPointReporter.CEIL_FUNCTION);
     }
 
     /**
