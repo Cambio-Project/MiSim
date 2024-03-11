@@ -48,8 +48,14 @@
     <!--Project local maven repository, containing external jars-->
     <repositories>
         <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
+            <id>github</id>
+            <url>https://maven.pkg.github.com/Cambio-Project/TL-Tea</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
         </repository>
         <repository>
             <id>LocalLibs</id>
@@ -60,9 +66,9 @@
     <dependencies>
         <!-- TL-Tea -->
         <dependency>
-            <groupId>com.github.Cambio-Project.TL-Tea</groupId>
+            <groupId>cambio.tltea</groupId>
             <artifactId>interpreter</artifactId>
-            <version>0.3.2.2</version>
+            <version>1.0.0-SNAPSHOT</version>
         </dependency>
 
         <!-- util -->
