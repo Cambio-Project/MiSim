@@ -50,9 +50,9 @@ public class MTLActivationListener {
     private TimeInstant sum(TimeInstant time1, TimeSpan time2) {
         var result = TimeOperations.add(time1, time2);
         var maxTime = new TimeInstant(model.getExperimentMetaData().getDuration());
-        if(TimeInstant.isAfter(maxTime, result)){
+        if (TimeInstant.isAfter(maxTime, result)) {
             return result;
-        }else{
+        } else {
             return maxTime;
         }
     }
@@ -68,20 +68,7 @@ public class MTLActivationListener {
         }
         return new TimeSpan(0);
     }
-
-    // TODO: Needs adjustments! Fix relative time, delay in F_end, simulation time limit, ...
-    private TimeSpan tryFindStopTime(ITemporalValue time) {
-        if (time instanceof TimeInstance moment) {
-            return new TimeSpan(moment.getTime());
-        } else if (time instanceof TemporalInterval interval) {
-            return new TimeSpan(interval.getEnd().getTime());
-        } else {
-            System.out.println("Unsupported temporal expression: " + time);
-        }
-        return new TimeSpan(Double.POSITIVE_INFINITY);
-    }
-
-
+    
     // TODO: Needs adjustments! Fix relative time, delay in F_end, simulation time limit, ...
     private TimeInstant tryFindStartTime(TemporalOperatorInfo info) {
         var token = info.operator();
@@ -100,7 +87,7 @@ public class MTLActivationListener {
                 var computedTime = TimeOperations.add(model.presentTime(), timeToAdd);
                 computedTime = TimeOperations.add(computedTime, delay);
                 var maxTime = new TimeInstant(model.getExperimentMetaData().getDuration());
-                if(TimeInstant.isAfter(computedTime, maxTime)){
+                if (TimeInstant.isAfter(computedTime, maxTime)) {
                     computedTime = maxTime;
                 }
                 return computedTime;
@@ -119,6 +106,18 @@ public class MTLActivationListener {
         }
         // return current time
         return model.presentTime();
+    }
+
+    // TODO: Needs adjustments! Fix relative time, delay in F_end, simulation time limit, ...
+    private TimeSpan tryFindStopTime(ITemporalValue time) {
+        if (time instanceof TimeInstance moment) {
+            return new TimeSpan(moment.getTime());
+        } else if (time instanceof TemporalInterval interval) {
+            return new TimeSpan(interval.getEnd().getTime());
+        } else {
+            System.out.println("Unsupported temporal expression: " + time);
+        }
+        return new TimeSpan(Double.POSITIVE_INFINITY);
     }
 
     // TODO: Needs adjustments! Fix relative time, delay in F_end, simulation time limit, ...

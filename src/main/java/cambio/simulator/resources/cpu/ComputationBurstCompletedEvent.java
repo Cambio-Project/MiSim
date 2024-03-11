@@ -41,21 +41,21 @@ public class ComputationBurstCompletedEvent extends NamedExternalEvent {
 
     @Override
     public void onRoutineExecution() throws SuspendExecution {
-        synchronized (NamedSimProcess.class){
+        synchronized (NamedSimProcess.class) {
 
-        endingProcess.reduceDemandRemainder(completedDemand);
+            endingProcess.reduceDemandRemainder(completedDemand);
 
-        //notify cpu that the process finished its current burst
-        owner.onBurstFinished(endingProcess);
+            //notify cpu that the process finished its current burst
+            owner.onBurstFinished(endingProcess);
 
-        if (endingProcess.getDemandRemainder() <= 0) {
-            //notify the request that its computation finished
-            Request request = endingProcess.getRequest();
-            ComputationCompletedEvent completionEvent = new ComputationCompletedEvent(getModel(),
-                "ComputationEnd " + request.getQuotedPlainName(),
-                getModel().traceIsOn());
-            completionEvent.schedule(request, presentTime());
-        }
+            if (endingProcess.getDemandRemainder() <= 0) {
+                //notify the request that its computation finished
+                Request request = endingProcess.getRequest();
+                ComputationCompletedEvent completionEvent = new ComputationCompletedEvent(getModel(),
+                    "ComputationEnd " + request.getQuotedPlainName(),
+                    getModel().traceIsOn());
+                completionEvent.schedule(request, presentTime());
+            }
 
         }
     }

@@ -97,7 +97,7 @@ public class ExperimentCreator {
             exp.debugOff(new TimeInstant(0, metaData.getTimeUnit()));
         }
 
-        if(config.mtlLoc() != null){
+        if (config.mtlLoc() != null) {
             parseMtlFormula(config.mtlLoc(), model, config.debugOutputOn());
         }
         return exp;

@@ -11,9 +11,18 @@ import cambio.tltea.parser.core.temporal.TimeInstance;
 import org.jetbrains.annotations.NotNull;
 
 /**
+ * Subscribes to specific events on the event bus.
+ *
  * @author Lion Wagner
  */
 public final class EventBusConnector {
+
+    /**
+     * Subscribe to events of interest.
+     *
+     * @param listener the listeners that should be provided updates to.
+     * @param model the simulation model.
+     */
     public static void createActivators(ValueListener<?> listener,
                                         @NotNull MiSimModel model) {
         if (listener instanceof EventActivationListener eventActivationListener) {

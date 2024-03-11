@@ -54,20 +54,21 @@ public class ChaosMonkeyEvent extends SelfScheduledExperimentAction {
      */
     @Override
     public void onRoutineExecution() throws SuspendExecution {
-        synchronized (NamedSimProcess.class){
+        synchronized (NamedSimProcess.class) {
 
-        if (microservice == null) {
-            throw new IllegalStateException(
-                "No or non existing microservice specified for ChaosMonkeyEvent " + getQuotedName());
+            if (microservice == null) {
+                throw new IllegalStateException(
+                    "No or non existing microservice specified for ChaosMonkeyEvent " + getQuotedName());
+            }
+
+            microservice.killInstances(instances);
+
+            boolean hasServicesLeft = microservice.getInstancesCount() > 0;
+            sendTraceNote("Chaos Monkey " + getQuotedName() + " was executed.");
+            sendTraceNote(String.format("There are %s instances left of service %s",
+                hasServicesLeft ? String.format("still %d", microservice.getInstancesCount()) : "no",
+                microservice.getName()));
         }
-
-        microservice.killInstances(instances);
-
-        boolean hasServicesLeft = microservice.getInstancesCount() > 0;
-        sendTraceNote("Chaos Monkey " + getQuotedName() + " was executed.");
-        sendTraceNote(String.format("There are %s instances left of service %s",
-            hasServicesLeft ? String.format("still %d", microservice.getInstancesCount()) : "no",
-            microservice.getName()));}
     }
 
     @Override

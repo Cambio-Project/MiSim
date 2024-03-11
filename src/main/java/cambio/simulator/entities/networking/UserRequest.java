@@ -1,7 +1,7 @@
 package cambio.simulator.entities.networking;
 
-import static cambio.simulator.export.MiSimReporters.USER_REQUEST_REPORTER;
 import static cambio.simulator.export.MiSimReporters.USER_REQUEST_AVG_REPORTER;
+import static cambio.simulator.export.MiSimReporters.USER_REQUEST_REPORTER;
 
 import cambio.simulator.entities.generator.LoadGeneratorDescriptionExecutor;
 import cambio.simulator.entities.microservice.Operation;

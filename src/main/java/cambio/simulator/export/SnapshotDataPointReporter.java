@@ -9,6 +9,9 @@ import java.util.function.UnaryOperator;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 
+/**
+ * Reports last value for the given time bucket.
+ */
 public class SnapshotDataPointReporter extends BucketMultiDataPointReporter {
     /**
      * Last received datapoint values.
@@ -23,8 +26,7 @@ public class SnapshotDataPointReporter extends BucketMultiDataPointReporter {
         super(datasetsPrefix, model);
     }
 
-    public SnapshotDataPointReporter(String datasetsPrefix, Model model,
-                                     UnaryOperator<TimeInstant> bucketingFunction) {
+    public SnapshotDataPointReporter(String datasetsPrefix, Model model, UnaryOperator<TimeInstant> bucketingFunction) {
         super(datasetsPrefix, model, bucketingFunction);
     }
 
