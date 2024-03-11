@@ -1,5 +1,6 @@
 package cambio.simulator.entities.networking;
 
+import cambio.simulator.entities.NamedSimProcess;
 import cambio.simulator.misc.Priority;
 import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.Model;
@@ -36,11 +37,13 @@ public class NetworkRequestCanceledEvent extends NetworkRequestEvent {
 
     @Override
     public void onRoutineExecution() throws SuspendExecution {
-        sendTraceNote(
-            String.format("Request %s was not handled. Cause: %s", travelingRequest.getQuotedName(), reason));
-        if (details != null) {
-            sendTraceNote("Details: " + details);
+        synchronized (NamedSimProcess.class) {
+            sendTraceNote(
+                String.format("Request %s was not handled. Cause: %s", travelingRequest.getQuotedName(), reason));
+            if (details != null) {
+                sendTraceNote("Details: " + details);
+            }
+            updateListener.onRequestFailed(travelingRequest, presentTime(), reason);
         }
-        updateListener.onRequestFailed(travelingRequest, presentTime(), reason);
     }
 }

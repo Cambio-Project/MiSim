@@ -1,6 +1,7 @@
 package cambio.simulator.entities.patterns;
 
 import cambio.simulator.entities.NamedExternalEvent;
+import cambio.simulator.entities.NamedSimProcess;
 import cambio.simulator.misc.Priority;
 import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.Model;
@@ -28,6 +29,8 @@ public class HalfOpenBreakerEvent extends NamedExternalEvent {
 
     @Override
     public void onRoutineExecution() throws SuspendExecution {
-        stateToChange.toHalfOpen();
+        synchronized (NamedSimProcess.class) {
+            stateToChange.toHalfOpen();
+        }
     }
 }

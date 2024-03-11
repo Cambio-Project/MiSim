@@ -1,6 +1,7 @@
 package cambio.simulator.resources.cpu;
 
 import cambio.simulator.entities.NamedExternalEvent;
+import cambio.simulator.entities.NamedSimProcess;
 import cambio.simulator.entities.networking.Request;
 import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.Model;
@@ -40,6 +41,7 @@ public class ComputationBurstCompletedEvent extends NamedExternalEvent {
 
     @Override
     public void onRoutineExecution() throws SuspendExecution {
+        synchronized (NamedSimProcess.class){
 
         endingProcess.reduceDemandRemainder(completedDemand);
 
@@ -53,6 +55,8 @@ public class ComputationBurstCompletedEvent extends NamedExternalEvent {
                 "ComputationEnd " + request.getQuotedPlainName(),
                 getModel().traceIsOn());
             completionEvent.schedule(request, presentTime());
+        }
+
         }
     }
 }

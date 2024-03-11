@@ -1,5 +1,6 @@
 package cambio.simulator.events;
 
+import cambio.simulator.entities.NamedSimProcess;
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.misc.Priority;
 import cambio.simulator.parsing.JsonTypeName;
@@ -47,11 +48,13 @@ public class SummonerMonkeyEvent extends SelfScheduledExperimentAction {
      */
     @Override
     public void onRoutineExecution() throws SuspendExecution {
-        microservice.scaleToInstancesCount(microservice.getInstancesCount() + instances);
+        synchronized (NamedSimProcess.class) {
+            microservice.scaleToInstancesCount(microservice.getInstancesCount() + instances);
 
-        sendTraceNote("Summoner Monkey " + getQuotedName() + " was executed.");
-        sendTraceNote(String.format("There are now %s instances of service %s", microservice.getInstancesCount(),
-            microservice.getName()));
+            sendTraceNote("Summoner Monkey " + getQuotedName() + " was executed.");
+            sendTraceNote(String.format("There are now %s instances of service %s", microservice.getInstancesCount(),
+                microservice.getName()));
+        }
     }
 
     @Override

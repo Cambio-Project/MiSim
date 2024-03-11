@@ -1,6 +1,7 @@
 package cambio.simulator.entities.generator;
 
 import cambio.simulator.entities.NamedExternalEvent;
+import cambio.simulator.entities.NamedSimProcess;
 import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeSpan;
@@ -33,7 +34,9 @@ public class ScaleLoadEvent extends NamedExternalEvent {
 
     @Override
     public void onRoutineExecution() throws SuspendExecution {
-        executor.scaleLoad(scaleFactor);
+        synchronized (NamedSimProcess.class) {
+            executor.scaleLoad(scaleFactor);
+        }
     }
 
 }

@@ -1,5 +1,6 @@
 package cambio.simulator.events;
 
+import cambio.simulator.entities.NamedSimProcess;
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.misc.Priority;
 import cambio.simulator.parsing.JsonTypeName;
@@ -53,6 +54,7 @@ public class ChaosMonkeyEvent extends SelfScheduledExperimentAction {
      */
     @Override
     public void onRoutineExecution() throws SuspendExecution {
+        synchronized (NamedSimProcess.class){
 
         if (microservice == null) {
             throw new IllegalStateException(
@@ -65,7 +67,7 @@ public class ChaosMonkeyEvent extends SelfScheduledExperimentAction {
         sendTraceNote("Chaos Monkey " + getQuotedName() + " was executed.");
         sendTraceNote(String.format("There are %s instances left of service %s",
             hasServicesLeft ? String.format("still %d", microservice.getInstancesCount()) : "no",
-            microservice.getName()));
+            microservice.getName()));}
     }
 
     @Override

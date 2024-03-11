@@ -1,5 +1,6 @@
 package cambio.simulator.entities.networking;
 
+import cambio.simulator.entities.NamedSimProcess;
 import cambio.simulator.entities.microservice.MicroserviceInstance;
 import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.Model;
@@ -25,23 +26,25 @@ public class NetworkRequestReceiveEvent extends NetworkRequestEvent {
 
     @Override
     public void onRoutineExecution() throws SuspendExecution {
-        travelingRequest.stampReceivedAtHandler(presentTime());
+        synchronized (NamedSimProcess.class) {
 
-        try {
-            receivingInstance.handle(travelingRequest);
+            travelingRequest.stampReceivedAtHandler(presentTime());
 
-            if (travelingRequest instanceof RequestAnswer) {
-                updateListener
-                    .onRequestResultArrivedAtRequester(((RequestAnswer) travelingRequest).unpack(), presentTime());
+            try {
+                receivingInstance.handle(travelingRequest);
+
+                if (travelingRequest instanceof RequestAnswer) {
+                    updateListener
+                        .onRequestResultArrivedAtRequester(((RequestAnswer) travelingRequest).unpack(), presentTime());
+                }
+
+                updateListener.onRequestArrivalAtTarget(travelingRequest, presentTime());
+            } catch (IllegalStateException e) {
+                NetworkRequestEvent event = new NetworkRequestCanceledEvent(getModel(),
+                    "CANCEL Event for " + travelingRequest.getQuotedName(), traceIsOn(), travelingRequest,
+                    RequestFailedReason.HANDLING_INSTANCE_DIED);
+                event.schedule(presentTime());
             }
-
-            updateListener.onRequestArrivalAtTarget(travelingRequest, presentTime());
-        } catch (IllegalStateException e) {
-            NetworkRequestEvent event = new NetworkRequestCanceledEvent(getModel(),
-                "CANCEL Event for " + travelingRequest.getQuotedName(), traceIsOn(), travelingRequest,
-                RequestFailedReason.HANDLING_INSTANCE_DIED);
-            event.schedule(presentTime());
         }
-
     }
 }

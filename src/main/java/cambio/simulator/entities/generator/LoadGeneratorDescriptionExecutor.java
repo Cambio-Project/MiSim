@@ -141,9 +141,12 @@ public final class LoadGeneratorDescriptionExecutor extends RequestSender implem
 
         @Override
         public void lifeCycle() throws SuspendExecution {
-            super.lifeCycle();
-            sendNewUserRequest();
-            accReporter.addDatapoint("Load", presentTime(), 1);
+            // TODO: find the actual root cause of race conditions and handle them properly
+            synchronized (NamedSimProcess.class) {
+                super.lifeCycle();
+                sendNewUserRequest();
+                accReporter.addDatapoint("Load", presentTime(), 1);
+            }
             try {
                 TimeInstant next = loadGeneratorDescription.getNextTimeInstant(presentTime());
                 this.hold(next);

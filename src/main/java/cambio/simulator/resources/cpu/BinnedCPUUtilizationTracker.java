@@ -56,8 +56,10 @@ public final class BinnedCPUUtilizationTracker extends NamedSimProcess implement
 
     @Override
     public void lifeCycle() throws SuspendExecution {
+        synchronized (NamedSimProcess.class){
         super.lifeCycle();
         reporter.addDatapoint("UtilizationBinned", presentTime(), getCurrentBinnedUtilization());
+        }
         this.hold(probeInterval);
     }
 
