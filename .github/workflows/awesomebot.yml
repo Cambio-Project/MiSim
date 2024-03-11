@@ -1,44 +1,44 @@
 name: Check Links
 
-on: 
+on:
   push:
   pull_request:
   schedule:
     - cron: 0 13 * * 1,5
 
-jobs: 
-  check_links: 
+jobs:
+  check_links:
     name: Check Links
     runs-on: ubuntu-latest
     steps:
-     - name: Checkout Sources
-       uses: actions/checkout@v4
-     
-     - name: Set up Java
-       uses: actions/setup-java@v4
-       with:
+      - name: Checkout Sources
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
           java-version: '20'
           distribution: 'temurin'
           cache: 'maven'
 
-     - name: Build JavaDoc
-       run: mvn -B javadoc:javadoc "-Dnotimestamp=true" "-Dcheckstyle.skipExec=true" 
-       env:
+      - name: Build JavaDoc
+        run: mvn -B javadoc:javadoc "-Dnotimestamp=true" "-Dcheckstyle.skipExec=true"
+        env:
           GITHUB_TOKEN: ${{ secrets.READ_PACKAGES }}
- 
-     - name: Setup Ruby
-       uses: ruby/setup-ruby@v1
-       with:
-        bundler-cache: true
-        ruby-version: 3.1
-     - name: Install awesome bot
-       run:  gem install awesome_bot
-              
-     - name: Run Awesome_Bot
-       run: |
-        set +e
-        awesome_bot *.md ./target/site/apidocs/*.* --allow-dupe --allow-redirect 
-        awesome_bot_exit_code="$?"
-        echo "awesome_bot_exit_code=$awesome_bot_exit_code" >> $GITHUB_OUTPUT
-        exit "$awesome_bot_exit_code"
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+          ruby-version: 3.1
+      - name: Install awesome bot
+        run: gem install awesome_bot
+
+      - name: Run Awesome_Bot
+        run: |
+          set +e
+          awesome_bot *.md ./target/site/apidocs/*.* --allow-dupe --allow-redirect 
+          awesome_bot_exit_code="$?"
+          echo "awesome_bot_exit_code=$awesome_bot_exit_code" >> $GITHUB_OUTPUT
+          exit "$awesome_bot_exit_code"
         
