@@ -38,6 +38,8 @@ jobs:
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
+        env:
+          GITHUB_TOKEN: ${{ secrets.READ_PACKAGES }}
         with:
           context: .
           platforms: linux/amd64,linux/arm64
