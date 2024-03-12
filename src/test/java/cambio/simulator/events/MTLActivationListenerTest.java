@@ -15,7 +15,7 @@ class MTLActivationListenerTest extends TestBase {
         File experiment = FileLoaderUtil.loadFromExampleResources("example_experiment_chaosmonkey.json");
         String pathToMTL = Paths.get("src", "test", "resources", "MTL", "load_scaling.mtl").toAbsolutePath().toString();
 
-        File out =  runSimulationCheckExitTempOutput(0, architecture, experiment, "-d", "-p", "-m", pathToMTL);
+        File out =  runSimulationCheckExitTempOutput(0, architecture, experiment, "-d", "-m", pathToMTL);
         System.out.println(out.getAbsolutePath());
     }
 
@@ -26,7 +26,7 @@ class MTLActivationListenerTest extends TestBase {
         String pathToMTL =
             Paths.get("src", "test", "resources", "MTL", "load_additive.mtl").toAbsolutePath().toString();
 
-        File out =  runSimulationCheckExitTempOutput(0, architecture, experiment, "-d", "-p", "-m", pathToMTL);
+        File out =  runSimulationCheckExitTempOutput(0, architecture, experiment, "-d", "-m", pathToMTL);
         System.out.println(out.getAbsolutePath());
     }
 }
