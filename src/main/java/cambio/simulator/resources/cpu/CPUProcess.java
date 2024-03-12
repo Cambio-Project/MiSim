@@ -1,6 +1,7 @@
 package cambio.simulator.resources.cpu;
 
 import cambio.simulator.entities.networking.Request;
+import cambio.simulator.misc.TimeUtil;
 import desmoj.core.simulator.TimeInstant;
 
 /**
@@ -75,7 +76,7 @@ public final class CPUProcess implements Comparable<CPUProcess> {
      */
     public double getDemandRemainder(TimeInstant peekTime, double computingCapacityPerTimeUnit) {
         int remainder = getDemandRemainder();
-        double runningTime = peekTime.getTimeAsDouble() - startOfCurrentBurst.getTimeAsDouble();
+        double runningTime = TimeUtil.subtract(peekTime, startOfCurrentBurst).getTimeAsDouble();
 
         return remainder - (runningTime * computingCapacityPerTimeUnit);
     }

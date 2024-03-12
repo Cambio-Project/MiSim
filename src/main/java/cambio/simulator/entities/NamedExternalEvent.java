@@ -1,5 +1,7 @@
 package cambio.simulator.entities;
 
+import cambio.simulator.EventBus;
+import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.ExternalEvent;
 import desmoj.core.simulator.Model;
 
@@ -72,4 +74,12 @@ public abstract class NamedExternalEvent extends ExternalEvent {
     public String getQuotedName() {
         return this.quotedName;
     }
+
+    @Override
+    public final void eventRoutine() throws SuspendExecution {
+        EventBus.post(this);
+        this.onRoutineExecution();
+    }
+
+    public abstract void onRoutineExecution() throws SuspendExecution;
 }

@@ -1,6 +1,7 @@
 package cambio.simulator.events;
 
 import cambio.simulator.entities.NamedExternalEvent;
+import cambio.simulator.entities.NamedSimProcess;
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.export.MiSimReporters;
 import cambio.simulator.misc.Priority;
@@ -32,10 +33,12 @@ public class SimulationEndEvent extends NamedExternalEvent {
     }
 
     @Override
-    public void eventRoutine() throws SuspendExecution {
-        model.getArchitectureModel().getMicroservices().forEach(Microservice::finalizeStatistics);
-        MiSimReporters.finalizeReports();
+    public void onRoutineExecution() throws SuspendExecution {
+        synchronized (NamedSimProcess.class) {
+            model.getArchitectureModel().getMicroservices().forEach(Microservice::finalizeStatistics);
+            MiSimReporters.finalizeReports();
 
-        model.getExperimentMetaData().markEndOfExecution(System.nanoTime());
+            model.getExperimentMetaData().markEndOfExecution(System.nanoTime());
+        }
     }
 }

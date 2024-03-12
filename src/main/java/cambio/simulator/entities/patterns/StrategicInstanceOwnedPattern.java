@@ -28,4 +28,10 @@ public abstract class StrategicInstanceOwnedPattern<S extends IStrategy> extends
     public void setStrategy(S strategy) {
         this.strategy = strategy;
     }
+
+    @Override
+    public void onInitializedCompleted(Model model) {
+        super.onInitializedCompleted(model);
+        strategy.onInitializedCompleted(model);
+    }
 }

@@ -91,7 +91,7 @@ public class RequestSender extends NamedEntity {
      * @return the created send event
      */
     public final NetworkRequestSendEvent sendRequest(String eventName, Request request, Microservice target) {
-        return sendRequestInternal(eventName, request, target, new TimeSpan(0));
+        return sendRequestInternal(eventName, request, target, new TimeSpan(0L));
     }
 
     /**

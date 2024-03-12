@@ -1,5 +1,6 @@
 package cambio.simulator.events;
 
+import cambio.simulator.entities.NamedSimProcess;
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.misc.Priority;
 import cambio.simulator.parsing.JsonTypeName;
@@ -52,20 +53,22 @@ public class ChaosMonkeyEvent extends SelfScheduledExperimentAction {
      * Also tries to note the remaining number of instances in the trace.
      */
     @Override
-    public void eventRoutine() throws SuspendExecution {
+    public void onRoutineExecution() throws SuspendExecution {
+        synchronized (NamedSimProcess.class) {
 
-        if (microservice == null) {
-            throw new IllegalStateException(
-                "No or non existing microservice specified for ChaosMonkeyEvent " + getQuotedName());
+            if (microservice == null) {
+                throw new IllegalStateException(
+                    "No or non existing microservice specified for ChaosMonkeyEvent " + getQuotedName());
+            }
+
+            microservice.killInstances(instances);
+
+            boolean hasServicesLeft = microservice.getInstancesCount() > 0;
+            sendTraceNote("Chaos Monkey " + getQuotedName() + " was executed.");
+            sendTraceNote(String.format("There are %s instances left of service %s",
+                hasServicesLeft ? String.format("still %d", microservice.getInstancesCount()) : "no",
+                microservice.getName()));
         }
-
-        microservice.killInstances(instances);
-
-        boolean hasServicesLeft = microservice.getInstancesCount() > 0;
-        sendTraceNote("Chaos Monkey " + getQuotedName() + " was executed.");
-        sendTraceNote(String.format("There are %s instances left of service %s",
-            hasServicesLeft ? String.format("still %d", microservice.getInstancesCount()) : "no",
-            microservice.getName()));
     }
 
     @Override
@@ -73,4 +76,7 @@ public class ChaosMonkeyEvent extends SelfScheduledExperimentAction {
         return "ChaosMonkeyEvent";
     }
 
+    public Microservice getTargetService() {
+        return this.microservice;
+    }
 }

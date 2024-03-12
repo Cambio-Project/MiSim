@@ -9,6 +9,7 @@ import cambio.simulator.entities.networking.InternalRequest;
 import cambio.simulator.entities.patterns.*;
 import cambio.simulator.export.ListCollectingReporter;
 import cambio.simulator.export.MultiDataPointReporter;
+import cambio.simulator.export.SnapshotDataPointReporter;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import desmoj.core.dist.NumericalDist;
@@ -42,6 +43,7 @@ public class Microservice extends NamedEntity {
     protected final transient Set<MicroserviceInstance> instancesSet =
         new TreeSet<>(Comparator.comparingInt(MicroserviceInstance::getInstanceID));
     protected final transient MultiDataPointReporter reporter;
+    protected final transient SnapshotDataPointReporter snapshortReporter;
     protected final transient ListCollectingReporter accReporter;
 
     @Expose
@@ -83,6 +85,7 @@ public class Microservice extends NamedEntity {
         //default load balancer
         loadBalancer = new LoadBalancer(model, "Loadbalancer", traceIsOn(), null);
         reporter = new MultiDataPointReporter(String.format("S[%s]_", name), model);
+        snapshortReporter = new SnapshotDataPointReporter(String.format("S[%s]_", name), model);
         accReporter = new ListCollectingReporter(String.format("S[%s]_", name), model);
     }
 
@@ -172,6 +175,7 @@ public class Microservice extends NamedEntity {
         }
 
         reporter.addDatapoint("InstanceCount", presentTime(), instancesSet.size());
+        snapshortReporter.addDatapoint("InstanceCountSnapshot", presentTime(), instancesSet.size());
     }
 
 
@@ -201,6 +205,7 @@ public class Microservice extends NamedEntity {
         instanceToKill.die();
         instancesSet.remove(instanceToKill);
         reporter.addDatapoint("InstanceCount", presentTime(), instancesSet.size());
+        snapshortReporter.addDatapoint("InstanceCountSnapshot", presentTime(), instancesSet.size());
     }
 
     public Operation[] getOperations() {
@@ -267,6 +272,7 @@ public class Microservice extends NamedEntity {
 
     public void finalizeStatistics() {
         reporter.addDatapoint("InstanceCount", presentTime(), instancesSet.size());
+        snapshortReporter.addDatapoint("InstanceCountSnapshot", presentTime(), instancesSet.size());
     }
 
     public List<Double> getRelativeUtilizationOfInstances() {

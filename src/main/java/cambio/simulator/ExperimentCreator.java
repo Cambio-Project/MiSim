@@ -1,14 +1,18 @@
 package cambio.simulator;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.nio.file.Path;
+import java.io.*;
+import java.nio.file.*;
 import java.time.LocalDateTime;
 
+import cambio.simulator.behavior.EventBusConnector;
+import cambio.simulator.behavior.MTLActivationListener;
 import cambio.simulator.export.ExportUtils;
 import cambio.simulator.misc.FileUtilities;
 import cambio.simulator.models.ExperimentMetaData;
 import cambio.simulator.models.MiSimModel;
+import cambio.tltea.interpreter.BehaviorInterpretationResult;
+import cambio.tltea.interpreter.Interpreter;
+import cambio.tltea.interpreter.connector.Brokers;
 import desmoj.core.simulator.Experiment;
 import desmoj.core.simulator.TimeInstant;
 import org.jetbrains.annotations.NotNull;
@@ -59,9 +63,11 @@ public class ExperimentCreator {
         return experimentDescription;
     }
 
-
+    /**
+     * Parsing additional configuration options, besides the model locations.
+     */
     @NotNull
-    protected Experiment setupExperiment(ExperimentStartupConfig config, MiSimModel model) {
+    private static Experiment setupExperiment(ExperimentStartupConfig config, @NotNull MiSimModel model) {
         ExperimentMetaData metaData = model.getExperimentMetaData();
         metaData.setStartDate(LocalDateTime.now());
         Path reportLocation = ExportUtils.prepareReportDirectory(config, model);
@@ -91,6 +97,20 @@ public class ExperimentCreator {
             exp.debugOff(new TimeInstant(0, metaData.getTimeUnit()));
         }
 
+        if (config.mtlLoc() != null) {
+            parseMtlFormula(config.mtlLoc(), model, config.debugOutputOn());
+        }
         return exp;
+    }
+
+    private static void parseMtlFormula(String mtlLoc, @NotNull MiSimModel model, boolean isDebugOn) {
+        for (BehaviorInterpretationResult result : Interpreter.INSTANCE.interpretAllAsBehavior(mtlLoc, new Brokers(),
+            isDebugOn)) {
+            new MTLActivationListener(result, model);
+            result.getTriggerManager()
+                .getEventActivationListeners()
+                .forEach(listener -> EventBusConnector.createActivators(listener, model));
+            result.activateProcessing();
+        }
     }
 }

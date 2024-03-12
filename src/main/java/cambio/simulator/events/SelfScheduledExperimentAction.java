@@ -11,6 +11,7 @@ import desmoj.core.simulator.TimeInstant;
  * @author Lion Wagner
  */
 public abstract class SelfScheduledExperimentAction extends ExperimentAction implements ISelfScheduled {
+    private TimeInstant targetTime;
 
     public SelfScheduledExperimentAction(Model model, String name, boolean showInTrace) {
         super(model, name, showInTrace);
@@ -18,12 +19,12 @@ public abstract class SelfScheduledExperimentAction extends ExperimentAction imp
 
     @Override
     public void doInitialSelfSchedule() {
-        this.schedule(new TimeInstant(initialArrivalTime));
+        this.schedule(Objects.requireNonNullElseGet(targetTime, () -> new TimeInstant(initialArrivalTime)));
     }
 
     public void setTargetTime(TimeInstant targetTime) {
         Objects.requireNonNull(targetTime);
-        this.initialArrivalTime = targetTime.getTimeAsDouble();
+        this.targetTime = targetTime;
     }
 
 }

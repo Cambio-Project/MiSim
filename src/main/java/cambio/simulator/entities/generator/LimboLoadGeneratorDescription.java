@@ -4,12 +4,14 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collector;
 
 import cambio.simulator.misc.CollectorImpl;
 import cambio.simulator.parsing.JsonTypeName;
 import com.google.common.base.Strings;
 import com.google.gson.annotations.SerializedName;
+import desmoj.core.simulator.TimeInstant;
 import org.javatuples.Pair;
 
 /**
@@ -39,7 +41,8 @@ public class LimboLoadGeneratorDescription extends LoadGeneratorDescription {
         private Iterator<Pair<Double, Integer>> arrivalPairsIterator;
 
         private int leftOverDemandForCurrentTargetTime = 0;
-        private double currentTargetTime = Double.NEGATIVE_INFINITY;
+        private long currentTargetTime = Long.MIN_VALUE;
+        private ScaleFactor scaleFactor = null;
 
         public LimboArrivalRateModel(File modelFile) {
             Objects.requireNonNull(modelFile, () -> {
@@ -52,8 +55,8 @@ public class LimboLoadGeneratorDescription extends LoadGeneratorDescription {
 
 
         @Override
-        protected double getDuration() {
-            return arrivalPairs.get(arrivalPairs.size() - 1).getValue0();
+        protected long getDuration() {
+            return (new TimeInstant(arrivalPairs.get(arrivalPairs.size() - 1).getValue0())).getTimeInEpsilon();
         }
 
         @Override
@@ -64,28 +67,38 @@ public class LimboLoadGeneratorDescription extends LoadGeneratorDescription {
         }
 
         @Override
+        public void scaleLoad(final ScaleFactor scaleFactor) {
+            leftOverDemandForCurrentTargetTime =
+                (int) (leftOverDemandForCurrentTargetTime * scaleFactor.getValue(currentTargetTime));
+            this.scaleFactor = scaleFactor;
+        }
+
+        @Override
         public boolean hasNext() {
             return arrivalPairsIterator.hasNext()
                 || (leftOverDemandForCurrentTargetTime > 0 && currentTargetTime >= 0);
         }
 
         @Override
-        public Double next() {
+        public Long next() {
             if (!hasNext()) {
                 return null;
             }
 
             if (leftOverDemandForCurrentTargetTime <= 0) {
                 Pair<Double, Integer> next = arrivalPairsIterator.next();
-                currentTargetTime = next.getValue0();
-                leftOverDemandForCurrentTargetTime = next.getValue1();
+                currentTargetTime = (new TimeInstant(next.getValue0(), TimeUnit.SECONDS)).getTimeInEpsilon();
+                double scaleFactor = 1.0;
+                if (this.scaleFactor != null) {
+                    scaleFactor = this.scaleFactor.getValue(currentTargetTime);
+                }
+                leftOverDemandForCurrentTargetTime = (int) (next.getValue1() * scaleFactor);
                 return next();
             } else {
                 leftOverDemandForCurrentTargetTime--;
                 return currentTargetTime;
             }
         }
-
 
         private List<Pair<Double, Integer>> getPairList(File limboProfile) {
             List<Pair<Double, Integer>> tmpList;
@@ -109,7 +122,7 @@ public class LimboLoadGeneratorDescription extends LoadGeneratorDescription {
                             LinkedList<Pair<Double, Integer>>>(LinkedList::new, LinkedList::add, (pairs, pairs2) -> {
                             pairs.addAll(pairs2);
                             return pairs;
-                        }, new HashSet<Collector.Characteristics>() {
+                        }, new HashSet<>() {
                             {
                                 add(Collector.Characteristics.IDENTITY_FINISH);
                             }

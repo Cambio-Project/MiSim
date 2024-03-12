@@ -2,6 +2,7 @@ package cambio.simulator.entities.patterns;
 
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.export.MultiDataPointReporter;
+import cambio.simulator.misc.TimeUtil;
 import cambio.simulator.parsing.JsonTypeName;
 import desmoj.core.simulator.TimeInstant;
 
@@ -28,7 +29,6 @@ class ReactiveAutoscalingPolicy implements IAutoscalingPolicy {
             reporter = new MultiDataPointReporter(String.format("AS[%s]_", owner.getPlainName()), owner.getModel());
         }
 
-
         TimeInstant presentTime = owner.presentTime();
         int currentInstanceCount = owner.getInstancesCount();
         double avg = owner.getAverageRelativeUtilization();
@@ -47,7 +47,7 @@ class ReactiveAutoscalingPolicy implements IAutoscalingPolicy {
             reporter.addDatapoint("InstanceChange", presentTime, newInstanceCount - currentInstanceCount);
         } else if (avg <= lowerBound
             && currentInstanceCount > 1
-            && presentTime.getTimeAsDouble() - lastScaleUp.getTimeAsDouble() > holdTime) {
+            && TimeUtil.subtract(presentTime, lastScaleUp).getTimeAsDouble() > holdTime) {
             double downScaleFactor = Math.max(0.01, avg) / lowerBound;
             int newInstanceCount = (int) Math.max(1, Math.ceil(currentInstanceCount * downScaleFactor));
             owner.scaleToInstancesCount(newInstanceCount);

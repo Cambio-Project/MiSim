@@ -4,6 +4,7 @@ import static cambio.simulator.export.MiSimReporters.NETWORK_LATENCY_REPORTER;
 
 import java.util.concurrent.atomic.AtomicLong;
 
+import cambio.simulator.entities.NamedSimProcess;
 import cambio.simulator.entities.microservice.*;
 import cambio.simulator.misc.RNGStorage;
 import co.paralleluniverse.fibers.SuspendExecution;
@@ -58,58 +59,62 @@ public class NetworkRequestSendEvent extends NetworkRequestEvent {
     }
 
     @Override
-    public void eventRoutine() throws SuspendExecution {
-        travelingRequest.stampSendoff(presentTime());
+    public void onRoutineExecution() throws SuspendExecution {
+        synchronized (NamedSimProcess.class) {
+            travelingRequest.stampSendoff(presentTime());
 
-        counterSendEvents.getAndIncrement();
+            counterSendEvents.getAndIncrement();
 
-        if (travelingRequest instanceof RequestAnswer && travelingRequest.getParent() instanceof UserRequest) {
-            // if an answer to a UserRequest is send, it will be considered done (since there is no receiver)
-            travelingRequest.stampReceived(presentTime());
-            travelingRequest.getParent().stampReceived(presentTime());
-            updateListener.onRequestArrivalAtTarget(travelingRequest, presentTime());
-            updateListener.onRequestResultArrivedAtRequester(travelingRequest.getParent(), presentTime());
-            return;
-        }
-
-
-        //calculate next delay
-        double nextDelay;
-        do {
-            nextDelay = rng.sample() / 1000;
-        } while (nextDelay < 0); //ensures a positive delay, due to "infinite" gaussian deviation
-
-        nextDelay = customizeLatency(nextDelay);
-
-        NETWORK_LATENCY_REPORTER.addDatapoint("latency", presentTime(), nextDelay);
-
-        //Apply custom latency and/or add delay of latency injection
-        updateListener.onRequestSend(travelingRequest, presentTime());
-        if (isCanceled) {
-            return; //this event might get canceled by the sending listeners
-        }
-
-        MicroserviceInstance targetInstance = retrieveTargetInstance();
-        if (targetInstance == null) {
-            NetworkRequestEvent cancelEvent =
-                new NetworkRequestCanceledEvent(getModel(), "RequestCanceledEvent", traceIsOn(), travelingRequest,
-                    RequestFailedReason.NO_INSTANCE_AVAILABLE,
-                    String.format("No Instance for Service %s was available.", targetService.getQuotedName()));
-            cancelEvent.schedule(new TimeSpan(nextDelay));
-        } else {
-            receiverEvent = new NetworkRequestReceiveEvent(getModel(),
-                String.format("Receiving of %s", travelingRequest.getQuotedPlainName()), traceIsOn(), travelingRequest,
-                targetInstance);
-            receiverEvent.schedule(new TimeSpan(nextDelay));
-
-            if (!(travelingRequest instanceof UserRequest)) { //User Requests cannot timeout
-                timeoutEvent =
-                    new NetworkRequestTimeoutEvent(getModel(), "Timeout Checker for " + travelingRequest.getPlainName(),
-                        getModel().traceIsOn(), travelingRequest);
-                travelingRequest.addUpdateListener(timeoutEvent);
+            if (travelingRequest instanceof RequestAnswer && travelingRequest.getParent() instanceof UserRequest) {
+                // if an answer to a UserRequest is send, it will be considered done (since there is no receiver)
+                travelingRequest.stampReceived(presentTime());
+                travelingRequest.getParent().stampReceived(presentTime());
+                updateListener.onRequestArrivalAtTarget(travelingRequest, presentTime());
+                updateListener.onRequestResultArrivedAtRequester(travelingRequest.getParent(), presentTime());
+                return;
             }
 
-            travelingRequest.setReceiveEvent(receiverEvent);
+
+            //calculate next delay
+            double nextDelay;
+            do {
+                nextDelay = rng.sample() / 1000;
+            } while (nextDelay < 0); //ensures a positive delay, due to "infinite" gaussian deviation
+
+            nextDelay = customizeLatency(nextDelay);
+
+            NETWORK_LATENCY_REPORTER.addDatapoint("latency", presentTime(), nextDelay);
+
+            //Apply custom latency and/or add delay of latency injection
+            updateListener.onRequestSend(travelingRequest, presentTime());
+            if (isCanceled) {
+                return; //this event might get canceled by the sending listeners
+            }
+
+            MicroserviceInstance targetInstance = retrieveTargetInstance();
+            if (targetInstance == null) {
+                NetworkRequestEvent cancelEvent =
+                    new NetworkRequestCanceledEvent(getModel(), "RequestCanceledEvent", traceIsOn(), travelingRequest,
+                        RequestFailedReason.NO_INSTANCE_AVAILABLE,
+                        String.format("No Instance for Service %s was available.", targetService.getQuotedName()));
+                cancelEvent.schedule(new TimeSpan(nextDelay));
+            } else {
+                receiverEvent = new NetworkRequestReceiveEvent(getModel(),
+                    String.format("Receiving of %s", travelingRequest.getQuotedPlainName()), traceIsOn(),
+                    travelingRequest,
+                    targetInstance);
+                receiverEvent.schedule(new TimeSpan(nextDelay));
+
+                if (!(travelingRequest instanceof UserRequest)) { //User Requests cannot timeout
+                    timeoutEvent =
+                        new NetworkRequestTimeoutEvent(getModel(),
+                            "Timeout Checker for " + travelingRequest.getPlainName(),
+                            getModel().traceIsOn(), travelingRequest);
+                    travelingRequest.addUpdateListener(timeoutEvent);
+                }
+
+                travelingRequest.setReceiveEvent(receiverEvent);
+            }
         }
     }
 

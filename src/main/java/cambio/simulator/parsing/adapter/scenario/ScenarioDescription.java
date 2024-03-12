@@ -176,6 +176,7 @@ public final class ScenarioDescription {
             try {
                 instances = Integer.parseInt(stimuliArray[1]);
             } catch (NumberFormatException e) {
+                // TODO: This seems to break the scenario format parsing
                 service = NameResolver.resolveMicroserviceName(model, stimuliArray[1]);
             }
         } else if (stimuliArray.length == 3) {

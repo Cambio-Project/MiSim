@@ -1,9 +1,13 @@
 package cambio.simulator.entities.generator;
 
+import java.util.concurrent.TimeUnit;
+
 import cambio.simulator.entities.microservice.Operation;
 import cambio.simulator.events.ISelfScheduled;
 import com.google.gson.annotations.SerializedName;
 import desmoj.core.simulator.TimeInstant;
+import desmoj.core.simulator.TimeOperations;
+import desmoj.core.simulator.TimeSpan;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -76,7 +80,7 @@ public abstract class LoadGeneratorDescription implements ISelfScheduled {
         if (!arrivalRateModel.hasNext()) {
             throw new LoadGeneratorStopException("Load generator has no defined arrivals.");
         }
-        return new TimeInstant(initialArrivalTime + getNextTimeInstant(new TimeInstant(0)).getTimeAsDouble());
+        return getNextTimeInstant(new TimeInstant(initialArrivalTime, TimeUnit.SECONDS));
     }
 
     /**
@@ -94,13 +98,14 @@ public abstract class LoadGeneratorDescription implements ISelfScheduled {
         }
 
         if (arrivalRateModel.hasNext()) {
-            double nextTarget = arrivalRateModel.getNextTimeInstant();
-            if (arrivalRateModel.getDuration() < Double.POSITIVE_INFINITY) {
-                nextTarget = repetitions * (arrivalRateModel.getDuration() + repetitionSkip)
-                    + nextTarget;
+            long nextTarget = arrivalRateModel.getNextTimeInstant();
+            if (arrivalRateModel.getDuration() < Long.MAX_VALUE) {
+                nextTarget =
+                    repetitions * (arrivalRateModel.getDuration() + (new TimeInstant(
+                        repetitionSkip)).getTimeInEpsilon()) + nextTarget;
             }
-            return new TimeInstant(initialArrivalTime + nextTarget);
-
+            return TimeOperations.add(new TimeInstant(initialArrivalTime, TimeUnit.SECONDS),
+                new TimeSpan(nextTarget, TimeOperations.getEpsilon()));
         } else if (repeating) {
             repetitions++;
             if (repetitions == maxRepetitions) {
@@ -111,6 +116,10 @@ public abstract class LoadGeneratorDescription implements ISelfScheduled {
         } else {
             throw new LoadGeneratorStopException("No more Arrival Rate definitions available.");
         }
+    }
+
+    public void scaleLoad(final ScaleFactor scaleFactor) {
+        arrivalRateModel.scaleLoad(scaleFactor);
     }
 
     @Override

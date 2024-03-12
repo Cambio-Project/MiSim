@@ -1,6 +1,7 @@
 package cambio.simulator.entities.microservice;
 
 import cambio.simulator.entities.NamedExternalEvent;
+import cambio.simulator.entities.NamedSimProcess;
 import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.Model;
 
@@ -25,8 +26,10 @@ public class MicroserviceScaleEvent extends NamedExternalEvent {
     }
 
     @Override
-    public void eventRoutine() throws SuspendExecution {
-        microservice.scaleToInstancesCount(targetInstanceCount);
+    public void onRoutineExecution() throws SuspendExecution {
+        synchronized (NamedSimProcess.class) {
+            microservice.scaleToInstancesCount(targetInstanceCount);
+        }
     }
 
 }

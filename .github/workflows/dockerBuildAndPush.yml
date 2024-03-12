@@ -5,7 +5,7 @@ on:
     branches:
       - master
   release:
-    types: [published] # will use tag name regardless of naming
+    types: [ published ] # will use tag name regardless of naming
 
 jobs:
   build_and_publish:
@@ -15,7 +15,7 @@ jobs:
       packages: write
     steps:
       - name: Checkout current Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
         id: buildx
@@ -25,7 +25,7 @@ jobs:
         run: echo ${{ steps.buildx.outputs.platforms }}
 
       - name: Log in to the Container registry
-        run:  docker login --username Cambio-Project --password ${{secrets.PUBLISH_PACKAGES}} ghcr.io
+        run: docker login --username Cambio-Project --password ${{secrets.PUBLISH_PACKAGES}} ghcr.io
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta

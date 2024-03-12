@@ -2,7 +2,8 @@ package cambio.simulator.export;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.HashMap;
+import java.util.*;
+import java.util.function.UnaryOperator;
 
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
@@ -15,16 +16,47 @@ import desmoj.core.simulator.TimeInstant;
  *
  * @author Lion Wagner
  */
-public class AccumulativeDataPointReporter extends MiSimReporter<AsyncMultiColumnReportWriter> {
+public class AccumulativeDataPointReporter extends BucketMultiDataPointReporter {
 
     private final HashMap<String, HashMap<TimeInstant, Double>> lastValues = new HashMap<>();
 
+    /**
+     * Constructs a new data point reporter.
+     *
+     * @see BucketMultiDataPointReporter#BucketMultiDataPointReporter(Model)
+     */
     public AccumulativeDataPointReporter(Model model) {
         this("", model);
     }
 
+    /**
+     * Constructs a new data point reporter.
+     *
+     * @see BucketMultiDataPointReporter#BucketMultiDataPointReporter(String, Model)
+     */
     public AccumulativeDataPointReporter(String datasetsPrefix, Model model) {
-        super(model, datasetsPrefix);
+        super(datasetsPrefix, model);
+
+    }
+
+
+    /**
+     * Constructs a new data point reporter.
+     *
+     * @see BucketMultiDataPointReporter#BucketMultiDataPointReporter(Model, UnaryOperator)
+     */
+    public AccumulativeDataPointReporter(final Model model, final UnaryOperator<TimeInstant> bucketFunction) {
+        super(model, bucketFunction);
+    }
+
+    /**
+     * Constructs a new data point reporter.
+     *
+     * @see BucketMultiDataPointReporter#BucketMultiDataPointReporter(String, Model, UnaryOperator)
+     */
+    public AccumulativeDataPointReporter(final String datasetsPrefix, final Model model,
+                                         final UnaryOperator<TimeInstant> bucketFunction) {
+        super(datasetsPrefix, model, bucketFunction);
     }
 
     /**
@@ -32,6 +64,7 @@ public class AccumulativeDataPointReporter extends MiSimReporter<AsyncMultiColum
      */
     public void addDatapoint(String dataSetName, TimeInstant when, Number data) {
         checkArgumentsAreNotNull(dataSetName, when, data);
+        when = bucketingFunction.apply(when);
 
         if (lastValues.containsKey(dataSetName)) {
             HashMap<TimeInstant, Double> lastValuesForDataSet = lastValues.get(dataSetName);
@@ -60,7 +93,7 @@ public class AccumulativeDataPointReporter extends MiSimReporter<AsyncMultiColum
     }
 
     @SafeVarargs
-    private final <T> void internalAddDatapoint(String dataSetName, TimeInstant when, T... data) {
+    private <T> void internalAddDatapoint(String dataSetName, TimeInstant when, T... data) {
         checkArgumentsAreNotNull(dataSetName, when, data);
         AsyncMultiColumnReportWriter writerThread = getWriter(dataSetName);
         writerThread.addDataPoint(when.getTimeAsDouble(), data);

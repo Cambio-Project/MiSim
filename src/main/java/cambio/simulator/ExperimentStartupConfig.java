@@ -73,6 +73,14 @@ public class ExperimentStartupConfig {
     private final boolean noTraces;
 
 
+    @CLIOption(
+        opt = "m",
+        longOpt = "mtl",
+        description = "File path to a MTL behavior description.",
+        hasArg = true)
+    private final String mtlLoc;
+
+
     /**
      * Creates a new {@link ExperimentStartupConfig}.
      *
@@ -87,13 +95,13 @@ public class ExperimentStartupConfig {
      * @param reportOverwriteLocation directory path where the report should be overwritten
      * @param showProgressBar         when this option is set to true, a progressbar window is shown during the
      *                                simulation (setting this option disables headless mode and requires a display
-     *                                output)
      * @param debug                   enables debug output
+     * @param mtlLoc                  path to the file that describes behavior in MTL
      */
     public ExperimentStartupConfig(@NotNull String archDescLoc, String expDescLoc, String scenario,
                                    String reportLocation,
                                    String reportOverwriteLocation, boolean showProgressBar, boolean debug,
-                                   boolean traces) {
+                                   boolean traces, String mtlLoc) {
         this.archDescLoc = archDescLoc;
         this.expDescLoc = expDescLoc;
         this.scenario = scenario;
@@ -102,6 +110,7 @@ public class ExperimentStartupConfig {
         this.showProgressBar = showProgressBar;
         this.debug = debug;
         this.noTraces = !traces;
+        this.mtlLoc = mtlLoc;
 
         if (expDescLoc == null && scenario == null) {
             throw new RuntimeException("Either a experiment description location or scenario description "
@@ -142,4 +151,7 @@ public class ExperimentStartupConfig {
         return !noTraces;
     }
 
+    public String mtlLoc() {
+        return mtlLoc;
+    }
 }

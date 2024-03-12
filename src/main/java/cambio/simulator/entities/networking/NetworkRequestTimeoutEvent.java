@@ -2,6 +2,7 @@ package cambio.simulator.entities.networking;
 
 import java.util.concurrent.TimeUnit;
 
+import cambio.simulator.entities.NamedSimProcess;
 import cambio.simulator.misc.Priority;
 import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.*;
@@ -30,15 +31,17 @@ public class NetworkRequestTimeoutEvent extends NetworkRequestEvent implements I
     }
 
     @Override
-    public void eventRoutine() throws SuspendExecution {
-        if (canceled) {
-            return;
+    public void onRoutineExecution() throws SuspendExecution {
+        synchronized (NamedSimProcess.class) {
+            if (canceled) {
+                return;
+            }
+            NetworkRequestEvent cancelEvent =
+                new NetworkRequestCanceledEvent(getModel(), "RequestCancel", getModel().traceIsOn(), travelingRequest,
+                    RequestFailedReason.TIMEOUT,
+                    "Request " + travelingRequest.getName() + " was canceled due to a timeout.");
+            cancelEvent.schedule(new TimeSpan(0L));
         }
-        NetworkRequestEvent cancelEvent =
-            new NetworkRequestCanceledEvent(getModel(), "RequestCancel", getModel().traceIsOn(), travelingRequest,
-                RequestFailedReason.TIMEOUT,
-                "Request " + travelingRequest.getName() + " was canceled due to a timeout.");
-        cancelEvent.schedule(new TimeSpan(0));
     }
 
     @Override

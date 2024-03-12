@@ -3,6 +3,7 @@ package cambio.simulator.resources.cpu;
 import java.util.*;
 
 import cambio.simulator.entities.NamedExternalEvent;
+import cambio.simulator.entities.NamedSimProcess;
 import cambio.simulator.entities.microservice.MicroserviceInstance;
 import cambio.simulator.export.MultiDataPointReporter;
 import cambio.simulator.resources.cpu.scheduling.CPUProcessScheduler;
@@ -140,31 +141,33 @@ public class CPU extends NamedExternalEvent {
      * @see ComputationBurstCompletedEvent
      */
     @Override
-    public void eventRoutine() throws SuspendExecution {
-        while (hasProcessAndThreadReady()) {
-            Pair<CPUProcess, Integer> next = scheduler.retrieveNextProcessNoReschedule();
-            CPUProcess nextProcess = next.getValue0();
-            int nextTotalDemand = next.getValue1();
+    public void onRoutineExecution() throws SuspendExecution {
+        synchronized (NamedSimProcess.class) {
+            while (hasProcessAndThreadReady()) {
+                Pair<CPUProcess, Integer> next = scheduler.retrieveNextProcessNoReschedule();
+                CPUProcess nextProcess = next.getValue0();
+                int nextTotalDemand = next.getValue1();
 
-            nextProcess.stampCurrentBurstStarted(presentTime());
-            TimeSpan processBurstDuration = new TimeSpan(nextTotalDemand / capacityPerThread);
+                nextProcess.stampCurrentBurstStarted(presentTime());
+                TimeSpan processBurstDuration = new TimeSpan(nextTotalDemand / capacityPerThread);
 
-            ComputationBurstCompletedEvent endEvent = new ComputationBurstCompletedEvent(getModel(),
-                "Computation burst finished of " + nextProcess.getRequest().getQuotedPlainName(),
-                debugIsOn(),
-                nextProcess,
-                this,
-                nextTotalDemand);
-            endEvent.schedule(processBurstDuration);
-            activeProcesses.add(nextProcess);
+                ComputationBurstCompletedEvent endEvent = new ComputationBurstCompletedEvent(getModel(),
+                    "Computation burst finished of " + nextProcess.getRequest().getQuotedPlainName(),
+                    debugIsOn(),
+                    nextProcess,
+                    this,
+                    nextTotalDemand);
+                endEvent.schedule(processBurstDuration);
+                activeProcesses.add(nextProcess);
+            }
+
+
+            binnedUtilizationTracker.updateUtilization(getCurrentUsage(), presentTime());
+
+
+            reportQueueState();
+            reportUtilization();
         }
-
-
-        binnedUtilizationTracker.updateUtilization(getCurrentUsage(), presentTime());
-
-
-        reportQueueState();
-        reportUtilization();
     }
 
     private boolean hasProcessAndThreadReady() {
@@ -205,7 +208,7 @@ public class CPU extends NamedExternalEvent {
     /**
      * Reschedules the {@code eventRoutine} immediately.
      *
-     * @see CPU#eventRoutine()
+     * @see CPU#onRoutineExecution()
      */
     private void forceScheduleNow() {
         if (this.isScheduled()) {
@@ -242,7 +245,9 @@ public class CPU extends NamedExternalEvent {
         reporter.addDatapoint("RelativeUtilization", presentTime(), getCurrentRelativeWorkDemand());
     }
 
-    /** rounding factor to get rid of minuscule imprecision during the relative utilization calculation. */
+    /**
+     * rounding factor to get rid of minuscule imprecision during the relative utilization calculation.
+     */
     private static final double roundingFactor = Math.pow(10, 14);
 
     /**

@@ -58,7 +58,7 @@ class MiSimReportersTest {
         assertEquals(0, MiSimReporters.getReporters().size());
 
         MiSimReporters.initializeStaticReporters(model);
-        assertEquals(4, MiSimReporters.getReporters().size());
+        assertEquals(5, MiSimReporters.getReporters().size());
     }
 
     @Test

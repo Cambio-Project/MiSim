@@ -23,6 +23,14 @@ public class MultiDataPointReporter extends MiSimReporter<AsyncMultiColumnReport
         super(model, datasetsPrefix);
     }
 
+    /**
+     * Adds a new datapoint to the given dataset.
+     *
+     * @param dataSetName name of the dataset to which the datapoint should be added
+     * @param when        point in simulation time to which the datapoint is associated to
+     * @param data        data that should be logged
+     * @param <T>         type of the data that should be logged.
+     */
     @Override
     public <T> void addDatapoint(final String dataSetName, final TimeInstant when, final T... data) {
         checkArgumentsAreNotNull(dataSetName, when, data);

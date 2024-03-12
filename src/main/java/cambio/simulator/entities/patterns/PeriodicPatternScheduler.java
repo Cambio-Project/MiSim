@@ -40,7 +40,9 @@ public class PeriodicPatternScheduler extends NamedSimProcess {
 
     @Override
     public void lifeCycle() throws SuspendExecution {
-        owner.onTriggered();
+        synchronized (NamedSimProcess.class) {
+            owner.onTriggered();
+        }
         if (presentTime().getTimeAsDouble(getModel().getExperiment().getReferenceUnit()) + start >= stop) {
             passivate();
             return;

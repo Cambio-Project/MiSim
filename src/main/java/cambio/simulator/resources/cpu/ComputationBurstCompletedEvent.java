@@ -1,6 +1,7 @@
 package cambio.simulator.resources.cpu;
 
 import cambio.simulator.entities.NamedExternalEvent;
+import cambio.simulator.entities.NamedSimProcess;
 import cambio.simulator.entities.networking.Request;
 import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.Model;
@@ -39,20 +40,23 @@ public class ComputationBurstCompletedEvent extends NamedExternalEvent {
     }
 
     @Override
-    public void eventRoutine() throws SuspendExecution {
+    public void onRoutineExecution() throws SuspendExecution {
+        synchronized (NamedSimProcess.class) {
 
-        endingProcess.reduceDemandRemainder(completedDemand);
+            endingProcess.reduceDemandRemainder(completedDemand);
 
-        //notify cpu that the process finished its current burst
-        owner.onBurstFinished(endingProcess);
+            //notify cpu that the process finished its current burst
+            owner.onBurstFinished(endingProcess);
 
-        if (endingProcess.getDemandRemainder() <= 0) {
-            //notify the request that its computation finished
-            Request request = endingProcess.getRequest();
-            ComputationCompletedEvent completionEvent = new ComputationCompletedEvent(getModel(),
-                "ComputationEnd " + request.getQuotedPlainName(),
-                getModel().traceIsOn());
-            completionEvent.schedule(request, presentTime());
+            if (endingProcess.getDemandRemainder() <= 0) {
+                //notify the request that its computation finished
+                Request request = endingProcess.getRequest();
+                ComputationCompletedEvent completionEvent = new ComputationCompletedEvent(getModel(),
+                    "ComputationEnd " + request.getQuotedPlainName(),
+                    getModel().traceIsOn());
+                completionEvent.schedule(request, presentTime());
+            }
+
         }
     }
 }

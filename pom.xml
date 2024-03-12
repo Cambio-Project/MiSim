@@ -4,16 +4,18 @@
 
     <groupId>cambio.simulator</groupId>
     <artifactId>misim</artifactId>
-    <version>3.3.4-SNAPSHOT</version>
+    <version>3.4.0</version>
     <packaging>jar</packaging>
 
     <name>MiSim Simulator</name>
     <url>https://github.com/Cambio-Project/MiSim</url>
 
     <properties>
-        <maven.compiler.target>1.8</maven.compiler.target>
-        <maven.compiler.source>1.8</maven.compiler.source>
-
+        <junit.version>5.8.2</junit.version>
+        <mockito.version>4.3.1</mockito.version>
+        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <java.version>17</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <gson.version>2.9.1</gson.version>
         <javatuples.version>1.2</javatuples.version>
@@ -46,12 +48,28 @@
     <!--Project local maven repository, containing external jars-->
     <repositories>
         <repository>
+            <id>github</id>
+            <url>https://maven.pkg.github.com/Cambio-Project/TL-Tea</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+        <repository>
             <id>LocalLibs</id>
             <url>file://${project.basedir}/libraries/</url>
         </repository>
     </repositories>
 
     <dependencies>
+        <!-- TL-Tea -->
+        <dependency>
+            <groupId>cambio.tltea</groupId>
+            <artifactId>interpreter</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
 
         <!-- util -->
         <dependency>

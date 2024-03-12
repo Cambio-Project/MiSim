@@ -65,7 +65,7 @@ public abstract class NetworkRequestEvent extends NamedExternalEvent {
      * To be implemented by Subclasses.
      */
     @Override
-    public abstract void eventRoutine() throws SuspendExecution;
+    public abstract void onRoutineExecution() throws SuspendExecution;
 
     public Request getTravelingRequest() {
         return travelingRequest;

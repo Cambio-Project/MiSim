@@ -3,6 +3,7 @@ package cambio.simulator.events;
 import java.util.Arrays;
 import java.util.Objects;
 
+import cambio.simulator.entities.NamedSimProcess;
 import cambio.simulator.entities.microservice.Microservice;
 import cambio.simulator.entities.microservice.Operation;
 import cambio.simulator.entities.networking.InternalRequest;
@@ -84,16 +85,17 @@ public class DelayInjection extends SelfScheduledExperimentAction {
     }
 
     @Override
-    public void eventRoutine() {
-        microservice.applyDelay(delayDistribution, operationSrc, operationTrg);
-        if (duration > 0) {
-            new ExternalEvent(getModel(), "LatencyMonkeyDeactivator", this.traceIsOn()) {
-                @Override
-                public void eventRoutine() {
-                    microservice.applyDelay(null, operationSrc, operationTrg);
-                }
-            }.schedule(new TimeSpan(duration));
+    public void onRoutineExecution() {
+        synchronized (NamedSimProcess.class) {
+            microservice.applyDelay(delayDistribution, operationSrc, operationTrg);
+            if (duration > 0) {
+                new ExternalEvent(getModel(), "LatencyMonkeyDeactivator", this.traceIsOn()) {
+                    @Override
+                    public void eventRoutine() {
+                        microservice.applyDelay(null, operationSrc, operationTrg);
+                    }
+                }.schedule(new TimeSpan(duration));
+            }
         }
-
     }
 }

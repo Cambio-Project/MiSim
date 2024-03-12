@@ -1,5 +1,6 @@
 package cambio.simulator.entities.networking;
 
+import static cambio.simulator.export.MiSimReporters.USER_REQUEST_AVG_REPORTER;
 import static cambio.simulator.export.MiSimReporters.USER_REQUEST_REPORTER;
 
 import cambio.simulator.entities.generator.LoadGeneratorDescriptionExecutor;
@@ -25,6 +26,11 @@ public class UserRequest extends Request {
     @Override
     protected void onReceive() {
         super.onReceive();
+        USER_REQUEST_AVG_REPORTER.addDatapoint(
+            String.format("[%s]_ResponseTimes", operation.getName()), presentTime(),
+            getResponseTime());
+        USER_REQUEST_AVG_REPORTER
+            .addDatapoint("[All]ResponseTimes", presentTime(), getResponseTime());
         USER_REQUEST_REPORTER
             .addDatapoint(String.format("[%s]_ResponseTimes", operation.getName()), presentTime(), getResponseTime());
         USER_REQUEST_REPORTER
