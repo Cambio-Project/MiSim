@@ -39,15 +39,16 @@ jobs:
             type=raw,value=latest
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         with:
           context: .
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          secrets: |
+            GIT_AUTH_TOKEN=${{ secrets.READ_PACKAGES }}
+          github-token: ${{ secrets.READ_PACKAGES }}
           build-args: |
             EXECUTION_ENV=ci
             GITHUB_PACKAGE_READ_TOKEN=${{ secrets.PUBLISH_PACKAGES }}
-          secrets: |
-            GIT_AUTH_TOKEN=${{ secrets.READ_PACKAGES }}
