@@ -49,4 +49,5 @@ jobs:
           build-args: |
             EXECUTION_ENV=ci
             GITHUB_PACKAGE_READ_TOKEN=${{ secrets.PUBLISH_PACKAGES }}
-            GITHUB_TOKEN: ${{ secrets.READ_PACKAGES }}
+          secrets: |
+            GIT_AUTH_TOKEN=${{ secrets.READ_PACKAGES }}
