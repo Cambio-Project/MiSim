@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - pipeline-fix
   release:
     types: [ published ] # will use tag name regardless of naming
 
@@ -40,6 +41,8 @@ jobs:
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.READ_PACKAGES }}
         with:
           context: .
           platforms: linux/amd64,linux/arm64
@@ -48,6 +51,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           secrets: |
             GIT_AUTH_TOKEN=${{ secrets.READ_PACKAGES }}
+            GITHUB_TOKEN=${{ secrets.READ_PACKAGES }}
           github-token: ${{ secrets.READ_PACKAGES }}
           secret-envs: |
             GITHUB_TOKEN=${{ secrets.READ_PACKAGES }}
