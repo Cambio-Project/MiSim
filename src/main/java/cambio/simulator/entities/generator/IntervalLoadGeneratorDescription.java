@@ -70,6 +70,7 @@ public final class IntervalLoadGeneratorDescription extends LoadGeneratorDescrip
                 this.interArrivalTime = (new TimeInstant(interval, TimeUnit.SECONDS)).getTimeInEpsilon();
                 this.actualLoad = (int) load;
             }
+            this.currentTimeInstantLoadCounter = actualLoad;
         }
 
         private boolean requiresUpdate() {
@@ -94,7 +95,7 @@ public final class IntervalLoadGeneratorDescription extends LoadGeneratorDescrip
 
         @Override
         protected void resetModelIteration() {
-            currentTimeInstantLoadCounter = 0;
+            currentTimeInstantLoadCounter = this.actualLoad;
         }
 
         @Override
