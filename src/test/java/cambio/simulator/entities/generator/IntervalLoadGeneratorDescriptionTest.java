@@ -53,9 +53,8 @@ class IntervalLoadGeneratorDescriptionTest {
             "\"interval\": NaN" +
             "}";
 
-        IntervalLoadGeneratorDescription description = GeneratorTestUtils.getLoadGeneratorDescription(config,
-            IntervalLoadGeneratorDescription.class);
-        Assertions.assertThrows(LoadGeneratorStopException.class, () -> description.getNextTimeInstant(new TimeInstant(0)));
+        Assertions.assertThrows(LoadGeneratorStopException.class, () -> GeneratorTestUtils.getLoadGeneratorDescription(config,
+            IntervalLoadGeneratorDescription.class));
     }
 
     @Test

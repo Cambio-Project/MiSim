@@ -8,7 +8,7 @@ package cambio.simulator.entities.generator;
  * @see LoadGeneratorDescription
  * @see LoadGeneratorDescriptionExecutor
  */
-public class LoadGeneratorStopException extends Exception {
+public class LoadGeneratorStopException extends RuntimeException {
 
     /**
      * Constructs a new runtime exception with {@code null} as its detail message.  The cause is not initialized, and

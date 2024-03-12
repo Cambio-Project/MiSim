@@ -36,8 +36,7 @@ public final class IntervalLoadGeneratorDescription extends LoadGeneratorDescrip
         if (Double.isNaN(interval)) {
             System.out.printf("[Warning] Interval '%s' is not a valid value (in (0 - %s]). "
                 + "An interval generator will not be started.%n", interval, Double.MAX_VALUE);
-            this.interval = 1;
-            this.load = 0;
+            throw new LoadGeneratorStopException();
         }
         if (Double.isNaN(load)) {
             this.load = 0;
