@@ -92,6 +92,8 @@ jobs:
           cache: 'maven'
       - name: Run Hello World
         run: ./hello_world.sh
+        env:
+          GITHUB_TOKEN: ${{ secrets.READ_PACKAGES }}
 
   run_hello_world_Windows:
     if: "!contains(github.event.head_commit.message, '[maven-release-plugin]')"
@@ -108,3 +110,5 @@ jobs:
           cache: 'maven'
       - name: Run Hello World
         run: ./hello_world.bat
+        env:
+          GITHUB_TOKEN: ${{ secrets.READ_PACKAGES }}
