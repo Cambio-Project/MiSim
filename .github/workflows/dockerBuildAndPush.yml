@@ -8,6 +8,9 @@ on:
   release:
     types: [ published ] # will use tag name regardless of naming
 
+env:
+  REGISTRY: ghcr.io
+
 jobs:
   build_and_publish:
     runs-on: ubuntu-latest
@@ -28,7 +31,11 @@ jobs:
         run: echo ${{ steps.buildx.outputs.platforms }}
 
       - name: Log in to the Container registry
-        run: docker login --username Cambio-Project --password ${{secrets.PUBLISH_PACKAGES}} ghcr.io
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
@@ -41,20 +48,12 @@ jobs:
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
-        env:
-          GITHUB_TOKEN: ${{ secrets.READ_PACKAGES }}
         with:
           context: .
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          secrets: |
-            GIT_AUTH_TOKEN=${{ secrets.READ_PACKAGES }}
-            GITHUB_TOKEN=${{ secrets.READ_PACKAGES }}
-          github-token: ${{ secrets.READ_PACKAGES }}
-          secret-envs: |
-            GITHUB_TOKEN=${{ secrets.READ_PACKAGES }}
           build-args: |
             EXECUTION_ENV=ci
-            GITHUB_PACKAGE_READ_TOKEN=${{ secrets.PUBLISH_PACKAGES }}
+            GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
