@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - pipeline-fix
   release:
     types: [ published ] # will use tag name regardless of naming
 
