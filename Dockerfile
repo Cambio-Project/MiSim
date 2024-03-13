@@ -1,9 +1,14 @@
+# User used in local builds to access github packages
+ARG GITHUB_USER
+
 # Token used in local builds to access github packages
 # or GITHUB_TOKEN in CI
 ARG GITHUB_TOKEN
 
 # Build stage
 FROM maven:3.9.6-amazoncorretto-21-debian AS build
+ARG GITHUB_USER
+ENV GITHUB_USER=$GITHUB_USER
 ARG GITHUB_TOKEN
 ENV GITHUB_TOKEN=$GITHUB_TOKEN
 
@@ -14,7 +19,7 @@ WORKDIR /app
 COPY . .
 
 # installs the maven project from the base PSPWizard
-RUN mvn -B install --file pom.xml -DskipTests=true -Dmaven.javadoc.skip=true -Dcheckstyle.skipExec=true -Dgithub.token=$GITHUB_TOKEN
+RUN mvn -B install --settings settings.xml --file pom.xml -DskipTests=true -Dmaven.javadoc.skip=true -Dcheckstyle.skipExec=true -Dgithub.token=$GITHUB_TOKEN -Dgithub.name=$GITHUB_USER
 
 # installs the restAPI Module from  the PSPWizard
 RUN mvn -B install --file ./restAPI/pom.xml -DskipTests=true -Dmaven.javadoc.skip=true -Dcheckstyle.skipExec=true
