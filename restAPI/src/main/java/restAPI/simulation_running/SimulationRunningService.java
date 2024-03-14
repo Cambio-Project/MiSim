@@ -25,7 +25,7 @@ public class SimulationRunningService {
         Collection<String> archDescPathCollection = inputFiles.get("architecture");
         Collection<String> expDescPathCollection = inputFiles.get("experiment");
         Collection<String> scenarioPathCollection = inputFiles.get("scenario");
-        Collection<String> mtlPathCollection = inputFiles.get("scenario");
+        Collection<String> mtlPathCollection = inputFiles.get("mtl");
         List<String> load = inputFiles.get("load").stream().toList();
 
 
@@ -52,14 +52,14 @@ public class SimulationRunningService {
             }
         }
         if (mtlPathCollection.iterator().hasNext()) {
-            mtlPath = scenarioPathCollection.iterator().next();
+            mtlPath = mtlPathCollection.iterator().next();
         }
 
         ExperimentStartupConfig config = new ExperimentStartupConfig(archDescPath, expDescPath,
                 scenarioPath,null, outPutDir.toString(), false,
                 false, true, mtlPath);
         try {
-            Experiment experiment = new ExperimentCreator().createSimulationExperiment(config);
+           Experiment experiment = new ExperimentCreator().createSimulationExperiment(config);
             experiment.start();
             experiment.finish();
             // TODO check whether we need to reset the generator;
@@ -71,6 +71,7 @@ public class SimulationRunningService {
                 throw new Exception(e.getMessage());
             }
         }
+
     }
 
 

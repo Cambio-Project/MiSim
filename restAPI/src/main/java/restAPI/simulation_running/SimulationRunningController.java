@@ -74,6 +74,7 @@ public class SimulationRunningController {
         catch (Exception e) {
             String errorMessage = e.getMessage();
             logger.error(errorMessage);
+            System.out.println(e);
             return new ResponseEntity<>(errorMessage, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
