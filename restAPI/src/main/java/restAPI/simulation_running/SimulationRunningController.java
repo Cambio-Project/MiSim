@@ -34,25 +34,18 @@ public class SimulationRunningController {
     @PostMapping("/simulate/upload")
     public ResponseEntity<String> handleMultipleFilesUpload(@RequestParam("files") MultipartFile[] files,
                                                             @RequestParam("simulation_id") String id) throws IOException {
-        return runSimulation(files, "", id);
+        return runSimulation(files, id);
     }
 
     @PostMapping("/simulate/upload/mtl")
     public ResponseEntity<String> handleMTLSpecification(@RequestParam("files") MultipartFile[] files,
-                                                         @RequestParam("mtl_specification") String mtlSpecification,
                                                          @RequestParam("simulation_id") String id) throws IOException {
-        if (mtlSpecification.isEmpty()) {
-            return new ResponseEntity<>("The MTL specification can't be empty. Please provide a valid " +
-                    "specification.",
-                    HttpStatus.BAD_REQUEST);
-        }
-        return runSimulation(files, mtlSpecification, id);
+        return runSimulation(files, id);
     }
 
     // TODO: Handle this call in a non-blocking manner, taking into account that this implementation is not
     //  client friendly as it can time-out the request due to the long processing time.
     private ResponseEntity<String> runSimulation(MultipartFile[] files,
-                                                 String mtlSpecification,
                                                  String id) throws IOException  {
         try {
             if (TempFileUtils.existsSimulationId(id)) {
@@ -64,7 +57,7 @@ public class SimulationRunningController {
             Path outputFolder = TempFileUtils.createOutputDir(TempFileUtils.RAW_OUTPUT_DIR, id);
             Multimap<String, String> savedFiles = TempFileUtils.saveFiles(files, tmpFolder);
             //Block1
-            simulationRunningService.runExperiment(savedFiles, mtlSpecification, outputFolder);
+            simulationRunningService.runExperiment(savedFiles, outputFolder);
             if(!TempFileUtils.existsSimulationId(id)) {
                 return new ResponseEntity<>(String.format("An Error happened when running the simulation with the ID: " +
                         "%s.", id),
