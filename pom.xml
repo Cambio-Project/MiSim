@@ -48,16 +48,6 @@
     <!--Project local maven repository, containing external jars-->
     <repositories>
         <repository>
-            <id>github</id>
-            <url>https://maven.pkg.github.com/Cambio-Project/TL-Tea</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-        <repository>
             <id>LocalLibs</id>
             <url>file://${project.basedir}/libraries/</url>
         </repository>

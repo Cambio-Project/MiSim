@@ -21,7 +21,7 @@ import java.util.*;
 public class SimulationRunningService {
     private static final boolean isWindows = System.getProperty("os.name").startsWith("Windows");
 
-    public void runExperiment(Multimap<String, String> inputFiles, Path outPutDir) throws Exception {
+    public void runExperiment(Multimap<String, String> inputFiles, String mtlSpecification,Path outPutDir) throws Exception {
         Collection<String> archDescPathCollection = inputFiles.get("architecture");
         Collection<String> expDescPathCollection = inputFiles.get("experiment");
         Collection<String> scenarioPathCollection = inputFiles.get("scenario");
@@ -52,7 +52,7 @@ public class SimulationRunningService {
 
         ExperimentStartupConfig config = new ExperimentStartupConfig(archDescPath, expDescPath,
                 scenarioPath,null, outPutDir.toString(), false,
-                false, true);
+                false, true, mtlSpecification);
         try {
             Experiment experiment = new ExperimentCreator().createSimulationExperiment(config);
             experiment.start();
