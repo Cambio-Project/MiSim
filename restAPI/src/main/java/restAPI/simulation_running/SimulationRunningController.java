@@ -15,6 +15,7 @@ import restAPI.util.TempFileUtils;
 
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 
@@ -55,6 +56,9 @@ public class SimulationRunningController {
             }
             Path tmpFolder = TempFileUtils.createDefaultTempDir("misim-");
             Path outputFolder = TempFileUtils.createOutputDir(TempFileUtils.RAW_OUTPUT_DIR, id);
+
+            System.out.println("The output file already exits: " + Files.exists(outputFolder));
+
             Multimap<String, String> savedFiles = TempFileUtils.saveFiles(files, tmpFolder);
             //Block1
             simulationRunningService.runExperiment(savedFiles, outputFolder);
@@ -74,7 +78,6 @@ public class SimulationRunningController {
         catch (Exception e) {
             String errorMessage = e.getMessage();
             logger.error(errorMessage);
-            System.out.println(e);
             return new ResponseEntity<>(errorMessage, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
