@@ -6,7 +6,7 @@ ARG GITHUB_USER
 ARG GITHUB_TOKEN
 
 # Build stage
-FROM maven:3.9.6-amazoncorretto-21-debian AS build
+FROM maven:3.9.2-amazoncorretto-17-debian-bullseye AS build
 ARG GITHUB_USER
 ENV GITHUB_USER=$GITHUB_USER
 ARG GITHUB_TOKEN
@@ -25,7 +25,7 @@ RUN mvn -B install --settings settings.xml --file pom.xml -DskipTests=true -Dmav
 RUN mvn -B install --file ./restAPI/pom.xml -DskipTests=true -Dmaven.javadoc.skip=true -Dcheckstyle.skipExec=true
 
 # Package stage
-FROM eclipse-temurin:21-jdk-alpine AS package
+FROM eclipse-temurin:17-jdk-jammy AS package
 
 # gets the *.jar file from the api application from the build stage
 COPY --from=build /app/restAPI/target/*.jar app.jar
