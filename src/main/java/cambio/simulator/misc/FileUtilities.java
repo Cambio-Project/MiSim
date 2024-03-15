@@ -70,8 +70,9 @@ public final class FileUtilities {
             boolean ignored = destFolder.mkdirs();
         }
 
-        File fullPath = null;
+        File fullPath;
         String path = FileUtilities.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+        path = path.split("!")[0]; // handle case of misim jar inside of another jar
 
         try {
             if (!path.startsWith("file")) {
@@ -102,7 +103,7 @@ public final class FileUtilities {
     }
 
     private static void copyFromJar(String folderName, File destFolder, CopyOption option, File fullPath)
-            throws IOException {
+        throws IOException {
 
         byte[] buffer = new byte[8096];
 
@@ -139,8 +140,8 @@ public final class FileUtilities {
     }
 
     private static void copyFromDirectory(String folderName, File destFolder, CopyOption option, File fullPath)
-            throws IOException {
-        Files.walkFileTree(Paths.get(fullPath.getPath(), folderName), new SimpleFileVisitor<Path>() {
+        throws IOException {
+        Files.walkFileTree(Paths.get(fullPath.getPath(), folderName), new SimpleFileVisitor<>() {
             @Override
             public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
                 String sourceFullPath = path.toAbsolutePath().toString();
