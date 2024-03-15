@@ -144,7 +144,7 @@ public class ExperimentStartupConfig {
     }
 
     public boolean debugOutputOn() {
-        return debug;
+        return true;
     }
 
     public boolean traceEnabled() {
