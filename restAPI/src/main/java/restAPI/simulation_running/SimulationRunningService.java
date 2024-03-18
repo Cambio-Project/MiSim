@@ -19,7 +19,7 @@ import java.util.*;
 
 @Service
 public class SimulationRunningService {
-    private static final boolean isWindows = System.getProperty("os.name").startsWith("Windows");
+    private static final boolean IS_WINDOWS = System.getProperty("os.name").startsWith("Windows");
 
     public void runExperiment(Multimap<String, String> inputFiles,Path outPutDir) throws Exception {
         Collection<String> archDescPathCollection = inputFiles.get("architecture");
@@ -74,7 +74,6 @@ public class SimulationRunningService {
 
     }
 
-
     private void adjustWorkloadPaths(List<String> workloadsPath, String experimentFilePath)
             throws IOException {
         Path experimentFile = Path.of(FilenameUtils.separatorsToSystem(experimentFilePath));
@@ -83,7 +82,7 @@ public class SimulationRunningService {
         String workloadFileName;
         for(String path : workloadsPath) {
             workloadFileName = FilenameUtils.getName(path);
-            content = content.replace(workloadFileName, isWindows ? path.replace("\\","\\\\") : path);
+            content = content.replace(workloadFileName, IS_WINDOWS ? path.replace("\\","\\\\") : path);
         }
         Files.write(experimentFile, content.getBytes());
     }

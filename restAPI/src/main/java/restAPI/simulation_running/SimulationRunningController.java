@@ -38,12 +38,6 @@ public class SimulationRunningController {
         return runSimulation(files, id);
     }
 
-    @PostMapping("/simulate/upload/mtl")
-    public ResponseEntity<String> handleMTLSpecification(@RequestParam("files") MultipartFile[] files,
-                                                         @RequestParam("simulation_id") String id) throws IOException {
-        return runSimulation(files, id);
-    }
-
     // TODO: Handle this call in a non-blocking manner, taking into account that this implementation is not
     //  client friendly as it can time-out the request due to the long processing time.
     private ResponseEntity<String> runSimulation(MultipartFile[] files,
@@ -56,8 +50,6 @@ public class SimulationRunningController {
             }
             Path tmpFolder = TempFileUtils.createDefaultTempDir("misim-");
             Path outputFolder = TempFileUtils.createOutputDir(TempFileUtils.RAW_OUTPUT_DIR, id);
-
-            System.out.println("The output file already exits: " + Files.exists(outputFolder));
 
             Multimap<String, String> savedFiles = TempFileUtils.saveFiles(files, tmpFolder);
             //Block1
