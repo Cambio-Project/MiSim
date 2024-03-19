@@ -75,7 +75,6 @@ public class TempFileUtils {
                 throw new RuntimeException(e);
             }
         });
-        System.out.println(filesPaths);
         return filesPaths;
     }
 
