@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - restAPI-v2
   release:
     types: [ published ] # will use tag name regardless of naming
 
