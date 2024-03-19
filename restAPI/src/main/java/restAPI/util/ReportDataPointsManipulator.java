@@ -19,7 +19,8 @@ import static tech.tablesaw.api.ColumnType.INTEGER;
 public class ReportDataPointsManipulator {
 
     private static final String[] DISCRETE_VALUED_METRICS = {"Requests_InSystem", "Requests_NotComputed",
-            "Requests_WaitingForDependencies", "SendOff_Internal_Requests"};
+            "Requests_WaitingForDependencies", "SendOff_Internal_Requests", "FailedRequests", "SuccessfulRequests",
+            "Load."};
     private static final String[] CONTINUOUS_VALUED_METRICS = {"RelativeUtilization", "Utilization",
             "UtilizationBinned", "NL_latency", "ResponseTimes"};
 
@@ -67,7 +68,7 @@ public class ReportDataPointsManipulator {
         String regex = ".+\\[.+\\].+\\.csv";
         if (fileName.matches(regex)) {
             String serviceName =  StringUtils.substringBetween(fileName, "[", "]")
-                    .replace('#','_');
+                    .replaceAll("[#-]","_");
             String metricName = StringUtils.substringBetween(fileName, "]", ".csv");
             return String.format("%s%s",serviceName, metricName);
         } else {

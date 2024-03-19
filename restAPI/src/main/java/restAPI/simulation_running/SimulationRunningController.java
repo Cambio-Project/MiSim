@@ -15,6 +15,7 @@ import restAPI.util.TempFileUtils;
 
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 
@@ -30,13 +31,17 @@ public class SimulationRunningController {
         this.simulationRunningService = simulationRunningService;
     }
 
-
-    // TODO: Handle this call in a non-blocking manner, taking into account that this implementation is not
-    //  client friendly as it can time-out the request due to the long processing time.
     //For uploading the Multipart files and saving them to the file system. And then we run the simulation on them.
     @PostMapping("/simulate/upload")
     public ResponseEntity<String> handleMultipleFilesUpload(@RequestParam("files") MultipartFile[] files,
                                                             @RequestParam("simulation_id") String id) throws IOException {
+        return runSimulation(files, id);
+    }
+
+    // TODO: Handle this call in a non-blocking manner, taking into account that this implementation is not
+    //  client friendly as it can time-out the request due to the long processing time.
+    private ResponseEntity<String> runSimulation(MultipartFile[] files,
+                                                 String id) throws IOException  {
         try {
             if (TempFileUtils.existsSimulationId(id)) {
                 return new ResponseEntity<>(String.format("Simulation ID <%s> is already in use. " +
@@ -45,6 +50,7 @@ public class SimulationRunningController {
             }
             Path tmpFolder = TempFileUtils.createDefaultTempDir("misim-");
             Path outputFolder = TempFileUtils.createOutputDir(TempFileUtils.RAW_OUTPUT_DIR, id);
+
             Multimap<String, String> savedFiles = TempFileUtils.saveFiles(files, tmpFolder);
             //Block1
             simulationRunningService.runExperiment(savedFiles, outputFolder);

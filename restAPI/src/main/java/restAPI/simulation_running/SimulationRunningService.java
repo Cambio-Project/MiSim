@@ -19,12 +19,13 @@ import java.util.*;
 
 @Service
 public class SimulationRunningService {
-    private static final boolean isWindows = System.getProperty("os.name").startsWith("Windows");
+    private static final boolean IS_WINDOWS = System.getProperty("os.name").startsWith("Windows");
 
-    public void runExperiment(Multimap<String, String> inputFiles, Path outPutDir) throws Exception {
+    public void runExperiment(Multimap<String, String> inputFiles,Path outPutDir) throws Exception {
         Collection<String> archDescPathCollection = inputFiles.get("architecture");
         Collection<String> expDescPathCollection = inputFiles.get("experiment");
         Collection<String> scenarioPathCollection = inputFiles.get("scenario");
+        Collection<String> mtlPathCollection = inputFiles.get("mtl");
         List<String> load = inputFiles.get("load").stream().toList();
 
 
@@ -35,6 +36,7 @@ public class SimulationRunningService {
         }
         String expDescPath = null;
         String scenarioPath = null;
+        String mtlPath  = null;
 
         String archDescPath = archDescPathCollection.iterator().next();
         if (expDescPathCollection.iterator().hasNext()) {
@@ -49,12 +51,15 @@ public class SimulationRunningService {
                 adjustWorkloadPaths(load, scenarioPath);
             }
         }
+        if (mtlPathCollection.iterator().hasNext()) {
+            mtlPath = mtlPathCollection.iterator().next();
+        }
 
         ExperimentStartupConfig config = new ExperimentStartupConfig(archDescPath, expDescPath,
                 scenarioPath,null, outPutDir.toString(), false,
-                false, true);
+                false, true, mtlPath);
         try {
-            Experiment experiment = new ExperimentCreator().createSimulationExperiment(config);
+           Experiment experiment = new ExperimentCreator().createSimulationExperiment(config);
             experiment.start();
             experiment.finish();
             // TODO check whether we need to reset the generator;
@@ -66,8 +71,8 @@ public class SimulationRunningService {
                 throw new Exception(e.getMessage());
             }
         }
-    }
 
+    }
 
     private void adjustWorkloadPaths(List<String> workloadsPath, String experimentFilePath)
             throws IOException {
@@ -77,7 +82,7 @@ public class SimulationRunningService {
         String workloadFileName;
         for(String path : workloadsPath) {
             workloadFileName = FilenameUtils.getName(path);
-            content = content.replace(workloadFileName, isWindows ? path.replace("\\","\\\\") : path);
+            content = content.replace(workloadFileName, IS_WINDOWS ? path.replace("\\","\\\\") : path);
         }
         Files.write(experimentFile, content.getBytes());
     }
