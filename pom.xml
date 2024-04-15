@@ -5,7 +5,7 @@
 
     <groupId>cambio.simulator</groupId>
     <artifactId>misim</artifactId>
-    <version>3.4.0</version>
+    <version>4.1.0</version>
     <packaging>jar</packaging>
 
     <name>MiSim Simulator</name>
@@ -38,6 +38,7 @@
         <developerConnection>scm:git:https://github.com/Cambio-Project/MiSim</developerConnection>
         <tag>HEAD</tag>
     </scm>
+
     <distributionManagement>
         <repository>
             <id>github</id>
