@@ -1,6 +1,5 @@
 package restAPI.util;
 
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
@@ -31,16 +30,13 @@ public class TempFileUtils {
 
 
     private static Path saveFile(MultipartFile file, Path path) throws Exception {
-        if(file.getOriginalFilename() == null) {
+        if (file.getOriginalFilename() == null) {
             throw new IllegalArgumentException("The uploaded file must have a name that includes the prefix" +
-                    " <architecture_>, <experiment_>, <scenario_>, <mtl_>, or <load_> according to its type.");
+                " <architecture_>, <experiment_>, <scenario_>, <mtl_>, or <load_> according to its type.");
         }
         String fileName = StringUtils.cleanPath(file.getOriginalFilename());
         try {
-            if(fileName.contains("..")
-                    || !(fileName.startsWith("architecture_") || fileName.startsWith("experiment_")
-                    || fileName.startsWith("scenario_") || fileName.startsWith("load_") ||
-                    fileName.startsWith("mtl_"))) {
+            if (fileName.contains("..")) {
                 throw new Exception("Filename contains invalid path sequence: " + fileName);
             } else if (file.isEmpty()) {
                 throw new Exception(String.format("The uploaded file <%s> is empty.", fileName));
@@ -52,29 +48,20 @@ public class TempFileUtils {
         }
     }
 
-    public static Multimap<String, String> saveFiles(MultipartFile[] files, Path temDir) {
-        Multimap<String, String> filesPaths = ArrayListMultimap.create();
-        Arrays.asList(files).forEach(file -> {
-            try {
-                Path tmpFile = saveFile(file, temDir);
-                String filePath = tmpFile.toString();
-                String fileName = tmpFile.getFileName().toString();
-                if (fileName.startsWith("architecture_")) {
-                    filesPaths.put("architecture", filePath);
-                } else if (fileName.startsWith("experiment_")) {
-                    filesPaths.put("experiment", filePath);
-                } else if (fileName.startsWith("scenario_")) {
-                    filesPaths.put("scenario", filePath);
-                } else if (fileName.startsWith("mtl_")) {
-                    filesPaths.put("mtl", filePath);
+    public static Multimap<String, String> saveFile(Multimap<String, String> filesPaths, String type,
+                                                    MultipartFile[] files,
+                                                    Path temDir) {
+        if (files != null) {
+            Arrays.asList(files).forEach(file -> {
+                try {
+                    Path tmpFile = saveFile(file, temDir);
+                    String filePath = tmpFile.toString();
+                    filesPaths.put(type, filePath);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
                 }
-                else if (fileName.startsWith("load_")){
-                    filesPaths.put("load", filePath);
-                }
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        });
+            });
+        }
         return filesPaths;
     }
 
@@ -97,10 +84,10 @@ public class TempFileUtils {
         String dir = dirPath.toString();
         try (Stream<Path> stream = Files.list(Paths.get(dir))) {
             return stream
-                    .filter(file -> !Files.isDirectory(file))
-                    .map(Path::getFileName)
-                    .map(Path::toString)
-                    .collect(Collectors.toSet());
+                .filter(file -> !Files.isDirectory(file))
+                .map(Path::getFileName)
+                .map(Path::toString)
+                .collect(Collectors.toSet());
         }
     }
 
