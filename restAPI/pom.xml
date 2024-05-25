@@ -10,7 +10,7 @@
     </parent>
     <groupId>restAPI</groupId>
     <artifactId>restAPI</artifactId>
-    <version>0.0.2-SNAPSHOT</version>
+    <version>0.0.3-SNAPSHOT</version>
     <name>restAPI</name>
     <properties>
         <java.version>17</java.version>
@@ -26,7 +26,7 @@
         <dependency>
             <groupId>cambio.simulator</groupId>
             <artifactId>misim</artifactId>
-            <version>4.1.0</version>
+            <version>4.1.1</version>
         </dependency>
 
         <dependency>
