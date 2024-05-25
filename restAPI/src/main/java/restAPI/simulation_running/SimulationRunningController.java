@@ -50,13 +50,14 @@ public class SimulationRunningController {
                                                  MultipartFile[] experiments, MultipartFile[] loads,
                                                  MultipartFile[] mtls,
                                                  String id) throws IOException {
+        Path tmpFolder = null;
         try {
             if (TempFileUtils.existsSimulationId(id)) {
                 return new ResponseEntity<>(String.format("Simulation ID <%s> is already in use. " +
                     "Please provide a unique new id.", id),
                     HttpStatus.BAD_REQUEST);
             }
-            Path tmpFolder = TempFileUtils.createDefaultTempDir("misim-");
+            tmpFolder = TempFileUtils.createDefaultTempDir("misim-");
             Path outputFolder = TempFileUtils.createOutputDir(TempFileUtils.RAW_OUTPUT_DIR, id);
 
             Multimap<String, String> savedFiles = ArrayListMultimap.create();
@@ -77,14 +78,18 @@ public class SimulationRunningController {
             String rawResultsDirPath = outputFolder.toString() + TempFileUtils.SEPARATOR + "raw";
             //Block2
             ReportDataPointsManipulator.adjustSimulationResults(rawResultsDirPath, id);
-            // Do the clean-up
-            FileUtils.deleteDirectory(tmpFolder.toFile());
             return new ResponseEntity<>("Files have been successfully uploaded, and the simulation is running.",
                 HttpStatus.OK);
         } catch (Exception e) {
             String errorMessage = e.getMessage();
             logger.error(errorMessage);
             return new ResponseEntity<>(errorMessage, HttpStatus.INTERNAL_SERVER_ERROR);
+        } finally {
+            // Do the clean-up
+            if (tmpFolder != null) {
+                FileUtils.deleteDirectory(tmpFolder.toFile());
+            }
+            TempFileUtils.cleanOutputDir(id);
         }
     }
 }

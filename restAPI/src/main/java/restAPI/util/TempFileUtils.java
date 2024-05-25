@@ -1,10 +1,12 @@
 package restAPI.util;
 
 import com.google.common.collect.Multimap;
+import org.apache.commons.io.FileUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -94,5 +96,14 @@ public class TempFileUtils {
     public static boolean existsSimulationId(String simulationId) {
         String simulationOutputDirPath = RAW_OUTPUT_DIR + SEPARATOR + simulationId;
         return Files.exists(Path.of(simulationOutputDirPath));
+    }
+
+    public static void cleanOutputDir(String simulationId){
+        String simulationOutputDirPath = RAW_OUTPUT_DIR + SEPARATOR + simulationId;
+        try {
+            FileUtils.deleteDirectory(new File(simulationOutputDirPath));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
