@@ -72,13 +72,18 @@ public class TempFileUtils {
         return Files.createTempDirectory(prefix);
     }
 
-    public static Path createOutputDir(String outputDirName, String simulationId) throws IOException {
+    public static Path createOutputDir(String outputDirName, String simulationId, String executionId)
+        throws IOException {
         Path outPutDirPath = Path.of(outputDirName);
         if (!Files.exists(outPutDirPath)) {
             Files.createDirectory(outPutDirPath);
         }
-        String simulationOutputDirPath = outputDirName + SEPARATOR + simulationId;
-        return Files.createDirectory(Path.of(simulationOutputDirPath));
+        Path simulationOutputDirPath = Path.of(outputDirName + SEPARATOR + simulationId);
+        if (!Files.exists(simulationOutputDirPath)) {
+            Files.createDirectory(simulationOutputDirPath);
+        }
+        String executionOutputDirPath = simulationOutputDirPath + SEPARATOR + executionId;
+        return Files.createDirectory(Path.of(executionOutputDirPath));
     }
 
 
@@ -93,12 +98,12 @@ public class TempFileUtils {
         }
     }
 
-    public static boolean existsSimulationId(String simulationId) {
-        String simulationOutputDirPath = RAW_OUTPUT_DIR + SEPARATOR + simulationId;
+    public static boolean existsSimulationId(String simulationId, String executionId) {
+        String simulationOutputDirPath = RAW_OUTPUT_DIR + SEPARATOR + simulationId + SEPARATOR + executionId;
         return Files.exists(Path.of(simulationOutputDirPath));
     }
 
-    public static void cleanOutputDir(String simulationId){
+    public static void cleanOutputDir(String simulationId) {
         String simulationOutputDirPath = RAW_OUTPUT_DIR + SEPARATOR + simulationId;
         try {
             FileUtils.deleteDirectory(new File(simulationOutputDirPath));

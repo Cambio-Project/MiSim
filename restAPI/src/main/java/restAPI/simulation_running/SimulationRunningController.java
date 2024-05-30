@@ -40,8 +40,9 @@ public class SimulationRunningController {
         @RequestParam(name = "experiments", required = false) MultipartFile[] experiments,
         @RequestParam(name = "loads", required = false) MultipartFile[] loads,
         @RequestParam(name = "mtls", required = false) MultipartFile[] mtls,
-        @RequestParam("simulation_id") String id) throws IOException {
-        return runSimulation(architectures, scenarios, experiments, loads, mtls, id);
+        @RequestParam("simulation_id") String id,
+        @RequestParam("execution_id") String executionID) throws IOException {
+        return runSimulation(architectures, scenarios, experiments, loads, mtls, id, executionID);
     }
 
     // TODO: Handle this call in a non-blocking manner, taking into account that this implementation is not
@@ -49,16 +50,16 @@ public class SimulationRunningController {
     private ResponseEntity<String> runSimulation(MultipartFile[] architectures, MultipartFile[] scenarios,
                                                  MultipartFile[] experiments, MultipartFile[] loads,
                                                  MultipartFile[] mtls,
-                                                 String id) throws IOException {
+                                                 String id, String executionID) throws IOException {
         Path tmpFolder = null;
         try {
-            if (TempFileUtils.existsSimulationId(id)) {
+            if (TempFileUtils.existsSimulationId(id, executionID)) {
                 return new ResponseEntity<>(String.format("Simulation ID <%s> is already in use. " +
                     "Please provide a unique new id.", id),
                     HttpStatus.BAD_REQUEST);
             }
             tmpFolder = TempFileUtils.createDefaultTempDir("misim-");
-            Path outputFolder = TempFileUtils.createOutputDir(TempFileUtils.RAW_OUTPUT_DIR, id);
+            Path outputFolder = TempFileUtils.createOutputDir(TempFileUtils.RAW_OUTPUT_DIR, id, executionID);
 
             Multimap<String, String> savedFiles = ArrayListMultimap.create();
             savedFiles = TempFileUtils.saveFile(savedFiles, "architecture", architectures, tmpFolder);
@@ -69,7 +70,7 @@ public class SimulationRunningController {
 
             //Block1
             simulationRunningService.runExperiment(savedFiles, outputFolder);
-            if (!TempFileUtils.existsSimulationId(id)) {
+            if (!TempFileUtils.existsSimulationId(id, executionID)) {
                 return new ResponseEntity<>(
                     String.format("An Error happened when running the simulation with the ID: " +
                         "%s.", id),
@@ -77,7 +78,7 @@ public class SimulationRunningController {
             }
             String rawResultsDirPath = outputFolder.toString() + TempFileUtils.SEPARATOR + "raw";
             //Block2
-            ReportDataPointsManipulator.adjustSimulationResults(rawResultsDirPath, id);
+            ReportDataPointsManipulator.adjustSimulationResults(rawResultsDirPath, id, executionID);
             return new ResponseEntity<>("Files have been successfully uploaded, and the simulation is running.",
                 HttpStatus.OK);
         } catch (Exception e) {

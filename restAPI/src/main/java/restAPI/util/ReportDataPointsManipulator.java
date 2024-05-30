@@ -19,25 +19,26 @@ import static tech.tablesaw.api.ColumnType.INTEGER;
 public class ReportDataPointsManipulator {
 
     private static final String[] DISCRETE_VALUED_METRICS = {"Requests_InSystem", "Requests_NotComputed",
-            "Requests_WaitingForDependencies", "SendOff_Internal_Requests", "FailedRequests", "SuccessfulRequests",
-            "Load."};
+        "Requests_WaitingForDependencies", "SendOff_Internal_Requests", "FailedRequests", "SuccessfulRequests",
+        "Load."};
     private static final String[] CONTINUOUS_VALUED_METRICS = {"RelativeUtilization", "Utilization",
-            "UtilizationBinned", "NL_latency", "ResponseTimes"};
+        "UtilizationBinned", "NL_latency", "ResponseTimes"};
 
-    public static void adjustSimulationResults(String rawResultsFilePath, String simulationId) throws Exception {
+    public static void adjustSimulationResults(String rawResultsFilePath, String simulationId, String executionId)
+        throws Exception {
         String simulationResultsDirPath = "." + TempFileUtils.SEPARATOR + rawResultsFilePath;
         Set<String> files = TempFileUtils.getFilesFromResultsDir(Path.of(simulationResultsDirPath));
         String outputDir = TempFileUtils.createOutputDir("." + TempFileUtils.SEPARATOR
-                + TempFileUtils.OUTPUT_DIR, simulationId).toString();
+            + TempFileUtils.OUTPUT_DIR, simulationId, executionId).toString();
         int i = 1;
         String fileName;
-        for(String filePath : files) {
+        for (String filePath : files) {
             String completePath = simulationResultsDirPath + TempFileUtils.SEPARATOR + filePath;
             Table t = transformSimulationResults(completePath);
-            if(!t.isEmpty()) {
+            if (!t.isEmpty()) {
                 fileName = t.column(1).name();
-                if(fileName.isEmpty()) {
-                    fileName = String.format("%s%sstable_%d.csv",outputDir,TempFileUtils.SEPARATOR,i);
+                if (fileName.isEmpty()) {
+                    fileName = String.format("%s%sstable_%d.csv", outputDir, TempFileUtils.SEPARATOR, i);
                     i += 1;
                 }
                 t.write().csv(outputDir + TempFileUtils.SEPARATOR + fileName + ".csv");
@@ -50,7 +51,7 @@ public class ReportDataPointsManipulator {
     }
 
     private static Table transformSimulationResults(String filePath) {
-        if(stringContainsItemFromList(filePath, CONTINUOUS_VALUED_METRICS)) {
+        if (stringContainsItemFromList(filePath, CONTINUOUS_VALUED_METRICS)) {
             return transformContinuousValuedMetric(filePath);
         } else if (stringContainsItemFromList(filePath, DISCRETE_VALUED_METRICS)) {
             return transformDiscreteValuedMetric(filePath);
@@ -67,10 +68,10 @@ public class ReportDataPointsManipulator {
     private static String createColumnNameFromFileName(String fileName) {
         String regex = ".+\\[.+\\].+\\.csv";
         if (fileName.matches(regex)) {
-            String serviceName =  StringUtils.substringBetween(fileName, "[", "]")
-                    .replaceAll("[#-]","_");
+            String serviceName = StringUtils.substringBetween(fileName, "[", "]")
+                .replaceAll("[#-]", "_");
             String metricName = StringUtils.substringBetween(fileName, "]", ".csv");
-            return String.format("%s%s",serviceName, metricName);
+            return String.format("%s%s", serviceName, metricName);
         } else {
             return FilenameUtils.getName(fileName);
         }
@@ -82,16 +83,16 @@ public class ReportDataPointsManipulator {
 
     private static Table createTableFromFile(String filePath, ColumnType[] types) {
         CsvReadOptions.Builder csvReadOptions =
-                CsvReadOptions.builder(filePath)
-                        .separator(';')
-                        .columnTypes(types);
+            CsvReadOptions.builder(filePath)
+                .separator(';')
+                .columnTypes(types);
 
         return Table.read().usingOptions(csvReadOptions);
     }
 
     private static Table adjustTime(String filePath) {
         ColumnType[] types = {DOUBLE, DOUBLE};
-        Table table = createTableFromFile(filePath,types);
+        Table table = createTableFromFile(filePath, types);
 
         DoubleColumn oldColumn = (DoubleColumn) table.column("SimulationTime");
         // Cast double column to int column to be categorical for the reduce/summarization step later
@@ -104,7 +105,7 @@ public class ReportDataPointsManipulator {
         Table adjustedadTable = adjustTime(filePath);
         // Do the aggregation (calculate the average)
         Table averagedTable = adjustedadTable.summarize("Value", mean)
-                .by("SimulationTimeAdjusted");
+            .by("SimulationTimeAdjusted");
         averagedTable.column(0).setName("SimulationTime");
         averagedTable.column(1).setName(createColumnNameFromFileName(filePath));
         return averagedTable;
@@ -115,7 +116,7 @@ public class ReportDataPointsManipulator {
         Table adjustedadTable = adjustTime(filePath);
         // Do the aggregation (calculate the average)
         Table averagedTable = adjustedadTable.summarize("Value", mean)
-                .by("SimulationTimeAdjusted");
+            .by("SimulationTimeAdjusted");
         averagedTable.column(0).setName("SimulationTime");
         DoubleColumn oldColumn = (DoubleColumn) averagedTable.column(1);
         IntColumn newColumn = oldColumn.map(Math::ceil).setName(createColumnNameFromFileName(filePath)).asIntColumn();
@@ -129,10 +130,11 @@ public class ReportDataPointsManipulator {
         ColumnType[] types = {INTEGER, INTEGER};
         Table table = createTableFromFile(filePath, types);
 
-        Map<Integer,Integer> instancesCount = new LinkedHashMap<>();
-        table.forEach(row -> {int time = row.getInt(0);
-                int value = row.getInt(1);
-                instancesCount.put(time, value);
+        Map<Integer, Integer> instancesCount = new LinkedHashMap<>();
+        table.forEach(row -> {
+            int time = row.getInt(0);
+            int value = row.getInt(1);
+            instancesCount.put(time, value);
         });
 
         IntColumn simulationTimeColumn = IntColumn.create("SimulationTime");
@@ -140,17 +142,18 @@ public class ReportDataPointsManipulator {
         int fromTime;
         int toTime;
 
-        for(int i = 0; i <= instancesCount.size() - 2; i++) {
+        for (int i = 0; i <= instancesCount.size() - 2; i++) {
             fromTime = (int) instancesCount.keySet().toArray()[i];
-            toTime = (int) instancesCount.keySet().toArray()[i+1];;
+            toTime = (int) instancesCount.keySet().toArray()[i + 1];
+
             int currentValue = instancesCount.get(fromTime);
 
-            while(fromTime <= toTime) {
+            while (fromTime <= toTime) {
                 simulationTimeColumn.append(fromTime);
                 valueColumn.append(currentValue);
                 fromTime++;
             }
         }
-        return Table.create(simulationTimeColumn,valueColumn);
+        return Table.create(simulationTimeColumn, valueColumn);
     }
 }
