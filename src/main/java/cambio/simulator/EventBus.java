@@ -26,4 +26,11 @@ public class EventBus {
         //noinspection unchecked
         listeners.computeIfAbsent(targetClass, k -> new LinkedList<>()).add((Consumer<Schedulable>) consumer);
     }
+
+    // TODO: This is a hotfix to avoid having a state from one simulation carry over to the next one. Actually,
+    //  static classes are an anti-pattern that should not be used exactly for this reason!
+    public static void clear() {
+        listeners.clear();
+    }
+
 }
