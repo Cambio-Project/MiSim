@@ -32,6 +32,7 @@ public class ExperimentCreator {
      * @return a new {@link Experiment} that is configured based on the given config
      */
     public Experiment createSimulationExperiment(ExperimentStartupConfig config) {
+        EventBus.clear();
         String archDescLocation = config.getArchitectureDescLoc();
         String expDescLocation;
 
