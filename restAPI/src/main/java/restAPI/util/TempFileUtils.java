@@ -33,15 +33,12 @@ public class TempFileUtils {
 
     private static Path saveFile(MultipartFile file, Path path) throws Exception {
         if (file.getOriginalFilename() == null) {
-            throw new IllegalArgumentException("The uploaded file must have a name that includes the prefix" +
-                " <architecture_>, <experiment_>, <scenario_>, <mtl_>, or <load_> according to its type.");
+            throw new IllegalArgumentException("The uploaded file must have a name.");
         }
         String fileName = StringUtils.cleanPath(file.getOriginalFilename());
         try {
             if (fileName.contains("..")) {
                 throw new Exception("Filename contains invalid path sequence: " + fileName);
-            } else if (file.isEmpty()) {
-                throw new Exception(String.format("The uploaded file <%s> is empty.", fileName));
             }
             byte[] content = file.getBytes();
             return createFile(path, fileName, content);
