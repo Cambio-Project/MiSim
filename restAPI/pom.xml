@@ -26,7 +26,7 @@
         <dependency>
             <groupId>cambio.simulator</groupId>
             <artifactId>misim</artifactId>
-            <version>4.1.4</version>
+            <version>4.1.5</version>
         </dependency>
 
         <dependency>
