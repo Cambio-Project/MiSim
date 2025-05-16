@@ -17,6 +17,8 @@ class ReactiveAutoscalingPolicy implements IAutoscalingPolicy {
     private transient MultiDataPointReporter reporter = null;
     private double lowerBound = 0.3;
     private double upperBound = 0.8;
+    private int minInstances = 1;
+    private int maxInstances = Integer.MAX_VALUE;
     /**
      * Minimum time an instance has to run before it can be shutdown by down-scaling.
      */
@@ -34,22 +36,29 @@ class ReactiveAutoscalingPolicy implements IAutoscalingPolicy {
         double avg = owner.getAverageRelativeUtilization();
         reporter.addDatapoint("MeasuredUtilization", presentTime, avg);
 
-        if (currentInstanceCount <= 0) { //starts a instances if there are none
-            owner.setInstancesCount(1);
+        if (currentInstanceCount < minInstances) { //starts minimum instances
+            owner.setInstancesCount(minInstances);
             reporter.addDatapoint("Decision", presentTime, "Spawn");
-            reporter.addDatapoint("InstanceChange", presentTime, 1);
-        } else if (avg >= upperBound) {
+            reporter.addDatapoint("InstanceChange", presentTime, minInstances-currentInstanceCount);
+        } else if (currentInstanceCount > maxInstances) {
+            owner.setInstancesCount(maxInstances);
+            reporter.addDatapoint("Decision", presentTime, "Despawn");
+            reporter.addDatapoint("InstanceChange", presentTime, maxInstances-currentInstanceCount);
+        } else if (avg >= upperBound && currentInstanceCount < maxInstances) {
             double upScalingFactor = avg / (upperBound - 0.01);
-            int newInstanceCount = (int) Math.max(1, Math.ceil(currentInstanceCount * upScalingFactor));
+            int newInstanceCount = Math.min(maxInstances, (int) Math.max(1, Math.ceil(currentInstanceCount * upScalingFactor)));
             owner.scaleToInstancesCount(newInstanceCount);
             lastScaleUp = presentTime;
             reporter.addDatapoint("Decision", presentTime, "Up");
             reporter.addDatapoint("InstanceChange", presentTime, newInstanceCount - currentInstanceCount);
         } else if (avg <= lowerBound
-            && currentInstanceCount > 1
-            && TimeUtil.subtract(presentTime, lastScaleUp).getTimeAsDouble() > holdTime) {
+                && currentInstanceCount > minInstances
+                && TimeUtil.subtract(presentTime, lastScaleUp).getTimeAsDouble() > holdTime) {
+            System.out.println(presentTime);
+            System.out.println(lastScaleUp);
+            System.out.println(holdTime);
             double downScaleFactor = Math.max(0.01, avg) / lowerBound;
-            int newInstanceCount = (int) Math.max(1, Math.ceil(currentInstanceCount * downScaleFactor));
+            int newInstanceCount = Math.max(minInstances, (int) Math.max(1, Math.ceil(currentInstanceCount * downScaleFactor)));
             owner.scaleToInstancesCount(newInstanceCount);
             lastScaleUp = presentTime;
             reporter.addDatapoint("Decision", presentTime, "Down");
