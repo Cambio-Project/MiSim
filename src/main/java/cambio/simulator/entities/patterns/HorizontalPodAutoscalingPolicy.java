@@ -9,7 +9,8 @@ import desmoj.core.simulator.TimeInstant;
 @JsonTypeName("hpa")
 public class HorizontalPodAutoscalingPolicy implements IAutoscalingPolicy {
 
-    // TODO Maybe also include via adapter, upscaling/downscaling behavior not 100% as in Kubernetes, e.g. see HorizontalPodAutoscalerBehavior
+    // TODO Maybe also include via adapter, upscaling/downscaling behavior not 100% as in Kubernetes, e.g. see
+    //  HorizontalPodAutoscalerBehavior
     // https://github.com/kubernetes/kubernetes/blob/master/pkg/apis/autoscaling/types.go#L113
 
     private transient MultiDataPointReporter reporter = null;
@@ -26,8 +27,10 @@ public class HorizontalPodAutoscalingPolicy implements IAutoscalingPolicy {
     @Override
     public void apply(Microservice owner) {
         //https://github.com/kubernetes/kubernetes/blob/8caeec429ee1d2a9df7b7a41b21c626346b456fb/docs/design/horizontal-pod-autoscaler.md#autoscaling-algorithm
-//        Scale-up can only happen if there was no rescaling within the last 3 minutes. Scale-down will wait for 5 minutes from the last rescaling.
-//        Moreover any scaling will only be made if: avg(CurrentPodsConsumption) / Target drops below 0.9 or increases above 1.1 (10% tolerance)
+//        Scale-up can only happen if there was no rescaling within the last 3 minutes. Scale-down will wait for 5
+//        minutes from the last rescaling.
+//        Moreover any scaling will only be made if: avg(CurrentPodsConsumption) / Target drops below 0.9 or
+//        increases above 1.1 (10% tolerance)
 
         if (reporter == null) {
             reporter = new MultiDataPointReporter(String.format("AS[%s]_", owner.getPlainName()), owner.getModel());
@@ -49,11 +52,11 @@ public class HorizontalPodAutoscalingPolicy implements IAutoscalingPolicy {
         if (currentInstanceCount < minInstances) { //starts minimum instances
             owner.setInstancesCount(minInstances);
             reporter.addDatapoint("Decision", presentTime, "Spawn");
-            reporter.addDatapoint("InstanceChange", presentTime, minInstances-currentInstanceCount);
+            reporter.addDatapoint("InstanceChange", presentTime, minInstances - currentInstanceCount);
         } else if (currentInstanceCount > maxInstances) {
             owner.setInstancesCount(maxInstances);
             reporter.addDatapoint("Decision", presentTime, "Despawn");
-            reporter.addDatapoint("InstanceChange", presentTime, maxInstances-currentInstanceCount);
+            reporter.addDatapoint("InstanceChange", presentTime, maxInstances - currentInstanceCount);
         } else if (avg2Target > 1 && currentInstanceCount < maxInstances) {
             owner.scaleToInstancesCount(newInstanceCount);
             lastScaleUp = presentTime;
