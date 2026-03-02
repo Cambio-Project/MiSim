@@ -9,10 +9,12 @@ import desmoj.core.simulator.TimeInstant;
 /**
  * AN implementation based on Kubernetes
  * <a href="https://github.com/kubernetes/kubernetes/blob/8caeec429ee1d2a9df7b7a41b21c626346b456fb/docs/design/horizontal-pod-autoscaler.md#autoscaling-algorithm">Horizontal Pod Autoscaler</a>.
+ *
  * <p>
  * By default, scale-up can only happen if there was no rescaling within the last 3 minutes. Scale-down will wait for 5
  * minutes from the last rescaling. Moreover, any scaling will only be made if: avg(CurrentPodsConsumption) / Target
  * drops below 0.9 or increases above 1.1 (10% tolerance)
+ *
  * <p>
  * TODO Maybe also include via adapter, upscaling/downscaling behavior not 100% as in Kubernetes, e.g. see
  *      <a href="https://github.com/kubernetes/kubernetes/blob/master/pkg/apis/autoscaling/types.go#L113">HorizontalPodAutoscalerBehavior Implementation</a>
